@@ -1,7 +1,14 @@
 package udo.util;
 
 public class Config {
-    /** Constants and strings for command options **/
+    /** Constants for command names **/
+    public static final String CMD_STR_ADD = "add";
+    public static final String CMD_STR_MODIFY = "modify";
+    public static final String CMD_STR_DELETE = "delete";
+    public static final String CMD_STR_DISPLAY = "display";
+    public static final String CMD_STR_SEARCH = "search";
+    
+    /** Constants for command options **/
     public static final int OPT_LONG = 0;
     public static final int OPT_SHORT = 1;
     public static final int OPT_TYPE = 2;
@@ -28,7 +35,7 @@ public class Config {
      * New options can be added to the following table following the same
      * format as existing entry for it to work with the input parser
      **/
-    private static final String OPTIONS_TABLE[][] =
+    public static final String OPTIONS_TABLE[][] =
         { OPT_DUR, OPT_VENUE, OPT_LABEL, OPT_PRIO, OPT_EVENT,
           OPT_DEADLINE, OPT_TODO, OPT_START, OPT_END, OPT_INDEX };
 }
