@@ -13,4 +13,15 @@ public class Command {
 
     public String commandName;
     public Option[] options;
+    
+    public String toString() {
+        String str = "Command: " + commandName + "\n";
+        str += "Options:\n";
+
+        for (Option op : options) {
+            str += op.optionName + "\n";
+        }
+        
+        return str;
+    }
 }
