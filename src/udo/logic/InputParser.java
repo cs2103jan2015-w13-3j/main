@@ -41,12 +41,12 @@ public class InputParser {
                                       Pattern.CASE_INSENSITIVE);
     // Pattern for monday or next monday etc.
     Pattern daysOfWeekPat = Pattern.compile(
-                            "(next)?\\s+" +
+                            "(next\\s+)?" +
                             "(monday|mon|tuesday|tue|wednesday|wed|" +
                             "thursday|thu|friday|fri|saturday|sat|sunday|sun)",
                             Pattern.CASE_INSENSITIVE);
     // Pattern for "in 5 days" 
-    Pattern inDaysPat = Pattern.compile("in\\s+day(?:s?)",
+    Pattern inDaysPat = Pattern.compile("in(\\s)+\\d(\\s)+day(s?)",
                                         Pattern.CASE_INSENSITIVE);
     Pattern daysPat = Pattern.compile("(today|tomorrow)",
                                       Pattern.CASE_INSENSITIVE);
@@ -148,6 +148,24 @@ public class InputParser {
 
     private GregorianCalendar parseDateTimeArg(int i, String command) {
         String argStr = getArgStr(i, command);
+        
+        Matcher dateMatcher1 = dmyPat1.matcher(argStr);
+        Matcher dateMatcher2 = dmyPat2.matcher(argStr);
+        Matcher dateMatcher3 = daysOfWeekPat.matcher(argStr);
+        Matcher dateMatcher4 = daysPat.matcher(argStr);
+        Matcher dateMatcher5 = inDaysPat.matcher(argStr);
+
+        if (dateMatcher1.find()) {
+            System.out.println("dmy1: " + dateMatcher1.group());
+        } else if (dateMatcher2.find()) {
+            System.out.println("dmy2: " + dateMatcher2.group());
+        } else if (dateMatcher3.find()) {
+            System.out.println("DOW: " + dateMatcher3.group());
+        } else if (dateMatcher4.find()) {
+            System.out.println("Day: " + dateMatcher4.group());
+        } else if (dateMatcher5.find()) {
+            System.out.println("In: " + dateMatcher5.group());
+        }
 
         return null;
     }
@@ -190,5 +208,8 @@ public class InputParser {
         
         inputParser.parseCommand("modify -deadline submit reflection -end 1/3/2015");
         inputParser.parseCommand("add -event go to school -start tomorrow 2pm -end tomorrow 4pm");
+        inputParser.parseCommand("add -event AAAI conference -start in 2 days -end tuesday");
+        inputParser.parseCommand("add -event match midterm -start next friday -end 11/02/15");
+        inputParser.parseCommand("add -todo watch a movie");
     }
 }
