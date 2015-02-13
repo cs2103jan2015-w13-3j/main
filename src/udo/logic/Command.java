@@ -17,7 +17,7 @@ public class Command {
     public String toString() {
         String str = "Command: " + commandName + "\n";
         str += "Options:\n";
-
+        
         for (Option op : options) {
             str += op.optionName + "\n";
         }
