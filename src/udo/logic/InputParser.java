@@ -11,9 +11,9 @@ import udo.util.Config;
 public class InputParser {
     // Regex string used to match command name (case insensitive)
     private Pattern commandNamePattern =
-            Pattern.compile("(?i)(?: \\s)*" +
+            Pattern.compile("(?i)(?:\\s)*" +
                             "(add)|(modify)|(delete)|(display)|(search)" +
-                            "(?: \\s)*");
+                            "(?:\\s)*");
     
     // Regex strings and pattern used for matching an option
     private static final String OPTION_FORMATER = "-%s|-%s";
@@ -31,14 +31,25 @@ public class InputParser {
                         "june|july|august|aug|september|sept|october|oct|" +
                         "december|dec)";
     String separator = "[-., \\/]+";
-    String dmyPat1 = "(\\d{1,2})" + separator + "(\\d{1,2})" +
-                     separator + "(\\d{2}|\\d{4})";
-    String dmyPat2 = "(\\d{1,2})" + separator + monthNames +
-                          separator + "(\\d{2}|\\d{4})";
-    String daysOfWeekPat = "(next)?\\s+" +
-                           "(monday|mon|tuesday|tue|wednesday|wed|" +
-                           "thursday|thu|friday|fri|saturday|sat|sunday|sun)";
-    String inPattern = "in\\s+days";
+    // Pattern for dd/mm/yy or dd/mm/yyyy
+    Pattern dmyPat1 = Pattern.compile("(\\d{1,2})" + separator + "(\\d{1,2})" +
+                                      separator + "(\\d{2}|\\d{4})",
+                                      Pattern.CASE_INSENSITIVE);
+    // Pattern for dd mon, year or dd month, year
+    Pattern dmyPat2 = Pattern.compile("(\\d{1,2})" + separator + monthNames +
+                                      separator + "(\\d{2}|\\d{4})",
+                                      Pattern.CASE_INSENSITIVE);
+    // Pattern for monday or next monday etc.
+    Pattern daysOfWeekPat = Pattern.compile(
+                            "(next)?\\s+" +
+                            "(monday|mon|tuesday|tue|wednesday|wed|" +
+                            "thursday|thu|friday|fri|saturday|sat|sunday|sun)",
+                            Pattern.CASE_INSENSITIVE);
+    // Pattern for "in 5 days" 
+    Pattern inDaysPat = Pattern.compile("in\\s+day(?:s?)",
+                                        Pattern.CASE_INSENSITIVE);
+    Pattern daysPat = Pattern.compile("(today|tomorrow)",
+                                      Pattern.CASE_INSENSITIVE);
 
     public InputParser() {
         StringBuilder optionPatternBuilder = new StringBuilder();
@@ -130,18 +141,37 @@ public class InputParser {
     }
 
     private GregorianCalendar parseTimeArg(int i, String command) {
+        String argStr = getArgStr(i, command);
+        System.out.println(argStr);
         return null;
     }
 
     private GregorianCalendar parseDateTimeArg(int i, String command) {
+        String argStr = getArgStr(i, command);
+
         return null;
     }
 
+    private String getArgStr(int i, String command) {
+        int argStart = optionEnds.get(i);
+        int argEnd = command.length();
+
+        if (i < extractedOptions.size() - 1) {
+           argEnd =  optionStarts.get(i + 1);
+        }
+        
+        return command.substring(argStart, argEnd).trim();
+    }
+
     private int parseIntArg(int i, String command) {
+        String argStr = getArgStr(i, command);
+        System.out.println(argStr);
         return 0;
     }
 
     private String parseStringArg(int i, String command) {
+        String argStr = getArgStr(i, command);
+        System.out.println(argStr);
         return null;
     }
 
@@ -158,6 +188,7 @@ public class InputParser {
     public static void main(String[] args) {
         InputParser inputParser = new InputParser();
         
+        inputParser.parseCommand("modify -deadline submit reflection -end 1/3/2015");
         inputParser.parseCommand("add -event go to school -start tomorrow 2pm -end tomorrow 4pm");
     }
 }
