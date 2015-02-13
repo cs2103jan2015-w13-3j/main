@@ -11,12 +11,12 @@ import udo.util.Config;
 public class InputParser {
     // Regex string used to match command name (case insensitive)
     private Pattern commandNamePattern =
-            Pattern.compile("(?i)(?: \t\r\n)*" +
+            Pattern.compile("(?i)(?: \\s)*" +
                             "(add)|(modify)|(delete)|(display)|(search)" +
-                            "(?: \t\r\n)*");
+                            "(?: \\s)*");
     
     // Regex strings and pattern used for matching an option
-    private static final String OPTION_FORMATER = "-(%s)|-(%s)";
+    private static final String OPTION_FORMATER = "-%s|-%s";
     private Pattern optionsPattern;
     // Map option names to their corresponding types
     private HashMap<String, String> optionTypeMap = new HashMap<>();
@@ -25,6 +25,20 @@ public class InputParser {
     private ArrayList<String> extractedOptions = new ArrayList<>();
     private ArrayList<Integer> optionStarts = new ArrayList<>();
     private ArrayList<Integer> optionEnds = new ArrayList<>();
+    
+    // Pattern used to match date
+    String monthNames = "(january|jan|february|feb|march|mar|april|apr|" +
+                        "june|july|august|aug|september|sept|october|oct|" +
+                        "december|dec)";
+    String separator = "[-., \\/]+";
+    String dmyPat1 = "(\\d{1,2})" + separator + "(\\d{1,2})" +
+                     separator + "(\\d{2}|\\d{4})";
+    String dmyPat2 = "(\\d{1,2})" + separator + monthNames +
+                          separator + "(\\d{2}|\\d{4})";
+    String daysOfWeekPat = "(next)?\\s+" +
+                           "(monday|mon|tuesday|tue|wednesday|wed|" +
+                           "thursday|thu|friday|fri|saturday|sat|sunday|sun)";
+    String inPattern = "in\\s+days";
 
     public InputParser() {
         StringBuilder optionPatternBuilder = new StringBuilder();
@@ -40,6 +54,8 @@ public class InputParser {
             
             optionPattern = (String.format(OPTION_FORMATER,
                                            option[Config.OPT_LONG],
+                                           option[Config.OPT_LONG],
+                                           option[Config.OPT_SHORT],
                                            option[Config.OPT_SHORT]));
 
             if (i == Config.OPTIONS_TABLE.length - 1) {
@@ -67,7 +83,8 @@ public class InputParser {
         Matcher optionsMatcher = optionsPattern.matcher(command);
 
         while (optionsMatcher.find()) {
-            extractedOptions.add(optionsMatcher.group());
+            extractedOptions.add(removeOptionMarker(optionsMatcher.group()));
+
             optionStarts.add(optionsMatcher.start());
             optionEnds.add(optionsMatcher.end());
         }
@@ -76,6 +93,10 @@ public class InputParser {
 
         System.out.println(resultCommand);
         return resultCommand;
+    }
+
+    private String removeOptionMarker(String group) {
+        return group.substring(1);
     }
 
     private void parseAllOptions(String command, Command resultCommand) {
@@ -93,20 +114,18 @@ public class InputParser {
         option.optionName = extractedOptions.get(i);
         
         String optionArgType = optionTypeMap.get(option.optionName);
-        
-        switch(optionArgType) {
-            case Config.TYPE_STR:
-                option.strArgument = parseStringArg(i, command);
-                break;
-            case Config.TYPE_INT:
-                option.intArgument = parseIntArg(i, command);
-            case Config.TYPE_DATETIME:
-                option.dateTimeArgument = parseDateTimeArg(i, command);
-            case Config.TYPE_TIME:
-                option.dateTimeArgument = parseTimeArg(i, command);
-            default:
-                System.out.println("Parser error: unknown option type");
-                System.exit(1);
+
+        if (optionArgType.equals(Config.TYPE_STR)) {
+            option.strArgument = parseStringArg(i, command);
+        } else if (optionArgType.equals(Config.TYPE_INT)) {
+            option.intArgument = parseIntArg(i, command);
+        } else if (optionArgType.equals(Config.TYPE_DATETIME)) {
+            option.dateTimeArgument = parseDateTimeArg(i, command);
+        } else if (optionArgType.equals(Config.TYPE_TIME)) { 
+            option.dateTimeArgument = parseTimeArg(i, command);
+        } else {
+            System.out.println("Parser error: unknown option type");
+            System.exit(1);
         }
     }
 
@@ -139,6 +158,6 @@ public class InputParser {
     public static void main(String[] args) {
         InputParser inputParser = new InputParser();
         
-        inputParser.parseCommand("add -event go to school");
+        inputParser.parseCommand("add -event go to school -start tomorrow 2pm -end tomorrow 4pm");
     }
 }

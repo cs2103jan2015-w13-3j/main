@@ -19,7 +19,7 @@ public class Command {
         str += "Options:\n";
         
         for (Option op : options) {
-            str += op.optionName + "\n";
+            str += "  " + op.optionName + "\n";
         }
         
         return str;
