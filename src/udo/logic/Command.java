@@ -9,9 +9,9 @@ public class Command {
         public String optionName;
 
         public String strArgument;
-        public int intArgument;
+        public Integer intArgument;
         public Date dateArgument;
-        public int timeArgument;
+        public Integer timeArgument;
     }
 
     public String commandName;
@@ -24,12 +24,19 @@ public class Command {
         str += "Options:\n";
         
         for (Option op : options) {
-            str += "  " + op.optionName + "\n";
+            str += "  " + op.optionName + ": ";
             if (op.dateArgument != null) {
-                str += "    " +
-                       DATE_FORMAT.format(op.dateArgument) + 
-                       "\n";
+                str += DATE_FORMAT.format(op.dateArgument);
+            } else if (op.strArgument != null) {
+                str += op.strArgument;
+            } else if (op.intArgument != null) {
+                str += op.intArgument.toString();
+            } else if (op.timeArgument != null) {
+                str += op.timeArgument / 60 + "h" +
+                       op.timeArgument % 60 + "m";
             }
+            
+            str += "\n";
         }
         
         return str;

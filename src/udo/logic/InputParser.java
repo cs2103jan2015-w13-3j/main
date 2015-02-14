@@ -30,8 +30,23 @@ public class InputParser {
     private ArrayList<Integer> optionStarts = new ArrayList<>();
     private ArrayList<Integer> optionEnds = new ArrayList<>();
     
-    // Used to parse date/time in natural language
+    // Used to parse date in natural language using Natty library
     private static final Parser dateParser = new Parser();
+    
+    // Patterns used to parse time
+    private static final String GROUP_HOUR = "h";
+    private static final String GROUP_MINUTE1 = "m1";
+    private static final String GROUP_MINUTE2 = "m2";
+
+    private static final String hourPatStr =
+            "(?i)(?<h>\\d{1,2})\\s*([:.,-]|hours?|h)+";
+    private static final String minutePatStr =
+            "(?i)(?<m1>\\s*([:.,-]|hours?|h)+\\s*\\d{1,2})|" +
+            "(?<m2>\\d{1,2}\\s*(minutes?|min|m))";
+    private static final Pattern hourPat = Pattern.compile(hourPatStr);
+    private static final Pattern minPat = Pattern.compile(minutePatStr);
+    
+    private static final int MINUTES_IN_HOUR = 60;
 
     public InputParser() {
         StringBuilder optionPatternBuilder = new StringBuilder();
@@ -122,10 +137,37 @@ public class InputParser {
         }
     }
 
-    private int parseTimeArg(int i, String command) {
+    private Integer parseTimeArg(int i, String command) {
         String argStr = getArgStr(i, command);
-        System.out.println(argStr);
-        return 0;
+        
+        Matcher hourMatcher = hourPat.matcher(argStr);
+        Matcher minMatcher = minPat.matcher(argStr);
+        int h = 0;
+        int m = 0;
+        
+        if (hourMatcher.find()) {
+            try {
+                h = Integer.parseInt(hourMatcher.group(GROUP_HOUR));
+            } catch (NumberFormatException e) {
+                System.out.println("Hours and minutes must be valid integers");
+                return null;
+            }
+        }
+        
+        if (hourMatcher.find()) {
+            try {
+                if (minMatcher.group(GROUP_MINUTE1) != null) {
+                    m = Integer.parseInt(minMatcher.group(GROUP_MINUTE1));
+                } else if (minMatcher.group(GROUP_MINUTE2) != null) {
+                    m = Integer.parseInt(minMatcher.group(GROUP_MINUTE2));
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Hours and minutes must be valid integers");
+                return null;
+            }
+        }
+
+        return h * MINUTES_IN_HOUR + m;
     }
 
     private Date parseDateTimeArg(int i, String command) {
@@ -146,9 +188,18 @@ public class InputParser {
         return command.substring(argStart, argEnd).trim();
     }
 
-    private int parseIntArg(int i, String command) {
+    private Integer parseIntArg(int i, String command) {
         String argStr = getArgStr(i, command);
-        return Integer.parseInt(argStr);
+        
+        Integer result = null;
+        
+        try {
+            result = Integer.parseInt(argStr);
+        } catch (NumberFormatException e) {
+            System.out.println("Argument to an option is not a valid integer");
+        }
+
+        return result;
     }
 
     private String parseStringArg(int i, String command) {
@@ -173,6 +224,6 @@ public class InputParser {
         inputParser.parseCommand("add -event go to school -start tomorrow 2pm -end tomorrow 4pm");
         inputParser.parseCommand("add -event AAAI conference -start in 2 days -end tuesday");
         inputParser.parseCommand("add -event match midterm -start next friday -end 11/02/15");
-        inputParser.parseCommand("add -todo watch a movie");
+        inputParser.parseCommand("add -todo watch a movie -duration 2 hours");
     }
 }
