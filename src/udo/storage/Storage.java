@@ -8,7 +8,6 @@ import com.google.gson.Gson;
 import java.io.*;
 
 public class Storage {
-
     File storageFile;
     
 	public static void main(String[] args) throws IOException{
