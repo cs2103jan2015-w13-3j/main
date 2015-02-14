@@ -2,5 +2,14 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="libs/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="libs/antlr-runtime-3.5.2.jar"/>
+	<classpathentry kind="lib" path="libs/backport-util-concurrent-3.1.jar"/>
+	<classpathentry kind="lib" path="libs/commons-codec-1.5.jar"/>
+	<classpathentry kind="lib" path="libs/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="libs/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="libs/ical4j-1.0.2.jar"/>
+	<classpathentry kind="lib" path="libs/natty-0.10.1.jar"/>
+	<classpathentry kind="lib" path="libs/stringtemplate-3.2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

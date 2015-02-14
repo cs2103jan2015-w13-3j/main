@@ -26,38 +26,6 @@ public class InputParser {
     private ArrayList<String> extractedOptions = new ArrayList<>();
     private ArrayList<Integer> optionStarts = new ArrayList<>();
     private ArrayList<Integer> optionEnds = new ArrayList<>();
-    
-    // Pattern used to match date
-    private static final String monthNames =
-            "(january|jan|february|feb|march|mar|april|apr|" +
-            "june|july|august|aug|september|sept|october|oct|december|dec)";
-    private static final String separator = "[-., \\/]+";
-
-    // Pattern for dd/mm/yy or dd/mm/yyyy
-    private static final int GROUP_DAY = 1;
-    private static final int GROUP_MONTH = 2;
-    private static final int GROUP_YEAR = 3;
-    private static final int GROUP_NEXT = 1;
-    private static final int GROUP_DOW = 2;
-
-    private static final Pattern dmyPat1 = Pattern
-            .compile("(\\d{1,2})" + separator + "(\\d{1,2})" + separator +
-                     "(\\d{2}|\\d{4})?", Pattern.CASE_INSENSITIVE);
-    // Pattern for dd mon, year or dd month, year
-    private static final Pattern dmyPat2 = Pattern
-            .compile("(\\d{1,2})" + separator + monthNames + separator +
-                     "(\\d{2}|\\d{4})?", Pattern.CASE_INSENSITIVE);
-    // Pattern for monday or next monday etc.
-    private Pattern daysOfWeekPat = Pattern
-            .compile("(next\\s+)?" +
-                     "(monday|mon|tuesday|tue|wednesday|wed|" +
-                     "thursday|thu|friday|fri|saturday|sat|sunday|sun)",
-                     Pattern.CASE_INSENSITIVE);
-    // Pattern for "in 5 days"
-    private Pattern inDaysPat = Pattern.compile("in\\s+(\\d+)\\s+days?",
-                                                Pattern.CASE_INSENSITIVE);
-    private Pattern daysPat = Pattern.compile("(today|tomorrow)",
-                                              Pattern.CASE_INSENSITIVE);
 
     public InputParser() {
         StringBuilder optionPatternBuilder = new StringBuilder();
@@ -157,85 +125,6 @@ public class InputParser {
 
     private GregorianCalendar parseDateTimeArg(int i, String command) {
         String argStr = getArgStr(i, command);
-        
-        Matcher dateMatcher1 = dmyPat1.matcher(argStr);
-        Matcher dateMatcher2 = dmyPat2.matcher(argStr);
-        Matcher dateMatcher3 = daysOfWeekPat.matcher(argStr);
-        Matcher dateMatcher4 = daysPat.matcher(argStr);
-        Matcher dateMatcher5 = inDaysPat.matcher(argStr);
-        
-        if (dateMatcher1.find()) {
-            return getCalendarFromDmy1(dateMatcher1);
-        } else if (dateMatcher2.find()) {
-            return getCalendarFromDmy2(dateMatcher1);
-        } else if (dateMatcher3.find()) {
-            return getCalendarFromDow(dateMatcher3);
-        } else if (dateMatcher4.find()) {
-            return getCalendarFromDay(dateMatcher4);
-        } else if (dateMatcher5.find()) {
-            return getCalendarFromInDays(dateMatcher5);
-        } else {
-            return null;
-        }
-    }
-
-    private GregorianCalendar getCalendarFromInDays(Matcher dateMatcher) {
-        GregorianCalendar result = new GregorianCalendar();
-        
-        int inDays = Integer.parseInt(dateMatcher.group(GROUP_DAY));
-        result.add(GregorianCalendar.DAY_OF_MONTH, inDays);
-
-        return result;
-    }
-
-    private GregorianCalendar getCalendarFromDay(Matcher dateMatcher) {
-        GregorianCalendar result = new GregorianCalendar();
-        
-        String dayStr = dateMatcher.group(GROUP_DAY);
-        assert(dayStr != null);
-        
-        if (dayStr.equalsIgnoreCase(Config.DATE_TODAY)) {
-            return result;
-        } else if (dayStr.equalsIgnoreCase(Config.DATE_TOMORROW)) {
-            result.add(GregorianCalendar.DAY_OF_MONTH, 1);
-            return result;
-        }
-
-        return null;
-    }
-
-    private GregorianCalendar getCalendarFromDow(Matcher dateMatcher) {
-        GregorianCalendar result = new GregorianCalendar();
-
-        String dayStr = dateMatcher.group(GROUP_DAY);
-        assert(dayStr != null);
-        
-        int dayOfWeek = 0;
-        
-        for (int i = 0; i < Config.DAYS_OF_WEEK_LONG.length; i++) {
-            if (dayStr.equalsIgnoreCase(Config.DAYS_OF_WEEK_LONG[i]) ||
-                dayStr.equalsIgnoreCase(Config.DAYS_OF_WEEK_SHORT[i])) {
-                dayOfWeek = Config.DAYS_OF_WEEK_CALENDAR[i];
-                break;
-            }
-        }
-        
-        if (dateMatcher.group(GROUP_NEXT) != null ||
-            dayOfWeek <= result.get(GregorianCalendar.DAY_OF_WEEK)) {
-            result.add(GregorianCalendar.WEEK_OF_MONTH, 1);
-            result.set(GregorianCalendar.DAY_OF_WEEK, dayOfWeek);
-        } else {
-            result.set(GregorianCalendar.DAY_OF_WEEK, dayOfWeek);
-        }
-        
-        return result;
-    }
-
-    private GregorianCalendar getCalendarFromDmy2(Matcher dateMatcher) {
-        return null;
-    }
-
-    private GregorianCalendar getCalendarFromDmy1(Matcher dateMatcher) {
         return null;
     }
 
