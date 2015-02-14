@@ -1,13 +1,16 @@
 package udo.logic;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import udo.util.Config;
+
+import com.joestelmach.natty.DateGroup;
+import com.joestelmach.natty.Parser;
 
 public class InputParser {
     // Regex string used to match command name (case insensitive)
@@ -26,6 +29,9 @@ public class InputParser {
     private ArrayList<String> extractedOptions = new ArrayList<>();
     private ArrayList<Integer> optionStarts = new ArrayList<>();
     private ArrayList<Integer> optionEnds = new ArrayList<>();
+    
+    // Used to parse date/time in natural language
+    private static final Parser dateParser = new Parser();
 
     public InputParser() {
         StringBuilder optionPatternBuilder = new StringBuilder();
@@ -107,25 +113,26 @@ public class InputParser {
         } else if (optionArgType.equals(Config.TYPE_INT)) {
             option.intArgument = parseIntArg(i, command);
         } else if (optionArgType.equals(Config.TYPE_DATETIME)) {
-            option.dateTimeArgument = parseDateTimeArg(i, command);
+            option.dateArgument = parseDateTimeArg(i, command);
         } else if (optionArgType.equals(Config.TYPE_TIME)) { 
-            option.dateTimeArgument = parseTimeArg(i, command);
+            option.timeArgument = parseTimeArg(i, command);
         } else {
             System.out.println("Parser error: unknown option type");
             System.exit(1);
         }
     }
 
-    private GregorianCalendar parseTimeArg(int i, String command) {
+    private int parseTimeArg(int i, String command) {
         String argStr = getArgStr(i, command);
         System.out.println(argStr);
-        // TODO
-        return null;
+        return 0;
     }
 
-    private GregorianCalendar parseDateTimeArg(int i, String command) {
+    private Date parseDateTimeArg(int i, String command) {
         String argStr = getArgStr(i, command);
-        return null;
+        
+        List<DateGroup> groups = dateParser.parse(argStr);
+        return groups.get(0).getDates().get(0);
     }
 
     private String getArgStr(int i, String command) {
@@ -162,10 +169,10 @@ public class InputParser {
     public static void main(String[] args) {
         InputParser inputParser = new InputParser();
         
-//        inputParser.parseCommand("modify -deadline submit reflection -end 1/3/2015");
+        inputParser.parseCommand("modify -deadline submit reflection -end 1/3/2015");
         inputParser.parseCommand("add -event go to school -start tomorrow 2pm -end tomorrow 4pm");
-//        inputParser.parseCommand("add -event AAAI conference -start in 2 days -end tuesday");
-//        inputParser.parseCommand("add -event match midterm -start next friday -end 11/02/15");
-//        inputParser.parseCommand("add -todo watch a movie");
+        inputParser.parseCommand("add -event AAAI conference -start in 2 days -end tuesday");
+        inputParser.parseCommand("add -event match midterm -start next friday -end 11/02/15");
+        inputParser.parseCommand("add -todo watch a movie");
     }
 }

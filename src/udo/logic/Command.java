@@ -2,8 +2,7 @@ package udo.logic;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.GregorianCalendar;
-import java.util.Locale;
+import java.util.Date;
 
 public class Command {
     public static class Option {
@@ -11,7 +10,8 @@ public class Command {
 
         public String strArgument;
         public int intArgument;
-        public GregorianCalendar dateTimeArgument;
+        public Date dateArgument;
+        public int timeArgument;
     }
 
     public String commandName;
@@ -25,9 +25,9 @@ public class Command {
         
         for (Option op : options) {
             str += "  " + op.optionName + "\n";
-            if (op.dateTimeArgument != null) {
+            if (op.dateArgument != null) {
                 str += "    " +
-                       DATE_FORMAT.format(op.dateTimeArgument.getTime()) + 
+                       DATE_FORMAT.format(op.dateArgument) + 
                        "\n";
             }
         }
