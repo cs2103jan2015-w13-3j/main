@@ -41,8 +41,8 @@ public class InputParser {
     private static final String hourPatStr =
             "(?i)(?<h>\\d{1,2})\\s*([:.,-]|hours?|h)+";
     private static final String minutePatStr =
-            "(?i)(?<m1>\\s*([:.,-]|hours?|h)+\\s*\\d{1,2})|" +
-            "(?<m2>\\d{1,2}\\s*(minutes?|min|m))";
+            "(([:.,-]|hours?|h)+\\s*(?<m1>\\d{1,2}))|" +
+            "((?<m2>\\d{1,2})\\s*(minutes?|min|m))";
     private static final Pattern hourPat = Pattern.compile(hourPatStr);
     private static final Pattern minPat = Pattern.compile(minutePatStr);
     
@@ -154,7 +154,7 @@ public class InputParser {
             }
         }
         
-        if (hourMatcher.find()) {
+        if (minMatcher.find()) {
             try {
                 if (minMatcher.group(GROUP_MINUTE1) != null) {
                     m = Integer.parseInt(minMatcher.group(GROUP_MINUTE1));
@@ -224,6 +224,6 @@ public class InputParser {
         inputParser.parseCommand("add -event go to school -start tomorrow 2pm -end tomorrow 4pm");
         inputParser.parseCommand("add -event AAAI conference -start in 2 days -end tuesday");
         inputParser.parseCommand("add -event match midterm -start next friday -end 11/02/15");
-        inputParser.parseCommand("add -todo watch a movie -duration 2 hours");
+        inputParser.parseCommand("add -todo watch a movie -duration 2 hours 30 minutes");
     }
 }
