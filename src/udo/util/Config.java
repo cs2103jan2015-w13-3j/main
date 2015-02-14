@@ -1,7 +1,5 @@
 package udo.util;
 
-import java.util.GregorianCalendar;
-
 public class Config {
     /** Constants for command names **/
     public static final String CMD_STR_ADD = "add";
@@ -40,19 +38,4 @@ public class Config {
     public static final String OPTIONS_TABLE[][] =
         { OPT_DUR, OPT_VENUE, OPT_LABEL, OPT_PRIO, OPT_EVENT,
           OPT_DEADLINE, OPT_TODO, OPT_START, OPT_END, OPT_INDEX };
-    
-    /** Constants for date/time */
-    public static final String DATE_TODAY = "today";
-    public static final String DATE_TOMORROW = "tomorrow";
-    
-    public static final String[] DAYS_OF_WEEK_LONG =
-        {"monday", "tuesday", "wednesday", "thursday",
-         "friday", "saturday", "sunday"};
-    public static final String[] DAYS_OF_WEEK_SHORT =
-        {"mon", "tue", "wed", "thu", "fri", "sat", "sun"};
-    public static final int[] DAYS_OF_WEEK_CALENDAR =
-        {GregorianCalendar.MONDAY, GregorianCalendar.TUESDAY,
-         GregorianCalendar.WEDNESDAY, GregorianCalendar.THURSDAY,
-         GregorianCalendar.FRIDAY, GregorianCalendar.SATURDAY,
-         GregorianCalendar.SUNDAY};
 }
