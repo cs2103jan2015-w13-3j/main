@@ -55,16 +55,19 @@ public class TernarySearchTree {
         Node curNode = root;
         
         while (curNode != null) {
-            if (index == prefix.length()) {
-                return searchTree(curNode.center, numWords);
-            }
-            
             if (prefix.charAt(index) < curNode.myChar) {
                 curNode = curNode.left;
             } else if (prefix.charAt(index) > curNode.myChar) {
                 curNode = curNode.right;
             } else {
                 index++;
+                if (index == prefix.length()) {
+                    if (curNode.isWordEnd) {
+                        return searchTree(prefix, true, curNode.center, numWords);
+                    } else {
+                        return searchTree(prefix, false, curNode.center, numWords);
+                    }
+                }
                 curNode = curNode.center;
             }
         }
@@ -77,17 +80,35 @@ public class TernarySearchTree {
     }
     
     /**
-     * Find words in the tree rooted at some node
+     * Find words in the tree rooted at some node appended by prefix
+     * @param prefix the prefix from the root to this tree
+     * @param prefixIncluded indicate whether the prefix is a valid word
      * @param node the root of the tree for the search
      * @param numWords maximum number of words to search for or
      *                 search for all words if this is null
      * @return list of found words
      */
-    private List<String> searchTree(Node node, Integer numWords) {
-        List<Character> curWord = new ArrayList<>();
+    private List<String> searchTree(String prefix, Boolean prefixIncluded,
+                                    Node node, Integer numWords) {
+        List<Character> curWord = stringToCharList(prefix);
         List<String> result = new ArrayList<>();
         
+        if (prefixIncluded) {
+            result.add(prefix);
+        }
         searchTreeHelper(node, numWords, curWord, result);
+        
+        return result;
+    }
+
+    private List<Character> stringToCharList(String prefix) {
+        List<Character> result = new ArrayList<>();
+
+        if (prefix != null) {
+            for (int i = 0; i < prefix.length(); i++) {
+                result.add(prefix.charAt(i));
+            }
+        }
         
         return result;
     }
@@ -130,7 +151,16 @@ public class TernarySearchTree {
     }
 
     public static void main(String[] args) {
+        TernarySearchTree t = new TernarySearchTree();
         
+        t.add("cat"); t.add("category"); t.add("catalyzt");
+        t.add("dog"); t.add("dogmatic"); t.add("dogwood");
+        t.add("add"); t.add("addition"); t.add("additional");
+        
+        List<String> r = t.searchPrefix("ad");
+        for (String s : r) {
+            System.out.println(s);
+        }
     }
 
 }
