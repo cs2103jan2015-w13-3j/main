@@ -1,12 +1,13 @@
 package udo.logic;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TernarySearchTree {
-    public static class Node {
+    protected static class Node {
         private char myChar;
         private Node left, right, center;
-        private Boolean isWordEnd;
+        protected Boolean isWordEnd;
         
         public Node(char myChar, Boolean isWordEnd) {
             this.myChar = myChar;
@@ -55,7 +56,7 @@ public class TernarySearchTree {
         
         while (curNode != null) {
             if (index == prefix.length()) {
-                return searchTree(curNode, numWords);
+                return searchTree(curNode.center, numWords);
             }
             
             if (prefix.charAt(index) < curNode.myChar) {
@@ -83,7 +84,49 @@ public class TernarySearchTree {
      * @return list of found words
      */
     private List<String> searchTree(Node node, Integer numWords) {
-        return null;
+        List<Character> curWord = new ArrayList<>();
+        List<String> result = new ArrayList<>();
+        
+        searchTreeHelper(node, numWords, curWord, result);
+        
+        return result;
+    }
+
+    private void searchTreeHelper(Node node, Integer numWords,
+                                  List<Character> curWord,
+                                  List<String> result) {
+        if (numWords != null && result.size() == numWords) {
+            return;
+        }
+        if (node == null) {
+            return;
+        }
+        
+        searchTreeHelper(node.left, numWords, curWord, result);
+        if (numWords != null && result.size() == numWords) {
+            return;
+        }
+
+        curWord.add(node.myChar);
+
+        if (node.isWordEnd) {
+            result.add(charListToString(curWord));
+        }
+        searchTreeHelper(node.center, numWords, curWord, result);
+        
+        curWord.remove(curWord.size() - 1);
+
+        searchTreeHelper(node.right, numWords, curWord, result);
+    }
+
+    private String charListToString(List<Character> curWord) {
+        StringBuilder builder = new StringBuilder(curWord.size());
+
+        for (char c : curWord) {
+            builder.append(c);
+        }
+        
+        return builder.toString();
     }
 
     public static void main(String[] args) {
