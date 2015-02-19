@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 
 import udo.storage.Tasks;
 import udo.gui.view.HomeController;
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +17,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class GUI extends Application{
+    
+    private static final String NAME_APP = "JustU";
     
     private Stage primaryStage;
     private BorderPane rootLayout;
@@ -36,7 +39,7 @@ public class GUI extends Application{
         testList.add(new Tasks("event", "code more", new GregorianCalendar(), new GregorianCalendar(), 
                 new GregorianCalendar(), "label", true));
         
-        display(testList);
+        displayContent(testList);
         
     }
 
@@ -44,7 +47,7 @@ public class GUI extends Application{
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("JustU");
+        this.primaryStage.setTitle(NAME_APP);
 
         initRootLayout();
 
@@ -95,7 +98,7 @@ public class GUI extends Application{
     /**
      * @param Arraylist<Tasks>
      */
-    public static void display(ArrayList<Tasks> testingInputTaskList) { 
+    public static void displayContent(ArrayList<Tasks> testingInputTaskList) { 
         taskData = FXCollections.observableArrayList(testingInputTaskList);
     }
     
@@ -105,7 +108,7 @@ public class GUI extends Application{
     
     /**
      * Returns the data as an observable list of Task 
-     * @return
+     * @return taskData
      */
     public ObservableList<Tasks> getTaskData() {
         return taskData;
