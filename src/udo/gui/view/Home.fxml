@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="500.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="udo.gui.view.HomeController">
+   <children>
+      <TableView fx:id="TaskTable" layoutX="17.0" layoutY="90.0" prefHeight="400.0" prefWidth="419.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="90.0">
+        <columns>
+          <TableColumn fx:id="displayIndexColumn" prefWidth="54.0" text="ID" />
+          <TableColumn fx:id="taskNameColumn" prefWidth="355.0" text="Task Name" />
+        </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+      <TextField fx:id="inputBox" layoutX="21.0" layoutY="31.0" onAction="#handleReturnKey" prefHeight="25.0" prefWidth="405.0" promptText="Enter your command" />
+      <Label layoutX="21.0" layoutY="63.0" prefHeight="17.0" prefWidth="350.0" text="Label" />
+   </children>
+</AnchorPane>
