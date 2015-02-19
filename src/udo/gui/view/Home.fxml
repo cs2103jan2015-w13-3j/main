@@ -18,6 +18,6 @@
          </columnResizePolicy>
       </TableView>
       <TextField fx:id="inputBox" layoutX="21.0" layoutY="31.0" onAction="#handleReturnKey" prefHeight="25.0" prefWidth="405.0" promptText="Enter your command" />
-      <Label layoutX="21.0" layoutY="63.0" prefHeight="17.0" prefWidth="350.0" text="Label" />
+      <Label fx:id="status" layoutX="21.0" layoutY="63.0" prefHeight="17.0" prefWidth="350.0" text="Label" />
    </children>
 </AnchorPane>

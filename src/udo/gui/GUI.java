@@ -20,6 +20,7 @@ public class GUI extends Application{
     private Stage primaryStage;
     private BorderPane rootLayout;
     private static ObservableList<Tasks> taskData;
+    private static HomeController controller;
     
     /**
      * Constructor
@@ -81,8 +82,8 @@ public class GUI extends Application{
 
             rootLayout.setCenter(homeOverview);
             
-            // Give the controller access to the main app.
-            HomeController controller = loader.getController();
+            // Give the controller access to the main application.
+            controller = loader.getController();
             controller.setMainApp(this);
          
                        
@@ -97,8 +98,11 @@ public class GUI extends Application{
     public static void display(ArrayList<Tasks> testingInputTaskList) { 
         taskData = FXCollections.observableArrayList(testingInputTaskList);
     }
-
-
+    
+    public static void displayStatus(String newStatus) {
+        HomeController.displayStatus(newStatus);
+    }
+    
     /**
      * Returns the data as an observable list of Task 
      * @return
@@ -106,8 +110,7 @@ public class GUI extends Application{
     public ObservableList<Tasks> getTaskData() {
         return taskData;
     }
-    
-    
+       
     /**
      * Returns the main stage.
      * @return
@@ -115,6 +118,7 @@ public class GUI extends Application{
     public Stage getPrimaryStage() {
         return primaryStage;
     }
+    
     public static void main(String[] args) {
         launch(args);
     }
