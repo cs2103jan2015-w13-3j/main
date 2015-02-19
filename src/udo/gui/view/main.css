@@ -1,0 +1,48 @@
+.root {
+	-fx-base: #34495e;
+	-fx-background-color: #22313f;
+	-fx-color: -fx-base;
+	-fx-text-inner-color: white;
+}
+
+#inputBox {
+	-fx-background-color: -fx-base;
+	-fx-text-fill: white;
+}
+
+.table-view {
+    -fx-background-color: -fx-base;
+    -fx-padding: 5;
+}
+
+.table-row-cell { /*override alternate rows */
+    -fx-background-color: -fx-base;
+}
+
+.table-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent; /*remove the side border */
+    -fx-border-width: 0.083333em; /* 1 */
+    -fx-cell-size: 2.0em; /* 24 */
+    -fx-text-fill: -fx-text-inner-color;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -fx-body-color;
+    -fx-padding: 0;
+}
+
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: -fx-body-color;
+    -fx-border-style: none;
+    -fx-border-colour: #34495e;
+    -fx-size: 35;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-insets: 0 10 1 0;
+
+}
+
+.table-view > .column-header-background > .nested-column-header > .column-header.table-column {
+    -fx-background-color: #34495e;
+
+}
