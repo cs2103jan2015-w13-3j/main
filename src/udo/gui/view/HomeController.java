@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.event.ActionEvent;
 
 import udo.gui.GUI;
@@ -31,9 +32,9 @@ public class HomeController {
      */
     @FXML
     private void initialize() {
-        // Initialize the Task table with the two columns.
-        //displayIndexColumn.setCellValueFactory(cellData -> cellData.getValue().displayIndexProperty());
-        //taskNameColumn.setCellValueFactory(cellData -> cellData.getValue().taskNameProperty());
+        //Initialize the Task table with the two columns.
+        displayIndexColumn.setCellValueFactory(new PropertyValueFactory<Tasks, String>("taskType"));
+        taskNameColumn.setCellValueFactory(new PropertyValueFactory<Tasks, String>("content"));
         
     }
     

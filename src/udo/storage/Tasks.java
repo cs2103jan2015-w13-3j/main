@@ -27,7 +27,7 @@ public class Tasks {
 		this.done = false;
 	}
 	
-	public String getType(){
+	public String getTaskType(){
 		return taskType;
 	}
 	
@@ -59,7 +59,7 @@ public class Tasks {
 		return done;
 	}
 
-	public void setType(String type){
+	public void setTaskType(String type){
 		this.taskType = type;
 	}
 	

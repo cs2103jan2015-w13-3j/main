@@ -2,6 +2,7 @@ package udo.gui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 import udo.storage.Tasks;
 import udo.gui.view.HomeController;
@@ -25,10 +26,17 @@ public class GUI extends Application{
      */
     public GUI() {
         
-        /*For testing purposes
+        //For testing purposes
         ArrayList<Tasks> testList = new ArrayList<Tasks>();
+        testList.add(new Tasks("event", "drink coffee", new GregorianCalendar(), new GregorianCalendar(), 
+                  new GregorianCalendar(), "label", true));
+        testList.add(new Tasks("event", "drink more coffee", new GregorianCalendar(), new GregorianCalendar(), 
+                new GregorianCalendar(), "label", true));
+        testList.add(new Tasks("event", "code more", new GregorianCalendar(), new GregorianCalendar(), 
+                new GregorianCalendar(), "label", true));
+        
         display(testList);
-         */
+        
     }
 
     
@@ -71,7 +79,6 @@ public class GUI extends Application{
             loader.setLocation(GUI.class.getResource("view/Home.fxml"));
             AnchorPane homeOverview = (AnchorPane) loader.load();
 
-            // Set person overview into the center of root layout.
             rootLayout.setCenter(homeOverview);
             
             // Give the controller access to the main app.
