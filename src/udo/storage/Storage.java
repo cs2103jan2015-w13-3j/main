@@ -12,8 +12,8 @@ public class Storage {
     File storageFile;
     
 	public static void main(String[] args) throws IOException{
-        // TODO Auto-generated method stub
-    	Storage st = new Storage();
+
+	    Storage st = new Storage();
 		boolean function = st.add("event", "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
     			new GregorianCalendar(2005,01,02), "work", true);
     	if (function) System.out.println("Adding successfully");
@@ -31,7 +31,7 @@ public class Storage {
     public boolean add(String taskType, String content, GregorianCalendar start, GregorianCalendar end,
     		GregorianCalendar reminder, String label, boolean priority) throws IOException{
     	BufferedWriter bw = new BufferedWriter(new FileWriter("tasks.json", true));
-    	Tasks newTask = new Tasks(taskType, content, start, end, reminder, label, priority);
+    	Task newTask = new Task(taskType, content, start, end, reminder, label, priority);
     	Gson gson = new Gson();
     	String addingString = gson.toJson(newTask);
     	bw.write(addingString);

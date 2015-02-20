@@ -1,6 +1,6 @@
 .root {
 	-fx-base: #34495e;
-	-fx-background-color: #22313f;
+	-fx-background-color: #22313f; 
 	-fx-color: -fx-base;
 	-fx-text-inner-color: white;
 }
