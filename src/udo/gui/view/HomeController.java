@@ -8,15 +8,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.event.ActionEvent;
 import udo.gui.GUI;
-import udo.storage.Tasks;
+import udo.storage.Task;
 
 public class HomeController {
     @FXML
-    private TableView<Tasks> TaskTable;
+    private TableView<Task> TaskTable;
     @FXML
-    private TableColumn<Tasks, String> displayIndexColumn;
+    private TableColumn<Task, String> displayIndexColumn;
     @FXML
-    private TableColumn<Tasks, String> taskNameColumn;
+    private TableColumn<Task, String> taskNameColumn;
     @FXML
     private TextField inputBox;
     @FXML
@@ -36,8 +36,8 @@ public class HomeController {
     @FXML
     private void initialize() {
         //Initialize the Task table with the two columns.
-        displayIndexColumn.setCellValueFactory(new PropertyValueFactory<Tasks, String>("taskType"));
-        taskNameColumn.setCellValueFactory(new PropertyValueFactory<Tasks, String>("content"));
+        displayIndexColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("taskType"));
+        taskNameColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("content"));
         statusString = status;
     }
     

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
-import udo.storage.Tasks;
+import udo.storage.Task;
 import udo.gui.view.HomeController;
 
 import javafx.application.Application;
@@ -22,7 +22,7 @@ public class GUI extends Application{
     
     private Stage primaryStage;
     private BorderPane rootLayout;
-    private static ObservableList<Tasks> taskData;
+    private static ObservableList<Task> taskData;
     private static HomeController controller;
     
     /**
@@ -31,12 +31,12 @@ public class GUI extends Application{
     public GUI() {
         
         //For testing purposes
-        ArrayList<Tasks> testList = new ArrayList<Tasks>();
-        testList.add(new Tasks("event", "drink coffee", new GregorianCalendar(), new GregorianCalendar(), 
+        ArrayList<Task> testList = new ArrayList<Task>();
+        testList.add(new Task("event", "drink coffee", new GregorianCalendar(), new GregorianCalendar(), 
                   new GregorianCalendar(), "label", true));
-        testList.add(new Tasks("event", "drink more coffee", new GregorianCalendar(), new GregorianCalendar(), 
+        testList.add(new Task("event", "drink more coffee", new GregorianCalendar(), new GregorianCalendar(), 
                 new GregorianCalendar(), "label", true));
-        testList.add(new Tasks("event", "code more", new GregorianCalendar(), new GregorianCalendar(), 
+        testList.add(new Task("event", "code more", new GregorianCalendar(), new GregorianCalendar(), 
                 new GregorianCalendar(), "label", true));
         
         displayContent(testList);
@@ -96,9 +96,9 @@ public class GUI extends Application{
     }
     
     /**
-     * @param Arraylist<Tasks>
+     * @param Arraylist<Task>
      */
-    public static void displayContent(ArrayList<Tasks> testingInputTaskList) { 
+    public static void displayContent(ArrayList<Task> testingInputTaskList) { 
         taskData = FXCollections.observableArrayList(testingInputTaskList);
     }
     
@@ -110,7 +110,7 @@ public class GUI extends Application{
      * Returns the data as an observable list of Task 
      * @return taskData
      */
-    public ObservableList<Tasks> getTaskData() {
+    public ObservableList<Task> getTaskData() {
         return taskData;
     }
        

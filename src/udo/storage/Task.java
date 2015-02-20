@@ -3,8 +3,8 @@ package udo.storage;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-public class Tasks {
-	//class defines tasks objects
+public class Task {
+	//class defines Task objects
 	private String taskType;
 	private String content;
 	private GregorianCalendar start;
@@ -15,7 +15,7 @@ public class Tasks {
 	private boolean done;
 	
 	//constructor
-	public Tasks(String taskType, String content, GregorianCalendar start, GregorianCalendar end, 
+	public Task(String taskType, String content, GregorianCalendar start, GregorianCalendar end, 
 			GregorianCalendar reminder, String label, boolean priority){
 		this.taskType = taskType;
 		this.content = content;
