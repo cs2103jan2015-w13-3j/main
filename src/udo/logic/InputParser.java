@@ -130,7 +130,6 @@ public class InputParser {
         Command.Option option = resultCommand.options[i];
         
         option.optionName = extractedOptions.get(i);
-        
         String optionArgType = optionTypeMap.get(option.optionName);
 
         if (optionArgType.equals(Config.TYPE_STR)) {
@@ -141,9 +140,6 @@ public class InputParser {
             option.dateArgument = parseDateTimeArg(i, command);
         } else if (optionArgType.equals(Config.TYPE_TIME)) { 
             option.timeArgument = parseTimeArg(i, command);
-        } else {
-            System.out.println("Parser error: unknown option type");
-            System.exit(1);
         }
     }
 
