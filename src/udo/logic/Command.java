@@ -15,12 +15,17 @@ public class Command {
     }
 
     public String commandName;
+    public String commandArg;
     public Option[] options;
+
     private static final DateFormat DATE_FORMAT =
             new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
     
     public String toString() {
         String str = "Command: " + commandName + "\n";
+        if (!commandArg.equalsIgnoreCase("")) {
+            str += "Argument: " + commandArg + "\n";
+        }
         str += "Options:\n";
         
         for (Option op : options) {

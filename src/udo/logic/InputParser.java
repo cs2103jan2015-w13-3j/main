@@ -14,13 +14,15 @@ import com.joestelmach.natty.Parser;
 
 public class InputParser {
     // Regex string used to match command name (case insensitive)
+    private static final String GROUP_NAME = "name";
+    private static final String GROUP_ARG = "arg";
     private Pattern commandNamePattern =
             Pattern.compile("(?i)(?:\\s)*" +
-                            "(add)|(modify)|(delete)|(display)|(search)" +
-                            "(?:\\s)*");
+                            "(?<name>add|modify|delete|display|search)" +
+                            "(\\s*(?<arg>[a-zA-Z0-9]*))");
     
     // Regex strings and pattern used for matching an option
-    private static final String OPTION_FORMATER = "-%s|-%s";
+    private static final String OPTION_FORMATER = ":%s|:%s";
     private Pattern optionsPattern;
     // Map option names to their corresponding types
     private HashMap<String, String> optionTypeMap = new HashMap<>();
@@ -83,11 +85,24 @@ public class InputParser {
         Matcher cmdNameMatcher = commandNamePattern.matcher(command);
 
         if (cmdNameMatcher.find()) {
-            resultCommand.commandName = cmdNameMatcher.group();
+            resultCommand.commandName = cmdNameMatcher.group(GROUP_NAME);
+            resultCommand.commandArg = cmdNameMatcher.group(GROUP_ARG);
         } else {
             System.out.println("No valid command name found");
         }
         
+        extractOptions(command);
+        
+        parseAllOptions(command, resultCommand);
+
+        System.out.println(resultCommand);
+        return resultCommand;
+    }
+
+    /**
+     * @param command
+     */
+    private void extractOptions(String command) {
         Matcher optionsMatcher = optionsPattern.matcher(command);
 
         while (optionsMatcher.find()) {
@@ -96,11 +111,6 @@ public class InputParser {
             optionStarts.add(optionsMatcher.start());
             optionEnds.add(optionsMatcher.end());
         }
-        
-        parseAllOptions(command, resultCommand);
-
-        System.out.println(resultCommand);
-        return resultCommand;
     }
 
     private String removeOptionMarker(String group) {
@@ -220,10 +230,10 @@ public class InputParser {
     public static void main(String[] args) {
         InputParser inputParser = new InputParser();
         
-        inputParser.parseCommand("modify -deadline submit reflection -end 1/3/2015");
-        inputParser.parseCommand("add -event go to school -start tomorrow 2pm -end tomorrow 4pm");
-        inputParser.parseCommand("add -event AAAI conference -start in 2 days -end tuesday");
-        inputParser.parseCommand("add -event match midterm -start next friday -end 11/02/15");
-        inputParser.parseCommand("add -todo watch a movie -duration 2 hours 30 minutes");
+        inputParser.parseCommand("modify 10 :deadline submit reflection :end 1/3/2015");
+        inputParser.parseCommand("add :event go to school :start tomorrow 2pm :end tomorrow 4pm");
+        inputParser.parseCommand("add :event AAAI conference :start in 2 days :end tuesday");
+        inputParser.parseCommand("add :event match midterm :start next friday :end 11/02/15");
+        inputParser.parseCommand("add :todo watch a movie :duration 2 hours 30 minutes");
     }
 }

@@ -63,9 +63,11 @@ public class TernarySearchTree {
                 index++;
                 if (index == prefix.length()) {
                     if (curNode.isWordEnd) {
-                        return searchTree(prefix, true, curNode.center, numWords);
+                        return searchTree(prefix, true, curNode.center,
+                                          numWords);
                     } else {
-                        return searchTree(prefix, false, curNode.center, numWords);
+                        return searchTree(prefix, false, curNode.center,
+                                          numWords);
                     }
                 }
                 curNode = curNode.center;
