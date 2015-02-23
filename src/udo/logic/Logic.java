@@ -3,11 +3,9 @@ package udo.logic;
 import udo.util.Config;
 
 public class Logic {
-    private static final String ERROR_FORMAT = "Error: %s";
-    private static final String ERROR_INVALID_CMD_NAME =
-            "Invalid command name";
-    private static final String ERROR_UNSUPPORTED_CMD =
-            "Unsupported command";
+    private static final String ERR_FORMAT = "Error: %s";
+    private static final String ERR_INVALID_CMD_NAME = "Invalid command";
+    private static final String ERR_UNSUPPORTED_CMD = "Unsupported command";
     
     private InputParser parser;
     
@@ -31,6 +29,11 @@ public class Logic {
      */
     public void executeCommand(String command) {
         Command parsedCommand = parser.parseCommand(command);
+        if (parser.getErrorStatus() != null) {
+            // Syntax error
+            status = parser.getErrorStatus();
+            // TODO: Inform GUI of error status
+        }
         
         if (isCommandValid(parsedCommand)) {
         } else {
@@ -46,7 +49,7 @@ public class Logic {
     private boolean isCommandValid(Command parsedCommand) {
         if (parsedCommand == null || parsedCommand.commandName == null ||
             parsedCommand.commandName.trim().equalsIgnoreCase("")) {
-            status = formatErrorStr(ERROR_INVALID_CMD_NAME);
+            status = formatErrorStr(ERR_INVALID_CMD_NAME);
             return false;
         }
         
@@ -60,7 +63,7 @@ public class Logic {
         } else if (cmdName.equalsIgnoreCase(Config.CMD_STR_DISPLAY)) {
             return isDisplayCmdValid(parsedCommand);
         } else {
-            status = formatErrorStr(ERROR_UNSUPPORTED_CMD);
+            status = formatErrorStr(ERR_UNSUPPORTED_CMD);
             return false;
         }
     }
@@ -86,6 +89,6 @@ public class Logic {
     }
 
     private String formatErrorStr(String errorInvalidCmdName) {
-        return String.format(ERROR_FORMAT, errorInvalidCmdName);
+        return String.format(ERR_FORMAT, errorInvalidCmdName);
     }
 }

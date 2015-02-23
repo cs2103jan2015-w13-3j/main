@@ -49,6 +49,10 @@ public class InputParser {
     private static final Pattern minPat = Pattern.compile(minutePatStr);
     
     private static final int MINUTES_IN_HOUR = 60;
+    
+    private String ERROR_STATUS;
+    /** Syntax errors messages */
+    private static final String ERR_INVALID_CMD_NAME = "Invalid command name";
 
     public InputParser() {
         StringBuilder optionPatternBuilder = new StringBuilder();
@@ -79,16 +83,18 @@ public class InputParser {
     }
 
     public Command parseCommand(String command) {
+        clearPreviousOptions();
+        clearErrorStatus();
+
         if (command == null) {
             return null;
         }
-
-        clearPreviousOptions();
-        Command resultCommand = new Command();
         
+        Command resultCommand = new Command();
+
         extractCommandName(command, resultCommand);
-        if (resultCommand.commandName == null) {
-            return null;
+        if (resultCommand.commandName == null || ERROR_STATUS != null) {
+            return resultCommand;
         }
         
         extractOptions(command);
@@ -113,6 +119,7 @@ public class InputParser {
             resultCommand.commandArg = cmdNameMatcher.group(GROUP_ARG);
         } else {
             resultCommand.commandName = null;
+            ERROR_STATUS = ERR_INVALID_CMD_NAME;
         }
     }
 
@@ -242,6 +249,14 @@ public class InputParser {
         extractedOptions.clear();
         optionStarts.clear();
         optionEnds.clear();
+    }
+    
+    public String getErrorStatus() {
+        return ERROR_STATUS;
+    }
+    
+    private void clearErrorStatus() {
+        ERROR_STATUS = null;
     }
 
     /**
