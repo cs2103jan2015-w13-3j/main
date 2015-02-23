@@ -1,9 +1,13 @@
 package udo.logic;
 
+import udo.util.Config;
+
 public class Logic {
     private static final String ERROR_FORMAT = "Error: %s";
     private static final String ERROR_INVALID_CMD_NAME =
             "Invalid command name";
+    private static final String ERROR_UNSUPPORTED_CMD =
+            "Unsupported command";
     
     private InputParser parser;
     
@@ -45,7 +49,40 @@ public class Logic {
             status = formatErrorStr(ERROR_INVALID_CMD_NAME);
             return false;
         }
-        return true;
+        
+        String cmdName = parsedCommand.commandName;
+        if (cmdName.equalsIgnoreCase(Config.CMD_STR_ADD)) {
+            return isAddCmdValid(parsedCommand); 
+        } else if (cmdName.equalsIgnoreCase(Config.CMD_STR_DELETE)) {
+            return isDeleteCmdValid(parsedCommand);
+        } else if (cmdName.equalsIgnoreCase(Config.CMD_STR_MODIFY)) {
+            return isModifyCmdValid(parsedCommand);
+        } else if (cmdName.equalsIgnoreCase(Config.CMD_STR_DISPLAY)) {
+            return isDisplayCmdValid(parsedCommand);
+        } else {
+            status = formatErrorStr(ERROR_UNSUPPORTED_CMD);
+            return false;
+        }
+    }
+
+    private boolean isDisplayCmdValid(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    private boolean isModifyCmdValid(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    private boolean isDeleteCmdValid(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    private boolean isAddCmdValid(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return false;
     }
 
     private String formatErrorStr(String errorInvalidCmdName) {
