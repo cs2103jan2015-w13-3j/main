@@ -3,11 +3,11 @@ package udo.logic;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Command {
     public static class Option {
-        public String optionName;
-
         public String strArgument;
         public Integer intArgument;
         public Date dateArgument;
@@ -16,10 +16,14 @@ public class Command {
 
     public String commandName;
     public String commandArg;
-    public Option[] options;
+    public Map<String, Option> options;
 
     private static final DateFormat DATE_FORMAT =
             new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
+    
+    public Command() {
+        options = new HashMap<>();
+    }
     
     public String toString() {
         String str = "Command: " + commandName + "\n";
@@ -28,8 +32,11 @@ public class Command {
         }
         str += "Options:\n";
         
-        for (Option op : options) {
-            str += "  " + op.optionName + ": ";
+        for (Map.Entry<String, Option> opEntry : options.entrySet()) {
+            String opName = opEntry.getKey();
+            Option op = opEntry.getValue();
+
+            str += "  " + opName + ": ";
             if (op.dateArgument != null) {
                 str += DATE_FORMAT.format(op.dateArgument);
             } else if (op.strArgument != null) {

@@ -100,6 +100,9 @@ public class InputParser {
     }
 
     /**
+     * Extract all options' strings from the command strings and
+     * store it in the extractedOptions array and mark its beginning
+     * and ending in the string in optionStarts and optionEnds
      * @param command
      */
     private void extractOptions(String command) {
@@ -117,20 +120,23 @@ public class InputParser {
         return group.substring(1);
     }
 
+    /**
+     * Parse all arguments of options in extractedOptions and store
+     * the result in resultCommand
+     * @param command
+     * @param resultCommand
+     */
     private void parseAllOptions(String command, Command resultCommand) {
-        resultCommand.options = new Command.Option[extractedOptions.size()];
-
         for (int i = 0; i < extractedOptions.size(); i++) {
             parseOption(i, command, resultCommand);
         }
     }
 
     private void parseOption(int i, String command, Command resultCommand) {
-        resultCommand.options[i] = new Command.Option();
-        Command.Option option = resultCommand.options[i];
+        Command.Option option = new Command.Option();
         
-        option.optionName = extractedOptions.get(i);
-        String optionArgType = optionTypeMap.get(option.optionName);
+        String optionName = extractedOptions.get(i);
+        String optionArgType = optionTypeMap.get(optionName);
 
         if (optionArgType.equals(Config.TYPE_STR)) {
             option.strArgument = parseStringArg(i, command);
@@ -141,6 +147,8 @@ public class InputParser {
         } else if (optionArgType.equals(Config.TYPE_TIME)) { 
             option.timeArgument = parseTimeArg(i, command);
         }
+        
+        resultCommand.options.put(optionName, option);
     }
 
     private Integer parseTimeArg(int i, String command) {
