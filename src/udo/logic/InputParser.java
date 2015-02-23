@@ -79,16 +79,16 @@ public class InputParser {
     }
 
     public Command parseCommand(String command) {
+        if (command == null) {
+            return null;
+        }
+
         clearPreviousOptions();
         Command resultCommand = new Command();
         
-        Matcher cmdNameMatcher = commandNamePattern.matcher(command);
-
-        if (cmdNameMatcher.find()) {
-            resultCommand.commandName = cmdNameMatcher.group(GROUP_NAME);
-            resultCommand.commandArg = cmdNameMatcher.group(GROUP_ARG);
-        } else {
-            System.out.println("No valid command name found");
+        extractCommandName(command, resultCommand);
+        if (resultCommand.commandName == null) {
+            return null;
         }
         
         extractOptions(command);
@@ -97,6 +97,23 @@ public class InputParser {
 
         System.out.println(resultCommand);
         return resultCommand;
+    }
+
+    /**
+     * Extract the command name from the command string and store it
+     * in the resultcommand data-structure
+     * @param command
+     * @param resultCommand
+     */
+    private void extractCommandName(String command, Command resultCommand) {
+        Matcher cmdNameMatcher = commandNamePattern.matcher(command);
+
+        if (cmdNameMatcher.find()) {
+            resultCommand.commandName = cmdNameMatcher.group(GROUP_NAME);
+            resultCommand.commandArg = cmdNameMatcher.group(GROUP_ARG);
+        } else {
+            resultCommand.commandName = null;
+        }
     }
 
     /**
