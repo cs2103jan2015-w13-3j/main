@@ -53,6 +53,12 @@ public class InputParser {
     private String ERROR_STATUS;
     /** Syntax errors messages */
     private static final String ERR_INVALID_CMD_NAME = "Invalid command name";
+    private static final String ERR_INVALID_TIME_FORMAT =
+            "Hours and minutes are not integers";
+    private static final String ERR_INVALID_DATE_FORMAT =
+            "Date time format is invalid";
+    private static final String ERR_INVALID_INT_FORMAT =
+           "Argument to an option is not a valid integer"; 
 
     public InputParser() {
         StringBuilder optionPatternBuilder = new StringBuilder();
@@ -187,7 +193,7 @@ public class InputParser {
             try {
                 h = Integer.parseInt(hourMatcher.group(GROUP_HOUR));
             } catch (NumberFormatException e) {
-                System.out.println("Hours and minutes must be valid integers");
+                ERROR_STATUS = ERR_INVALID_TIME_FORMAT;
                 return null;
             }
         }
@@ -200,7 +206,7 @@ public class InputParser {
                     m = Integer.parseInt(minMatcher.group(GROUP_MINUTE2));
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Hours and minutes must be valid integers");
+                ERROR_STATUS = ERR_INVALID_TIME_FORMAT;
                 return null;
             }
         }
@@ -208,13 +214,33 @@ public class InputParser {
         return h * MINUTES_IN_HOUR + m;
     }
 
+    /**
+     * Parse the string argument of an option
+     * containing date/time data in natural language
+     * @param i the index of the option in extractedOptions
+     * @param command the full command string
+     * @return the Date that the date/time string represents
+     */
     private Date parseDateTimeArg(int i, String command) {
         String argStr = getArgStr(i, command);
         
         List<DateGroup> groups = dateParser.parse(argStr);
+        if (groups == null || groups.size() == 0 ||
+            groups.get(0).getDates() == null ||
+            groups.get(0).getDates().size() == 0) {
+            ERROR_STATUS = ERR_INVALID_DATE_FORMAT;
+            return null;
+        }
+
         return groups.get(0).getDates().get(0);
     }
 
+    /**
+     * Extract the string containing an argument to an option
+     * @param i the index of the option in the extractedOptions
+     * @param command the full command string
+     * @return a string containing the argument to the ith option
+     */
     private String getArgStr(int i, String command) {
         int argStart = optionEnds.get(i);
         int argEnd = command.length();
@@ -226,6 +252,12 @@ public class InputParser {
         return command.substring(argStart, argEnd).trim();
     }
 
+    /**
+     * Extract the integer argument to an option
+     * @param i the index of the option in the extractedOptions
+     * @param command the full command string
+     * @return an integer represented by the argument string
+     */
     private Integer parseIntArg(int i, String command) {
         String argStr = getArgStr(i, command);
         
@@ -234,17 +266,33 @@ public class InputParser {
         try {
             result = Integer.parseInt(argStr);
         } catch (NumberFormatException e) {
-            System.out.println("Argument to an option is not a valid integer");
+            ERROR_STATUS = ERR_INVALID_INT_FORMAT;
+            return null;
         }
 
         return result;
     }
 
+    /**
+     * Extract the string argument to an option
+     * @param i the index of the option in the extractedOptions
+     * @param command the full command string
+     * @return the argument string or empty string if it is null
+     */
     private String parseStringArg(int i, String command) {
         String argStr = getArgStr(i, command);
-        return argStr.trim();
+        
+        if (argStr == null) {
+            return "";
+        }
+
+        return argStr;
     }
 
+    /**
+     * Reset all data structure containing data for options
+     * to initial state
+     */
     private void clearPreviousOptions() {
         extractedOptions.clear();
         optionStarts.clear();
