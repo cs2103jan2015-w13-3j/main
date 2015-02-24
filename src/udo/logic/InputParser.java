@@ -56,7 +56,7 @@ public class InputParser {
     
     private String errorStatus;
     /** Syntax errors messages */
-    private static final String ERR_INVALID_CMD_NAME = "Invalid command name";
+    //private static final String ERR_INVALID_CMD_NAME = "Invalid command name";
     private static final String ERR_INVALID_TIME_FORMAT =
             "Hours and minutes are not integers";
     private static final String ERR_INVALID_DATE_FORMAT =
@@ -185,7 +185,8 @@ public class InputParser {
 
     /**
      * Extract the command name from the command string and store it
-     * in the resultcommand data-structure
+     * in the resultCommand data-structure. If there is no command name
+     * detected, it is assumed to be the add command
      * @param command
      * @param resultCommand
      * @return the end index of command name in the command string
@@ -198,9 +199,8 @@ public class InputParser {
                                             cmdNameMatcher.group(GROUP_NAME));
             return cmdNameMatcher.end(GROUP_NAME);
         } else {
-            resultCommand.commandName = null;
-            errorStatus = ERR_INVALID_CMD_NAME;
-            return -1;
+            resultCommand.commandName = Config.CommandName.ADD;
+            return 0;
         }
     }
 
@@ -408,5 +408,6 @@ public class InputParser {
         inputParser.parseCommand("add AAAI conference /start in 2 days /end tuesday");
         inputParser.parseCommand("add match midterm /start next friday /end 11/02/15");
         inputParser.parseCommand("add watch a movie /duration 2 hours 30 minutes");
+        inputParser.parseCommand("submit the report /deadline next friday /reminder next thursday");
     }
 }
