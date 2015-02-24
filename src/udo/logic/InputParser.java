@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import udo.util.Config;
+import udo.util.Utility;
 
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
@@ -17,12 +18,13 @@ public class InputParser {
     private static final String GROUP_NAME = "name";
     private static final String GROUP_ARG = "arg";
     private Pattern commandNamePattern =
-            Pattern.compile("(?i)(?:\\s)*" +
-                            "(?<name>add|modify|delete|display|search)" +
+            Pattern.compile("(?i)^(?:\\s)*" +
+                            "(?<name>add|modify|delete|display|search|" +
+                            "done|chdir)" +
                             "(\\s*(?<arg>[a-zA-Z0-9]*))");
     
     // Regex strings and pattern used for matching an option
-    private static final String OPTION_FORMATER = ":%s|:%s";
+    private static final String OPTION_FORMATER = "/%s|/%s";
     private Pattern optionsPattern;
     // Map option names to their corresponding types
     private HashMap<String, String> optionTypeMap = new HashMap<>();
@@ -121,7 +123,8 @@ public class InputParser {
         Matcher cmdNameMatcher = commandNamePattern.matcher(command);
 
         if (cmdNameMatcher.find()) {
-            resultCommand.commandName = cmdNameMatcher.group(GROUP_NAME);
+            resultCommand.commandName = Utility.convertToCommandName(
+                                            cmdNameMatcher.group(GROUP_NAME));
             resultCommand.commandArg = cmdNameMatcher.group(GROUP_ARG);
         } else {
             resultCommand.commandName = null;
@@ -314,10 +317,10 @@ public class InputParser {
     public static void main(String[] args) {
         InputParser inputParser = new InputParser();
         
-        inputParser.parseCommand("modify 10 :deadline submit reflection :end 1/3/2015");
-        inputParser.parseCommand("add :event go to school :start tomorrow 2pm :end tomorrow 4pm");
-        inputParser.parseCommand("add :event AAAI conference :start in 2 days :end tuesday");
-        inputParser.parseCommand("add :event match midterm :start next friday :end 11/02/15");
-        inputParser.parseCommand("add :todo watch a movie :duration 2 hours 30 minutes");
+        inputParser.parseCommand("modify 10 /deadline modify reflection /end 1/3/2015");
+        inputParser.parseCommand("add /event go to school /start tomorrow 2pm /end tomorrow 4pm");
+        inputParser.parseCommand("add /event AAAI conference /start in 2 days /end tuesday");
+        inputParser.parseCommand("add /event match midterm /start next friday /end 11/02/15");
+        inputParser.parseCommand("add /todo watch a movie /duration 2 hours 30 minutes");
     }
 }

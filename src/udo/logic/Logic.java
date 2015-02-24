@@ -48,23 +48,24 @@ public class Logic {
      */
     private boolean isCommandValid(Command parsedCommand) {
         if (parsedCommand == null || parsedCommand.commandName == null ||
-            parsedCommand.commandName.trim().equalsIgnoreCase("")) {
+            parsedCommand.commandName == null) {
             status = formatErrorStr(ERR_INVALID_CMD_NAME);
             return false;
         }
         
-        String cmdName = parsedCommand.commandName;
-        if (cmdName.equalsIgnoreCase(Config.CMD_STR_ADD)) {
-            return isAddCmdValid(parsedCommand); 
-        } else if (cmdName.equalsIgnoreCase(Config.CMD_STR_DELETE)) {
-            return isDeleteCmdValid(parsedCommand);
-        } else if (cmdName.equalsIgnoreCase(Config.CMD_STR_MODIFY)) {
-            return isModifyCmdValid(parsedCommand);
-        } else if (cmdName.equalsIgnoreCase(Config.CMD_STR_DISPLAY)) {
-            return isDisplayCmdValid(parsedCommand);
-        } else {
-            status = formatErrorStr(ERR_UNSUPPORTED_CMD);
-            return false;
+        Config.CommandName cmdName = parsedCommand.commandName;
+        switch (cmdName) {
+            case ADD:
+                return isAddCmdValid(parsedCommand); 
+            case DELETE:
+                return isDeleteCmdValid(parsedCommand);
+            case MODIFY:
+                return isModifyCmdValid(parsedCommand);
+            case DISPLAY:
+                return isDisplayCmdValid(parsedCommand);
+            default:
+                status = formatErrorStr(ERR_UNSUPPORTED_CMD);
+                return false;
         }
     }
 

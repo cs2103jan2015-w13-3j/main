@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import udo.util.Config;
+
 public class Command {
     public static class Option {
         public String strArgument;
@@ -14,7 +16,7 @@ public class Command {
         public Integer timeArgument;
     }
 
-    public String commandName;
+    public Config.CommandName commandName;
     public String commandArg;
     public Map<String, Option> options;
 

@@ -7,6 +7,12 @@ public class Config {
     public static final String CMD_STR_DELETE = "delete";
     public static final String CMD_STR_DISPLAY = "display";
     public static final String CMD_STR_SEARCH = "search";
+    public static final String CMD_STR_DONE = "done";
+    public static final String CMD_STR_CHDIR = "chdir";
+    
+    public static enum CommandName {
+        ADD, MODIFY, DELETE, DISPLAY, SEARCH, DONE, CHDIR 
+    }
     
     /** Constants for command options **/
     public static final int OPT_LONG = 0;
