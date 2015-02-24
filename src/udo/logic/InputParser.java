@@ -16,12 +16,11 @@ import com.joestelmach.natty.Parser;
 public class InputParser {
     // Regex string used to match command name (case insensitive)
     private static final String GROUP_NAME = "name";
-    private static final String GROUP_ARG = "arg";
     private Pattern commandNamePattern =
             Pattern.compile("(?i)^(?:\\s)*" +
-                            "(?<name>add|modify|delete|display|search|" +
-                            "done|chdir)" +
-                            "(\\s*(?<arg>[a-zA-Z0-9]*))");
+                            "(?<name>add|modify|delete|display|" +
+                            "search|done|chdir)");
+
     
     // Regex strings and pattern used for matching an option
     private static final String OPTION_FORMATER = "/%s|/%s";
@@ -100,12 +99,14 @@ public class InputParser {
         
         Command resultCommand = new Command();
 
-        extractCommandName(command, resultCommand);
+        int cmdEndIndex = extractCommandName(command, resultCommand);
         if (resultCommand.commandName == null || ERROR_STATUS != null) {
             return resultCommand;
         }
         
         extractOptions(command);
+        
+        resultCommand.commandArg = extractCmdArg(command, cmdEndIndex);
         
         parseAllOptions(command, resultCommand);
 
@@ -114,21 +115,42 @@ public class InputParser {
     }
 
     /**
+     * Extract the argument part of the command string that is not
+     * attached to any option
+     * @param command the command string
+     * @param cmdEndIndex the end index of the cmd name in the cmd string
+     */
+    private String extractCmdArg(String command, int cmdEndIndex) {
+        if (cmdEndIndex < 0) {
+            return null;
+        }
+        
+        int argEndIndex = command.length();
+        if (extractedOptions.size() > 0) {
+            argEndIndex = optionStarts.get(0);
+        }
+        
+        return command.substring(cmdEndIndex, argEndIndex).trim();
+    }
+
+    /**
      * Extract the command name from the command string and store it
      * in the resultcommand data-structure
      * @param command
      * @param resultCommand
+     * @return the end index of command name in the command string
      */
-    private void extractCommandName(String command, Command resultCommand) {
+    private int extractCommandName(String command, Command resultCommand) {
         Matcher cmdNameMatcher = commandNamePattern.matcher(command);
 
         if (cmdNameMatcher.find()) {
             resultCommand.commandName = Utility.convertToCommandName(
                                             cmdNameMatcher.group(GROUP_NAME));
-            resultCommand.commandArg = cmdNameMatcher.group(GROUP_ARG);
+            return cmdNameMatcher.end(GROUP_NAME);
         } else {
             resultCommand.commandName = null;
             ERROR_STATUS = ERR_INVALID_CMD_NAME;
+            return -1;
         }
     }
 
@@ -317,10 +339,10 @@ public class InputParser {
     public static void main(String[] args) {
         InputParser inputParser = new InputParser();
         
-        inputParser.parseCommand("modify 10 /deadline modify reflection /end 1/3/2015");
-        inputParser.parseCommand("add /event go to school /start tomorrow 2pm /end tomorrow 4pm");
-        inputParser.parseCommand("add /event AAAI conference /start in 2 days /end tuesday");
-        inputParser.parseCommand("add /event match midterm /start next friday /end 11/02/15");
-        inputParser.parseCommand("add /todo watch a movie /duration 2 hours 30 minutes");
+        inputParser.parseCommand("modify 10 modify reflection /deadline 1/3/2015 /reminder today");
+        inputParser.parseCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm");
+        inputParser.parseCommand("add AAAI conference /start in 2 days /end tuesday");
+        inputParser.parseCommand("add match midterm /start next friday /end 11/02/15");
+        inputParser.parseCommand("add watch a movie /duration 2 hours 30 minutes");
     }
 }
