@@ -20,8 +20,11 @@ public class InputParser {
             Pattern.compile("(?i)^(?:\\s)*" +
                             "(?<name>add|modify|delete|display|" +
                             "search|done|chdir)");
-
     
+    // Regex used to parse command's argument
+    private static final Pattern indexPattern =
+            Pattern.compile("^(\\d+)");
+
     // Regex strings and pattern used for matching an option
     private static final String OPTION_FORMATER = "/%s|/%s";
     private Pattern optionsPattern;
@@ -51,7 +54,7 @@ public class InputParser {
     
     private static final int MINUTES_IN_HOUR = 60;
     
-    private String ERROR_STATUS;
+    private String errorStatus;
     /** Syntax errors messages */
     private static final String ERR_INVALID_CMD_NAME = "Invalid command name";
     private static final String ERR_INVALID_TIME_FORMAT =
@@ -60,6 +63,8 @@ public class InputParser {
             "Date time format is invalid";
     private static final String ERR_INVALID_INT_FORMAT =
            "Argument to an option is not a valid integer"; 
+    private static final String ERR_UNSPECIFIED_INDEX =
+            "Task's index is not specified";
 
     public InputParser() {
         StringBuilder optionPatternBuilder = new StringBuilder();
@@ -100,13 +105,14 @@ public class InputParser {
         Command resultCommand = new Command();
 
         int cmdEndIndex = extractCommandName(command, resultCommand);
-        if (resultCommand.commandName == null || ERROR_STATUS != null) {
+        if (resultCommand.commandName == null || errorStatus != null) {
             return resultCommand;
         }
         
         extractOptions(command);
         
-        resultCommand.commandArg = extractCmdArg(command, cmdEndIndex);
+        parseCommandArg(extractCmdArg(command, cmdEndIndex),
+                        resultCommand);
         
         parseAllOptions(command, resultCommand);
 
@@ -115,10 +121,54 @@ public class InputParser {
     }
 
     /**
+     * Parse different components inside a argument string of the command
+     * and store the result in argStr and argIndex of a Command datastructure
+     * @param extractCmdArg
+     * @param resultCommand
+     */
+    private void parseCommandArg(String extractCmdArg, Command resultCommand) {
+        if (extractCmdArg == null || resultCommand == null) {
+            return;
+        }
+        
+        switch (resultCommand.commandName) {
+            case MODIFY:
+            case DELETE:
+            case DONE:
+                int idxEnd = extractIndex(extractCmdArg, resultCommand);
+                resultCommand.argStr = extractCmdArg.substring(idxEnd).trim();
+                break;
+            default:
+                resultCommand.argStr = extractCmdArg;
+        }
+    }
+
+    /**
+     * Extract the task's index from the command's argument and store
+     * it in the argIndex component of resultCommand
+     * @param extractCmdArg
+     * @param resultCommand
+     * @return the end position of the index in the argument string
+     */
+    private int extractIndex(String extractCmdArg, Command resultCommand) {
+        Matcher indexMatcher = indexPattern.matcher(extractCmdArg);
+
+        if (indexMatcher.find()) {
+            resultCommand.argIndex = Integer.parseInt(indexMatcher.group());
+            return indexMatcher.end();
+        } else {
+            errorStatus = ERR_UNSPECIFIED_INDEX;
+            resultCommand.argIndex = null;
+            return 0;
+        }
+    }
+
+    /**
      * Extract the argument part of the command string that is not
      * attached to any option
      * @param command the command string
      * @param cmdEndIndex the end index of the cmd name in the cmd string
+     * @return the string containing the command's argumument
      */
     private String extractCmdArg(String command, int cmdEndIndex) {
         if (cmdEndIndex < 0) {
@@ -149,7 +199,7 @@ public class InputParser {
             return cmdNameMatcher.end(GROUP_NAME);
         } else {
             resultCommand.commandName = null;
-            ERROR_STATUS = ERR_INVALID_CMD_NAME;
+            errorStatus = ERR_INVALID_CMD_NAME;
             return -1;
         }
     }
@@ -187,6 +237,13 @@ public class InputParser {
         }
     }
 
+    /**
+     * Parse and single option at index i in extractedOptions and store
+     * the result in the options component of the Command datastructure
+     * @param i
+     * @param command
+     * @param resultCommand
+     */
     private void parseOption(int i, String command, Command resultCommand) {
         Command.Option option = new Command.Option();
         
@@ -206,6 +263,13 @@ public class InputParser {
         resultCommand.options.put(optionName, option);
     }
 
+    /**
+     * Parse the time specified in hours and minutes for the option
+     * at index 'i' in extractedOptions
+     * @param i
+     * @param command
+     * @return the integer represented by the argument string
+     */
     private Integer parseTimeArg(int i, String command) {
         String argStr = getArgStr(i, command);
         
@@ -218,7 +282,7 @@ public class InputParser {
             try {
                 h = Integer.parseInt(hourMatcher.group(GROUP_HOUR));
             } catch (NumberFormatException e) {
-                ERROR_STATUS = ERR_INVALID_TIME_FORMAT;
+                errorStatus = ERR_INVALID_TIME_FORMAT;
                 return null;
             }
         }
@@ -231,7 +295,7 @@ public class InputParser {
                     m = Integer.parseInt(minMatcher.group(GROUP_MINUTE2));
                 }
             } catch (NumberFormatException e) {
-                ERROR_STATUS = ERR_INVALID_TIME_FORMAT;
+                errorStatus = ERR_INVALID_TIME_FORMAT;
                 return null;
             }
         }
@@ -253,7 +317,7 @@ public class InputParser {
         if (groups == null || groups.size() == 0 ||
             groups.get(0).getDates() == null ||
             groups.get(0).getDates().size() == 0) {
-            ERROR_STATUS = ERR_INVALID_DATE_FORMAT;
+            errorStatus = ERR_INVALID_DATE_FORMAT;
             return null;
         }
 
@@ -291,7 +355,7 @@ public class InputParser {
         try {
             result = Integer.parseInt(argStr);
         } catch (NumberFormatException e) {
-            ERROR_STATUS = ERR_INVALID_INT_FORMAT;
+            errorStatus = ERR_INVALID_INT_FORMAT;
             return null;
         }
 
@@ -325,11 +389,11 @@ public class InputParser {
     }
     
     public String getErrorStatus() {
-        return ERROR_STATUS;
+        return errorStatus;
     }
     
     private void clearErrorStatus() {
-        ERROR_STATUS = null;
+        errorStatus = null;
     }
 
     /**

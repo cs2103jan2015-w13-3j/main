@@ -17,7 +17,8 @@ public class Command {
     }
 
     public Config.CommandName commandName;
-    public String commandArg;
+    public String argStr;
+    public Integer argIndex; 
     public Map<String, Option> options;
 
     private static final DateFormat DATE_FORMAT =
@@ -29,8 +30,11 @@ public class Command {
     
     public String toString() {
         String str = "Command: " + commandName + "\n";
-        if (!commandArg.equalsIgnoreCase("")) {
-            str += "Argument: " + commandArg + "\n";
+        if (argIndex != null) {
+            str += "Index: " + argIndex + "\n";
+        }
+        if (argStr != null && !argStr.equalsIgnoreCase("")) {
+            str += "Argument: " + argStr + "\n";
         }
         str += "Options:\n";
         
