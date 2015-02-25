@@ -51,10 +51,10 @@ public class HomeController {
         gui.passUserInput(text);
         
         //To be removed: Logic returns a string
-        displayStatus("added succesfully"); 
+        //gui.displayStatus("added succesfully"); 
     }
     
-    public static void displayStatus(String testString){
+    public void displayStatus(String testString){
        statusString.setText(testString);
     }
     

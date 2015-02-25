@@ -20,12 +20,12 @@ import javafx.stage.Stage;
 public class GUI extends Application{
     
     private static final String NAME_APP = "JustU";
+    private static ObservableList<Task> taskData;
     
     private Stage primaryStage;
     private BorderPane rootLayout;
     private Logic logic;
-    private static ObservableList<Task> taskData;
-    private static HomeController controller;
+    private HomeController controller;
     
     /**
      * Constructor
@@ -110,8 +110,9 @@ public class GUI extends Application{
         logic.executeCommand(input);
     }
     
-    public static void displayStatus(String statusString) {
-        HomeController.displayStatus(statusString);
+    public void displayStatus(String statusString) {
+        System.out.println(statusString);
+        controller.displayStatus(statusString);
     }
     
     /**
