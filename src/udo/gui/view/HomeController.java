@@ -44,13 +44,14 @@ public class HomeController {
     @FXML
     private void handleReturnKey(ActionEvent event) {
         
-        //TODO pass this string to logic class
         String text = inputBox.getText();
         inputBox.clear();
-        System.out.println(text);
+        System.out.println(text); //for testing
+      
+        gui.passUserInput(text);
         
-        //To be removed: Logic class calls this function
-        GUI.displayStatus("added succesfully"); 
+        //To be removed: Logic returns a string
+        displayStatus("added succesfully"); 
     }
     
     public static void displayStatus(String testString){

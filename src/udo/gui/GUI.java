@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 
 import udo.storage.Task;
 import udo.gui.view.HomeController;
+import udo.logic.Logic;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -22,6 +23,7 @@ public class GUI extends Application{
     
     private Stage primaryStage;
     private BorderPane rootLayout;
+    private Logic logic;
     private static ObservableList<Task> taskData;
     private static HomeController controller;
     
@@ -29,6 +31,8 @@ public class GUI extends Application{
      * Constructor
      */
     public GUI() {
+        
+        logic = new Logic(this);
         
         //For testing purposes
         ArrayList<Task> testList = new ArrayList<Task>();
@@ -102,8 +106,12 @@ public class GUI extends Application{
         taskData = FXCollections.observableArrayList(testingInputTaskList);
     }
     
-    public static void displayStatus(String newStatus) {
-        HomeController.displayStatus(newStatus);
+    public void passUserInput(String input) {
+        logic.executeCommand(input);
+    }
+    
+    public static void displayStatus(String statusString) {
+        HomeController.displayStatus(statusString);
     }
     
     /**
