@@ -1,17 +1,24 @@
 package udo.logic;
 
+import udo.gui.GUI;
 import udo.util.Config;
 
 public class Logic {
+    private GUI gui;
+    
     private static final String ERR_FORMAT = "Error: %s";
     private static final String ERR_INVALID_CMD_NAME = "Invalid command";
     private static final String ERR_UNSUPPORTED_CMD = "Unsupported command";
+    
+    private static final String STATUS_ADDED = "Task: %s added sucessfully";
+    private static final Integer MAX_STATUS_LENGTH = 40;
     
     private InputParser parser;
     
     private static String status;
     
-    public Logic() {
+    public Logic(GUI gui) {
+        this.gui = gui;
         parser = new InputParser();
         /* TODO:
          * Initialize Storage
@@ -36,9 +43,76 @@ public class Logic {
         }
         
         if (isCommandValid(parsedCommand)) {
+            switch (parsedCommand.commandName) {
+                case ADD:
+                    executeAddCommand(parsedCommand);
+                    break;
+                case MODIFY:
+                    executeModifyCommand(parsedCommand);
+                    break;
+                case DELETE:
+                    executeDeleteCommand(parsedCommand);
+                    break;
+                case DISPLAY:
+                    executeDisplayCommand(parsedCommand);
+                    break;
+                default:
+                    status = ERR_UNSUPPORTED_CMD;
+            }
+            
+            gui.displayStatus(status);
         } else {
            // TODO: Inform GUI of error status 
         }
+    }
+
+    private void executeDisplayCommand(Command parsedCommand) {
+        // TODO fill in default values
+        // TODO fill in data structure and call storage apis
+        status = getDisplaySucessStatus(parsedCommand);
+    }
+
+    private String getDisplaySucessStatus(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return "";
+    }
+
+    private void executeDeleteCommand(Command parsedCommand) {
+        // TODO fill in default values
+        // TODO fill in data structure and call storage apis
+        status = getDeleteSucessStatus(parsedCommand);
+    }
+
+    private String getDeleteSucessStatus(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return "";
+    }
+
+    private void executeModifyCommand(Command parsedCommand) {
+        // TODO fill in default values
+        // TODO fill in data structure and call storage apis
+        status = getModifySucessStatus(parsedCommand);
+    }
+
+    private String getModifySucessStatus(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return "";
+    }
+
+    private void executeAddCommand(Command parsedCommand) {
+        // TODO fill in default values
+        // TODO fill in data structure and call storage apis
+        status = getAddSucessStatus(parsedCommand);
+    }
+
+    private String getAddSucessStatus(Command parsedCommand) {
+        String taskContent = parsedCommand.argStr;
+
+        if (taskContent.length() > MAX_STATUS_LENGTH) {
+            taskContent = taskContent.substring(0, MAX_STATUS_LENGTH);
+        }
+
+        return String.format(STATUS_ADDED, taskContent);
     }
 
     /**
