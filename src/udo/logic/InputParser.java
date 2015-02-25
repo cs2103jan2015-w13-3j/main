@@ -116,7 +116,7 @@ public class InputParser {
         
         parseAllOptions(command, resultCommand);
 
-        System.out.println(resultCommand);
+        //System.out.println(resultCommand);
         return resultCommand;
     }
 

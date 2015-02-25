@@ -40,6 +40,7 @@ public class Logic {
             // Syntax error
             status = parser.getErrorStatus();
             // TODO: Inform GUI of error status
+            gui.displayStatus(status);
         }
         
         if (isCommandValid(parsedCommand)) {
@@ -145,22 +146,22 @@ public class Logic {
 
     private boolean isDisplayCmdValid(Command parsedCommand) {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     private boolean isModifyCmdValid(Command parsedCommand) {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     private boolean isDeleteCmdValid(Command parsedCommand) {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     private boolean isAddCmdValid(Command parsedCommand) {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     private String formatErrorStr(String errorInvalidCmdName) {
