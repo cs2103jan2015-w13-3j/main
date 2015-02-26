@@ -9,6 +9,7 @@ public class Task {
 	private String content;
 	private GregorianCalendar start;
 	private GregorianCalendar end;
+	private int duration;
 	private GregorianCalendar reminder;
 	private String label;
 	private boolean priority;
@@ -16,11 +17,12 @@ public class Task {
 	
 	//constructor
 	public Task(String taskType, String content, GregorianCalendar start, GregorianCalendar end, 
-			GregorianCalendar reminder, String label, boolean priority){
+			int duration, GregorianCalendar reminder, String label, boolean priority){
 		this.taskType = taskType;
 		this.content = content;
 		this.start = start;
 		this.end = end;
+		this.duration = duration;
 		this.reminder = reminder;
 		this.label = label;
 		this.priority = priority;
@@ -41,6 +43,10 @@ public class Task {
 
 	public GregorianCalendar getEnd(){
 		return end;
+	}
+	
+	public int getDuration(){
+		return duration;
 	}
 	
 	public GregorianCalendar getReminder(){
@@ -75,6 +81,10 @@ public class Task {
 		this.end = end;
 	}
 	
+	public void setDuration(int duration){
+		this.duration = duration;
+	}
+	
 	public void setReminder(GregorianCalendar reminder){
 		this.reminder = reminder;
 	}
@@ -96,7 +106,7 @@ public class Task {
 		String startDate = start.get(Calendar.DAY_OF_MONTH) + "/" + start.get(Calendar.MONTH) + "/" + start.get(Calendar.YEAR);
 		String endDate = end.get(Calendar.DAY_OF_MONTH) + "/" + end.get(Calendar.MONTH) + "/" + end.get(Calendar.YEAR);
 		String reminderDate = reminder.get(Calendar.DAY_OF_MONTH) + "/" + reminder.get(Calendar.MONTH) + "/" + reminder.get(Calendar.YEAR);
-		finalString += taskType + "     " + content + "      " + startDate + "     " + endDate + "    " + reminderDate + "     " + label 
+		finalString += taskType + "     " + content + "      " + duration + "      " + startDate + "     " + endDate + "    " + reminderDate + "     " + label 
 				+ "     ";
 		return finalString;
 	}
