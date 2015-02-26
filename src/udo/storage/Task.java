@@ -103,9 +103,24 @@ public class Task {
 	
 	public String toString(){
 		String finalString = "";
-		String startDate = start.get(Calendar.DAY_OF_MONTH) + "/" + start.get(Calendar.MONTH) + "/" + start.get(Calendar.YEAR);
-		String endDate = end.get(Calendar.DAY_OF_MONTH) + "/" + end.get(Calendar.MONTH) + "/" + end.get(Calendar.YEAR);
-		String reminderDate = reminder.get(Calendar.DAY_OF_MONTH) + "/" + reminder.get(Calendar.MONTH) + "/" + reminder.get(Calendar.YEAR);
+
+		String startDate = "nil";
+		String endDate = "nil";
+		String reminderDate = "nil";
+		
+		if (start != null){
+			startDate = start.get(Calendar.DAY_OF_MONTH) + "/" + start.get(Calendar.MONTH) + "/" + start.get(Calendar.YEAR);
+		}
+		
+		
+		if (end != null){
+			endDate = end.get(Calendar.DAY_OF_MONTH) + "/" + end.get(Calendar.MONTH) + "/" + end.get(Calendar.YEAR);
+		}
+		
+		if (reminder != null){
+			reminderDate = reminder.get(Calendar.DAY_OF_MONTH) + "/" + reminder.get(Calendar.MONTH) + "/" + reminder.get(Calendar.YEAR);
+		}
+		
 		finalString += taskType + "     " + content + "      " + duration + "      " + startDate + "     " + endDate + "    " + reminderDate + "     " + label 
 				+ "     ";
 		return finalString;
