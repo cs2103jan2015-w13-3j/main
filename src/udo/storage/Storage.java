@@ -38,32 +38,36 @@ public class Storage {
     	printTest(test);
     	//test = st.query("leisure");
     	//printTest(test);
-    	test = st.query(new GregorianCalendar(2010,01,03));
-    	printTest(test);
+    	//test = st.query(new GregorianCalendar(2010,01,03));
+    	//printTest(test);
     	//test = st.query(TASK_TYPE.DEADLINE);
     	//printTest(test);
     	//test = st.search("read");
     	//printTest(test);
-    	test = st.query(true);
-    	printTest(test);
+    	//test = st.query(true);
+    	//printTest(test);
     	boolean done;
-    	done = st.changeStatus(2);
-    	test = st.query(true);
-    	printTest(test);
-    	done = st.delete(1);
+    	//done = st.changeStatus(2);
+    	//test = st.query(true);
+    	//printTest(test);
+    	//done = st.delete(1);
+    	//test = st.query();
+    	//printTest(test);
+    	done = st.modify(2, "deadline", null, null, new GregorianCalendar(2006,01,05),0, new GregorianCalendar(2006,01,02), null);
+    	done = st.modify(1, "event", "hanging out", new GregorianCalendar(2013,05,04), new GregorianCalendar(2013,05,05), -1, new GregorianCalendar(2013,05,03), "leisure");
+	    done = st.modify(0, "todo", null,null, null, 3, null, null);
     	test = st.query();
-    	printTest(test);
-    	*/
-    	
+	    printTest(test);*/
+	    
 	    st.exit();
 	}
 
    
-	public static void printTest(ArrayList<Task> test){
+	/*public static void printTest(ArrayList<Task> test){
 		for (int i =0; i < test.size(); i++)
 			System.out.println(test.get(i));
 		System.out.println("");
-	}
+	}*/
 	
 	//read from json file
 	public Storage(){
@@ -103,8 +107,50 @@ public class Storage {
 
     //modify function (still working)
     public boolean modify(int index, String taskType, String content, GregorianCalendar start, GregorianCalendar end,
-    		int duration, GregorianCalendar reminder, String label, boolean priority){
-    	
+    		int duration, GregorianCalendar reminder, String label){
+    	Task modifiedTask = taskList.get(index);
+    	if (content != null){
+    		modifiedTask.setContent(content);
+    	}
+    	if (duration != -1){
+    		modifiedTask.setDuration(duration);
+    	}
+    	if (reminder != null){
+    		modifiedTask.setReminder(reminder);
+    	}
+    	if (label != null){
+    		modifiedTask.setLabel(label);
+    	}
+    	if (taskType != null){
+    		modifiedTask.setTaskType(taskType);
+    		if (taskType.equals("event")){
+    			modifiedTask.setStart(start);
+    			
+    			if (end != null){
+    				modifiedTask.setEnd(end);
+    			}
+    		}
+    		else if (taskType.equals("deadline")){
+    			modifiedTask.setStart(null);
+    			
+    			if (end != null){
+    				modifiedTask.setEnd(end);
+    			}
+    		}
+    		
+    		else {
+    			modifiedTask.setStart(null);
+    			modifiedTask.setEnd(null);
+    		}
+    	}
+    	else {
+    		if (start != null){
+    			modifiedTask.setStart(start);
+    		}
+    		if (end != null){
+    			modifiedTask.setEnd(end);
+    		}
+    	}
     	return true;
     }
     
