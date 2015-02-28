@@ -2,10 +2,16 @@ package udo.gui.view;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.util.Callback;
 import javafx.event.ActionEvent;
 import udo.gui.GUI;
 import udo.storage.Task;
@@ -18,6 +24,8 @@ public class HomeController {
     @FXML
     private TableColumn<Task, String> taskNameColumn;
     @FXML
+    private TableColumn<Task, String> timeColumn;
+    @FXML
     private TextField inputBox;
     @FXML
     private Label status;
@@ -27,6 +35,7 @@ public class HomeController {
     private static Label statusString;
     
     public HomeController() {
+        
     }
 
     /**
@@ -34,11 +43,43 @@ public class HomeController {
      * after the fxml file has been loaded.
      */
     @FXML
-    private void initialize() {
-        //Initialize the Task table with the two columns.
+    private void initialize() {   
+        initialiseTableColumns(); 
+        disableDefaultSort();
+        statusString = status;        
+    }
+    
+    /**
+     * Initialises the TableView with 3 columns
+     */
+    private void initialiseTableColumns() {
+        //TODO refactor
         displayIndexColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("taskType"));
+        
+        //TODO decide how to display duration
+        timeColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("label"));
         taskNameColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("content"));
-        statusString = status;
+        taskNameColumn.setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
+            
+            public TableCell<Task, String> call(TableColumn<Task, String> param) {
+                return new TableCell<Task, String>() {
+    
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (!isEmpty()) {
+                            this.setTextFill(Color.RED);
+                            // Get fancy and change color based on data
+                            if(item.contains("coffee")) {
+                                this.setTextFill(Color.BLUEVIOLET);
+                                this.setFont(Font.font ("Droid Sans", FontWeight.BOLD, 20));
+                            }
+                            setText(item);
+                        }
+                    }
+                };
+            }
+        });
     }
     
     @FXML
@@ -70,4 +111,9 @@ public class HomeController {
         TaskTable.setItems(gui.getTaskData());  
     }
     
+    private void disableDefaultSort(){
+        displayIndexColumn.setSortable(false);
+        taskNameColumn.setSortable(false);
+        timeColumn.setSortable(false);
+    }
 }
