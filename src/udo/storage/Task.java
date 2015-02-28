@@ -9,6 +9,7 @@ public class Task {
 	//class defines Task objects
 	private TaskType taskType;
 	private String content;
+	private GregorianCalendar deadline;
 	private GregorianCalendar start;
 	private GregorianCalendar end;
 	private Integer duration;
@@ -40,6 +41,10 @@ public class Task {
 	
 	public String getContent() {
 		return content;
+	}
+	
+	public GregorianCalendar getDeadline() {
+	    return deadline;
 	}
 
 	public GregorianCalendar getStart() {
@@ -76,6 +81,10 @@ public class Task {
 	
 	public void setContent(String content) {
 		this.content = content;
+	}
+	
+	public void setDeadline(GregorianCalendar deadline) {
+	    this.deadline = deadline;
 	}
 	
 	public void setStart(GregorianCalendar start) {

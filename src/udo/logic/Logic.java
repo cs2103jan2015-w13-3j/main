@@ -1,5 +1,6 @@
 package udo.logic;
 
+import java.util.GregorianCalendar;
 import java.util.Map;
 
 import udo.gui.GUI;
@@ -111,21 +112,41 @@ public class Logic {
     }
 
     private void executeAddCommand(Command parsedCommand) {
-        Task task = fillAddedTaskDefaults(parsedCommand);
+        Task task = fillAddedTask(parsedCommand);
         // TODO fill in data structure and call storage apis
         status = getAddSucessStatus(parsedCommand);
         // TODO retrieve and display all tasks
     }
 
-    private Task fillAddedTaskDefaults(Command parsedCommand) {
+    private Task fillAddedTask(Command parsedCommand) {
         Task task = new Task();
+
+        task.setTaskType(getTaskType(parsedCommand));
+        
+        task.setContent(parsedCommand.argStr);
+
+        return task;
+    }
+
+    /**
+     * Guess and return a task type from a command
+     * @param task
+     * @param options
+     */
+    private Task.TaskType getTaskType(Command parsedCommand) {
         Map<String, Command.Option> options = parsedCommand.options;
 
         if (options.containsKey(Config.OPT_DEADLINE[Config.OPT_LONG]) ||
             options.containsKey(Config.OPT_DEADLINE[Config.OPT_SHORT])) {
-            
+            return Task.TaskType.DEADLINE;
+        } else if (options.containsKey(Config.OPT_START[Config.OPT_LONG]) ||
+                   options.containsKey(Config.OPT_START[Config.OPT_SHORT]) ||
+                   options.containsKey(Config.OPT_END[Config.OPT_LONG]) ||
+                   options.containsKey(Config.OPT_END[Config.OPT_SHORT])) {
+            return Task.TaskType.EVENT;
+        } else {
+            return Task.TaskType.TODO;
         }
-        return null;
     }
 
     private String getAddSucessStatus(Command parsedCommand) {
