@@ -19,6 +19,8 @@ public class Task {
 	private Boolean done;
 	
 	public Task() {
+	    done = false;
+	    priority = false;
 	}
 	
 	//constructor
@@ -107,8 +109,8 @@ public class Task {
 		this.label = label;
 	}
 	
-	public void setPriority() {
-		this.priority = !(this.priority);
+	public void setPriority(Boolean priority) {
+		this.priority = priority;
 	}
 	
 	public void setDone() {

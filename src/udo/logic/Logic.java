@@ -18,6 +18,10 @@ public class Logic {
             "Invalid command's argument";
     private static final String ERR_UNSPECIFIED_INDEX =
             "A valid task's index is required";
+    private static final String ERR_LATE_DEADLINE =
+            "Deadline has already passed";
+    private static final String ERR_NON_POSITIVE_DUR =
+            "Task's duration must be positive";
     
     private static final String STATUS_ADDED = "Task: %s added sucessfully";
     private static final String STATUS_DELETED =
@@ -114,7 +118,7 @@ public class Logic {
 
     private void executeAddCommand(Command parsedCommand) {
         Task task = fillAddedTask(parsedCommand);
-        // TODO fill in data structure and call storage apis
+        // Call storage apis
         status = getAddSucessStatus(parsedCommand);
         // TODO retrieve and display all tasks
     }
@@ -125,17 +129,83 @@ public class Logic {
         task.setTaskType(getTaskType(parsedCommand));
         task.setContent(parsedCommand.argStr);
         
-        Map<String, Command.Option> options = parsedCommand.options;
-        Date deadline = options.get(
-                            Config.OPT_DEADLINE[Config.OPT_LONG]).dateArgument;
+        fillDeadline(task, parsedCommand);
+        fillStartDate(task, parsedCommand);
+        fillEndDate(task, parsedCommand);
+        fillDuration(task, parsedCommand);
+        fillReminder(task, parsedCommand);
+        fillLabel(task, parsedCommand);
+        fillPriority(task, parsedCommand);
+
+        return task;
+    }
+    
+    private void fillPriority(Task task, Command cmd) {
+        Command.Option priority = getOption(cmd, Config.OPT_PRIO);
+        if (priority != null) {
+            task.setPriority(true);
+        } else {
+            task.setPriority(false);
+        }
+    }
+
+    private void fillLabel(Task task, Command cmd) {
+        Command.Option label = getOption(cmd, Config.OPT_LABEL);
+        if (label != null) {
+            task.setLabel(label.strArgument);
+        }
+    }
+
+    private void fillReminder(Task task, Command cmd) {
+        Command.Option reminder = getOption(cmd, Config.OPT_START);
+
+        if (reminder != null) {
+            GregorianCalendar reminderCalendar = new GregorianCalendar();
+            reminderCalendar.setTime(reminder.dateArgument);
+            task.setReminder(reminderCalendar);
+        }
+    }
+
+    private void fillDuration(Task task, Command cmd) {
+        Command.Option duration = getOption(cmd, Config.OPT_DUR);
+        
+        if (duration != null) {
+            task.setDuration(duration.timeArgument);
+        }
+    }
+
+    private void fillEndDate(Task task, Command cmd) {
+        Command.Option end = getOption(cmd, Config.OPT_START);
+
+        if (end != null) {
+            GregorianCalendar endCalendar = new GregorianCalendar();
+            endCalendar.setTime(end.dateArgument);
+            task.setEnd(endCalendar);
+        }
+    }
+
+    private void fillStartDate(Task task, Command cmd) {
+        Command.Option start = getOption(cmd, Config.OPT_START);
+
+        if (start != null) {
+            GregorianCalendar startCalendar = new GregorianCalendar();
+            startCalendar.setTime(start.dateArgument);
+            task.setStart(startCalendar);
+        }
+    }
+
+    private void fillDeadline(Task task, Command cmd) {
+        Command.Option deadline = getOption(cmd, Config.OPT_DEADLINE);
 
         if (deadline != null) {
             GregorianCalendar deadlineCalendar = new GregorianCalendar();
-            deadlineCalendar.setTime(deadline);
+            deadlineCalendar.setTime(deadline.dateArgument);
             task.setDeadline(deadlineCalendar);
         }
-
-        return task;
+    }
+    
+    private Command.Option getOption(Command cmd, String[] option) {
+        return cmd.options.get(option[Config.OPT_LONG]);
     }
 
     /**
@@ -221,6 +291,46 @@ public class Logic {
         if (parsedCommand.argStr == null) {
             status = ERR_INVALID_CMD_ARG;
             return false;
+        }
+        
+        return isStartBeforeEnd(parsedCommand) &&
+               isDurationValid(parsedCommand) &&
+               isDeadlineValid(parsedCommand);
+    }
+
+    private boolean isDeadlineValid(Command cmd) {
+        Command.Option deadline = getOption(cmd, Config.OPT_DEADLINE);
+        if (deadline != null) {
+            if (deadline.dateArgument.compareTo(new Date()) < 0) {
+                status = ERR_LATE_DEADLINE;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isDurationValid(Command cmd) {
+        Command.Option duration = getOption(cmd, Config.OPT_DUR);
+        if (duration != null) {
+            if (duration.timeArgument <= 0) {
+                status = ERR_NON_POSITIVE_DUR;
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    private boolean isStartBeforeEnd(Command cmd) {
+        Command.Option start = getOption(cmd, Config.OPT_DEADLINE);
+        Command.Option end = getOption(cmd, Config.OPT_END);
+
+        if (start != null && end != null) {
+            if (start.dateArgument.compareTo(end.dateArgument) >= 0) {
+                status = ERR_NON_POSITIVE_DUR;
+                return false;
+            }
         }
 
         return true;
