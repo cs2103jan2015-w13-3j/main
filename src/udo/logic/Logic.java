@@ -1,5 +1,6 @@
 package udo.logic;
 
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
@@ -122,8 +123,17 @@ public class Logic {
         Task task = new Task();
 
         task.setTaskType(getTaskType(parsedCommand));
-        
         task.setContent(parsedCommand.argStr);
+        
+        Map<String, Command.Option> options = parsedCommand.options;
+        Date deadline = options.get(
+                            Config.OPT_DEADLINE[Config.OPT_LONG]).dateArgument;
+
+        if (deadline != null) {
+            GregorianCalendar deadlineCalendar = new GregorianCalendar();
+            deadlineCalendar.setTime(deadline);
+            task.setDeadline(deadlineCalendar);
+        }
 
         return task;
     }
