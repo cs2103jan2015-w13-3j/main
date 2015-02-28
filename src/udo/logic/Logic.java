@@ -9,8 +9,16 @@ public class Logic {
     private static final String ERR_FORMAT = "Error: %s";
     private static final String ERR_INVALID_CMD_NAME = "Invalid command";
     private static final String ERR_UNSUPPORTED_CMD = "Unsupported command";
+    private static final String ERR_INVALID_CMD_ARG =
+            "Invalid command's argument";
+    private static final String ERR_UNSPECIFIED_INDEX =
+            "A valid task's index is required";
     
     private static final String STATUS_ADDED = "Task: %s added sucessfully";
+    private static final String STATUS_DELETED =
+            "Task: %d deleted sucessfully";
+    private static final String STATUS_MODIFIED =
+            "Task: %d modified sucessfully";
     private static final Integer MAX_STATUS_LENGTH = 40;
     
     private InputParser parser;
@@ -39,7 +47,6 @@ public class Logic {
         if (parser.getErrorStatus() != null) {
             // Syntax error
             status = parser.getErrorStatus();
-            // TODO: Inform GUI of error status
             gui.displayStatus(status);
         }
         
@@ -63,7 +70,7 @@ public class Logic {
             
             gui.displayStatus(status);
         } else {
-           // TODO: Inform GUI of error status 
+            gui.displayStatus(status);
         }
     }
 
@@ -74,7 +81,6 @@ public class Logic {
     }
 
     private String getDisplaySucessStatus(Command parsedCommand) {
-        // TODO Auto-generated method stub
         return "";
     }
 
@@ -82,28 +88,30 @@ public class Logic {
         // TODO fill in default values
         // TODO fill in data structure and call storage apis
         status = getDeleteSucessStatus(parsedCommand);
+        // TODO retrieve and display all tasks
     }
 
     private String getDeleteSucessStatus(Command parsedCommand) {
-        // TODO Auto-generated method stub
-        return "";
+        return String.format(STATUS_DELETED, parsedCommand.argIndex);
     }
 
     private void executeModifyCommand(Command parsedCommand) {
         // TODO fill in default values
         // TODO fill in data structure and call storage apis
         status = getModifySucessStatus(parsedCommand);
+        // TODO retrieve and display all tasks
     }
 
     private String getModifySucessStatus(Command parsedCommand) {
         // TODO Auto-generated method stub
-        return "";
+        return String.format(STATUS_MODIFIED, parsedCommand.argIndex);
     }
 
     private void executeAddCommand(Command parsedCommand) {
         // TODO fill in default values
         // TODO fill in data structure and call storage apis
         status = getAddSucessStatus(parsedCommand);
+        // TODO retrieve and display all tasks
     }
 
     private String getAddSucessStatus(Command parsedCommand) {
@@ -111,6 +119,7 @@ public class Logic {
 
         if (taskContent.length() > MAX_STATUS_LENGTH) {
             taskContent = taskContent.substring(0, MAX_STATUS_LENGTH);
+            taskContent += "...";
         }
 
         return String.format(STATUS_ADDED, taskContent);
@@ -121,9 +130,7 @@ public class Logic {
      * @param parsedCommand
      * @return the command's correctness
      */
-    private boolean isCommandValid(Command parsedCommand) {
-        if (parsedCommand == null || parsedCommand.commandName == null ||
-            parsedCommand.commandName == null) {
+    private boolean isCommandValid(Command parsedCommand) { if (parsedCommand == null || parsedCommand.commandName == null) {
             status = formatErrorStr(ERR_INVALID_CMD_NAME);
             return false;
         }
@@ -145,22 +152,31 @@ public class Logic {
     }
 
     private boolean isDisplayCmdValid(Command parsedCommand) {
-        // TODO Auto-generated method stub
         return true;
     }
 
     private boolean isModifyCmdValid(Command parsedCommand) {
-        // TODO Auto-generated method stub
+        if (parsedCommand.argIndex == null) {
+            status = ERR_UNSPECIFIED_INDEX;
+            return false;
+        }
         return true;
     }
 
     private boolean isDeleteCmdValid(Command parsedCommand) {
-        // TODO Auto-generated method stub
+        if (parsedCommand.argIndex == null) {
+            status = ERR_UNSPECIFIED_INDEX;
+            return false;
+        }
         return true;
     }
 
     private boolean isAddCmdValid(Command parsedCommand) {
-        // TODO Auto-generated method stub
+        if (parsedCommand.argStr == null) {
+            status = ERR_INVALID_CMD_ARG;
+            return false;
+        }
+
         return true;
     }
 
