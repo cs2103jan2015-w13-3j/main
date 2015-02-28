@@ -103,52 +103,9 @@ public class Storage {
     	return true;
     }
 
-    //modify function (still working)
-    public boolean modify(int index, Task.TaskType taskType, String content, GregorianCalendar start, GregorianCalendar end,
-                          int duration, GregorianCalendar reminder, String label){
-    	Task modifiedTask = taskList.get(index);
-
-    	if (content != null){
-    		modifiedTask.setContent(content);
-    	}
-    	if (duration != -1){
-    		modifiedTask.setDuration(duration);
-    	}
-    	if (reminder != null){
-    		modifiedTask.setReminder(reminder);
-    	}
-    	if (label != null){
-    		modifiedTask.setLabel(label);
-    	}
-    	if (taskType != null){
-    		modifiedTask.setTaskType(taskType);
-    		
-    		switch (taskType) {
-                case EVENT:
-                    modifiedTask.setStart(start);
-                    if (end != null) {
-                        modifiedTask.setEnd(end);
-                    }
-                    break;
-                case DEADLINE:
-                    modifiedTask.setStart(null);
-                    if (end != null) {
-                        modifiedTask.setEnd(end);
-                    }
-                    break;
-                case TODO:
-                    modifiedTask.setStart(null);
-                    modifiedTask.setEnd(null);
-                    break;
-    		}
-    	} else {
-    		if (start != null){
-    			modifiedTask.setStart(start);
-    		}
-    		if (end != null){
-    			modifiedTask.setEnd(end);
-    		}
-    	}
+    //modify function
+    public boolean modify(int index, Task modifiedTask){
+    	taskList.set(index, modifiedTask);
     	return true;
     }
     
@@ -156,6 +113,12 @@ public class Storage {
     public ArrayList<Task> query(){
     	return taskList;
     }
+    
+    //query a specific task
+    public Task query(int index){
+    	return taskList.get(index);
+    }
+    
     
     public ArrayList<Task> query(String label){
     	ArrayList<Task> returnList = new ArrayList<Task>();
@@ -232,7 +195,7 @@ public class Storage {
 
     //toggle priority
     public boolean changeStatus(int index){
-    	taskList.get(index).setPriority();
+    	taskList.get(index).setPriority(!taskList.get(index).isPriority());
     	return true;
     }
     
