@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,10 +27,12 @@ public class InputParser {
             Pattern.compile("^(\\d+)");
 
     // Regex strings and pattern used for matching an option
-    private static final String OPTION_FORMATER = "/%s|/%s";
+    private static final String OPTION_NO_ARG_FORMATER = "(/%s|/%s)";
+    private static final String OPTION_WITH_ARG_FORMATER = "((/%s)|(/%s)\\s+)";
     private Pattern optionsPattern;
     // Map option names to their corresponding types
-    private HashMap<String, String> optionTypeMap = new HashMap<>();
+    private Map<String, String> optionTypeMap = new HashMap<>();
+    private Map<String, String> shortToLongMap = new HashMap<>();
     
     // Used to store the option strings and their positions within the command
     private ArrayList<String> extractedOptions = new ArrayList<>();
@@ -77,12 +80,19 @@ public class InputParser {
                               option[Config.OPT_TYPE]);
             optionTypeMap.put(option[Config.OPT_SHORT],
                               option[Config.OPT_TYPE]);
+            shortToLongMap.put(option[Config.OPT_SHORT],
+                               option[Config.OPT_LONG]);
             
-            optionPattern = (String.format(OPTION_FORMATER,
-                                           option[Config.OPT_LONG],
-                                           option[Config.OPT_LONG],
-                                           option[Config.OPT_SHORT],
-                                           option[Config.OPT_SHORT]));
+            if (option[Config.OPT_TYPE] != Config.TYPE_NONE) {
+                optionPattern = String.format(OPTION_WITH_ARG_FORMATER,
+                                              option[Config.OPT_LONG],
+                                              option[Config.OPT_SHORT]);
+
+            } else {
+                optionPattern = String.format(OPTION_NO_ARG_FORMATER,
+                                              option[Config.OPT_LONG],
+                                              option[Config.OPT_SHORT]);
+            }
 
             if (i == Config.OPTIONS_TABLE.length - 1) {
                 optionPatternBuilder.append(optionPattern);
@@ -214,7 +224,13 @@ public class InputParser {
         Matcher optionsMatcher = optionsPattern.matcher(command);
 
         while (optionsMatcher.find()) {
-            extractedOptions.add(removeOptionMarker(optionsMatcher.group()));
+            String option = removeOptionMarker(optionsMatcher.group());
+            String longOpt = shortToLongMap.get(option);
+            if (longOpt != null) {
+                option = longOpt;
+            }
+            
+            extractedOptions.add(option);
 
             optionStarts.add(optionsMatcher.start());
             optionEnds.add(optionsMatcher.end());
@@ -222,7 +238,7 @@ public class InputParser {
     }
 
     private String removeOptionMarker(String group) {
-        return group.substring(1);
+        return group.substring(1).trim();
     }
 
     /**
@@ -403,11 +419,11 @@ public class InputParser {
     public static void main(String[] args) {
         InputParser inputParser = new InputParser();
         
-        inputParser.parseCommand("modify 10 modify reflection /deadline 1/3/2015 /reminder today");
-        inputParser.parseCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm");
-        inputParser.parseCommand("add AAAI conference /start in 2 days /end tuesday");
-        inputParser.parseCommand("add match midterm /start next friday /end 11/02/15");
-        inputParser.parseCommand("add watch a movie /duration 2 hours 30 minutes");
-        inputParser.parseCommand("submit the report /deadline next friday /reminder next thursday");
+        System.out.println(inputParser.parseCommand("modify 10 modify reflection /deadline 1/3/2015 /reminder today"));
+        System.out.println(inputParser.parseCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm"));
+        System.out.println(inputParser.parseCommand("add AAAI conference /start in 2 days /end tuesday"));
+        System.out.println(inputParser.parseCommand("add match midterm /start next friday /end 11/02/15"));
+        System.out.println(inputParser.parseCommand("add watch a movie /duration 2 hours 30 minutes"));
+        System.out.println(inputParser.parseCommand("submit the report /dl next friday /reminder next thursday"));
     }
 }
