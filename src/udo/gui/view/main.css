@@ -26,7 +26,7 @@
     -fx-border-width: 0.083333em; /* 1 */
     -fx-cell-size: 2.0em; /* 24 */
     -fx-font-size: 13px;
-   
+    
 }
 
 .table-view .column-header-background {
@@ -40,7 +40,22 @@
     -fx-border-insets: 0 1 1 0, 0 0 0 0;
     -fx-border-width: 0, 0;
     
+}
 
+/* Selected row */
+.table-view:focused .table-row-cell:filled:focused:selected {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background: -fx-accent;
+    -fx-text-fill: green;
+}
+
+
+/* Selected row when table not focused */
+.table-row-cell:filled:focused:selected {
+    -fx-background-insets: 0, 1, 2;
+    -fx-background: -fx-accent;
+    -fx-text-fill: red;
 }
 
 .label {
