@@ -51,7 +51,7 @@ public class Logic {
      * Execute the command given in the command string 
      * @param command the command string
      */
-    public void executeCommand(String command) {
+    public boolean executeCommand(String command) {
         Command parsedCommand = parser.parseCommand(command);
         if (parser.getErrorStatus() != null) {
             // Syntax error
@@ -78,8 +78,10 @@ public class Logic {
             }
             
             gui.displayStatus(status);
+            return true;
         } else {
             gui.displayStatus(status);
+            return false;
         }
     }
 
