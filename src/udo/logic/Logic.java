@@ -1,6 +1,7 @@
 package udo.logic;
 
 import udo.gui.GUI;
+import udo.storage.Task;
 import udo.util.Config;
 
 public class Logic {
@@ -108,10 +109,14 @@ public class Logic {
     }
 
     private void executeAddCommand(Command parsedCommand) {
-        // TODO fill in default values
+        Task task = fillAddedTaskDefaults(parsedCommand);
         // TODO fill in data structure and call storage apis
         status = getAddSucessStatus(parsedCommand);
         // TODO retrieve and display all tasks
+    }
+
+    private Task fillAddedTaskDefaults(Command parsedCommand) {
+        return null;
     }
 
     private String getAddSucessStatus(Command parsedCommand) {

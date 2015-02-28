@@ -9,15 +9,18 @@ public class Task {
 	private String content;
 	private GregorianCalendar start;
 	private GregorianCalendar end;
-	private int duration;
+	private Integer duration;
 	private GregorianCalendar reminder;
 	private String label;
-	private boolean priority;
-	private boolean done;
+	private Boolean priority;
+	private Boolean done;
+	
+	public Task() {
+	}
 	
 	//constructor
 	public Task(String taskType, String content, GregorianCalendar start, GregorianCalendar end, 
-			int duration, GregorianCalendar reminder, String label, boolean priority){
+	            int duration, GregorianCalendar reminder, String label, boolean priority) {
 		this.taskType = taskType;
 		this.content = content;
 		this.start = start;
@@ -29,79 +32,79 @@ public class Task {
 		this.done = false;
 	}
 	
-	public String getTaskType(){
+	public String getTaskType() {
 		return taskType;
 	}
 	
-	public String getContent(){
+	public String getContent() {
 		return content;
 	}
 
-	public GregorianCalendar getStart(){
+	public GregorianCalendar getStart() {
 		return start;
 	}
 
-	public GregorianCalendar getEnd(){
+	public GregorianCalendar getEnd() {
 		return end;
 	}
 	
-	public int getDuration(){
+	public int getDuration() {
 		return duration;
 	}
 	
-	public GregorianCalendar getReminder(){
+	public GregorianCalendar getReminder() {
 		return reminder;
 	}
 	
-	public String getLabel(){
+	public String getLabel() {
 		return label;
 	}
 
-	public boolean isPriority(){
+	public boolean isPriority() {
 		return priority;
 	}
 	
-	public boolean isDone(){
+	public boolean isDone() {
 		return done;
 	}
 
-	public void setTaskType(String type){
+	public void setTaskType(String type) {
 		this.taskType = type;
 	}
 	
-	public void setContent(String content){
+	public void setContent(String content) {
 		this.content = content;
 	}
 	
-	public void setStart(GregorianCalendar start){
+	public void setStart(GregorianCalendar start) {
 		this.start = start;
 	}
 	
-	public void setEnd(GregorianCalendar end){
+	public void setEnd(GregorianCalendar end) {
 		this.end = end;
 	}
 	
-	public void setDuration(int duration){
+	public void setDuration(int duration) {
 		this.duration = duration;
 	}
 	
-	public void setReminder(GregorianCalendar reminder){
+	public void setReminder(GregorianCalendar reminder) {
 		this.reminder = reminder;
 	}
 	
-	public void setLabel(String label){
+	public void setLabel(String label) {
 		this.label = label;
 	}
 	
-	public void setPriority(){
+	public void setPriority() {
 		this.priority = !(this.priority);
 	}
 	
-	public void setDone(){
+	public void setDone() {
 		this.done = !(this.done);
 	}
 	
-	public String toString(){
+	public String toString() {
 		String finalString = "";
 
 		String startDate = "nil";
@@ -126,4 +129,3 @@ public class Task {
 		return finalString;
 	}
 }
-
