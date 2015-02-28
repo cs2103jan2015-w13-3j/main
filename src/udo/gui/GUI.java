@@ -1,12 +1,13 @@
 package udo.gui;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-
 import udo.storage.Task;
 import udo.gui.view.HomeController;
 import udo.logic.Logic;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -15,13 +16,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class GUI extends Application{
     
     private static final String NAME_APP = "JustU";
     private static ObservableList<Task> taskData;
-    
+    private static ArrayList<Task> currList = new ArrayList<Task>();
     private Stage primaryStage;
     private BorderPane rootLayout;
     private Logic logic;
@@ -35,18 +37,57 @@ public class GUI extends Application{
         logic = new Logic(this);
         
         //For testing purposes
-        ArrayList<Task> testList = new ArrayList<Task>();
-        testList.add(new Task("event", "drink coffee", new GregorianCalendar(), new GregorianCalendar(), 
-                  0, new GregorianCalendar(), "label", true));
-        testList.add(new Task("event", "drink more coffee", new GregorianCalendar(), new GregorianCalendar(), 
-                0, new GregorianCalendar(), "label", true));
-        testList.add(new Task("event", "code more", new GregorianCalendar(), new GregorianCalendar(), 
-                0, new GregorianCalendar(), "label", true));
-        
-        displayContent(testList);
+        populateTest();
+        insertDateHeaderLoop();
+        convertToObservable(currList);
         
     }
+    
+    private void populateTest () {
+        currList.add(new Task("event", "drink coffee", new GregorianCalendar(), new GregorianCalendar(2015,1,1), 
+                0, new GregorianCalendar(), "label", true));
+        currList.add(new Task("event", "drink more coffee", new GregorianCalendar(), new GregorianCalendar(2015,2,2), 
+              0, new GregorianCalendar(), "label", true));
+        currList.add(new Task("event", "code more", new GregorianCalendar(), new GregorianCalendar(2015,3,3), 
+              0, new GregorianCalendar(), "label", true));
+    }
+    
+    private void insertDateHeaderLoop() {
+        
+        String prevDayMonthYear = "";
+        
+        for(int i = 0; i < currList.size(); i++) {
+            
+            Task task = currList.get(i);
+            GregorianCalendar date = task.getEnd();
+            String dayMonthYear = extractDate(date);         
+            
+            if (!dayMonthYear.equals(prevDayMonthYear) || prevDayMonthYear.isEmpty()) {
+                insertDateHeader(dayMonthYear, i);
+                System.out.println("inserted " + dayMonthYear);
+                i ++;
+            }
+            
+            prevDayMonthYear = dayMonthYear;
+        }
+       
+    }
+    
+    /**
+     * Add Day-Month-Year Header in the list
+     */
+    private void insertDateHeader(String date, int i) {
+        Task dateHeader = new Task("", date, new GregorianCalendar(), new GregorianCalendar(), 
+                0, new GregorianCalendar(), "", true);
+        currList.add(i, dateHeader);        
+    }
 
+    private String extractDate(GregorianCalendar date) {
+        int year = date.get(Calendar.YEAR);
+        int month = date.get(Calendar.MONTH);
+        int day = date.get(Calendar.DAY_OF_MONTH);
+        return "" + year + " " + month + " " + day;
+    }
     
     @Override
     public void start(Stage primaryStage) {
@@ -72,6 +113,7 @@ public class GUI extends Application{
             Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);
             primaryStage.show();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -100,9 +142,10 @@ public class GUI extends Application{
     }
     
     /**
+     * Maps Arraylist of objects to an ObservableArrayList
      * @param Arraylist<Task>
      */
-    public static void displayContent(ArrayList<Task> testingInputTaskList) { 
+    public static void convertToObservable(ArrayList<Task> testingInputTaskList) { 
         taskData = FXCollections.observableArrayList(testingInputTaskList);
     }
     
