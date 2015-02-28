@@ -1,5 +1,7 @@
 package udo.logic;
 
+import java.util.Map;
+
 import udo.gui.GUI;
 import udo.storage.Task;
 import udo.util.Config;
@@ -116,6 +118,13 @@ public class Logic {
     }
 
     private Task fillAddedTaskDefaults(Command parsedCommand) {
+        Task task = new Task();
+        Map<String, Command.Option> options = parsedCommand.options;
+
+        if (options.containsKey(Config.OPT_DEADLINE[Config.OPT_LONG]) ||
+            options.containsKey(Config.OPT_DEADLINE[Config.OPT_SHORT])) {
+            
+        }
         return null;
     }
 

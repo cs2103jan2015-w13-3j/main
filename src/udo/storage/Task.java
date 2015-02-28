@@ -4,8 +4,10 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class Task {
+    public static enum TaskType {DEADLINE, EVENT, TODO};
+
 	//class defines Task objects
-	private String taskType;
+	private TaskType taskType;
 	private String content;
 	private GregorianCalendar start;
 	private GregorianCalendar end;
@@ -19,7 +21,7 @@ public class Task {
 	}
 	
 	//constructor
-	public Task(String taskType, String content, GregorianCalendar start, GregorianCalendar end, 
+	public Task(TaskType taskType, String content, GregorianCalendar start, GregorianCalendar end, 
 	            int duration, GregorianCalendar reminder, String label, boolean priority) {
 		this.taskType = taskType;
 		this.content = content;
@@ -32,7 +34,7 @@ public class Task {
 		this.done = false;
 	}
 	
-	public String getTaskType() {
+	public TaskType getTaskType() {
 		return taskType;
 	}
 	
@@ -68,7 +70,7 @@ public class Task {
 		return done;
 	}
 
-	public void setTaskType(String type) {
+	public void setTaskType(TaskType type) {
 		this.taskType = type;
 	}
 	
@@ -114,7 +116,6 @@ public class Task {
 		if (start != null){
 			startDate = start.get(Calendar.DAY_OF_MONTH) + "/" + start.get(Calendar.MONTH) + "/" + start.get(Calendar.YEAR);
 		}
-		
 		
 		if (end != null){
 			endDate = end.get(Calendar.DAY_OF_MONTH) + "/" + end.get(Calendar.MONTH) + "/" + end.get(Calendar.YEAR);

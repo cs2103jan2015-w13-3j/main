@@ -92,9 +92,7 @@ public class Storage {
     }
     
 	//add functions
-    public boolean add(String taskType, String content, GregorianCalendar start, GregorianCalendar end,
-    		int duration, GregorianCalendar reminder, String label, boolean priority){
-    	Task newTask = new Task(taskType, content, start, end, duration, reminder, label, priority);
+    public boolean add(Task newTask) {
     	taskList.add(newTask);
     	return true;
     }
@@ -106,9 +104,10 @@ public class Storage {
     }
 
     //modify function (still working)
-    public boolean modify(int index, String taskType, String content, GregorianCalendar start, GregorianCalendar end,
-    		int duration, GregorianCalendar reminder, String label){
+    public boolean modify(int index, Task.TaskType taskType, String content, GregorianCalendar start, GregorianCalendar end,
+                          int duration, GregorianCalendar reminder, String label){
     	Task modifiedTask = taskList.get(index);
+
     	if (content != null){
     		modifiedTask.setContent(content);
     	}
@@ -123,27 +122,26 @@ public class Storage {
     	}
     	if (taskType != null){
     		modifiedTask.setTaskType(taskType);
-    		if (taskType.equals("event")){
-    			modifiedTask.setStart(start);
-    			
-    			if (end != null){
-    				modifiedTask.setEnd(end);
-    			}
-    		}
-    		else if (taskType.equals("deadline")){
-    			modifiedTask.setStart(null);
-    			
-    			if (end != null){
-    				modifiedTask.setEnd(end);
-    			}
-    		}
     		
-    		else {
-    			modifiedTask.setStart(null);
-    			modifiedTask.setEnd(null);
+    		switch (taskType) {
+                case EVENT:
+                    modifiedTask.setStart(start);
+                    if (end != null) {
+                        modifiedTask.setEnd(end);
+                    }
+                    break;
+                case DEADLINE:
+                    modifiedTask.setStart(null);
+                    if (end != null) {
+                        modifiedTask.setEnd(end);
+                    }
+                    break;
+                case TODO:
+                    modifiedTask.setStart(null);
+                    modifiedTask.setEnd(null);
+                    break;
     		}
-    	}
-    	else {
+    	} else {
     		if (start != null){
     			modifiedTask.setStart(start);
     		}
@@ -182,41 +180,31 @@ public class Storage {
     public ArrayList<Task> query(GregorianCalendar date){
     	ArrayList<Task> returnList = new ArrayList<Task>();
     	for (int i =0; i < taskList.size(); i++){
-    		if (taskList.get(i).getTaskType().equals("deadline") && isSameDate(date,taskList.get(i).getEnd())){
+    		if (taskList.get(i).getTaskType() == Task.TaskType.DEADLINE &&
+    		    isSameDate(date,taskList.get(i).getEnd())){
     			returnList.add(taskList.get(i));
     		}
-    		else if (taskList.get(i).getTaskType().equals("event") && isBefore(date,taskList.get(i).getEnd()) &&
-    				isAfter(date,taskList.get(i).getStart())){
+    		else if (taskList.get(i).getTaskType() == Task.TaskType.EVENT &&
+    		         isBefore(date,taskList.get(i).getEnd()) &&
+    				 isAfter(date,taskList.get(i).getStart())){
     			returnList.add(taskList.get(i));
     		}
     		
     	}
+
     	return returnList;
     }
 
-    public ArrayList<Task> query(TASK_TYPE taskType){
+    public ArrayList<Task> query(Task.TaskType taskType){
     	ArrayList<Task> returnList = new ArrayList<Task>();
-    	switch(taskType){
-    	case EVENT:
-    		for (int i = 0; i < taskList.size(); i++){
-    			if (taskList.get(i).getTaskType().equals("event")){
-    				returnList.add(taskList.get(i));
-    			}
-    		} break;
-    	case DEADLINE:	
-    		for (int i = 0; i < taskList.size(); i++){
-    			if (taskList.get(i).getTaskType().equals("deadline")){
-    				returnList.add(taskList.get(i));
-    			}
-    		} break;
-    	default:
-    		for (int i = 0; i < taskList.size(); i++){
-    			if (taskList.get(i).getTaskType().equals("todo")){
-    				returnList.add(taskList.get(i));
-    			}
-    		} break;
-    	}
-    	return returnList;
+
+        for (int i = 0; i < taskList.size(); i++) {
+            if (taskList.get(i).getTaskType() == taskType) {
+                returnList.add(taskList.get(i));
+            }
+        }
+
+        return returnList;
     }
     
     private boolean isSameDate(GregorianCalendar date1, GregorianCalendar date2){
