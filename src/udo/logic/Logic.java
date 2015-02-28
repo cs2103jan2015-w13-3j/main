@@ -130,7 +130,8 @@ public class Logic {
      * @param parsedCommand
      * @return the command's correctness
      */
-    private boolean isCommandValid(Command parsedCommand) { if (parsedCommand == null || parsedCommand.commandName == null) {
+    private boolean isCommandValid(Command parsedCommand) {
+        if (parsedCommand == null || parsedCommand.commandName == null) {
             status = formatErrorStr(ERR_INVALID_CMD_NAME);
             return false;
         }

@@ -37,11 +37,11 @@ public class GUI extends Application{
         //For testing purposes
         ArrayList<Task> testList = new ArrayList<Task>();
         testList.add(new Task("event", "drink coffee", new GregorianCalendar(), new GregorianCalendar(), 
-                  new GregorianCalendar(), "label", true));
+                  0, new GregorianCalendar(), "label", true));
         testList.add(new Task("event", "drink more coffee", new GregorianCalendar(), new GregorianCalendar(), 
-                new GregorianCalendar(), "label", true));
+                0, new GregorianCalendar(), "label", true));
         testList.add(new Task("event", "code more", new GregorianCalendar(), new GregorianCalendar(), 
-                new GregorianCalendar(), "label", true));
+                0, new GregorianCalendar(), "label", true));
         
         displayContent(testList);
         
