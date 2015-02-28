@@ -57,6 +57,7 @@ public class Logic {
             // Syntax error
             status = parser.getErrorStatus();
             gui.displayStatus(status);
+            return false;
         }
         
         if (isCommandValid(parsedCommand)) {
