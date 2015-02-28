@@ -10,6 +10,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
 import javafx.event.ActionEvent;
@@ -69,7 +70,12 @@ public class HomeController {
                         super.updateItem(item, empty);
                         if (!isEmpty()) {
                             this.setTextFill(Color.RED);
-                            // Get fancy and change color based on data
+                            //Change color based on data
+                            if(item.contains("2015")) {
+                                this.setTextFill(Color.BLUEVIOLET);
+                                this.setFont(Font.font ("Droid Sans", FontPosture.ITALIC, 20));
+                            }
+                            
                             if(item.contains("coffee")) {
                                 this.setTextFill(Color.BLUEVIOLET);
                                 this.setFont(Font.font ("Droid Sans", FontWeight.BOLD, 20));

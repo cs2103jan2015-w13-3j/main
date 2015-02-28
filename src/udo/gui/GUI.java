@@ -16,7 +16,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class GUI extends Application{
@@ -44,11 +43,11 @@ public class GUI extends Application{
     }
     
     private void populateTest () {
-        currList.add(new Task("event", "drink coffee", new GregorianCalendar(), new GregorianCalendar(2015,1,1), 
+        currList.add(new Task(Task.TaskType.EVENT, "drink coffee", new GregorianCalendar(), new GregorianCalendar(2015,1,1), 
                 0, new GregorianCalendar(), "label", true));
-        currList.add(new Task("event", "drink more coffee", new GregorianCalendar(), new GregorianCalendar(2015,2,2), 
+        currList.add(new Task(Task.TaskType.EVENT, "drink more coffee", new GregorianCalendar(), new GregorianCalendar(2015,2,2), 
               0, new GregorianCalendar(), "label", true));
-        currList.add(new Task("event", "code more", new GregorianCalendar(), new GregorianCalendar(2015,3,3), 
+        currList.add(new Task(Task.TaskType.EVENT, "code more", new GregorianCalendar(), new GregorianCalendar(2015,3,3), 
               0, new GregorianCalendar(), "label", true));
     }
     
@@ -77,7 +76,7 @@ public class GUI extends Application{
      * Add Day-Month-Year Header in the list
      */
     private void insertDateHeader(String date, int i) {
-        Task dateHeader = new Task("", date, new GregorianCalendar(), new GregorianCalendar(), 
+        Task dateHeader = new Task(null, date, new GregorianCalendar(), new GregorianCalendar(), 
                 0, new GregorianCalendar(), "", true);
         currList.add(i, dateHeader);        
     }

@@ -4,9 +4,12 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class Task {
+    public static enum TaskType {DEADLINE, EVENT, TODO};
+
 	//class defines Task objects
-	private String taskType;
+	private TaskType taskType;
 	private String content;
+	private GregorianCalendar deadline;
 	private GregorianCalendar start;
 	private GregorianCalendar end;
 	private Integer duration;
@@ -16,10 +19,12 @@ public class Task {
 	private Boolean done;
 	
 	public Task() {
+	    done = false;
+	    priority = false;
 	}
 	
 	//constructor
-	public Task(String taskType, String content, GregorianCalendar start, GregorianCalendar end, 
+	public Task(TaskType taskType, String content, GregorianCalendar start, GregorianCalendar end, 
 	            int duration, GregorianCalendar reminder, String label, boolean priority) {
 		this.taskType = taskType;
 		this.content = content;
@@ -32,12 +37,16 @@ public class Task {
 		this.done = false;
 	}
 	
-	public String getTaskType() {
+	public TaskType getTaskType() {
 		return taskType;
 	}
 	
 	public String getContent() {
 		return content;
+	}
+	
+	public GregorianCalendar getDeadline() {
+	    return deadline;
 	}
 
 	public GregorianCalendar getStart() {
@@ -68,12 +77,16 @@ public class Task {
 		return done;
 	}
 
-	public void setTaskType(String type) {
+	public void setTaskType(TaskType type) {
 		this.taskType = type;
 	}
 	
 	public void setContent(String content) {
 		this.content = content;
+	}
+	
+	public void setDeadline(GregorianCalendar deadline) {
+	    this.deadline = deadline;
 	}
 	
 	public void setStart(GregorianCalendar start) {
@@ -96,8 +109,8 @@ public class Task {
 		this.label = label;
 	}
 	
-	public void setPriority() {
-		this.priority = !(this.priority);
+	public void setPriority(Boolean priority) {
+		this.priority = priority;
 	}
 	
 	public void setDone() {
@@ -114,7 +127,6 @@ public class Task {
 		if (start != null){
 			startDate = start.get(Calendar.DAY_OF_MONTH) + "/" + start.get(Calendar.MONTH) + "/" + start.get(Calendar.YEAR);
 		}
-		
 		
 		if (end != null){
 			endDate = end.get(Calendar.DAY_OF_MONTH) + "/" + end.get(Calendar.MONTH) + "/" + end.get(Calendar.YEAR);
