@@ -10,7 +10,6 @@
    <children>
       <TableView fx:id="TaskTable" layoutX="14.0" layoutY="97.0" prefHeight="389.0" prefWidth="419.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="17.0" AnchorPane.topAnchor="97.0">
         <columns>
-          <TableColumn fx:id="displayIndexColumn" maxWidth="50.0" minWidth="50.0" prefWidth="50.0" resizable="false" text="ID" />
           <TableColumn fx:id="taskNameColumn" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="242.0" text="TaskName" />
             <TableColumn fx:id="timeColumn" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="242.0" text="Time" />
         </columns>

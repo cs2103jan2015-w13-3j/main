@@ -1,17 +1,14 @@
 package udo.gui.view;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
 import javafx.event.ActionEvent;
 import udo.gui.GUI;
@@ -20,8 +17,6 @@ import udo.storage.Task;
 public class HomeController {
     @FXML
     private TableView<Task> TaskTable;
-    @FXML
-    private TableColumn<Task, String> displayIndexColumn;
     @FXML
     private TableColumn<Task, String> taskNameColumn;
     @FXML
@@ -51,14 +46,21 @@ public class HomeController {
     }
     
     /**
-     * Initialises the TableView with 3 columns
+     * Initialises the TableView with 2 columns
      */
     private void initialiseTableColumns() {
-        //TODO refactor
-        displayIndexColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("taskType"));
+
+        initialiseTaskNameColumn();
+        initialiseTimeColumn();
         
-        //TODO decide how to display duration
+    }
+    
+    //TODO decide how to display time in timecolumn
+    private void initialiseTimeColumn() {
         timeColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("label"));
+    }
+
+    private void initialiseTaskNameColumn() {
         taskNameColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("content"));
         taskNameColumn.setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
             
@@ -69,23 +71,30 @@ public class HomeController {
                     public void updateItem(String item, boolean empty) {
                         super.updateItem(item, empty);
                         if (!isEmpty()) {
-                            this.setTextFill(Color.RED);
-                            //Change color based on data
-                            if(item.contains("2015")) {
-                                this.setTextFill(Color.BLUEVIOLET);
-                                this.setFont(Font.font ("Droid Sans", FontPosture.ITALIC, 20));
-                            }
-                            
-                            if(item.contains("coffee")) {
-                                this.setTextFill(Color.BLUEVIOLET);
-                                this.setFont(Font.font ("Droid Sans", FontWeight.BOLD, 20));
-                            }
+                            formatCellText(item, this);
                             setText(item);
                         }
                     }
+
                 };
             }
         });
+    }
+    
+    //TODO decide how to check for 'date' format
+    private void formatCellText(String item, TableCell<Task,String> cell) throws ClassCastException {
+
+        if (item.contains("2015")) {
+            cell.setTextFill(Color.WHITE);
+            cell.setAlignment(Pos.CENTER);
+            cell.setUnderline(true);
+        }
+
+        if (item.contains("coffee")) {
+            cell.setTextFill(Color.BLUEVIOLET);
+
+        }
+      
     }
     
     @FXML
@@ -98,7 +107,7 @@ public class HomeController {
         gui.passUserInput(text);
         
         //To be removed: Logic returns a string
-        //gui.displayStatus("added succesfully"); 
+        //gui.displayStatus("added successfully"); 
     }
     
     public void displayStatus(String testString){
@@ -118,8 +127,9 @@ public class HomeController {
     }
     
     private void disableDefaultSort(){
-        displayIndexColumn.setSortable(false);
         taskNameColumn.setSortable(false);
         timeColumn.setSortable(false);
     }
+    
+    
 }

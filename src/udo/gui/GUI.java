@@ -37,6 +37,7 @@ public class GUI extends Application{
         
         //For testing purposes
         populateTest();
+        formatElement();
         insertDateHeaderLoop();
         convertToObservable(currList);
         
@@ -47,8 +48,19 @@ public class GUI extends Application{
                 0, new GregorianCalendar(), "label", true));
         currList.add(new Task(Task.TaskType.EVENT, "drink more coffee", new GregorianCalendar(), new GregorianCalendar(2015,2,2), 
               0, new GregorianCalendar(), "label", true));
+        currList.add(new Task(Task.TaskType.EVENT, "say hello", new GregorianCalendar(), new GregorianCalendar(2015,2,2), 
+                0, new GregorianCalendar(), "label", true));
         currList.add(new Task(Task.TaskType.EVENT, "code more", new GregorianCalendar(), new GregorianCalendar(2015,3,3), 
               0, new GregorianCalendar(), "label", true));
+    }
+    
+    private void formatElement() {
+        
+        for(int i = 0; i < currList.size(); i++) {
+            int counter = i + 1;
+            Task task = currList.get(i);
+            task.setContent( "" + counter + ".  " + task.getContent());
+        }
     }
     
     private void insertDateHeaderLoop() {
@@ -63,8 +75,7 @@ public class GUI extends Application{
             
             if (!dayMonthYear.equals(prevDayMonthYear) || prevDayMonthYear.isEmpty()) {
                 insertDateHeader(dayMonthYear, i);
-                System.out.println("inserted " + dayMonthYear);
-                i ++;
+                i++;
             }
             
             prevDayMonthYear = dayMonthYear;
