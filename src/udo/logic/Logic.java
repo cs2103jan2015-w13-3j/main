@@ -5,11 +5,14 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 
 import udo.gui.GUI;
+import udo.storage.Storage;
 import udo.storage.Task;
 import udo.util.Config;
+import udo.util.Utility;
 
 public class Logic {
     private GUI gui;
+    private Storage storage;
     
     private static final String ERR_FORMAT = "Error: %s";
     private static final String ERR_INVALID_CMD_NAME = "Invalid command";
@@ -37,8 +40,8 @@ public class Logic {
     public Logic(GUI gui) {
         this.gui = gui;
         parser = new InputParser();
+        storage = new Storage();
         /* TODO:
-         * Initialize Storage
          * Initialize and start up passive thread for reminder
          */
     }
@@ -76,6 +79,7 @@ public class Logic {
                     break;
                 default:
                     status = ERR_UNSUPPORTED_CMD;
+                    return false;
             }
             
             gui.displayStatus(status);
@@ -121,7 +125,7 @@ public class Logic {
 
     private void executeAddCommand(Command parsedCommand) {
         Task task = fillAddedTask(parsedCommand);
-        // Call storage apis
+        storage.add(task);
         status = getAddSucessStatus(parsedCommand);
         // TODO retrieve and display all tasks
     }
@@ -139,12 +143,83 @@ public class Logic {
         fillReminder(task, parsedCommand);
         fillLabel(task, parsedCommand);
         fillPriority(task, parsedCommand);
+        
+        fillDefaults(task);
 
         return task;
     }
     
+    /**
+     * Fill in the missing fields in a Task datastructure with default values
+     * @param task
+     */
+    private void fillDefaults(Task task) {
+        assert(task != null);
+
+        fillStartEndDefaults(task);
+        
+        fillReminderDefault(task);
+    }
+
+    /**
+     * @param task
+     */
+    private void fillReminderDefault(Task task) {
+        assert(task != null);
+
+        Task.TaskType taskType = task.getTaskType();
+
+        if (task.getReminder() == null) {
+            if (taskType == Task.TaskType.DEADLINE) {
+                GregorianCalendar reminder = new GregorianCalendar();
+                reminder.setTime(task.getDeadline().getTime());
+                reminder.add(GregorianCalendar.DAY_OF_MONTH, -1);
+
+                task.setReminder(reminder);
+            } else if (taskType == Task.TaskType.EVENT) {
+                
+            }
+        }
+    }
+
+    /**
+     * Fill in the start or end of an event if one of the fields is missing
+     * @param task
+     * @param taskType
+     */
+    private void fillStartEndDefaults(Task task) {
+        assert(task != null);
+
+        if (task.getTaskType() == Task.TaskType.EVENT) {
+            if (task.getEnd() == null) {
+                GregorianCalendar end = new GregorianCalendar();
+                end.setTime(task.getStart().getTime());
+
+                if (task.getDuration() != null) {
+                    end.add(GregorianCalendar.MINUTE, task.getDuration());
+                } else {
+                    Utility.setToEndOfDay(end);
+                }
+                
+                task.setEnd(end);
+            } else if (task.getStart() == null) {
+                GregorianCalendar start = new GregorianCalendar();
+                start.setTime(task.getEnd().getTime());
+
+                if (task.getDuration() != null) {
+                    start.add(GregorianCalendar.MINUTE, -task.getDuration());
+                } else {
+                    Utility.setToStartOfDay(start);
+                }
+                
+                task.setStart(start);
+            }
+        }
+    }
+
     private void fillPriority(Task task, Command cmd) {
         Command.Option priority = getOption(cmd, Config.OPT_PRIO);
+
         if (priority != null) {
             task.setPriority(true);
         } else {
@@ -154,6 +229,7 @@ public class Logic {
 
     private void fillLabel(Task task, Command cmd) {
         Command.Option label = getOption(cmd, Config.OPT_LABEL);
+
         if (label != null) {
             task.setLabel(label.strArgument);
         }
@@ -341,5 +417,10 @@ public class Logic {
 
     private String formatErrorStr(String errorInvalidCmdName) {
         return String.format(ERR_FORMAT, errorInvalidCmdName);
+    }
+    
+    public static void main(String[] argv) {
+        Logic logic = new Logic(new GUI());
+        logic.executeCommand("go to school /deadline tomorrow");
     }
 }

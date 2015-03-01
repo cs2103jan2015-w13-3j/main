@@ -57,7 +57,7 @@ public class Task {
 		return end;
 	}
 	
-	public int getDuration() {
+	public Integer getDuration() {
 		return duration;
 	}
 	
