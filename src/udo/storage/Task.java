@@ -1,5 +1,7 @@
 package udo.storage;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -17,6 +19,9 @@ public class Task {
 	private String label;
 	private Boolean priority;
 	private Boolean done;
+
+    private static final DateFormat DATE_FORMAT =
+            new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
 	
 	public Task() {
 	    done = false;
@@ -118,26 +123,30 @@ public class Task {
 	}
 	
 	public String toString() {
-		String finalString = "";
+	    String finalString;
 
-		String startDate = "nil";
-		String endDate = "nil";
-		String reminderDate = "nil";
-		
+	    if (priority == null || !priority) {
+	        finalString = "Task: ";
+	    } else {
+	        finalString = "Important Task: ";
+	    }
+
+		finalString += content + "\n";
+		if (deadline != null) {
+		    finalString += "  deadline: " + DATE_FORMAT.format(deadline.getTime()) + "\n";
+		}
 		if (start != null){
-			startDate = start.get(Calendar.DAY_OF_MONTH) + "/" + start.get(Calendar.MONTH) + "/" + start.get(Calendar.YEAR);
+			finalString += "  start: " + DATE_FORMAT.format(start.getTime()) + "\n";
 		}
-		
 		if (end != null){
-			endDate = end.get(Calendar.DAY_OF_MONTH) + "/" + end.get(Calendar.MONTH) + "/" + end.get(Calendar.YEAR);
+			finalString += "  end: " + DATE_FORMAT.format(end.getTime()) + "\n";
 		}
-		
 		if (reminder != null){
-			reminderDate = reminder.get(Calendar.DAY_OF_MONTH) + "/" + reminder.get(Calendar.MONTH) + "/" + reminder.get(Calendar.YEAR);
+			finalString += "  reminder: " + DATE_FORMAT.format(reminder.getTime()) + "\n";
 		}
-		
-		finalString += taskType + "     " + content + "      " + duration + "      " + startDate + "     " + endDate + "    " + reminderDate + "     " + label 
-				+ "     ";
+		if (done != null) {
+		    finalString += "  done: " + done;
+		}
 		return finalString;
 	}
 }

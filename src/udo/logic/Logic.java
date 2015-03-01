@@ -127,6 +127,7 @@ public class Logic {
         Task task = fillAddedTask(parsedCommand);
         storage.add(task);
         status = getAddSucessStatus(parsedCommand);
+        System.out.println(task);
         // TODO retrieve and display all tasks
     }
 
@@ -162,6 +163,8 @@ public class Logic {
     }
 
     /**
+     * Fill in the default reminder for the deadline or event task
+     * Note that an event task must have a valid start date
      * @param task
      */
     private void fillReminderDefault(Task task) {
@@ -171,13 +174,21 @@ public class Logic {
 
         if (task.getReminder() == null) {
             if (taskType == Task.TaskType.DEADLINE) {
+                assert(task.getDeadline() != null);
+                
                 GregorianCalendar reminder = new GregorianCalendar();
                 reminder.setTime(task.getDeadline().getTime());
                 reminder.add(GregorianCalendar.DAY_OF_MONTH, -1);
 
                 task.setReminder(reminder);
             } else if (taskType == Task.TaskType.EVENT) {
+                assert(task.getStart() != null);
                 
+                GregorianCalendar reminder = new GregorianCalendar();
+                reminder.setTime(task.getStart().getTime());
+                reminder.add(GregorianCalendar.DAY_OF_MONTH, -1);
+                
+                task.setReminder(reminder);
             }
         }
     }
@@ -422,5 +433,10 @@ public class Logic {
     public static void main(String[] argv) {
         Logic logic = new Logic(new GUI());
         logic.executeCommand("go to school /deadline tomorrow");
+        logic.executeCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm");
+        logic.executeCommand("add AAAI conference /start in 2 days /end tuesday");
+        logic.executeCommand("add match midterm /start next friday /end 11/02/15");
+        logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
+        logic.executeCommand("submit the report /dl next friday /reminder next thursday");
     }
 }
