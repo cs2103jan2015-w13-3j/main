@@ -2,9 +2,11 @@ package udo.storage;
 
 import java.util.Calendar;
 
+import udo.storage.Task.TaskType;
+
 public class TaskOut {
 	//class defines Task objects
-	private String taskType;
+	private TaskType taskType;
 	private String content;
 	private int duration;
 	private String label;
@@ -16,7 +18,7 @@ public class TaskOut {
 
 	//constructor
 	//Task Outmatted
-	public TaskOut(String taskType, String content, String start, String end, 
+	public TaskOut(TaskType taskType, String content, String start, String end, 
 			int duration, String reminder, String label, boolean priority){
 		this.taskType = taskType;
 		this.content = content;
@@ -38,7 +40,7 @@ public class TaskOut {
 		return reminder;
 	}
 	//Task Default
-	public String getTaskType(){
+	public TaskType getTaskType(){
 		return taskType;
 	}
 
@@ -62,7 +64,7 @@ public class TaskOut {
 		return done;
 	}
 
-	public void setTaskType(String type){
+	public void setTaskType(TaskType type){
 		this.taskType = type;
 	}
 

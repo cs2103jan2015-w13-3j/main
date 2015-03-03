@@ -14,14 +14,11 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import udo.storage.Task.TaskType;
+
 import com.google.gson.Gson;
 
-/**
- * Java Program to show how to work with JSON in Java. 
- * In this tutorial, we will learn creating
- * a JSON file, writing data into it and then reading from JSON file.
- *
- * @author Javin Paul
+/** File to test reading from and writing to between ArrayList and JSON
  */
 public class TestJson2{
 
@@ -30,11 +27,11 @@ public class TestJson2{
 		//Gson gson = new Gson();
 
 		//  JSONArray jsonArray = new JSONArray();
-		Task task1 = new Task("task1", "meeting", new GregorianCalendar(1995, 10, 20, 0, 1) , new GregorianCalendar(1995, 10, 20, 11, 30), 
+		Task task1 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(1995, 10, 20, 0, 1) , new GregorianCalendar(1995, 10, 20, 11, 30), 
 				5, new GregorianCalendar(1995, 10, 20, 23, 59), "boring",  false);
-		Task task2 = new Task("task2", "meeting", new GregorianCalendar(1995, 10, 20) , new GregorianCalendar(1995, 10, 20), 
+		Task task2 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(1995, 10, 20) , new GregorianCalendar(1995, 10, 20), 
 				5, new GregorianCalendar(1995, 10, 20), "boring",  false);
-		Task task3 = new Task("task3", "meeting", new GregorianCalendar(1995, 10, 20) , new GregorianCalendar(1995, 10, 20), 
+		Task task3 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(1995, 10, 20) , new GregorianCalendar(1995, 10, 20), 
 				5, new GregorianCalendar(1995, 10, 20), "boring",  false);
 		//String jtask1 = gson.toJson(task1);
 		ArrayList<Task> myArr = new ArrayList<Task>();
@@ -45,10 +42,10 @@ public class TestJson2{
 
 
 		// generate JSON String in Java
-		writeJson("E:/Subject/CS2103T/project/src/udo/storage/test2.json", myArr);
+		writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json", myArr);
 
 		// let's read
-		readJson("E:/Subject/CS2103T/project/src/udo/storage/test2.json");
+		readJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json");
 	}
 	/*
 	 * Java Method to read JSON From File
@@ -70,7 +67,7 @@ public class TestJson2{
 
 			rtList.remove(1);
 			rtList.get(0).setDuration(1);
-			writeJson("E:/Subject/CS2103T/project/src/udo/storage/testUpdated.json", rtList);
+			writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/testUpdated.json", rtList);
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
