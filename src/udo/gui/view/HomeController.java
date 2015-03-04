@@ -10,6 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import udo.gui.GUI;
 import udo.storage.Task;
@@ -42,14 +43,28 @@ public class HomeController {
     private void initialize() {   
         initialiseTableColumns(); 
         disableDefaultSort();
+        disableMouse();
+        setFocusInputBox();
         statusString = status;        
+    }
+
+    private void setFocusInputBox() {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                inputBox.requestFocus();
+            }
+        });
+    }
+
+    private void disableMouse() {
+        TaskTable.setMouseTransparent(true);
     }
     
     /**
      * Initialises the TableView with 2 columns
      */
     private void initialiseTableColumns() {
-
         initialiseTaskNameColumn();
         initialiseTimeColumn();
         
@@ -83,7 +98,7 @@ public class HomeController {
     
     //TODO decide how to check for 'date' format
     private void formatCellText(String item, TableCell<Task,String> cell) throws ClassCastException {
-
+        
         if (item.contains("2015")) {
             cell.setTextFill(Color.WHITE);
             cell.setAlignment(Pos.CENTER);
@@ -94,6 +109,11 @@ public class HomeController {
             cell.setTextFill(Color.BLUEVIOLET);
 
         }
+        
+        if (item.contains("more")) {
+            cell.setTextFill(Color.RED);
+        }
+        
       
     }
     

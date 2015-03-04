@@ -50,10 +50,12 @@ public class GUI extends Application{
               0, new GregorianCalendar(), "label", true));
         currList.add(new Task(Task.TaskType.EVENT, "say hello", new GregorianCalendar(), new GregorianCalendar(2015,2,2), 
                 0, new GregorianCalendar(), "label", true));
-        currList.add(new Task(Task.TaskType.EVENT, "say hello to more people", new GregorianCalendar(), new GregorianCalendar(2015,2,2), 
-                0, new GregorianCalendar(), "label", true));
+        currList.add(new Task(Task.TaskType.EVENT, "say css is dumb", new GregorianCalendar(), new GregorianCalendar(2015,2,2), 
+                        0, new GregorianCalendar(), "label", true));
         currList.add(new Task(Task.TaskType.EVENT, "code more", new GregorianCalendar(), new GregorianCalendar(2015,3,3), 
               0, new GregorianCalendar(), "label", true));
+        currList.add(new Task(Task.TaskType.EVENT, "code more", new GregorianCalendar(), new GregorianCalendar(2015,4,3), 
+                0, new GregorianCalendar(), "label", true));
     }
     
     private void formatElement() {
