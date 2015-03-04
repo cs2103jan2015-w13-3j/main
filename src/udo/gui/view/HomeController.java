@@ -1,5 +1,7 @@
 package udo.gui.view;
 
+import java.text.SimpleDateFormat;
+
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -12,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+
 import udo.gui.GUI;
 import udo.storage.Task;
 
@@ -27,9 +30,11 @@ public class HomeController {
     @FXML
     private Label status;
     
-    // Reference to the main application.
+    // Reference to the Main Application.
     private GUI gui;
+    public static final Color COLOR_TABLE_HEADERS = Color.rgb(26,188,156);
     private static Label statusString;
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy");
     
     public HomeController() {
         
@@ -42,10 +47,14 @@ public class HomeController {
     @FXML
     private void initialize() {   
         initialiseTableColumns(); 
-        disableDefaultSort();
-        disableMouse();
+        disableDefaults();
         setFocusInputBox();
-        statusString = status;        
+        setVariables();        
+    }
+    
+    @FXML
+    private void setVariables() {
+        statusString = status;
     }
 
     private void setFocusInputBox() {
@@ -57,10 +66,20 @@ public class HomeController {
         });
     }
 
+    private void disableDefaults() {
+        disableDefaultSort();
+        disableMouse();
+    }
+
     private void disableMouse() {
         TaskTable.setMouseTransparent(true);
     }
     
+    private void disableDefaultSort(){
+        taskNameColumn.setSortable(false);
+        timeColumn.setSortable(false);
+    }
+
     /**
      * Initialises the TableView with 2 columns
      */
@@ -100,21 +119,28 @@ public class HomeController {
     private void formatCellText(String item, TableCell<Task,String> cell) throws ClassCastException {
         
         if (item.contains("2015")) {
-            cell.setTextFill(Color.WHITE);
-            cell.setAlignment(Pos.CENTER);
-            cell.setUnderline(true);
-        }
-
-        if (item.contains("coffee")) {
+            cell.setTextFill(COLOR_TABLE_HEADERS);
+            cell.setAlignment(Pos.CENTER);           
+        } else if (item.contains("coffee")) {
             cell.setTextFill(Color.BLUEVIOLET);
 
-        }
-        
-        if (item.contains("more")) {
+        } else if (item.contains("more")) {
             cell.setTextFill(Color.RED);
+            
+        } else {
+            cell.setTextFill(Color.WHITE);
         }
         
       
+    }
+    
+    private boolean isValidDate(String dateString) {        
+        try {
+            dateFormat.format(dateString);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
     
     @FXML
@@ -122,7 +148,6 @@ public class HomeController {
         
         String text = inputBox.getText();
         inputBox.clear();
-        System.out.println(text); //for testing
       
         gui.passUserInput(text);
         
@@ -144,11 +169,6 @@ public class HomeController {
 
         // Add observable list data to the table      
         TaskTable.setItems(gui.getTaskData());  
-    }
-    
-    private void disableDefaultSort(){
-        taskNameColumn.setSortable(false);
-        timeColumn.setSortable(false);
     }
     
     

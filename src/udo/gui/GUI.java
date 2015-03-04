@@ -5,6 +5,7 @@ import udo.gui.view.HomeController;
 import udo.logic.Logic;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -22,7 +23,7 @@ public class GUI extends Application{
     
     private static final String NAME_APP = "JustU";
     private static ObservableList<Task> taskData;
-    private static ArrayList<Task> currList = new ArrayList<Task>();
+    private static ArrayList<Task> currList = new ArrayList<Task>();  
     private Stage primaryStage;
     private BorderPane rootLayout;
     private Logic logic;
@@ -45,17 +46,17 @@ public class GUI extends Application{
     
     private void populateTest () {
         currList.add(new Task(Task.TaskType.EVENT, "drink coffee", new GregorianCalendar(), new GregorianCalendar(2015,1,1), 
-                0, new GregorianCalendar(), "label", true));
+                0, new GregorianCalendar(), "time", true));
         currList.add(new Task(Task.TaskType.EVENT, "drink more coffee", new GregorianCalendar(), new GregorianCalendar(2015,2,2), 
-              0, new GregorianCalendar(), "label", true));
+              0, new GregorianCalendar(), "time", true));
         currList.add(new Task(Task.TaskType.EVENT, "say hello", new GregorianCalendar(), new GregorianCalendar(2015,2,2), 
-                0, new GregorianCalendar(), "label", true));
+                0, new GregorianCalendar(), "time", true));
         currList.add(new Task(Task.TaskType.EVENT, "say css is dumb", new GregorianCalendar(), new GregorianCalendar(2015,2,2), 
-                        0, new GregorianCalendar(), "label", true));
+                        0, new GregorianCalendar(), "time", true));
         currList.add(new Task(Task.TaskType.EVENT, "code more", new GregorianCalendar(), new GregorianCalendar(2015,3,3), 
-              0, new GregorianCalendar(), "label", true));
+              0, new GregorianCalendar(), "time", true));
         currList.add(new Task(Task.TaskType.EVENT, "code more", new GregorianCalendar(), new GregorianCalendar(2015,4,3), 
-                0, new GregorianCalendar(), "label", true));
+                0, new GregorianCalendar(), "time", true));
     }
     
     private void formatElement() {
@@ -103,11 +104,12 @@ public class GUI extends Application{
         return "" + year + " " + month + " " + day;
     }
     
+    
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle(NAME_APP);
-
+        
         initRootLayout();
 
         showOverview();
@@ -125,6 +127,7 @@ public class GUI extends Application{
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
+            scene.getStylesheets().add("http://fonts.googleapis.com/css?family=Open+Sans");
             primaryStage.setScene(scene);
             primaryStage.show();
 

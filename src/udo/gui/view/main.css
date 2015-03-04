@@ -1,24 +1,32 @@
+
+
 .root {
-	-fx-base: #34495e;
-	-fx-background-color: #22313f; 
-	-fx-color: -fx-base;
-	-fx-text-inner-color: pink;
-	-fx-font-family: "Droid Sans";
+	-fx-background-color: #2b3339; 
+	-fx-secondary: #2b3339;
+	-fx-text-color: #1abc9c;
+	-fx-font-family: 'Open Sans', sans-serif;
 }
 
 #inputBox {
-	-fx-background-color: -fx-base;
-	-fx-text-fill: white;
+	-fx-background-color: -fx-secondary;
+	-fx-text-fill: -fx-text-color;
+	-fx-font-size: 13px;
+}
+
+#status {
+	-fx-text-fill: -fx-text-color;
+	-fx-font-size: 12px;
+	-fx-font-family:  'Open Sans', sans-serif;
 }
 
  /*override alternate rows */
 .table-view {
-    -fx-background-color: -fx-base;
+    -fx-background-color: -fx-secondary;
     -fx-padding: 5;
 }
 
 .table-row-cell {
-    -fx-background-color: -fx-base;
+    -fx-background-color: -fx-secondary;
 }
 
 .table-cell {
@@ -30,24 +38,23 @@
     
 }
 
-/*disabling column header background colour */
+/*override column header background colour */
 .table-view .column-header-background {
-    -fx-background-color: -fx-body-color;
+    -fx-background-color: -fx-secondary;
     -fx-padding: 0;
 }
 
+/*override column header colour */
 .table-view .column-header, .table-view .filler {
-    -fx-background-color: -fx-base;
+    -fx-background-color: -fx-secondary;
     -fx-border-style: none;
     -fx-border-insets: 0 1 1 0, 0 0 0 0;
     -fx-border-width: 0, 0;
     
 }
 
-/* Selected row */
-.table-view .table-row-cell:filled:focused {
-    -fx-background-color: transparent;
-    -fx-background-insets: 0, 1, 2;
-    -fx-background: -fx-accent;
-    -fx-text-fill: black;
+.table-view .column-header .label {
+	-fx-font-family:  'Open Sans', sans-serif;
+	-fx-font-weight: none;
+	-fx-text-fill: -fx-text-color;
 }
