@@ -1,8 +1,12 @@
 package udo.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
 public class Utility {
+	private static final SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm");
+
     public static Config.CommandName convertToCommandName(String cmdName) {
         cmdName = cmdName.toLowerCase();
         
@@ -36,5 +40,20 @@ public class Utility {
         end.set(GregorianCalendar.HOUR_OF_DAY, 23);
         end.set(GregorianCalendar.MINUTE, 59);
     }
+
+	public static String calendarToString(GregorianCalendar calendar){
+		return fmt.format(calendar.getTime());
+	}
+	
+	public static GregorianCalendar stringToCalendar(String dateStr) {
+	    try {
+	        GregorianCalendar calendar = new GregorianCalendar();
+	        calendar.setTime(fmt.parse(dateStr));
+            return calendar;
+        } catch (ParseException e) {
+            System.err.println("Invalid date format");
+            return null;
+        }
+	}
 
 }

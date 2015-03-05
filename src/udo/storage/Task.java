@@ -1,9 +1,8 @@
 package udo.storage;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import udo.util.Utility;
 
 public class Task {
     public static enum TaskType {DEADLINE, EVENT, TODO};
@@ -11,18 +10,15 @@ public class Task {
 	//class defines Task objects
 	private TaskType taskType;
 	private String content;
-	private GregorianCalendar deadline;
-	private GregorianCalendar start;
-	private GregorianCalendar end;
+	private String deadline;
+	private String start;
+	private String end;
 	private Integer duration;
-	private GregorianCalendar reminder;
+	private String reminder;
 	private String label;
 	private Boolean priority;
 	private Boolean done;
 
-    private static final DateFormat DATE_FORMAT =
-            new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
-	
 	public Task() {
 	    done = false;
 	    priority = false;
@@ -33,10 +29,10 @@ public class Task {
 	            int duration, GregorianCalendar reminder, String label, boolean priority) {
 		this.taskType = taskType;
 		this.content = content;
-		this.start = start;
-		this.end = end;
+		this.start = Utility.calendarToString(start);
+		this.end = Utility.calendarToString(end);
 		this.duration = duration;
-		this.reminder = reminder;
+		this.reminder = Utility.calendarToString(reminder);
 		this.label = label;
 		this.priority = priority;
 		this.done = false;
@@ -51,15 +47,15 @@ public class Task {
 	}
 	
 	public GregorianCalendar getDeadline() {
-	    return deadline;
+	    return Utility.stringToCalendar(deadline);
 	}
 
 	public GregorianCalendar getStart() {
-		return start;
+		return Utility.stringToCalendar(start);
 	}
 
 	public GregorianCalendar getEnd() {
-		return end;
+		return Utility.stringToCalendar(end);
 	}
 	
 	public Integer getDuration() {
@@ -67,7 +63,7 @@ public class Task {
 	}
 	
 	public GregorianCalendar getReminder() {
-		return reminder;
+		return Utility.stringToCalendar(reminder);
 	}
 	
 	public String getLabel() {
@@ -91,15 +87,15 @@ public class Task {
 	}
 	
 	public void setDeadline(GregorianCalendar deadline) {
-	    this.deadline = deadline;
+	    this.deadline = Utility.calendarToString(deadline);
 	}
 	
 	public void setStart(GregorianCalendar start) {
-		this.start = start;
+		this.start = Utility.calendarToString(start);
 	}
 	
 	public void setEnd(GregorianCalendar end) {
-		this.end = end;
+		this.end = Utility.calendarToString(end);
 	}
 	
 	public void setDuration(int duration) {
@@ -107,7 +103,7 @@ public class Task {
 	}
 	
 	public void setReminder(GregorianCalendar reminder) {
-		this.reminder = reminder;
+		this.reminder = Utility.calendarToString(reminder);
 	}
 	
 	public void setLabel(String label) {
@@ -133,16 +129,16 @@ public class Task {
 
 		finalString += content + "\n";
 		if (deadline != null) {
-		    finalString += "  deadline: " + DATE_FORMAT.format(deadline.getTime()) + "\n";
+		    finalString += "  deadline: " + deadline + "\n";
 		}
 		if (start != null){
-			finalString += "  start: " + DATE_FORMAT.format(start.getTime()) + "\n";
+			finalString += "  start: " + start + "\n";
 		}
 		if (end != null){
-			finalString += "  end: " + DATE_FORMAT.format(end.getTime()) + "\n";
+			finalString += "  end: " + end + "\n";
 		}
 		if (reminder != null){
-			finalString += "  reminder: " + DATE_FORMAT.format(reminder.getTime()) + "\n";
+			finalString += "  reminder: " + reminder + "\n";
 		}
 		if (done != null) {
 		    finalString += "  done: " + done;
