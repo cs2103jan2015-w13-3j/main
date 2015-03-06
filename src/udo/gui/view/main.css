@@ -1,5 +1,3 @@
-
-
 .root {
 	-fx-background-color: #2b3339; 
 	-fx-secondary: #2b3339;
@@ -57,4 +55,8 @@
 	-fx-font-family:  'Open Sans', sans-serif;
 	-fx-font-weight: none;
 	-fx-text-fill: -fx-text-color;
+}
+
+.italic.table-cell { 
+  -fx-font-style: italic; 
 }

@@ -14,9 +14,9 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-
 import udo.gui.GUI;
 import udo.storage.Task;
+import udo.util.Utility;
 
 public class HomeController {
     @FXML
@@ -29,15 +29,14 @@ public class HomeController {
     private TextField inputBox;
     @FXML
     private Label status;
-    
+
     // Reference to the Main Application.
     private GUI gui;
-    public static final Color COLOR_TABLE_HEADERS = Color.rgb(26,188,156);
+    public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
     private static Label statusString;
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy");
-    
+
     public HomeController() {
-        
+
     }
 
     /**
@@ -45,13 +44,13 @@ public class HomeController {
      * after the fxml file has been loaded.
      */
     @FXML
-    private void initialize() {   
-        initialiseTableColumns(); 
+    private void initialize() {
+        initialiseTableColumns();
         disableDefaults();
         setFocusInputBox();
-        setVariables();        
+        setVariables();
     }
-    
+
     @FXML
     private void setVariables() {
         statusString = status;
@@ -74,8 +73,8 @@ public class HomeController {
     private void disableMouse() {
         TaskTable.setMouseTransparent(true);
     }
-    
-    private void disableDefaultSort(){
+
+    private void disableDefaultSort() {
         taskNameColumn.setSortable(false);
         timeColumn.setSortable(false);
     }
@@ -86,79 +85,82 @@ public class HomeController {
     private void initialiseTableColumns() {
         initialiseTaskNameColumn();
         initialiseTimeColumn();
-        
+
     }
-    
-    //TODO decide how to display time in timecolumn
+
+    // TODO decide how to display time in timecolumn
     private void initialiseTimeColumn() {
-        timeColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("label"));
+        timeColumn.setCellValueFactory(new PropertyValueFactory<Task, String>(
+                "label"));
     }
 
     private void initialiseTaskNameColumn() {
-        taskNameColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("content"));
-        taskNameColumn.setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
-            
-            public TableCell<Task, String> call(TableColumn<Task, String> param) {
-                return new TableCell<Task, String>() {
-    
-                    @Override
-                    public void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (!isEmpty()) {
-                            formatCellText(item, this);
-                            setText(item);
-                        }
-                    }
+        taskNameColumn
+                .setCellValueFactory(new PropertyValueFactory<Task, String>(
+                        "content"));
+        taskNameColumn
+                .setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
 
-                };
-            }
-        });
+                    public TableCell<Task, String> call(
+                            TableColumn<Task, String> param) {
+                        return new TableCell<Task, String>() {
+
+                            @Override
+                            public void updateItem(String item, boolean empty) {
+                                super.updateItem(item, empty);
+                                if (!isEmpty()) {
+                                    formatCellText(item, this);
+                                    setText(item);
+                                }
+                            }
+
+                        };
+                    }
+                });
     }
-    
-    //TODO decide how to check for 'date' format
-    private void formatCellText(String item, TableCell<Task,String> cell) throws ClassCastException {
-        
-        if (item.contains("2015")) {
+
+    private void formatCellText(String item, TableCell<Task, String> cell)
+            throws ClassCastException {
+
+        if (isValidDate(item)) {
             cell.setTextFill(COLOR_TABLE_HEADERS);
-            cell.setAlignment(Pos.CENTER);           
+            cell.setAlignment(Pos.CENTER);
+            cell.getStyleClass().add("italic");
+
         } else if (item.contains("coffee")) {
             cell.setTextFill(Color.BLUEVIOLET);
 
         } else if (item.contains("more")) {
             cell.setTextFill(Color.RED);
-            
+
         } else {
             cell.setTextFill(Color.WHITE);
         }
-        
-      
     }
-    
-    private boolean isValidDate(String dateString) {        
+
+    private boolean isValidDate(String dateString) {
         try {
-            dateFormat.format(dateString);
+            GUI.dateFormat.parse(dateString);
             return true;
         } catch (Exception e) {
             return false;
         }
     }
-    
+
     @FXML
     private void handleReturnKey(ActionEvent event) {
-        
+
         String text = inputBox.getText();
         inputBox.clear();
-      
+
         gui.passUserInput(text);
-        
-        //To be removed: Logic returns a string
-        //gui.displayStatus("added successfully"); 
+
     }
-    
-    public void displayStatus(String testString){
-       statusString.setText(testString);
+
+    public void displayStatus(String testString) {
+        statusString.setText(testString);
     }
-    
+
     /**
      * Is called by the main application to give a reference back to itself.
      * 
@@ -167,9 +169,8 @@ public class HomeController {
     public void setMainApp(GUI gui) {
         this.gui = gui;
 
-        // Add observable list data to the table      
-        TaskTable.setItems(gui.getTaskData());  
+        // Add observable list data to the table
+        TaskTable.setItems(gui.getTaskData());
     }
-    
-    
+
 }
