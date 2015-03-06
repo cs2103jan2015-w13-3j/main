@@ -6,14 +6,14 @@
 }
 
 #inputBox {
-	-fx-background-color: -fx-secondary;
-	-fx-text-fill: -fx-text-color;
+	-fx-background-color: #8f9396;
+	-fx-text-fill: black;
 	-fx-font-size: 13px;
 }
 
 #status {
 	-fx-text-fill: -fx-text-color;
-	-fx-font-size: 12px;
+	-fx-font-size: 12.5px;
 	-fx-font-family:  'Open Sans', sans-serif;
 }
 
@@ -53,7 +53,9 @@
 
 .table-view .column-header .label {
 	-fx-font-family:  'Open Sans', sans-serif;
-	-fx-font-weight: none;
+	-fx-font-size: 15px;
+	-fx-font-weight: bold;
+	/*-fx-alignment: left;*/
 	-fx-text-fill: -fx-text-color;
 }
 

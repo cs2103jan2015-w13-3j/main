@@ -92,49 +92,62 @@ public class HomeController {
     private void initialiseTimeColumn() {
         timeColumn.setCellValueFactory(new PropertyValueFactory<Task, String>(
                 "label"));
-    }
+        timeColumn.setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
+            public TableCell<Task, String> call(TableColumn<Task, String> param) {
+                return new TableCell<Task, String>() {
 
-    private void initialiseTaskNameColumn() {
-        taskNameColumn
-                .setCellValueFactory(new PropertyValueFactory<Task, String>(
-                        "content"));
-        taskNameColumn
-                .setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
-
-                    public TableCell<Task, String> call(
-                            TableColumn<Task, String> param) {
-                        return new TableCell<Task, String>() {
-
-                            @Override
-                            public void updateItem(String item, boolean empty) {
-                                super.updateItem(item, empty);
-                                if (!isEmpty()) {
-                                    formatCellText(item, this);
-                                    setText(item);
-                                }
-                            }
-
-                        };
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        this.setTextFill(Color.WHITE); 
+                        this.setText(item);
                     }
-                });
-    }
 
-    private void formatCellText(String item, TableCell<Task, String> cell)
+                };
+            }
+       });
+    }
+    
+    private void initialiseTaskNameColumn() {
+        taskNameColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("content"));
+        taskNameColumn.setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
+            public TableCell<Task, String> call(TableColumn<Task, String> param) {
+                return new TableCell<Task, String>() {
+
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        formatCCellIfNotEmpty(item, this);                        
+                    }
+
+                };
+            }
+       });
+    }
+    
+    private void formatCCellIfNotEmpty(String item, TableCell<Task, String> tableCell) {
+        if (!tableCell.isEmpty()) {
+            formatCellText(item, tableCell);
+            tableCell.setText(item);
+        }
+    }
+    
+    private void formatCellText(String item, TableCell<Task, String> tableCell)
             throws ClassCastException {
 
         if (isValidDate(item)) {
-            cell.setTextFill(COLOR_TABLE_HEADERS);
-            cell.setAlignment(Pos.CENTER);
-            cell.getStyleClass().add("italic");
+            tableCell.setTextFill(COLOR_TABLE_HEADERS);
+            tableCell.setAlignment(Pos.CENTER);
+            tableCell.getStyleClass().add("italic");
 
         } else if (item.contains("coffee")) {
-            cell.setTextFill(Color.BLUEVIOLET);
+            tableCell.setTextFill(Color.HOTPINK);
 
         } else if (item.contains("more")) {
-            cell.setTextFill(Color.RED);
+            tableCell.setTextFill(Color.RED);
 
         } else {
-            cell.setTextFill(Color.WHITE);
+            tableCell.setTextFill(Color.WHITE);
         }
     }
 

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -28,14 +29,19 @@ public class GUI extends Application {
     private Logic logic;
     private HomeController controller;
 
-    private static final String NAME_APP = "JustU";
+    private static final String NAME_APP = "JustU"; 
+    private static final String DISPLAY_TIME_TODO = "-";
+    
     private static ObservableList<Task> taskData;
-    private static ArrayList<Task> currList = new ArrayList<Task>();
+    private static ArrayList<Task> displayList = new ArrayList<Task>();
     private static ArrayList<Task> originalList = new ArrayList<Task>();
     private static ArrayList<Task> testList = new ArrayList<Task>();
-    public static SimpleDateFormat dateFormat = new SimpleDateFormat(
-            "EEE, dd MMM yyyy");
-
+    
+    public static SimpleDateFormat dateFormat 
+        = new SimpleDateFormat("EEE, dd MMM yyyy");
+    public static SimpleDateFormat timeFormat 
+        = new SimpleDateFormat("H:m");
+    
     /**
      * Constructor
      */
@@ -53,10 +59,10 @@ public class GUI extends Application {
         testList.add(new Task(Task.TaskType.EVENT, "drink coffee",
                 new GregorianCalendar(), new GregorianCalendar(2015, 1, 1), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "drink more coffee",
+        testList.add(new Task(Task.TaskType.TODO, "drink more coffee",
                 new GregorianCalendar(), new GregorianCalendar(2015, 2, 2), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "say hello",
+        testList.add(new Task(Task.TaskType.TODO, "say hello",
                 new GregorianCalendar(), new GregorianCalendar(2015, 2, 2), 0,
                 new GregorianCalendar(), "time", true));
         testList.add(new Task(Task.TaskType.EVENT, "say css is dumb",
@@ -65,15 +71,7 @@ public class GUI extends Application {
         testList.add(new Task(Task.TaskType.EVENT, "code more",
                 new GregorianCalendar(), new GregorianCalendar(2015, 3, 3), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "code more",
-                new GregorianCalendar(), new GregorianCalendar(2015, 4, 3), 0,
-                new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "drink coffee",
-                new GregorianCalendar(), new GregorianCalendar(2015, 1, 1), 0,
-                new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "drink more coffee",
-                new GregorianCalendar(), new GregorianCalendar(2015, 2, 2), 0,
-                new GregorianCalendar(), "time", true));
+
     }
 
     @Override
@@ -148,69 +146,108 @@ public class GUI extends Application {
      * @param rcvdList
      */
     public void display(ArrayList<Task> rcvdList) {
-        copyBackupList(rcvdList);
-        formatElementNumberings();
-        insertDateHeaderLoop();
-        convertToObservable(currList);
+        duplicateList(rcvdList);
+        formatDisplayList();
+        convertToObservable(displayList);
     }
 
-    private void copyBackupList(ArrayList<Task> rcvdList) {
+    private void duplicateList(ArrayList<Task> rcvdList) {
         originalList = rcvdList;
-        currList.addAll(originalList);
-        // sort curr list
+        displayList.addAll(originalList);
+        // TODO: sort curr list
         // hash currentlist index against originallist index
     }
+    
+    private void formatDisplayList() {
+        formatSerialNumberings();
+        formatElementLoop();
+    }
+    
+    private void formatSerialNumberings() {
 
-    private void formatElementNumberings() {
-
-        for (int i = 0; i < currList.size(); i++) {
+        for (int i = 0; i < displayList.size(); i++) {
             int counter = i + 1;
-            Task task = currList.get(i);
+            Task task = displayList.get(i);
             task.setContent("" + counter + ".  " + task.getContent());
         }
     }
-
-    private void insertDateHeaderLoop() {
+    
+    /**
+     * Formats list into a GUI display format
+     * Inserts date headers and time
+     */
+    private void formatElementLoop() {
 
         String prevDayMonthYear = "";
 
-        for (int i = 0; i < currList.size(); i++) {
+        for (int i = 0; i < displayList.size(); i++) {
 
-            Task task = currList.get(i);
-            String dayMonthYear = formatDateGUI(task.getEnd());
-            // String date = Utility.calendarToString(task.getEnd());
-
-            if (!dayMonthYear.equals(prevDayMonthYear)
-                    || prevDayMonthYear.isEmpty()) {
-                insertDateHeader(currList, dayMonthYear, i);
-                i++;
-            }
-
+            Task task = displayList.get(i);
+            formatDisplayTime(task);
+            String dayMonthYear = formatDateGUI(task.getEnd());            
+            i = insertIfNewDate(prevDayMonthYear, i, dayMonthYear);
             prevDayMonthYear = dayMonthYear;
         }
 
+    }
+  
+    /**
+     * Format the start, end time into display string
+     * @param task
+     */
+    private void formatDisplayTime(Task task) {
+        Task.TaskType taskType = task.getTaskType();
+        switch (taskType) {
+            case DEADLINE:
+                formatDisplayTimeDeadLine(task);
+                break;
+            case EVENT:
+                formatDisplayTimeEvent(task);
+                break;
+            case TODO:
+                formatDisplayTimeTodo(task);
+                break;
+        }        
+    }
+    
+    private void formatDisplayTimeTodo(Task task) {
+        task.setLabel("-");
+        
+    }
+
+    private void formatDisplayTimeEvent(Task task) {
+        String start = formatTimeGUI(task.getStart());
+        String end = formatTimeGUI(task.getEnd());
+        task.setLabel(start + " - " + end);
+    }
+
+    private void formatDisplayTimeDeadLine(Task task) {       
+        task.setLabel(formatTimeGUI(task.getDeadline()));
+    }
+
+    private String formatTimeGUI(GregorianCalendar calendar) {
+         return timeFormat.format(calendar.getTime());
+    }
+
+    private int insertIfNewDate(String prevDate, int i, String date) {
+        if (!date.equals(prevDate) || prevDate.isEmpty()) {
+            insertDateHeader(displayList, date, i);
+            
+            i++;
+        }
+        return i;
+    }
+
+    private void insertDateHeader(ArrayList<Task> displayList, String date, int i) {
+        Task dateHeader = new Task(null, date, new GregorianCalendar(),
+                new GregorianCalendar(), 0, new GregorianCalendar(), "", true);
+        displayList.add(i, dateHeader);
     }
 
     private String formatDateGUI(GregorianCalendar calendar) {
         return dateFormat.format(calendar.getTime());
     }
-
-    /**
-     * Add Day-Month-Year Header
-     */
-    private void insertDateHeader(ArrayList<Task> currList, String date, int i) {
-        Task dateHeader = new Task(null, date, new GregorianCalendar(),
-                new GregorianCalendar(), 0, new GregorianCalendar(), "", true);
-        currList.add(i, dateHeader);
-    }
-
-    /*
-     * private String extractDate(GregorianCalendar date) { int year =
-     * date.get(Calendar.YEAR); int month = date.get(Calendar.MONTH); int day =
-     * date.get(Calendar.DAY_OF_MONTH); return "" + year + " " + month + " " +
-     * day; }
-     */
-
+    
     /**
      * Maps Arraylist of objects to an ObservableArrayList
      * 

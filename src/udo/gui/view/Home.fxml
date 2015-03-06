@@ -17,7 +17,7 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
          </columnResizePolicy>
       </TableView>
-      <TextField fx:id="inputBox" layoutX="21.0" layoutY="31.0" onAction="#handleReturnKey" prefHeight="25.0" prefWidth="405.0" promptText="Enter your command" stylesheets="@main.css" />
+      <TextField fx:id="inputBox" layoutX="21.0" layoutY="31.0" maxWidth="1.7976931348623157E308" onAction="#handleReturnKey" prefHeight="25.0" prefWidth="405.0" promptText="Enter your command" stylesheets="@main.css" />
       <Label fx:id="status" layoutX="21.0" layoutY="63.0" prefHeight="17.0" prefWidth="350.0" text="Current Status" textFill="WHITE" />
    </children>
 </AnchorPane>
