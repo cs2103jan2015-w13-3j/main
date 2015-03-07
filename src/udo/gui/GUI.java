@@ -1,17 +1,13 @@
 package udo.gui;
 
 import udo.storage.Task;
-import udo.util.Utility;
 import udo.gui.view.HomeController;
 import udo.logic.Logic;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
+import java.util.List;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -27,22 +23,20 @@ public class GUI extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout;
     private Logic logic;
-    private HomeController controller;
+    private static HomeController controller;
 
-    private static final String NAME_APP = "JustU"; 
-    private static final String DISPLAY_TIME_TODO = "-";
-    private static final String EMPTY_STRING = "";
-    
+    private static final String NAME_APP = "JustU";
+    private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
+    private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
+    private static final String PATH_TO_FONTS = "http://fonts.googleapis.com/css?family=Open+Sans:" +
+                                                "300italic,400italic,600italic,700,600,400";
+
     private static ObservableList<Task> taskData;
+    private static List<Task> originalList;
     private static ArrayList<Task> displayList = new ArrayList<Task>();
-    private static ArrayList<Task> originalList = new ArrayList<Task>();
     private static ArrayList<Task> testList = new ArrayList<Task>();
     
-    public static SimpleDateFormat dateFormat 
-        = new SimpleDateFormat("EEE, dd MMM yyyy");
-    public static SimpleDateFormat timeFormat 
-        = new SimpleDateFormat("H:m");
-    
+   
     /**
      * Constructor
      */
@@ -50,17 +44,17 @@ public class GUI extends Application {
 
         logic = new Logic(this);
 
-        // For testing purposes
+        // For unit testing purposes
         populateTest();
         display(testList);
 
     }
 
     private void populateTest() {
-        testList.add(new Task(Task.TaskType.EVENT, "drink coffee",
-                new GregorianCalendar(), new GregorianCalendar(2015, 1, 1), 0,
+        testList.add(new Task(Task.TaskType.DEADLINE, "drink coffee",
+                new GregorianCalendar(), new GregorianCalendar(2015, 1, 1, 10, 10), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.TODO, "drink more coffee",
+        testList.add(new Task(Task.TaskType.EVENT, "drink more coffee",
                 new GregorianCalendar(), new GregorianCalendar(2015, 2, 2), 0,
                 new GregorianCalendar(), "time", true));
         testList.add(new Task(Task.TaskType.TODO, "say hello",
@@ -70,7 +64,22 @@ public class GUI extends Application {
                 new GregorianCalendar(), new GregorianCalendar(2015, 2, 2), 0,
                 new GregorianCalendar(), "time", true));
         testList.add(new Task(Task.TaskType.DEADLINE, "code more",
-                new GregorianCalendar(), new GregorianCalendar(2015, 3, 3), 0,
+                new GregorianCalendar(), new GregorianCalendar(2015, 3, 3, 10, 10), 0,
+                new GregorianCalendar(), "time", true));
+        testList.add(new Task(Task.TaskType.EVENT, "say css is dumb",
+                new GregorianCalendar(), new GregorianCalendar(2015, 2, 2), 0,
+                new GregorianCalendar(), "time", true));
+        testList.add(new Task(Task.TaskType.DEADLINE, "code more",
+                new GregorianCalendar(), new GregorianCalendar(2015, 3, 3, 10, 10), 0,
+                new GregorianCalendar(), "time", true));
+        testList.add(new Task(Task.TaskType.DEADLINE, "code more",
+                new GregorianCalendar(), new GregorianCalendar(2015, 3, 3, 10, 10), 0,
+                new GregorianCalendar(), "time", true));
+        testList.add(new Task(Task.TaskType.TODO, "say hello",
+                new GregorianCalendar(), new GregorianCalendar(2015, 2, 2), 0,
+                new GregorianCalendar(), "time", true));
+        testList.add(new Task(Task.TaskType.EVENT, "say css is dumb",
+                new GregorianCalendar(), new GregorianCalendar(2015, 2, 2), 0,
                 new GregorianCalendar(), "time", true));
 
     }
@@ -92,13 +101,12 @@ public class GUI extends Application {
         try {
             // Load root layout from fxml file.
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(GUI.class.getResource("view/RootLayout.fxml"));
+            loader.setLocation(GUI.class.getResource(PATH_TO_ROOTLAYOUT));
             rootLayout = (BorderPane) loader.load();
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
-            scene.getStylesheets().add(
-                    "http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700,600,400");
+            scene.getStylesheets().add(PATH_TO_FONTS);
             primaryStage.setScene(scene);
             primaryStage.show();
 
@@ -114,7 +122,7 @@ public class GUI extends Application {
         try {
             // Load person overview.
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(GUI.class.getResource("view/Home.fxml"));
+            loader.setLocation(GUI.class.getResource(PATH_TO_OVERVIEW));
             AnchorPane homeOverview = (AnchorPane) loader.load();
 
             rootLayout.setCenter(homeOverview);
@@ -122,7 +130,6 @@ public class GUI extends Application {
             // Give the controller access to the main application.
             controller = loader.getController();
             controller.setMainApp(this);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -141,18 +148,30 @@ public class GUI extends Application {
         logic.executeCommand(input);
     }
 
+    public void displayStatus(String statusString) {
+        if (statusString == null) {
+            statusString = "Null value received"; //testing
+        }
+        System.out.println("In GUI: statusString = " + statusString);
+        controller.displayStatus(statusString);
+    }
+
     /**
      * Called by logic component to display information
      * 
-     * @param rcvdList
+     * @param Object that implements List<Task>
      */
-    public void display(ArrayList<Task> rcvdList) {
+    public void display(List<Task> rcvdList) {
+        if(rcvdList == null) {
+            System.out.println("In GUI: rcvdList is Null");
+        }
+        
         duplicateList(rcvdList);
         GUIFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);
     }
 
-    private void duplicateList(ArrayList<Task> rcvdList) {
+    private void duplicateList(List<Task> rcvdList) {
         originalList = rcvdList;
         displayList.addAll(originalList);
         // TODO: sort curr list
@@ -162,20 +181,14 @@ public class GUI extends Application {
     /**
      * Maps Arraylist of objects to an ObservableArrayList
      * 
-     * @param Arraylist
-     *            <Task>
+     * @param Arraylist<Task>
      */
     private static void convertToObservable(ArrayList<Task> testingInputTaskList) {
         taskData = FXCollections.observableArrayList(testingInputTaskList);
     }
 
-    public void displayStatus(String statusString) {
-        System.out.println("In GUI: " + statusString);
-        controller.displayStatus(statusString);
-    }
-
     /**
-     * Returns the data as an observable list of Task
+     * Returns the data as an Observable list of Task
      * 
      * @return taskData
      */

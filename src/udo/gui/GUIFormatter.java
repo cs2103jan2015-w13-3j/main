@@ -13,7 +13,7 @@ public class GUIFormatter {
     public static SimpleDateFormat timeFormat = new SimpleDateFormat("H:m");
     
     private static final String DISPLAY_TIME_TODO = "-";
-    private static final String EMPTY_STRING = "";
+    public static final String EMPTY_STRING = "";
     
     public static void formatDisplayList(ArrayList<Task> displayList) {
         formatSerialNumberings(displayList);
@@ -35,7 +35,7 @@ public class GUIFormatter {
      */
     private static void formatElementLoop(ArrayList<Task> displayList) {
 
-        String prevDayMonthYear = "";
+        String prevDayMonthYear = EMPTY_STRING;
 
         for (int i = 0; i < displayList.size(); i++) {
 
@@ -98,7 +98,7 @@ public class GUIFormatter {
 
     private static void insertDateHeader(ArrayList<Task> displayList, String date, int i) {
         Task dateHeader = new Task(null, date, new GregorianCalendar(),
-                new GregorianCalendar(), 0, new GregorianCalendar(), "", true);
+                new GregorianCalendar(), 0, new GregorianCalendar(), EMPTY_STRING, true);
         displayList.add(i, dateHeader);
     }
 

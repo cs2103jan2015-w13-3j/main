@@ -1,9 +1,8 @@
 package udo.gui.view;
 
-import java.text.SimpleDateFormat;
-
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -11,12 +10,14 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
+
 import javafx.util.Callback;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+
 import udo.gui.GUI;
+import udo.gui.GUIFormatter;
 import udo.storage.Task;
-import udo.util.Utility;
 
 public class HomeController {
     @FXML
@@ -67,7 +68,7 @@ public class HomeController {
 
     private void disableDefaults() {
         disableDefaultSort();
-        disableMouse();
+        //disableMouse();
     }
 
     private void disableMouse() {
@@ -153,7 +154,7 @@ public class HomeController {
 
     private boolean isValidDate(String dateString) {
         try {
-            GUI.dateFormat.parse(dateString);
+            GUIFormatter.dateFormat.parse(dateString);
             return true;
         } catch (Exception e) {
             return false;
@@ -170,8 +171,12 @@ public class HomeController {
 
     }
 
-    public void displayStatus(String testString) {
-        statusString.setText(testString);
+    public void displayStatus(String rcvdString) {
+        if(rcvdString == null) {
+            System.out.println("In Controller: rcvdString is Null");
+            rcvdString = GUIFormatter.EMPTY_STRING;
+        }
+        statusString.setText(rcvdString);
     }
 
     /**
