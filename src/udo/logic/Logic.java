@@ -13,7 +13,7 @@ import udo.util.Utility;
 public class Logic {
     private GUI gui;
     private Storage storage;
-    
+
     private static final String ERR_FORMAT = "Error: %s";
     private static final String ERR_INVALID_CMD_NAME = "Invalid command";
     private static final String ERR_UNSUPPORTED_CMD = "Unsupported command";
@@ -25,18 +25,18 @@ public class Logic {
             "Deadline has already passed";
     private static final String ERR_NON_POSITIVE_DUR =
             "Task's duration must be positive";
-    
+
     private static final String STATUS_ADDED = "Task: %s added sucessfully";
     private static final String STATUS_DELETED =
             "Task: %d deleted sucessfully";
     private static final String STATUS_MODIFIED =
             "Task: %d modified sucessfully";
     private static final Integer MAX_STATUS_LENGTH = 40;
-    
+
     private InputParser parser;
-    
+
     private static String status;
-    
+
     public Logic(GUI gui) {
         this.gui = gui;
         parser = new InputParser();
@@ -45,13 +45,13 @@ public class Logic {
          * Initialize and start up passive thread for reminder
          */
     }
-    
+
     /******************************
      * Code for the active logics *
      ******************************/
-    
+
     /**
-     * Execute the command given in the command string 
+     * Execute the command given in the command string
      * @param command the command string
      */
     public boolean executeCommand(String command) {
@@ -62,7 +62,7 @@ public class Logic {
             gui.displayStatus(status);
             return false;
         }
-        
+
         if (isCommandValid(parsedCommand)) {
             switch (parsedCommand.commandName) {
                 case ADD:
@@ -81,7 +81,7 @@ public class Logic {
                     status = ERR_UNSUPPORTED_CMD;
                     return false;
             }
-            
+
             gui.displayStatus(status);
             return true;
         } else {
@@ -119,7 +119,7 @@ public class Logic {
     }
 
     private String getModifySucessStatus(Command parsedCommand) {
-        // TODO Auto-generated method stub
+        // TODO Make status more informative
         return String.format(STATUS_MODIFIED, parsedCommand.argIndex);
     }
 
@@ -136,7 +136,7 @@ public class Logic {
 
         task.setTaskType(getTaskType(parsedCommand));
         task.setContent(parsedCommand.argStr);
-        
+
         fillDeadline(task, parsedCommand);
         fillStartDate(task, parsedCommand);
         fillEndDate(task, parsedCommand);
@@ -144,12 +144,12 @@ public class Logic {
         fillReminder(task, parsedCommand);
         fillLabel(task, parsedCommand);
         fillPriority(task, parsedCommand);
-        
+
         fillDefaults(task);
 
         return task;
     }
-    
+
     /**
      * Fill in the missing fields in a Task datastructure with default values
      * @param task
@@ -158,7 +158,7 @@ public class Logic {
         assert(task != null);
 
         fillStartEndDefaults(task);
-        
+
         fillReminderDefault(task);
     }
 
@@ -175,7 +175,7 @@ public class Logic {
         if (task.getReminder() == null) {
             if (taskType == Task.TaskType.DEADLINE) {
                 assert(task.getDeadline() != null);
-                
+
                 GregorianCalendar reminder = new GregorianCalendar();
                 reminder.setTime(task.getDeadline().getTime());
                 reminder.add(GregorianCalendar.DAY_OF_MONTH, -1);
@@ -183,11 +183,11 @@ public class Logic {
                 task.setReminder(reminder);
             } else if (taskType == Task.TaskType.EVENT) {
                 assert(task.getStart() != null);
-                
+
                 GregorianCalendar reminder = new GregorianCalendar();
                 reminder.setTime(task.getStart().getTime());
                 reminder.add(GregorianCalendar.DAY_OF_MONTH, -1);
-                
+
                 task.setReminder(reminder);
             }
         }
@@ -211,7 +211,7 @@ public class Logic {
                 } else {
                     Utility.setToEndOfDay(end);
                 }
-                
+
                 task.setEnd(end);
             } else if (task.getStart() == null) {
                 GregorianCalendar start = new GregorianCalendar();
@@ -222,7 +222,7 @@ public class Logic {
                 } else {
                     Utility.setToStartOfDay(start);
                 }
-                
+
                 task.setStart(start);
             }
         }
@@ -247,7 +247,7 @@ public class Logic {
     }
 
     private void fillReminder(Task task, Command cmd) {
-        Command.Option reminder = getOption(cmd, Config.OPT_START);
+        Command.Option reminder = getOption(cmd, Config.OPT_REMINDER);
 
         if (reminder != null) {
             GregorianCalendar reminderCalendar = new GregorianCalendar();
@@ -258,14 +258,14 @@ public class Logic {
 
     private void fillDuration(Task task, Command cmd) {
         Command.Option duration = getOption(cmd, Config.OPT_DUR);
-        
+
         if (duration != null) {
             task.setDuration(duration.timeArgument);
         }
     }
 
     private void fillEndDate(Task task, Command cmd) {
-        Command.Option end = getOption(cmd, Config.OPT_START);
+        Command.Option end = getOption(cmd, Config.OPT_END);
 
         if (end != null) {
             GregorianCalendar endCalendar = new GregorianCalendar();
@@ -293,7 +293,7 @@ public class Logic {
             task.setDeadline(deadlineCalendar);
         }
     }
-    
+
     private Command.Option getOption(Command cmd, String[] option) {
         return cmd.options.get(option[Config.OPT_LONG]);
     }
@@ -340,11 +340,11 @@ public class Logic {
             status = formatErrorStr(ERR_INVALID_CMD_NAME);
             return false;
         }
-        
+
         Config.CommandName cmdName = parsedCommand.commandName;
         switch (cmdName) {
             case ADD:
-                return isAddCmdValid(parsedCommand); 
+                return isAddCmdValid(parsedCommand);
             case DELETE:
                 return isDeleteCmdValid(parsedCommand);
             case MODIFY:
@@ -382,7 +382,7 @@ public class Logic {
             status = ERR_INVALID_CMD_ARG;
             return false;
         }
-        
+
         return isStartBeforeEnd(parsedCommand) &&
                isDurationValid(parsedCommand) &&
                isDeadlineValid(parsedCommand);
@@ -408,7 +408,7 @@ public class Logic {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -429,7 +429,7 @@ public class Logic {
     private String formatErrorStr(String errorInvalidCmdName) {
         return String.format(ERR_FORMAT, errorInvalidCmdName);
     }
-    
+
     public static void main(String[] argv) {
         Logic logic = new Logic(new GUI());
         logic.executeCommand("go to school /deadline tomorrow");

@@ -5,7 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
 public class Utility {
-	private static final SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm");
+	private static final SimpleDateFormat fmt =
+	        new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     public static Config.CommandName convertToCommandName(String cmdName) {
         cmdName = cmdName.toLowerCase();
@@ -41,12 +42,29 @@ public class Utility {
         end.set(GregorianCalendar.MINUTE, 59);
     }
 
+    /**
+     * Convert a Gregorian calendar object to string representation
+     * @param calendar
+     * @return the string representation or empty string if calendar is null
+     */
 	public static String calendarToString(GregorianCalendar calendar){
+	    if (calendar == null) {
+	        return "";
+	    }
 		return fmt.format(calendar.getTime());
 	}
 	
+	/**
+	 * Convert a formatted date string into a calendar object
+	 * @param dateStr the formatted string representation of a date
+	 * @return a new calendar or null if dateStr is null or
+	 *         the dateStr's format is invalid
+	 */
 	public static GregorianCalendar stringToCalendar(String dateStr) {
 	    try {
+	        if (dateStr == null) {
+	            return null;
+	        }
 	        GregorianCalendar calendar = new GregorianCalendar();
 	        calendar.setTime(fmt.parse(dateStr));
             return calendar;

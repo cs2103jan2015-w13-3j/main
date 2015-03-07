@@ -27,21 +27,18 @@ public class Config {
     public static final String TYPE_NONE = "notype_t";
 
     public static final String[] OPT_DUR = {"duration", "d", TYPE_TIME};
-    public static final String[] OPT_VENUE = {"venue", "v", TYPE_STR};
     public static final String[] OPT_LABEL = {"label", "l", TYPE_STR};
     public static final String[] OPT_PRIO = {"important", "im", TYPE_NONE};
-    //public static final String[] OPT_EVENT = {"event", "ev", TYPE_STR};
     public static final String[] OPT_DEADLINE = {"deadline", "dl", TYPE_DATETIME};
-    //public static final String[] OPT_TODO = {"todo", "td", TYPE_STR};
     public static final String[] OPT_START = {"start", "s", TYPE_DATETIME};
     public static final String[] OPT_END = {"end", "e", TYPE_DATETIME};
-    //public static final String[] OPT_INDEX = {"index", "i", TYPE_INT};
+    public static final String[] OPT_REMINDER = {"reminder", "r", TYPE_DATETIME};
     
     /**
      * New options can be added to the following table following the same
      * format as existing entry for it to work with the input parser
      **/
     public static final String OPTIONS_TABLE[][] =
-        { OPT_DUR, OPT_VENUE, OPT_LABEL, OPT_PRIO,
-          OPT_DEADLINE, OPT_START, OPT_END };
+        { OPT_DUR, OPT_LABEL, OPT_PRIO, OPT_DEADLINE,
+          OPT_START, OPT_END, OPT_REMINDER };
 }

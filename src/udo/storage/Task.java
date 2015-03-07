@@ -122,22 +122,23 @@ public class Task {
 	    String finalString;
 
 	    if (priority == null || !priority) {
-	        finalString = "Task: ";
+	        finalString = taskType + ": ";
 	    } else {
-	        finalString = "Important Task: ";
+	        finalString = "Important " + taskType + ": ";
 	    }
 
 		finalString += content + "\n";
+
 		if (deadline != null) {
 		    finalString += "  deadline: " + deadline + "\n";
 		}
-		if (start != null){
+		if (start != null) {
 			finalString += "  start: " + start + "\n";
 		}
-		if (end != null){
+		if (end != null) {
 			finalString += "  end: " + end + "\n";
 		}
-		if (reminder != null){
+		if (reminder != null) {
 			finalString += "  reminder: " + reminder + "\n";
 		}
 		if (done != null) {
