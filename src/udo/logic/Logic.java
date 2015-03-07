@@ -25,6 +25,8 @@ public class Logic {
             "Deadline has already passed";
     private static final String ERR_NON_POSITIVE_DUR =
             "Task's duration must be positive";
+    private static final String ERR_STORAGE =
+            "Tasks' storage input/output error";
 
     private static final String STATUS_ADDED = "Task: %s added sucessfully";
     private static final String STATUS_DELETED =
@@ -62,20 +64,21 @@ public class Logic {
             gui.displayStatus(status);
             return false;
         }
+        
+        boolean isSuccessful = false;
 
         if (isCommandValid(parsedCommand)) {
             switch (parsedCommand.commandName) {
                 case ADD:
-                    executeAddCommand(parsedCommand);
-                    break;
+                    isSuccessful = executeAddCommand(parsedCommand);
                 case MODIFY:
-                    executeModifyCommand(parsedCommand);
+                    isSuccessful = executeModifyCommand(parsedCommand);
                     break;
                 case DELETE:
-                    executeDeleteCommand(parsedCommand);
+                    isSuccessful = executeDeleteCommand(parsedCommand);
                     break;
                 case DISPLAY:
-                    executeDisplayCommand(parsedCommand);
+                    isSuccessful = executeDisplayCommand(parsedCommand);
                     break;
                 default:
                     status = ERR_UNSUPPORTED_CMD;
@@ -83,39 +86,69 @@ public class Logic {
             }
 
             gui.displayStatus(status);
-            return true;
+            return isSuccessful;
         } else {
             gui.displayStatus(status);
             return false;
         }
     }
 
-    private void executeDisplayCommand(Command parsedCommand) {
-        // TODO fill in default values
-        // TODO fill in data structure and call storage apis
+    private boolean executeDisplayCommand(Command parsedCommand) {
         status = getDisplaySucessStatus(parsedCommand);
+        gui.display(storage.query());
+        return true;
     }
 
     private String getDisplaySucessStatus(Command parsedCommand) {
         return "";
     }
 
-    private void executeDeleteCommand(Command parsedCommand) {
-        // TODO fill in default values
-        // TODO fill in data structure and call storage apis
+    private boolean executeDeleteCommand(Command parsedCommand) {
+        assert(parsedCommand.argIndex != null);
+        Integer index = getStorageIndex(parsedCommand.argIndex);
+        assert(index != null);
+
+        if (!storage.delete(index)) {
+            status = ERR_STORAGE;
+            return false;
+        }
+
         status = getDeleteSucessStatus(parsedCommand);
-        // TODO retrieve and display all tasks
+        return true;
     }
 
     private String getDeleteSucessStatus(Command parsedCommand) {
         return String.format(STATUS_DELETED, parsedCommand.argIndex);
     }
 
-    private void executeModifyCommand(Command parsedCommand) {
-        // TODO fill in default values
-        // TODO fill in data structure and call storage apis
+    private boolean executeModifyCommand(Command parsedCommand) {
+        assert(parsedCommand.argIndex != null);
+        
+        Integer storageIndex = getStorageIndex(parsedCommand.argIndex);
+        assert(storageIndex != null);
+        Task task = storage.query(storageIndex);
+
+        if (task.getTaskType() == getTaskType(parsedCommand)) {
+            fillTaskFromCommand(parsedCommand, task);
+        } else {
+            fillTaskFromCommand(parsedCommand, task);
+            fillDefaults(task);
+        }
+
+        if (!storage.modify(storageIndex, task)) {
+            status = ERR_STORAGE;
+            return false;
+        }
         status = getModifySucessStatus(parsedCommand);
-        // TODO retrieve and display all tasks
+        gui.display(storage.query());
+        
+        System.out.println(task);
+        return true;
+    }
+
+    private Integer getStorageIndex(Integer argIndex) {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
     private String getModifySucessStatus(Command parsedCommand) {
@@ -123,12 +156,18 @@ public class Logic {
         return String.format(STATUS_MODIFIED, parsedCommand.argIndex);
     }
 
-    private void executeAddCommand(Command parsedCommand) {
+    private boolean executeAddCommand(Command parsedCommand) {
         Task task = fillAddedTask(parsedCommand);
-        storage.add(task);
+        if (!storage.add(task)) {
+            status = ERR_STORAGE;
+            return false;
+        }
+
         status = getAddSucessStatus(parsedCommand);
+        gui.display(storage.query());
+
         System.out.println(task);
-        // TODO retrieve and display all tasks
+        return true;
     }
 
     private Task fillAddedTask(Command parsedCommand) {
@@ -137,6 +176,20 @@ public class Logic {
         task.setTaskType(getTaskType(parsedCommand));
         task.setContent(parsedCommand.argStr);
 
+        fillTaskFromCommand(parsedCommand, task);
+
+        fillDefaults(task);
+
+        return task;
+    }
+
+    /**
+     * Extract data from the parsed command and fill in the task
+     * data structure with retrieved information
+     * @param parsedCommand
+     * @param task
+     */
+    private void fillTaskFromCommand(Command parsedCommand, Task task) {
         fillDeadline(task, parsedCommand);
         fillStartDate(task, parsedCommand);
         fillEndDate(task, parsedCommand);
@@ -144,10 +197,6 @@ public class Logic {
         fillReminder(task, parsedCommand);
         fillLabel(task, parsedCommand);
         fillPriority(task, parsedCommand);
-
-        fillDefaults(task);
-
-        return task;
     }
 
     /**
@@ -366,7 +415,10 @@ public class Logic {
             status = ERR_UNSPECIFIED_INDEX;
             return false;
         }
-        return true;
+
+        return isStartBeforeEnd(parsedCommand) &&
+               isDurationValid(parsedCommand) &&
+               isDeadlineValid(parsedCommand);
     }
 
     private boolean isDeleteCmdValid(Command parsedCommand) {
