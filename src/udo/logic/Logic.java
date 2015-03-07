@@ -59,7 +59,6 @@ public class Logic {
     public boolean executeCommand(String command) {
         Command parsedCommand = parser.parseCommand(command);
         if (parser.getErrorStatus() != null) {
-            // Syntax error
             status = parser.getErrorStatus();
             gui.displayStatus(status);
             return false;
@@ -80,6 +79,15 @@ public class Logic {
                 case DISPLAY:
                     isSuccessful = executeDisplayCommand(parsedCommand);
                     break;
+                case DONE:
+                    isSuccessful = executeDoneCommand(parsedCommand);
+                    break;
+                case CHDIR:
+                    isSuccessful = executeChdirCommand(parsedCommand);
+                    break;
+                case SEARCH:
+                    isSuccessful = executeSearchCommand(parsedCommand);
+                    break;
                 default:
                     status = ERR_UNSUPPORTED_CMD;
                     return false;
@@ -91,6 +99,21 @@ public class Logic {
             gui.displayStatus(status);
             return false;
         }
+    }
+
+    private boolean executeSearchCommand(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    private boolean executeChdirCommand(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    private boolean executeDoneCommand(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return false;
     }
 
     private boolean executeDisplayCommand(Command parsedCommand) {

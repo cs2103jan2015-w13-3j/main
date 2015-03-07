@@ -1,6 +1,19 @@
 package udo.util;
 
 public class Config {
+    /** Procedure for adding a new command:
+     * Add a new command name string here
+     * Add the corresponding entry in the CommandName enum here
+     * Add the command name into the regex pattern in InputParser
+     * Add a new branch for string to enum conversion in Utility class
+     * 
+     * Procedure for adding a new option:
+     * Add a new string array of 3 entries here:
+     *      [option long name, option short name, option arg type]
+     * Add the string array name into the OPTIONS_TABLE array
+     * -> see existing options as examples
+     */
+
     /** Constants for command names **/
     public static final String CMD_STR_ADD = "add";
     public static final String CMD_STR_MODIFY = "modify";
@@ -9,9 +22,10 @@ public class Config {
     public static final String CMD_STR_SEARCH = "search";
     public static final String CMD_STR_DONE = "done";
     public static final String CMD_STR_CHDIR = "chdir";
+    public static final String CMD_STR_UNDO = "undo";
     
     public static enum CommandName {
-        ADD, MODIFY, DELETE, DISPLAY, SEARCH, DONE, CHDIR 
+        ADD, MODIFY, DELETE, DISPLAY, SEARCH, DONE, CHDIR, UNDO
     }
     
     /** Constants for command options **/

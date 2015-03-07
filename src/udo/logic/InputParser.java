@@ -20,7 +20,7 @@ public class InputParser {
     private Pattern commandNamePattern =
             Pattern.compile("(?i)^(?:\\s)*" +
                             "(?<name>add|modify|delete|display|" +
-                            "search|done|chdir)");
+                            "search|done|chdir|undo)");
     
     // Regex used to parse command's argument
     private static final Pattern indexPattern =
@@ -121,7 +121,7 @@ public class InputParser {
         
         extractOptions(command);
         
-        parseCommandArg(extractCmdArg(command, cmdEndIndex),
+        parseCommandArg(extractCmdArg(command, cmdEndIndex, resultCommand),
                         resultCommand);
         
         parseAllOptions(command, resultCommand);
@@ -180,17 +180,19 @@ public class InputParser {
      * @param cmdEndIndex the end index of the cmd name in the cmd string
      * @return the string containing the command's argumument
      */
-    private String extractCmdArg(String command, int cmdEndIndex) {
-        if (cmdEndIndex < 0) {
+    private String extractCmdArg(String command, int cmdNameEndIndex,
+                                 Command resultCommand) {
+        if (cmdNameEndIndex < 0) {
             return null;
         }
         
         int argEndIndex = command.length();
-        if (extractedOptions.size() > 0) {
+        if (resultCommand.commandName != Config.CommandName.CHDIR &&
+            extractedOptions.size() > 0) {
             argEndIndex = optionStarts.get(0);
         }
         
-        return command.substring(cmdEndIndex, argEndIndex).trim();
+        return command.substring(cmdNameEndIndex, argEndIndex).trim();
     }
 
     /**
@@ -425,5 +427,11 @@ public class InputParser {
         System.out.println(inputParser.parseCommand("add match midterm /start next friday /end 11/02/15"));
         System.out.println(inputParser.parseCommand("add watch a movie /duration 2 hours 30 minutes"));
         System.out.println(inputParser.parseCommand("submit the report /dl next friday /reminder next thursday"));
+        System.out.println(inputParser.parseCommand("undo"));
+        System.out.println(inputParser.parseCommand("delete 1"));
+        System.out.println(inputParser.parseCommand("display"));
+        System.out.println(inputParser.parseCommand("chdir /deadline"));
+        System.out.println(inputParser.parseCommand("search school tomorrow"));
+        System.out.println(inputParser.parseCommand("done 2"));
     }
 }
