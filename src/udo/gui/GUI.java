@@ -51,37 +51,36 @@ public class GUI extends Application {
     }
 
     private void populateTest() {
-        testList.add(new Task(Task.TaskType.EVENT, "event: drink coffee in jan",
-                new GregorianCalendar(2015, 1, 1, 1, 1), new GregorianCalendar(2015, 1, 1, 10, 10), 0,
+        testList.add(new Task(Task.TaskType.EVENT, "drink coffee in jan",
+                new GregorianCalendar(2015, 0, 1, 1, 1), new GregorianCalendar(2015, 0, 1, 10, 10), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "event: drink more coffee in feb",
-                new GregorianCalendar(2015, 2, 2, 2, 2), new GregorianCalendar(2015, 2, 2, 10, 10), 0,
+        testList.add(new Task(Task.TaskType.EVENT, "drink more coffee in feb",
+                new GregorianCalendar(2015, 1, 2, 2, 2), new GregorianCalendar(2015, 1, 2, 10, 10), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.TODO, "todo: say hello",
+        testList.add(new Task(Task.TaskType.TODO, "say hello",
                 new GregorianCalendar(), new GregorianCalendar(), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "event: look at the moon in feb",
-                new GregorianCalendar(2015, 2, 2, 7, 1), new GregorianCalendar(2015, 2, 2), 0,
+        testList.add(new Task(Task.TaskType.EVENT, "look at the moon in feb",
+                new GregorianCalendar(2015, 1, 2, 7, 1), new GregorianCalendar(2015, 1, 2), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "event: code in march",
-                new GregorianCalendar(2015, 3, 3, 3, 3), new GregorianCalendar(2015, 3, 3, 10, 10), 0,
+        testList.add(new Task(Task.TaskType.EVENT, "code in march",
+                new GregorianCalendar(2015, 2, 3, 3, 3), new GregorianCalendar(2015, 2, 3, 10, 10), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.TODO, "todo: say second hello",
+        testList.add(new Task(Task.TaskType.TODO, "say second hello",
                 new GregorianCalendar(), new GregorianCalendar(), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "event: should code more in jan",
-                new GregorianCalendar(2015, 1, 1, 2, 1), new GregorianCalendar(2015, 1, 1, 10, 10), 0,
+        testList.add(new Task(Task.TaskType.EVENT, "should code more in jan",
+                new GregorianCalendar(2015, 0, 1, 2, 1), new GregorianCalendar(2015, 0, 1, 10, 10), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "event: can't think in feb",
-                new GregorianCalendar(2015, 2, 25, 1, 1), new GregorianCalendar(2015, 2, 25, 10, 10), 0,
+        testList.add(new Task(Task.TaskType.EVENT, "can't think in feb",
+                new GregorianCalendar(2015, 1, 25, 1, 1), new GregorianCalendar(2015, 1, 25, 10, 10), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.TODO, "todo say second hello",
+        testList.add(new Task(Task.TaskType.TODO, "say second hello",
                 new GregorianCalendar(), new GregorianCalendar(), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "event: shoot for the moon in jan",
-                new GregorianCalendar(2015, 1, 1, 1, 1), new GregorianCalendar(2015, 1, 1, 9, 9), 0,
+        testList.add(new Task(Task.TaskType.EVENT, "shoot for the moon in jan",
+                new GregorianCalendar(2015, 0, 1, 1, 1), new GregorianCalendar(2015, 0, 1, 9, 9), 0,
                 new GregorianCalendar(), "time", true));
-        //System.out.println("in test list" + testList);
     }
 
     @Override
@@ -166,6 +165,7 @@ public class GUI extends Application {
             System.out.println("In GUI: rcvdList is Null");
         }
         
+        System.out.println("In GUI: received list is " + rcvdList);
         duplicateList(rcvdList);
         GUIFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);

@@ -17,11 +17,15 @@ public class GUIFormatter {
     public static final String EMPTY_STRING = "";
     
     public static void formatDisplayList(ArrayList<Task> displayList) {
-        Collections.sort(displayList);
+        if (displayList == null) {
+            return;
+        }
+        
+        Collections.sort(displayList);        
         formatSerialNumberings(displayList);
         formatElementLoop(displayList);
     }
-    
+
     private static void formatSerialNumberings(ArrayList<Task> displayList) {
 
         for (int i = 0; i < displayList.size(); i++) {
@@ -29,7 +33,6 @@ public class GUIFormatter {
             Task task = displayList.get(i);
             task.setContent("" + counter + ".  " + task.getContent());
         }
-        //System.out.println("after with numbering" + displayList);
     }
     
     /**

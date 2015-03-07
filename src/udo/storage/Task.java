@@ -185,8 +185,6 @@ public class Task implements Comparable<Task> {
             return cal1.compareTo(cal2);
         } else {
             GregorianCalendar cal2 = task2.getStart();
-            //System.out.println("cal1 is " + cal1 );
-            //System.out.println("cal2 is " + task2 );
             return cal1.compareTo(cal2);
         }
     }
