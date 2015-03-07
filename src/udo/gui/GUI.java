@@ -31,6 +31,7 @@ public class GUI extends Application {
 
     private static final String NAME_APP = "JustU"; 
     private static final String DISPLAY_TIME_TODO = "-";
+    private static final String EMPTY_STRING = "";
     
     private static ObservableList<Task> taskData;
     private static ArrayList<Task> displayList = new ArrayList<Task>();
@@ -68,7 +69,7 @@ public class GUI extends Application {
         testList.add(new Task(Task.TaskType.EVENT, "say css is dumb",
                 new GregorianCalendar(), new GregorianCalendar(2015, 2, 2), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "code more",
+        testList.add(new Task(Task.TaskType.DEADLINE, "code more",
                 new GregorianCalendar(), new GregorianCalendar(2015, 3, 3), 0,
                 new GregorianCalendar(), "time", true));
 
@@ -147,7 +148,7 @@ public class GUI extends Application {
      */
     public void display(ArrayList<Task> rcvdList) {
         duplicateList(rcvdList);
-        formatDisplayList();
+        GUIFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);
     }
 
@@ -156,96 +157,6 @@ public class GUI extends Application {
         displayList.addAll(originalList);
         // TODO: sort curr list
         // hash currentlist index against originallist index
-    }
-    
-    private void formatDisplayList() {
-        formatSerialNumberings();
-        formatElementLoop();
-    }
-    
-    private void formatSerialNumberings() {
-
-        for (int i = 0; i < displayList.size(); i++) {
-            int counter = i + 1;
-            Task task = displayList.get(i);
-            task.setContent("" + counter + ".  " + task.getContent());
-        }
-    }
-    
-    /**
-     * Formats list into a GUI display format
-     * Inserts date headers and time
-     */
-    private void formatElementLoop() {
-
-        String prevDayMonthYear = "";
-
-        for (int i = 0; i < displayList.size(); i++) {
-
-            Task task = displayList.get(i);
-            formatDisplayTime(task);
-            String dayMonthYear = formatDateGUI(task.getEnd());            
-            i = insertIfNewDate(prevDayMonthYear, i, dayMonthYear);
-            prevDayMonthYear = dayMonthYear;
-        }
-
-    }
-  
-    /**
-     * Format the start, end time into display string
-     * @param task
-     */
-    private void formatDisplayTime(Task task) {
-        Task.TaskType taskType = task.getTaskType();
-        switch (taskType) {
-            case DEADLINE:
-                formatDisplayTimeDeadLine(task);
-                break;
-            case EVENT:
-                formatDisplayTimeEvent(task);
-                break;
-            case TODO:
-                formatDisplayTimeTodo(task);
-                break;
-        }        
-    }
-    
-    private void formatDisplayTimeTodo(Task task) {
-        task.setLabel("-");
-        
-    }
-
-    private void formatDisplayTimeEvent(Task task) {
-        String start = formatTimeGUI(task.getStart());
-        String end = formatTimeGUI(task.getEnd());
-        task.setLabel(start + " - " + end);
-    }
-
-    private void formatDisplayTimeDeadLine(Task task) {       
-        task.setLabel(formatTimeGUI(task.getDeadline()));
-    }
-
-    private String formatTimeGUI(GregorianCalendar calendar) {
-         return timeFormat.format(calendar.getTime());
-    }
-
-    private int insertIfNewDate(String prevDate, int i, String date) {
-        if (!date.equals(prevDate) || prevDate.isEmpty()) {
-            insertDateHeader(displayList, date, i);
-            
-            i++;
-        }
-        return i;
-    }
-
-    private void insertDateHeader(ArrayList<Task> displayList, String date, int i) {
-        Task dateHeader = new Task(null, date, new GregorianCalendar(),
-                new GregorianCalendar(), 0, new GregorianCalendar(), "", true);
-        displayList.add(i, dateHeader);
-    }
-
-    private String formatDateGUI(GregorianCalendar calendar) {
-        return dateFormat.format(calendar.getTime());
     }
     
     /**
