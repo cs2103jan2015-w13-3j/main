@@ -70,6 +70,7 @@ public class Logic {
             switch (parsedCommand.commandName) {
                 case ADD:
                     isSuccessful = executeAddCommand(parsedCommand);
+                    break;
                 case MODIFY:
                     isSuccessful = executeModifyCommand(parsedCommand);
                     break;
@@ -180,6 +181,8 @@ public class Logic {
     }
 
     private boolean executeAddCommand(Command parsedCommand) {
+        System.out.println("Adding new task...");
+
         Task task = fillAddedTask(parsedCommand);
         if (!storage.add(task)) {
             status = ERR_STORAGE;
