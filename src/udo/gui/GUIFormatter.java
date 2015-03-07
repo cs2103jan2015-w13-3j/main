@@ -2,6 +2,7 @@ package udo.gui;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 
 import udo.storage.Task;
@@ -10,12 +11,13 @@ public class GUIFormatter {
     
     public static SimpleDateFormat dateFormat = new SimpleDateFormat(
             "EEE, dd MMM yyyy");
-    public static SimpleDateFormat timeFormat = new SimpleDateFormat("H:m");
+    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     
     private static final String DISPLAY_TIME_TODO = "-";
     public static final String EMPTY_STRING = "";
     
     public static void formatDisplayList(ArrayList<Task> displayList) {
+        Collections.sort(displayList);
         formatSerialNumberings(displayList);
         formatElementLoop(displayList);
     }
@@ -27,6 +29,7 @@ public class GUIFormatter {
             Task task = displayList.get(i);
             task.setContent("" + counter + ".  " + task.getContent());
         }
+        //System.out.println("after with numbering" + displayList);
     }
     
     /**

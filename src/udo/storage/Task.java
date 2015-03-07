@@ -4,7 +4,7 @@ import java.util.GregorianCalendar;
 
 import udo.util.Utility;
 
-public class Task {
+public class Task implements Comparable<Task> {
     public static enum TaskType {DEADLINE, EVENT, TODO};
 
 	//class defines Task objects
@@ -146,4 +146,64 @@ public class Task {
 		}
 		return finalString;
 	}
+	
+	public int compareTo(Task task2) {
+	    TaskType taskType = this.getTaskType();
+	    	    
+	    switch (taskType) {
+	        case EVENT:
+	            return compareWithEvent(task2);
+	        case DEADLINE:
+	            return compareWithDeadline(task2);
+	        case TODO:
+	            return compareWithTodo(task2);	            
+	    }
+	    return 0;
+	}
+	
+    /**
+     * Todo tasks are always displayed at the end
+     */	
+    private int compareWithTodo(Task task2) {           
+        TaskType task2TaskType = task2.getTaskType();
+        
+        if(!task2TaskType.equals(TaskType.TODO)) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    private int compareWithDeadline(Task task2) {
+        TaskType task2TaskType = task2.getTaskType();
+        GregorianCalendar cal1 = this.getDeadline();
+        
+        if(task2TaskType.equals(TaskType.TODO)) {
+            return 1;
+        } else if (task2TaskType.equals(TaskType.DEADLINE)){
+            GregorianCalendar cal2 = task2.getDeadline();
+            return cal1.compareTo(cal2);
+        } else {
+            GregorianCalendar cal2 = task2.getStart();
+            //System.out.println("cal1 is " + cal1 );
+            //System.out.println("cal2 is " + task2 );
+            return cal1.compareTo(cal2);
+        }
+    }
+
+    private int compareWithEvent(Task task2) {
+        TaskType task2TaskType = task2.getTaskType();
+        GregorianCalendar cal1 = this.getStart();
+        
+        if(task2TaskType.equals(TaskType.TODO)) {
+            return -1;
+        } else if (task2TaskType.equals(TaskType.DEADLINE)){
+            GregorianCalendar cal2 = task2.getDeadline();
+            return cal1.compareTo(cal2);
+        } else {
+            GregorianCalendar cal2 = task2.getStart();
+            return cal1.compareTo(cal2);
+        }
+        
+    }
 }
