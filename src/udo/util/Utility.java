@@ -23,6 +23,10 @@ public class Utility {
             return Config.CommandName.DONE;
         } else if (cmdName.equals(Config.CMD_STR_CHDIR)) {
             return Config.CommandName.CHDIR;
+        } else if (cmdName.equals(Config.CMD_STR_SEARCH)) {
+            return Config.CommandName.SEARCH;
+        } else if (cmdName.equals(Config.CMD_STR_UNDO)) {
+            return Config.CommandName.UNDO;
         } else {
             return null;
         }
