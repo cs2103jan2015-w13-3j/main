@@ -11,6 +11,13 @@ import java.util.GregorianCalendar;
 
 import java.io.*;
 
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+
+import udo.storage.Task.TaskType;
+
+import com.google.gson.Gson;
+
 
 public class Storage {
 
@@ -25,18 +32,18 @@ public class Storage {
 
 		//testing purposes:
 
-		/*boolean function = st.add("event", "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
-    			0, new GregorianCalendar(2005,01,02), "work", true);
-		boolean function2 = st.add("deadline", "fighting", null, new GregorianCalendar(2010,01,03),
-    			0, new GregorianCalendar(2011,01,02), "personal", false);
-		boolean function3 = st.add("todo", "reading books", null, null,
-    			120, null, "leisure", false);
+		boolean function = st.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
+    			0, new GregorianCalendar(2005,01,02), "work", true));
+		boolean function2 = st.add(new Task(TaskType.DEADLINE, "fighting", null, new GregorianCalendar(2010,01,03),
+    			0, new GregorianCalendar(2011,01,02), "personal", false));
+		boolean function3 = st.add(new Task(TaskType.DEADLINE, "reading books", null, null,
+    			120, null, "leisure", false));
     	if (function&&function2&&function3) System.out.println("Adding successfully");
 
     	ArrayList<Task> test = new ArrayList<Task>();
     	test = st.query();
-    	printTest(test);
-    	//test = st.query("leisure");
+    	//printTest(test);
+    	test = st.query("leisure");
     	//printTest(test);
     	//test = st.query(new GregorianCalendar(2010,01,03));
     	//printTest(test);
@@ -53,50 +60,68 @@ public class Storage {
     	//done = st.delete(1);
     	//test = st.query();
     	//printTest(test);
-    	done = st.modify(2, "deadline", null, null, new GregorianCalendar(2006,01,05),0, new GregorianCalendar(2006,01,02), null);
-    	done = st.modify(1, "event", "hanging out", new GregorianCalendar(2013,05,04), new GregorianCalendar(2013,05,05), -1, new GregorianCalendar(2013,05,03), "leisure");
-	    done = st.modify(0, "todo", null,null, null, 3, null, null);
+    	//done = st.modify(2, "deadline", null, null, new GregorianCalendar(2006,01,05),0, new GregorianCalendar(2006,01,02), null);
+    	//done = st.modify(1, "event", "hanging out", new GregorianCalendar(2013,05,04), new GregorianCalendar(2013,05,05), -1, new GregorianCalendar(2013,05,03), "leisure");
+	    //done = st.modify(0, "todo", null,null, null, 3, null, null);
     	test = st.query();
-	    printTest(test);*/
-
+	    printTest(test);
+	    st.chDir("testTask.json");
 		st.exit();
 	}
 
 
-	/*public static void printTest(ArrayList<Task> test){
+	public static void printTest(ArrayList<Task> test){
 		for (int i =0; i < test.size(); i++)
 			System.out.println(test.get(i));
 		System.out.println("");
-	}*/
+	}
 
 	//read from json file
+	String lastPath;
 	public Storage(){
 		taskList = new ArrayList<Task>();
-		// generate JSON String in Java
-		// let's read
-		taskList = JsonProcessor.readJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json");
-		//buggy:
+		try {
+			System.out.println("Reading JSON file from setting");
+			FileReader fr = new FileReader("setting.txt");
+			BufferedReader br = new BufferedReader(fr);
+			lastPath = br.readLine();
+			taskList = JsonProcessor.readJson(lastPath);
+		} catch (Exception ex) {
+			File settingFile = new File("setting.txt");
+			lastPath = "task.json";
+			JsonProcessor.writeJson(lastPath, taskList);
+			try {
+				FileWriter fw = new FileWriter(settingFile);
+				BufferedWriter bw = new BufferedWriter(fw);
+				bw.write(lastPath);
+				bw.close();
+				fw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
-		/*
-    	try{
-    		FileReader fr = new FileReader("tasks.json");
-    		BufferedReader br = new BufferedReader(fr);
-    		Gson gson = new Gson();
-    		Task newT = gson.fromJson(br, Task.class);
-    		while (newT != null){
-    			taskList.add(newT);
-    			newT = gson.fromJson(br, Task.class);
-    		}
-    		br.close();
-    	} catch (IOException e){
-    		storageFile = new File("tasks.json");
-    	}*/
+		}
 	}
+
+	//store to json file when exits
 	public void exit() throws IOException{
-		JsonProcessor.writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json", taskList);
+		JsonProcessor.writeJson(lastPath, taskList);
 	}
+	//change data file's directory
 	public void chDir(String path) {
 		JsonProcessor.writeJson(path, taskList);
+		File settingFile = new File("setting.txt");
+		lastPath = path;
+		try {
+			FileWriter fw = new FileWriter(settingFile);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(path);
+			bw.close();
+			fw.close();
+			System.out.println();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean add(Task newTask) {
@@ -228,6 +253,4 @@ public class Storage {
 		return true;
 	}
 
-	//store to json file when exits
-	
 }

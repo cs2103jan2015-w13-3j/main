@@ -67,7 +67,7 @@ public class JsonProcessor{
 			writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/testUpdated.json", rtList);*/
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+		//	ex.printStackTrace();
 		}
 		return rtList;
 	}
