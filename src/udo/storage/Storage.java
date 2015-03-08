@@ -97,14 +97,21 @@ public class Storage {
     	return true;
     }
 
-    //delete function
+    //delete function, swap deleted task with last task on list 
     public boolean delete(int index){
-    	taskList.remove(index);
+    	if (index >= taskList.size()){
+    		return false;
+    }
+    	taskList.set(index, taskList.get(taskList.size() -1));
+    	taskList.remove(taskList.get(taskList.size() -1));
     	return true;
     }
 
     //modify function
     public boolean modify(int index, Task modifiedTask){
+    	if (index >= taskList.size()){
+    		return false;
+    	}
     	taskList.set(index, modifiedTask);
     	return true;
     }
@@ -116,6 +123,9 @@ public class Storage {
     
     //query a specific task
     public Task query(int index){
+    	if (index >= taskList.size()){
+    		return new Task();
+    	}
     	return taskList.get(index);
     }
     
@@ -195,12 +205,18 @@ public class Storage {
 
     //toggle priority
     public boolean togglePriority(int index){
+    	if (index >= taskList.size()){
+    		return false;
+    	}
     	taskList.get(index).setPriority(!taskList.get(index).isPriority());
     	return true;
     }
     
     //mark as done or undone
     public boolean changeStatus(int index){
+    	if (index >= taskList.size()){
+    		return false;
+    	}
     	taskList.get(index).setDone();
     	return true;
     }
