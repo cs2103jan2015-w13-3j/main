@@ -73,8 +73,6 @@ public class Storage {
 	public Storage(){
 		taskList = new ArrayList<Task>();
 		// generate JSON String in Java
-		//writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json", myArr);
-
 		// let's read
 		taskList = JsonProcessor.readJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json");
 		//buggy:
@@ -95,20 +93,27 @@ public class Storage {
     	}*/
 	}
 
-	//add functions
+
 	public boolean add(Task newTask) {
 		taskList.add(newTask);
 		return true;
 	}
 
-	//delete function
+	//delete function, swap deleted task with last task on list 
 	public boolean delete(int index){
-		taskList.remove(index);
+		if (index >= taskList.size()){
+			return false;
+		}
+		taskList.set(index, taskList.get(taskList.size() -1));
+		taskList.remove(taskList.get(taskList.size() -1));
 		return true;
 	}
 
 	//modify function
 	public boolean modify(int index, Task modifiedTask){
+		if (index >= taskList.size()){
+			return false;
+		}
 		taskList.set(index, modifiedTask);
 		return true;
 	}
@@ -120,6 +125,9 @@ public class Storage {
 
 	//query a specific task
 	public Task query(int index){
+		if (index >= taskList.size()){
+			return new Task();
+		}
 		return taskList.get(index);
 	}
 
@@ -198,28 +206,25 @@ public class Storage {
 	}
 
 	//toggle priority
-	public boolean changeStatus(int index){
+	public boolean togglePriority(int index){
+		if (index >= taskList.size()){
+			return false;
+		}
 		taskList.get(index).setPriority(!taskList.get(index).isPriority());
+		return true;
+	}
+
+	//mark as done or undone
+	public boolean changeStatus(int index){
+		if (index >= taskList.size()){
+			return false;
+		}
+		taskList.get(index).setDone();
 		return true;
 	}
 
 	//store to json file when exits
 	public void exit() throws IOException{
-
-		//buggy:
-		/*
-    	FileWriter fw = new FileWriter("tasks.json");
-    	BufferedWriter bw = new BufferedWriter(fw);
-    	Gson gson = new Gson();
-    	String s= "";
-    	bw.write(s);
-    	bw.close();
-    	FileWriter fw2 = new FileWriter("tasks.json",true);
-    	BufferedWriter bw2 = new BufferedWriter(fw2);
-    	for (int i = 0;i < taskList.size(); i++){
-    		s = gson.toJson(taskList.get(i));
-    		bw2.write(s);
-    	}
-     	bw2.close();*/
+		JsonProcessor.writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json", taskList);
 	}
 }
