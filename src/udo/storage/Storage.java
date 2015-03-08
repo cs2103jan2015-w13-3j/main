@@ -194,8 +194,14 @@ public class Storage {
     }
 
     //toggle priority
-    public boolean changeStatus(int index){
+    public boolean togglePriority(int index){
     	taskList.get(index).setPriority(!taskList.get(index).isPriority());
+    	return true;
+    }
+    
+    //mark as done or undone
+    public boolean changeStatus(int index){
+    	taskList.get(index).setDone();
     	return true;
     }
     
