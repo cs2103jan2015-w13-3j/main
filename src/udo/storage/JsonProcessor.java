@@ -27,7 +27,7 @@ public class JsonProcessor{
 		//Gson gson = new Gson();
 
 		//  JSONArray jsonArray = new JSONArray();
-		Task task1 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(1995, 10, 20, 0, 1) , new GregorianCalendar(1995, 10, 20, 11, 30), 
+		/*Task task1 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(1995, 10, 20, 0, 1) , new GregorianCalendar(1995, 10, 20, 11, 30), 
 				5, new GregorianCalendar(1995, 10, 20, 23, 59), "boring",  false);
 		Task task2 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(1995, 10, 20) , new GregorianCalendar(1995, 10, 20), 
 				5, new GregorianCalendar(1995, 10, 20), "boring",  false);
@@ -38,38 +38,38 @@ public class JsonProcessor{
 		myArr.add(task1);
 		myArr.add(task2);
 		myArr.add(task2);
-		myArr.add(task3);
+		myArr.add(task3);*/
 
 
 		// generate JSON String in Java
-		writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json", myArr);
+		//writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json", myArr);
 
 		// let's read
-		readJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json");
+		//readJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json");
 	}
 	/*
 	 * Java Method to read JSON From File
 	 */
-	public static void readJson(String file) {
+	public static ArrayList<Task> readJson(String file) {
 		JSONParser parser = new JSONParser();
-
+		ArrayList<Task> rtList = new ArrayList<Task>();
 		try {
 			System.out.println("Reading JSON file from Java program");
 			FileReader fileReader = new FileReader(file);
 			JSONArray json = (JSONArray) parser.parse(fileReader);
-			ArrayList<Task> rtList = new ArrayList<Task>();
 			for (int i=0; i<json.size(); i++) {
 				Gson gson = new Gson();
 				rtList.add(gson.fromJson(json.get(i).toString(), Task.class));
 			}
 
-			rtList.remove(1);
+			/*rtList.remove(1);
 			rtList.get(0).setDuration(1);
-			writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/testUpdated.json", rtList);
+			writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/testUpdated.json", rtList);*/
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+		return rtList;
 	}
 
 	/* Java Method to write JSON String to file
