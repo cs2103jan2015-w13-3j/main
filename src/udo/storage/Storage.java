@@ -92,7 +92,12 @@ public class Storage {
     		storageFile = new File("tasks.json");
     	}*/
 	}
-
+	public void exit() throws IOException{
+		JsonProcessor.writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json", taskList);
+	}
+	public void chDir(String path) {
+		JsonProcessor.writeJson(path, taskList);
+	}
 
 	public boolean add(Task newTask) {
 		taskList.add(newTask);
@@ -224,7 +229,5 @@ public class Storage {
 	}
 
 	//store to json file when exits
-	public void exit() throws IOException{
-		JsonProcessor.writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json", taskList);
-	}
+	
 }
