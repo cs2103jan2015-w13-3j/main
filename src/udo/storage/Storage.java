@@ -21,11 +21,14 @@ public class Storage {
 	//private static File storageFile;
 	private static ArrayList<Task> taskList;
 	public enum TASK_TYPE{ EVENT, DEADLINE, TODO};
-
+	private static Task prevTask;
+	private static String prevCmd;
+	
 	public static void main(String[] args) throws IOException{
 
 		Storage st = new Storage();
-
+		prevTask = new Task();
+	
 		//testing purposes:
 
 		boolean function = st.add(new Task(0,TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
@@ -54,6 +57,7 @@ public class Storage {
     	//test = st.query(true);
     	//printTest(test);
     	boolean done = st.delete(1);
+    	done = st.undo();
     	//test = st.query();
     	//printTest(test);
     	//done = st.modify(2, "deadline", null, null, new GregorianCalendar(2006,01,05),0, new GregorianCalendar(2006,01,02), null);
@@ -125,6 +129,8 @@ public class Storage {
 	public boolean add(Task newTask) {
 		taskList.add(newTask);
 		JsonProcessor.writeJson(lastPath, taskList);
+		prevTask = newTask;
+		prevCmd = "add";
 		return true;
 	}
 
@@ -133,10 +139,13 @@ public class Storage {
 		if (index >= taskList.size()){
 			return false;
 		}
+		prevTask = taskList.get(index);
+		prevCmd = "del";
 		taskList.set(index, taskList.get(taskList.size() -1));
 		taskList.remove(taskList.get(taskList.size() -1));
 		taskList.get(index).setIndex(index);
 		JsonProcessor.writeJson(lastPath, taskList);
+		
 		return true;
 	}
 
@@ -145,6 +154,8 @@ public class Storage {
 		if (index >= taskList.size()){
 			return false;
 		}
+		prevTask = taskList.get(index);
+		prevCmd = "mod";
 		taskList.set(index, modifiedTask);
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
@@ -242,6 +253,8 @@ public class Storage {
 		if (index >= taskList.size()){
 			return false;
 		}
+		prevTask = taskList.get(index);
+		prevCmd = "mod";
 		taskList.get(index).setPriority(!taskList.get(index).isPriority());
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
@@ -252,9 +265,30 @@ public class Storage {
 		if (index >= taskList.size()){
 			return false;
 		}
+		prevTask = taskList.get(index);
+		prevCmd = "mod";
 		taskList.get(index).setDone();
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
 
+	public boolean undo(){
+		switch(prevCmd){
+		case "add":
+			taskList.remove(taskList.size() -1);
+			break;
+		case "mod":
+			taskList.set(prevTask.getIndex(), prevTask);
+			break;
+		case "del":	
+			Task temp = taskList.get(prevTask.getIndex());
+			temp.setIndex(taskList.size());
+			taskList.add(temp);
+			taskList.set(prevTask.getIndex(), prevTask);
+			break;
+		default: return false;
+		}
+		JsonProcessor.writeJson(lastPath, taskList);
+		return true;
+	}
 }
