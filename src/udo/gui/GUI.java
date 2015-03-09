@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import udo.gui.view.HomeController;
 import udo.logic.Logic;
 import udo.storage.Task;
+import udo.util.Config;
 import udo.util.Utility;
 
 public class GUI extends Application {
@@ -33,8 +34,7 @@ public class GUI extends Application {
     private static ObservableList<Task> taskData;
     private static List<Task> originalList;
     private static ArrayList<Task> displayList = new ArrayList<Task>();
-    private static ArrayList<Task> testList = new ArrayList<Task>();
-    
+    private static ArrayList<Task> testList = new ArrayList<Task>();    
    
     /**
      * Constructor
@@ -42,11 +42,10 @@ public class GUI extends Application {
     public GUI() {
 
         logic = new Logic(this);
-
+        
         // For unit testing purposes
-        populateTest();
+        //populateTest();
         //display(testList);
-
     }
 
     private void populateTest() {
@@ -56,7 +55,7 @@ public class GUI extends Application {
         testList.add(new Task(Task.TaskType.EVENT, "drink more coffee in feb",
                 new GregorianCalendar(2015, 1, 2, 2, 2), new GregorianCalendar(2015, 1, 2, 10, 10), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.TODO, "say hello",
+        testList.add(new Task(Task.TaskType.TOD, "say hello",
                 new GregorianCalendar(), new GregorianCalendar(), 0,
                 new GregorianCalendar(), "time", true));
         testList.add(new Task(Task.TaskType.EVENT, "look at the moon in feb",
@@ -65,7 +64,7 @@ public class GUI extends Application {
         testList.add(new Task(Task.TaskType.EVENT, "code in march",
                 new GregorianCalendar(2015, 2, 3, 3, 3), new GregorianCalendar(2015, 2, 3, 10, 10), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.TODO, "say second hello",
+        testList.add(new Task(Task.TaskType.TOD, "say second hello",
                 new GregorianCalendar(), new GregorianCalendar(), 0,
                 new GregorianCalendar(), "time", true));
         testList.add(new Task(Task.TaskType.EVENT, "should code more in jan",
@@ -74,7 +73,7 @@ public class GUI extends Application {
         testList.add(new Task(Task.TaskType.EVENT, "can't think in feb",
                 new GregorianCalendar(2015, 1, 25, 1, 1), new GregorianCalendar(2015, 1, 25, 10, 10), 0,
                 new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.TODO, "say second hello",
+        testList.add(new Task(Task.TaskType.TOD, "say second hello",
                 new GregorianCalendar(), new GregorianCalendar(), 0,
                 new GregorianCalendar(), "time", true));
         testList.add(new Task(Task.TaskType.EVENT, "shoot for the moon in jan",
@@ -90,6 +89,7 @@ public class GUI extends Application {
         initRootLayout();
 
         showOverview();
+        
     }
 
     /**
@@ -128,6 +128,7 @@ public class GUI extends Application {
             // Give the controller access to the main application.
             controller = loader.getController();
             controller.setMainApp(this);
+            logic.executeCommand(Config.CMD_STR_DISPLAY);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -174,7 +175,7 @@ public class GUI extends Application {
     private void duplicateList(List<Task> rcvdList) {
         originalList = rcvdList;
         displayList = Utility.deepCopy(originalList);
-      
+        
         // TODO: sort curr list
         // hash currentlist index against originallist index
     }

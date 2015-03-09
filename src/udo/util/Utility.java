@@ -5,13 +5,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.HashMap;
 
 import udo.storage.Task;
 
 public class Utility {
 	private static final SimpleDateFormat fmt =
 	        new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
+	public static HashMap<Integer, Integer> indexMap = new HashMap<>();
+	
     public static Config.CommandName convertToCommandName(String cmdName) {
         cmdName = cmdName.toLowerCase();
         
