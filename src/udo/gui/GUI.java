@@ -1,13 +1,7 @@
 package udo.gui;
 
-import udo.storage.Task;
-import udo.util.Utility;
-import udo.gui.view.HomeController;
-import udo.logic.Logic;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import javafx.application.Application;
@@ -18,6 +12,10 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import udo.gui.view.HomeController;
+import udo.logic.Logic;
+import udo.storage.Task;
+import udo.util.Utility;
 
 public class GUI extends Application {
 
