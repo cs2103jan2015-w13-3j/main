@@ -66,8 +66,9 @@ public class Reminder extends TimerTask {
 		}
 		return remindList;
 	}
-	static ArrayList<Task> remindList = new ArrayList<Task>();
+	public static ArrayList<Task> remindList = new ArrayList<Task>();
 	public Reminder() {
+		run();
 	}
 	@Override
 	public void run() {
