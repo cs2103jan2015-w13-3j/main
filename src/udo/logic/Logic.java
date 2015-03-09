@@ -157,9 +157,11 @@ public class Logic {
 
         Task task = storage.query(storageIndex);
 
-        if (task.getTaskType() == getTaskType(parsedCommand)) {
+        Task.TaskType newTaskType = getTaskType(parsedCommand);
+        if (task.getTaskType() == newTaskType) {
             fillTaskFromCommand(parsedCommand, task);
         } else {
+            task.setTaskType(newTaskType);
             fillTaskFromCommand(parsedCommand, task);
             fillDefaults(task);
         }
