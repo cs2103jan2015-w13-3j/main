@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.PriorityQueue;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import udo.storage.Task.TaskType;
 
-public class Reminder {
+public class Reminder extends TimerTask {
 	public static final String EOL = System.getProperty("line.separator");
 	//private static File storageFile;
 	private static PriorityQueue<Task> taskQueue;
@@ -20,7 +22,7 @@ public class Reminder {
 		PriorityQueue<Task> pq = PQ();
 		System.out.println("taskQueue "+pq);
 		remind();
-
+		System.out.println("HERE "+remindList);
 	}
 
 	//read from json file
@@ -35,7 +37,6 @@ public class Reminder {
 			lastPath = br.readLine();
 			br.close();
 			taskList = JsonProcessor.readJson(lastPath);
-			/*
 			taskList.add(new Task(TaskType.DEADLINE, "fighting", new GregorianCalendar(2010,01,03), 
 					new GregorianCalendar(2011,01,02),new GregorianCalendar(2010,01,03), 5,new GregorianCalendar(2010,01,03),
 					"personal", false, false));
@@ -48,7 +49,7 @@ public class Reminder {
 			taskList.add(new Task(TaskType.DEADLINE, "crying", new GregorianCalendar(2010,01,03), 
 					new GregorianCalendar(2011,01,02),new GregorianCalendar(2010,01,03), 15,new GregorianCalendar(2010,01,05),
 					"personal", false, true));
-			*/
+
 			for (int i =0; i<taskList.size(); i++) {
 				if (!taskList.get(i).isDone())
 					taskQueue.add(taskList.get(i));
@@ -59,19 +60,17 @@ public class Reminder {
 		return taskQueue;
 	}
 	public static ArrayList<Task> remind() {
-		GregorianCalendar current = new GregorianCalendar();
-		ArrayList<Task> remindList = new ArrayList<Task>();
-		Iterator<Task> ite = taskQueue.iterator(); 
-		while (ite.hasNext()) {
-			Task curTask = ite.next();
-			//	System.out.println("test "+curTask.getReminder().getTime());
-			//System.out.println("vs "+current.getTime());
-			if (curTask.getReminder().getTime().compareTo(current.getTime())<=0)
-				remindList.add(curTask);
-			else 
-				break;
+		Timer timer = new Timer();
+		if (!taskQueue.isEmpty()) {
+		timer.schedule(new Reminder(), taskQueue.peek().getReminder().getTime());
 		}
-		//System.out.println("HERE"+remindList);
 		return remindList;
+	}
+	static ArrayList<Task> remindList = new ArrayList<Task>();
+	public Reminder() {
+	}
+	@Override
+	public void run() {
+		remindList.add(taskQueue.poll());
 	}
 }
