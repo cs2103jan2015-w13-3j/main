@@ -26,6 +26,7 @@ public class Task implements Comparable<Task> {
 	}
 	
 	//constructor
+	//The constructor Task(Task.TaskType, String, null, GregorianCalendar, int, GregorianCalendar, String, boolean, boolean)
 	public Task(TaskType taskType, String content, GregorianCalendar deadline,
 	            GregorianCalendar start, GregorianCalendar end, int duration,
 	            GregorianCalendar reminder, String label, boolean priority, boolean done) {
