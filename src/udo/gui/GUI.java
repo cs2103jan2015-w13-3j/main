@@ -143,8 +143,8 @@ public class GUI extends Application {
         return primaryStage;
     }
 
-    public void passUserInput(String input) {
-        logic.executeCommand(input);
+    public boolean callLogicCommand(String input) {
+        return logic.executeCommand(input) == true ; 
     }
 
     public void displayStatus(String statusString) {
@@ -175,9 +175,6 @@ public class GUI extends Application {
     private void duplicateList(List<Task> rcvdList) {
         originalList = rcvdList;
         displayList = Utility.deepCopy(originalList);
-        
-        // TODO: sort curr list
-        // hash currentlist index against originallist index
     }
     
     /**

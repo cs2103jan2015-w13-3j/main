@@ -34,8 +34,11 @@ public class HomeController {
     // Reference to the Main Application.
     private GUI gui;
     public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
+    private static String COLUMN_FIELD_CONTENT = "content";
+    private static String COLUMN_FIELD_LABEL= "label";
+    private static String STYLE_ITALIC = "italic";
     private static Label statusString;
-
+    
     public HomeController() {
 
     }
@@ -89,39 +92,23 @@ public class HomeController {
 
     }
 
-    // TODO decide how to display time in timecolumn
     private void initialiseTimeColumn() {
         timeColumn.setCellValueFactory(new PropertyValueFactory<Task, String>(
-                "label"));
+                COLUMN_FIELD_LABEL));
         timeColumn.setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
             public TableCell<Task, String> call(TableColumn<Task, String> param) {
-                return new TableCell<Task, String>() {
+                return new TimeCell();
 
-                    @Override
-                    public void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        this.setTextFill(Color.WHITE); 
-                        this.setText(item);
-                    }
-
-                };
             }
        });
     }
     
     private void initialiseTaskNameColumn() {
-        taskNameColumn.setCellValueFactory(new PropertyValueFactory<Task, String>("content"));
+        taskNameColumn.setCellValueFactory(new PropertyValueFactory<Task, String>(COLUMN_FIELD_CONTENT));
         taskNameColumn.setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
-            public TableCell<Task, String> call(TableColumn<Task, String> param) {
-                return new TableCell<Task, String>() {
+            @Override public TableCell<Task, String> call(TableColumn<Task, String> param) {
+                return new TaskCell();
 
-                    @Override
-                    public void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        formatCCellIfNotEmpty(item, this);                        
-                    }
-
-                };
             }
        });
     }
@@ -139,12 +126,9 @@ public class HomeController {
         if (isValidDate(item)) {
             tableCell.setTextFill(COLOR_TABLE_HEADERS);
             tableCell.setAlignment(Pos.CENTER);
-            tableCell.getStyleClass().add("italic");
-
-        } else if (item.contains("coffee")) {
-            tableCell.setTextFill(Color.HOTPINK);
-
-        } else if (item.contains("more")) {
+            tableCell.getStyleClass().add(STYLE_ITALIC);
+            
+        } else if (item.contains("important")) {
             tableCell.setTextFill(Color.RED);
 
         } else {
@@ -165,9 +149,10 @@ public class HomeController {
     private void handleReturnKey(ActionEvent event) {
 
         String text = inputBox.getText();
-        inputBox.clear();
 
-        gui.passUserInput(text);
+        if (gui.callLogicCommand(text) == true) {
+            inputBox.clear();
+        }
 
     }
 
@@ -189,6 +174,28 @@ public class HomeController {
 
         // Add observable list data to the table
         TaskTable.setItems(gui.getTaskData());
+    }
+    
+    public class TaskCell extends TableCell<Task,String> {
+
+        public TaskCell() {}
+          
+        @Override protected void updateItem(String item, boolean empty) {            
+            super.updateItem(item, empty);       
+            formatCCellIfNotEmpty(item, this);
+        }
+    }
+    
+    public class TimeCell extends TableCell<Task,String> {
+
+        public TimeCell() {}
+          
+        @Override
+        public void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            this.setTextFill(Color.WHITE); 
+            this.setText(item);
+        }
     }
 
 }
