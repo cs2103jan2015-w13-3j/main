@@ -114,6 +114,7 @@ public class HomeController {
     }
     
     private void formatCCellIfNotEmpty(String item, TableCell<Task, String> tableCell) {
+       
         if (!tableCell.isEmpty()) {
             formatCellText(item, tableCell);
             tableCell.setText(item);
@@ -123,7 +124,7 @@ public class HomeController {
     private void formatCellText(String item, TableCell<Task, String> tableCell)
             throws ClassCastException {
 
-        if (isValidDate(item)) {
+        if (isHeader(item)) {
             tableCell.setTextFill(COLOR_TABLE_HEADERS);
             tableCell.setAlignment(Pos.CENTER);
             tableCell.getStyleClass().add(STYLE_ITALIC);
@@ -135,7 +136,11 @@ public class HomeController {
             tableCell.setTextFill(Color.WHITE);
         }
     }
-
+    
+    private boolean isHeader(String str) {
+        return (isValidDate(str) || str.equals(GUIFormatter.HEADER_TODO));
+    }
+    
     private boolean isValidDate(String dateString) {
         try {
             GUIFormatter.dateFormat.parse(dateString);
@@ -171,9 +176,16 @@ public class HomeController {
      */
     public void setMainApp(GUI gui) {
         this.gui = gui;
-
+        //refreshTableView();
+        
         // Add observable list data to the table
         TaskTable.setItems(gui.getTaskData());
+       
+    }
+
+    public void refreshTableView() {
+        TaskTable.getColumns().get(0).setVisible(false);
+        TaskTable.getColumns().get(0).setVisible(true);
     }
     
     public class TaskCell extends TableCell<Task,String> {
@@ -181,7 +193,8 @@ public class HomeController {
         public TaskCell() {}
           
         @Override protected void updateItem(String item, boolean empty) {            
-            super.updateItem(item, empty);       
+            super.updateItem(item, empty);  
+            this.setText("");
             formatCCellIfNotEmpty(item, this);
         }
     }

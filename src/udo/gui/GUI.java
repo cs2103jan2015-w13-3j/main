@@ -182,8 +182,9 @@ public class GUI extends Application {
      * 
      * @param Arraylist<Task>
      */
-    private static void convertToObservable(ArrayList<Task> testingInputTaskList) {
-        taskData = FXCollections.observableArrayList(testingInputTaskList);       
+    private static void convertToObservable(ArrayList<Task> displayList) {
+        taskData = FXCollections.observableArrayList(displayList);  
+        System.out.println("taskData " + taskData);
     }
 
     /**
