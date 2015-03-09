@@ -146,8 +146,9 @@ public class Storage {
 		prevCmd = "del";
 		if (taskList.size() > 1) {
     		taskList.set(index, taskList.get(taskList.size() -1));
-    		taskList.remove(taskList.size()-1);
+		    System.out.println("Heyyy " + index);
     		taskList.get(index).setIndex(index);
+    		taskList.remove(taskList.size()-1);
     		JsonProcessor.writeJson(lastPath, taskList);
 		} else {
 		    taskList.clear(); 
