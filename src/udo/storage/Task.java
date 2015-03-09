@@ -205,7 +205,7 @@ public class Task implements Comparable<Task> {
         GregorianCalendar cal1 = this.getDeadline();
         
         if(task2TaskType.equals(TaskType.TODO)) {
-            return 1;
+            return -1;
         } else if (task2TaskType.equals(TaskType.DEADLINE)){
             GregorianCalendar cal2 = task2.getDeadline();
             return cal1.compareTo(cal2);
@@ -219,7 +219,7 @@ public class Task implements Comparable<Task> {
         TaskType task2TaskType = task2.getTaskType();
         assert(task2TaskType != null);
         GregorianCalendar cal1 = this.getStart();
-        System.out.println("IN COMPARABLE" + task2);
+
         if(task2TaskType.equals(TaskType.TODO)) {
             return -1;
         } else if (task2TaskType.equals(TaskType.DEADLINE)){

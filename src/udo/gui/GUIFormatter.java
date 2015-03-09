@@ -6,14 +6,14 @@ import java.util.Collections;
 import java.util.GregorianCalendar;
 
 import udo.storage.Task;
+import udo.util.Utility;
 
 public class GUIFormatter {
 
     public static SimpleDateFormat dateFormat = new SimpleDateFormat(
             "EEE, dd MMM yyyy");
     public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-
-    private static final String DISPLAY_TIME_TODO = "-";
+    
     public static final String EMPTY_STRING = "";
 
     public static void formatDisplayList(ArrayList<Task> displayList) {
@@ -22,45 +22,69 @@ public class GUIFormatter {
         }
 
         Collections.sort(displayList);
-        formatSerialNumberings(displayList);
-        formatElementLoop(displayList);
+        mapIndex(displayList);
+        formatEntryLoop(displayList);
     }
 
-    private static void formatSerialNumberings(ArrayList<Task> displayList) {
-
+    private static void mapIndex(ArrayList<Task> displayList) {
+        
         for (int i = 0; i < displayList.size(); i++) {
-            int counter = i + 1;
+            int displayIndex = i + 1;
             Task task = displayList.get(i);
-            task.setContent("" + counter + ".  " + task.getContent());
+            Utility.indexMap.put(displayIndex, task.getIndex());
+            addSerialNumber(task, displayIndex);
         }
     }
 
-    /**
-     * Formats list into a GUI display format Inserts date headers and time
-     */
-    private static void formatElementLoop(ArrayList<Task> displayList) {
+    private static void addSerialNumber(Task task, int counter) {    
+        task.setContent("" + counter + ".  " + task.getContent());
+    }
 
-        String prevDayMonthYear = EMPTY_STRING;
+    /**
+     * Formats list into a GUI display format, inserts date headers and time
+     */
+    private static void formatEntryLoop(ArrayList<Task> displayList) {
+
+        String prevDate = EMPTY_STRING;
 
         for (int i = 0; i < displayList.size(); i++) {
-            String dayMonthYear = new String();
+            String date = new String();
             Task task = displayList.get(i);
             formatDisplayTime(task);
             
             switch (task.getTaskType()) {
                 case TODO :
-                    return;
+                    return ;
                 case EVENT :
-                    dayMonthYear = formatDateGUI(task.getStart());
+                    date = formatDateGUI(task.getStart());
                     break;
                 case DEADLINE :
-                    dayMonthYear = formatDateGUI(task.getDeadline());
+                    date = formatDateGUI(task.getDeadline());
             }
         
-            i = insertIfNewDate(displayList, prevDayMonthYear, i, dayMonthYear);
-            prevDayMonthYear = dayMonthYear;
+            i = insertIfNewDate(displayList, prevDate, i, date);
+            prevDate = date;
         }
 
+    }
+
+    private static int insertIfNewDate(ArrayList<Task> displayList,
+                                       String prevDate, int i, String date) {
+        if (!date.equals(prevDate) || prevDate.isEmpty()) {
+            insertDateHeader(displayList, date, i);
+    
+            i++;
+        }
+        return i;
+    }
+
+    private static void insertDateHeader(ArrayList<Task> displayList,
+                                         String date, int i) {
+        
+        Task dateHeader = new Task(null, date, new GregorianCalendar(),
+                new GregorianCalendar(), new GregorianCalendar(), 0,
+                new GregorianCalendar(), EMPTY_STRING, false, false);
+        displayList.add(i, dateHeader);
     }
 
     /**
@@ -90,7 +114,7 @@ public class GUIFormatter {
     }
 
     private static void formatDisplayTimeTodo(Task task) {
-        task.setLabel(DISPLAY_TIME_TODO);
+        task.setLabel(EMPTY_STRING);
     }
 
     private static void formatDisplayTimeEvent(Task task) {
@@ -101,25 +125,6 @@ public class GUIFormatter {
 
     private static void formatDisplayTimeDeadLine(Task task) {
         task.setLabel(formatTimeGUI(task.getDeadline()));
-    }
-
-    private static int insertIfNewDate(ArrayList<Task> displayList,
-                                       String prevDate, int i, String date) {
-        if (!date.equals(prevDate) || prevDate.isEmpty()) {
-            insertDateHeader(displayList, date, i);
-
-            i++;
-        }
-        return i;
-    }
-
-    private static void insertDateHeader(ArrayList<Task> displayList,
-                                         String date, int i) {
-        
-        Task dateHeader = new Task(null, date, new GregorianCalendar(),
-                new GregorianCalendar(), new GregorianCalendar(), 0,
-                new GregorianCalendar(), EMPTY_STRING, false, false);
-        displayList.add(i, dateHeader);
     }
 
     private static String formatTimeGUI(GregorianCalendar calendar) {
