@@ -105,7 +105,7 @@ public class Storage {
 		JsonProcessor.writeJson(lastPath, taskList);
 	}
 	//change data file's directory
-	public void chDir(String path) {
+	public boolean chDir(String path) {
 		JsonProcessor.writeJson(path, taskList);
 		File settingFile = new File("setting.txt");
 		lastPath = path;
@@ -119,6 +119,7 @@ public class Storage {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return true;
 	}
 
 	public boolean add(Task newTask) {
