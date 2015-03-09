@@ -51,7 +51,7 @@ public class GUI extends Application {
     }
 
     private void populateTest() {
-        testList.add(new Task(Task.TaskType.EVENT, "drink coffee in jan",
+       /* testList.add(new Task(Task.TaskType.EVENT, "drink coffee in jan",
                 new GregorianCalendar(2015, 0, 1, 1, 1), new GregorianCalendar(2015, 0, 1, 10, 10), 0,
                 new GregorianCalendar(), "time", true));
         testList.add(new Task(Task.TaskType.EVENT, "drink more coffee in feb",
@@ -80,7 +80,7 @@ public class GUI extends Application {
                 new GregorianCalendar(), "time", true));
         testList.add(new Task(Task.TaskType.EVENT, "shoot for the moon in jan",
                 new GregorianCalendar(2015, 0, 1, 1, 1), new GregorianCalendar(2015, 0, 1, 9, 9), 0,
-                new GregorianCalendar(), "time", true));
+                new GregorianCalendar(), "time", true));*/
     }
 
     @Override
@@ -173,7 +173,11 @@ public class GUI extends Application {
 
     private void duplicateList(List<Task> rcvdList) {
         originalList = rcvdList;
+        displayList.clear();
         displayList.addAll(originalList);
+        System.out.println("original list " + originalList);
+        System.out.println("display list " + displayList);
+
         // TODO: sort curr list
         // hash currentlist index against originallist index
     }
