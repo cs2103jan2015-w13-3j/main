@@ -23,59 +23,59 @@ public class Storage {
 	public enum TASK_TYPE{ EVENT, DEADLINE, TODO};
 	private static Task prevTask;
 	private static String prevCmd;
-	
+
 	public static void main(String[] args) throws IOException{
 
 		Storage st = new Storage();
 		prevTask = new Task();
-	
+
 		//testing purposes:
 
-/*		boolean function = st.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
-		boolean function = st.add(new Task(0,TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
-    			0, new GregorianCalendar(2005,01,02), "work", true));
+		/*boolean function = st.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
+				boolean function = st.add(new Task(0,TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
+						0, new GregorianCalendar(2005,01,02), "work", true));
 		boolean function2 = st.add(new Task(1,TaskType.DEADLINE, "fighting", null, new GregorianCalendar(2010,01,03),
-    			0, new GregorianCalendar(2011,01,02), "personal", false));
+				0, new GregorianCalendar(2011,01,02), "personal", false));
 		boolean function3 = st.add(new Task(2,TaskType.DEADLINE, "reading books", null, null,
-    			120, null, "leisure", false));
-    	if (function&&function2&&function3) System.out.println("Adding successfully");*/
+				120, null, "leisure", false));
+		if (function&&function2&&function3) System.out.println("Adding successfully");*/
 
-    	ArrayList<Task> test = new ArrayList<Task>();
-    	//test = st.query();
-    	//printTest(test);
-    	//test = st.query("leisure");
-    	//printTest(test);
-    	//test = st.query(new GregorianCalendar(2010,01,03));
-    	//printTest(test);
-    	//test = st.query(TASK_TYPE.DEADLINE);
-    	//printTest(test);
-    	//test = st.search("read");
-    	//printTest(test);
-    	//test = st.query(true);
-    	//printTest(test);
-    	//boolean done;
-    	//done = st.changeStatus(2);
-    	//test = st.query(true);
-    	//printTest(test);
-    	boolean done = st.delete(1);
-    	done = st.undo();
-    	//test = st.query();
-    	//printTest(test);
-    	//done = st.modify(2, "deadline", null, null, new GregorianCalendar(2006,01,05),0, new GregorianCalendar(2006,01,02), null);
-    	//done = st.modify(1, "event", "hanging out", new GregorianCalendar(2013,05,04), new GregorianCalendar(2013,05,05), -1, new GregorianCalendar(2013,05,03), "leisure");
-	    //done = st.modify(0, "todo", null,null, null, 3, null, null);
-    	//test = st.query();
-	    printTest(test);
-	    st.chDir("testTask.json");
+		//ArrayList<Task> test = new ArrayList<Task>();
+		//test = st.query();
+		//printTest(test);
+		//test = st.query("leisure");
+		//printTest(test);
+		//test = st.query(new GregorianCalendar(2010,01,03));
+		//printTest(test);
+		//test = st.query(TASK_TYPE.DEADLINE);
+		//printTest(test);
+		//test = st.search("read");
+		//printTest(test);
+		//test = st.query(true);
+		//printTest(test);
+		//boolean done;
+		//done = st.changeStatus(2);
+		//test = st.query(true);
+		//printTest(test);
+		//boolean done = st.delete(1);
+		//done = st.undo();
+		//test = st.query();
+		//printTest(test);
+		//done = st.modify(2, "deadline", null, null, new GregorianCalendar(2006,01,05),0, new GregorianCalendar(2006,01,02), null);
+		//done = st.modify(1, "event", "hanging out", new GregorianCalendar(2013,05,04), new GregorianCalendar(2013,05,05), -1, new GregorianCalendar(2013,05,03), "leisure");
+		//done = st.modify(0, "todo", null,null, null, 3, null, null);
+		//test = st.query();
+		//printTest(test);
+		st.chDir("testTask.json");
 		st.exit();
 	}
 
 
-	public static void printTest(ArrayList<Task> test){
+	/*public static void printTest(ArrayList<Task> test){
 		for (int i =0; i < test.size(); i++)
 			System.out.println(test.get(i));
 		System.out.println("");
-	}
+	}*/
 
 	//read from json file
 	String lastPath;
@@ -146,7 +146,7 @@ public class Storage {
 		taskList.remove(taskList.get(taskList.size() -1));
 		taskList.get(index).setIndex(index);
 		JsonProcessor.writeJson(lastPath, taskList);
-		
+
 		return true;
 	}
 
