@@ -194,7 +194,7 @@ public class HomeController {
           
         @Override protected void updateItem(String item, boolean empty) {            
             super.updateItem(item, empty);  
-            this.setText("");
+            this.setText(GUIFormatter.EMPTY_STRING);
             formatCCellIfNotEmpty(item, this);
         }
     }

@@ -16,6 +16,7 @@ public class GUIFormatter {
     
     public static final String EMPTY_STRING = "";
     public static final String HEADER_TODO = "To-Dos";
+    
     public static void formatDisplayList(ArrayList<Task> displayList) {
         if (displayList == null) {
             return;
@@ -46,34 +47,38 @@ public class GUIFormatter {
      */
     private static void formatEntryLoop(ArrayList<Task> displayList) {
 
-        String prevDate = EMPTY_STRING;
+        String prevHeader = EMPTY_STRING;
 
         for (int i = 0; i < displayList.size(); i++) {
             String header = new String();
             Task task = displayList.get(i);
             formatDisplayTime(task);
             
-            switch (task.getTaskType()) {
-                case TODO :
-                    header = HEADER_TODO;
-                    break;
-                case EVENT :
-                    header = formatDateGUI(task.getStart());
-                    break;
-                case DEADLINE :
-                    header = formatDateGUI(task.getDeadline());
-            }
-        
-            i = insertIfNewHeader(displayList, prevDate, i, header);
-            prevDate = header;
+            header = getHeader(header, task);       
+            i = insertIfNewHeader(displayList, prevHeader, i, header);
+            prevHeader = header;
         }
 
     }
 
+    private static String getHeader(String header, Task task) {
+        switch (task.getTaskType()) {
+            case TODO :
+                return HEADER_TODO;              
+            case EVENT :
+                return formatDateGUI(task.getStart());
+            case DEADLINE :
+                return formatDateGUI(task.getDeadline());
+            default :
+                return EMPTY_STRING;
+        }
+    }
+
     private static int insertIfNewHeader(ArrayList<Task> displayList,
-                                       String prevDate, int i, String date) {
-        if (!date.equals(prevDate) || prevDate.isEmpty()) {
-            insertHeader(displayList, date, i);
+                                         String prevHeader, int i, 
+                                         String header) {
+        if (!header.equals(prevHeader) || prevHeader.isEmpty()) {
+            insertHeader(displayList, header, i);
     
             i++;
         }
@@ -81,12 +86,12 @@ public class GUIFormatter {
     }
 
     private static void insertHeader(ArrayList<Task> displayList,
-                                         String date, int i) {
+                                         String header, int i) {
         
-        Task dateHeader = new Task(null, date, null,
+        Task newHeader = new Task(null, header, null,
                 null, null, 0,
                 null, EMPTY_STRING, false, false);
-        displayList.add(i, dateHeader);
+        displayList.add(i, newHeader);
     }
 
     /**
