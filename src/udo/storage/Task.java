@@ -8,7 +8,8 @@ public class Task implements Comparable<Task> {
     public static enum TaskType {DEADLINE, EVENT, TODO};
 
 	//class defines Task objects
-	private TaskType taskType;
+	private Integer index;
+    private TaskType taskType;
 	private String content;
 	private String deadline;
 	private String start;
@@ -25,8 +26,9 @@ public class Task implements Comparable<Task> {
 	}
 	
 	//constructor
-	public Task(TaskType taskType, String content, GregorianCalendar start, GregorianCalendar end, 
+	public Task(Integer index, TaskType taskType, String content, GregorianCalendar start, GregorianCalendar end, 
 	            int duration, GregorianCalendar reminder, String label, boolean priority) {
+		this.index = index;
 		this.taskType = taskType;
 		this.content = content;
 		this.start = Utility.calendarToString(start);
@@ -36,6 +38,10 @@ public class Task implements Comparable<Task> {
 		this.label = label;
 		this.priority = priority;
 		this.done = false;
+	}
+	
+	public Integer getIndex(){
+		return index;
 	}
 	
 	public TaskType getTaskType() {
@@ -78,6 +84,10 @@ public class Task implements Comparable<Task> {
 		return done;
 	}
 
+	public void setIndex(Integer index){
+		this.index = index;
+	}
+	
 	public void setTaskType(TaskType type) {
 		this.taskType = type;
 	}
@@ -120,11 +130,11 @@ public class Task implements Comparable<Task> {
 	
 	public String toString() {
 	    String finalString;
-
+	    finalString = index + ". ";
 	    if (priority == null || !priority) {
-	        finalString = taskType + ": ";
+	        finalString += taskType + ": ";
 	    } else {
-	        finalString = "Important " + taskType + ": ";
+	        finalString += "Important " + taskType + ": ";
 	    }
 
 		finalString += content + "\n";
