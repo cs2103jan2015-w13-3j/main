@@ -1,12 +1,7 @@
 package udo.gui;
 
-import udo.storage.Task;
-import udo.gui.view.HomeController;
-import udo.logic.Logic;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import javafx.application.Application;
@@ -17,6 +12,10 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import udo.gui.view.HomeController;
+import udo.logic.Logic;
+import udo.storage.Task;
+import udo.util.Utility;
 
 public class GUI extends Application {
 
@@ -46,12 +45,12 @@ public class GUI extends Application {
 
         // For unit testing purposes
         populateTest();
-        display(testList);
+        //display(testList);
 
     }
 
     private void populateTest() {
-        testList.add(new Task(Task.TaskType.EVENT, "drink coffee in jan",
+       /* testList.add(new Task(Task.TaskType.EVENT, "drink coffee in jan",
                 new GregorianCalendar(2015, 0, 1, 1, 1), new GregorianCalendar(2015, 0, 1, 10, 10), 0,
                 new GregorianCalendar(), "time", true));
         testList.add(new Task(Task.TaskType.EVENT, "drink more coffee in feb",
@@ -80,7 +79,7 @@ public class GUI extends Application {
                 new GregorianCalendar(), "time", true));
         testList.add(new Task(Task.TaskType.EVENT, "shoot for the moon in jan",
                 new GregorianCalendar(2015, 0, 1, 1, 1), new GregorianCalendar(2015, 0, 1, 9, 9), 0,
-                new GregorianCalendar(), "time", true));
+                new GregorianCalendar(), "time", true));*/
     }
 
     @Override
@@ -169,11 +168,13 @@ public class GUI extends Application {
         duplicateList(rcvdList);
         GUIFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);
+        controller.setMainApp(this);
     }
 
     private void duplicateList(List<Task> rcvdList) {
         originalList = rcvdList;
-        displayList.addAll(originalList);
+        displayList = Utility.deepCopy(originalList);
+      
         // TODO: sort curr list
         // hash currentlist index against originallist index
     }
@@ -184,7 +185,7 @@ public class GUI extends Application {
      * @param Arraylist<Task>
      */
     private static void convertToObservable(ArrayList<Task> testingInputTaskList) {
-        taskData = FXCollections.observableArrayList(testingInputTaskList);
+        taskData = FXCollections.observableArrayList(testingInputTaskList);       
     }
 
     /**

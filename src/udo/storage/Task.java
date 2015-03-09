@@ -17,8 +17,8 @@ public class Task implements Comparable<Task> {
 	private Integer duration;
 	private String reminder;
 	private String label;
-	private Boolean priority;
-	private Boolean done;
+	private boolean priority;
+	private boolean done;
 
 	public Task() {
 	    done = false;
@@ -26,11 +26,12 @@ public class Task implements Comparable<Task> {
 	}
 	
 	//constructor
-	public Task(Integer index, TaskType taskType, String content, GregorianCalendar start, GregorianCalendar end, 
-	            int duration, GregorianCalendar reminder, String label, boolean priority) {
-		this.index = index;
+	public Task(TaskType taskType, String content, GregorianCalendar deadline,
+	            GregorianCalendar start, GregorianCalendar end, int duration,
+	            GregorianCalendar reminder, String label, boolean priority, boolean done) {
 		this.taskType = taskType;
 		this.content = content;
+		this.deadline = Utility.calendarToString(deadline);
 		this.start = Utility.calendarToString(start);
 		this.end = Utility.calendarToString(end);
 		this.duration = duration;
@@ -76,7 +77,7 @@ public class Task implements Comparable<Task> {
 		return label;
 	}
 
-	public boolean isPriority() {
+	public boolean getPriority() {
 		return priority;
 	}
 	
@@ -108,7 +109,7 @@ public class Task implements Comparable<Task> {
 		this.end = Utility.calendarToString(end);
 	}
 	
-	public void setDuration(int duration) {
+	public void setDuration(Integer duration) {
 		this.duration = duration;
 	}
 	
@@ -129,10 +130,10 @@ public class Task implements Comparable<Task> {
 	}
 	
 	public String toString() {
-	    String finalString;
-	    finalString = index + ". ";
-	    if (priority == null || !priority) {
-	        finalString += taskType + ": ";
+	    String finalString = index + ". ";
+
+	    if (!priority) {
+	        finalString = taskType + ": ";
 	    } else {
 	        finalString += "Important " + taskType + ": ";
 	    }
@@ -151,10 +152,25 @@ public class Task implements Comparable<Task> {
 		if (reminder != null) {
 			finalString += "  reminder: " + reminder + "\n";
 		}
-		if (done != null) {
-		    finalString += "  done: " + done;
-		}
+		finalString += "  done: " + done;
 		return finalString;
+	}
+	
+	public Task copy() {
+	    Task copy = new Task();
+	    
+	    copy.setIndex(this.getIndex());
+	    copy.setTaskType(taskType);
+	    copy.setContent(content);
+	    copy.setDeadline(this.getDeadline());
+	    copy.setStart(this.getStart());
+	    copy.setEnd(this.getEnd());
+	    copy.setDuration(this.getDuration());
+	    copy.setReminder(this.getReminder());
+	    copy.setLabel(this.getLabel());
+	    if (this.isDone()) copy.setDone();
+
+	    return copy;
 	}
 	
 	public int compareTo(Task task2) {
@@ -201,8 +217,9 @@ public class Task implements Comparable<Task> {
 
     private int compareWithEvent(Task task2) {
         TaskType task2TaskType = task2.getTaskType();
+        assert(task2TaskType != null);
         GregorianCalendar cal1 = this.getStart();
-        
+        System.out.println("IN COMPARABLE" + task2);
         if(task2TaskType.equals(TaskType.TODO)) {
             return -1;
         } else if (task2TaskType.equals(TaskType.DEADLINE)){

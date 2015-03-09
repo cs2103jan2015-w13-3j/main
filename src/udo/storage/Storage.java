@@ -31,13 +31,14 @@ public class Storage {
 	
 		//testing purposes:
 
+/*		boolean function = st.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
 		boolean function = st.add(new Task(0,TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
     			0, new GregorianCalendar(2005,01,02), "work", true));
 		boolean function2 = st.add(new Task(1,TaskType.DEADLINE, "fighting", null, new GregorianCalendar(2010,01,03),
     			0, new GregorianCalendar(2011,01,02), "personal", false));
 		boolean function3 = st.add(new Task(2,TaskType.DEADLINE, "reading books", null, null,
     			120, null, "leisure", false));
-    	if (function&&function2&&function3) System.out.println("Adding successfully");
+    	if (function&&function2&&function3) System.out.println("Adding successfully");*/
 
     	ArrayList<Task> test = new ArrayList<Task>();
     	//test = st.query();
@@ -188,7 +189,7 @@ public class Storage {
 	public ArrayList<Task> query(boolean priority){
 		ArrayList<Task> returnList = new ArrayList<Task>();
 		for(int i=0; i<taskList.size();i++){
-			if (taskList.get(i).isPriority() == priority){
+			if (taskList.get(i).getPriority() == priority){
 				returnList.add(taskList.get(i));
 			}
 		}
@@ -255,7 +256,7 @@ public class Storage {
 		}
 		prevTask = taskList.get(index);
 		prevCmd = "mod";
-		taskList.get(index).setPriority(!taskList.get(index).isPriority());
+		taskList.get(index).setPriority(!taskList.get(index).getPriority());
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
