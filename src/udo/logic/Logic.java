@@ -107,7 +107,7 @@ public class Logic {
         return false;
     }
 
-    private boolean             executeChdirCommand(Command parsedCommand) {
+    private boolean executeChdirCommand(Command parsedCommand) {
         // TODO Auto-generated method stub
         return false;
     }

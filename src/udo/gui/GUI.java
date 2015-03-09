@@ -1,6 +1,7 @@
 package udo.gui;
 
 import udo.storage.Task;
+import udo.util.Utility;
 import udo.gui.view.HomeController;
 import udo.logic.Logic;
 
@@ -46,7 +47,7 @@ public class GUI extends Application {
 
         // For unit testing purposes
         populateTest();
-        display(testList);
+        //display(testList);
 
     }
 
@@ -169,15 +170,13 @@ public class GUI extends Application {
         duplicateList(rcvdList);
         GUIFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);
+        controller.setMainApp(this);
     }
 
     private void duplicateList(List<Task> rcvdList) {
         originalList = rcvdList;
-        displayList.clear();
-        displayList.addAll(originalList);
-        System.out.println("original list " + originalList);
-        System.out.println("display list " + displayList);
-
+        displayList = Utility.deepCopy(originalList);
+      
         // TODO: sort curr list
         // hash currentlist index against originallist index
     }
@@ -188,7 +187,7 @@ public class GUI extends Application {
      * @param Arraylist<Task>
      */
     private static void convertToObservable(ArrayList<Task> testingInputTaskList) {
-        taskData = FXCollections.observableArrayList(testingInputTaskList);
+        taskData = FXCollections.observableArrayList(testingInputTaskList);       
     }
 
     /**

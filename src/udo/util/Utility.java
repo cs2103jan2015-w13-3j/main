@@ -2,7 +2,11 @@ package udo.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
+
+import udo.storage.Task;
 
 public class Utility {
 	private static final SimpleDateFormat fmt =
@@ -76,6 +80,15 @@ public class Utility {
             System.err.println("Invalid date format");
             return null;
         }
+	}
+	
+	
+	public static ArrayList<Task> deepCopy(List<Task> firstCopy) {
+	    ArrayList<Task> copy = new ArrayList<>();
+	    for(Task element : firstCopy) {
+	        copy.add(element.copy());
+	    }
+	    return copy;
 	}
 
 }
