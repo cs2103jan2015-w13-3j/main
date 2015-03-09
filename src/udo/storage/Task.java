@@ -134,7 +134,7 @@ public class Task implements Comparable<Task> {
 	    String finalString = index + ". ";
 
 	    if (!priority) {
-	        finalString = taskType + ": ";
+	        finalString += taskType + ": ";
 	    } else {
 	        finalString += "Important " + taskType + ": ";
 	    }

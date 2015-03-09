@@ -139,6 +139,7 @@ public class Logic {
             return false;
         }
 
+        gui.display(storage.query());
         status = getDeleteSucessStatus(parsedCommand);
         return true;
     }
