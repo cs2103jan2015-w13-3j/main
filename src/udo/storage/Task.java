@@ -39,7 +39,7 @@ public class Task implements Comparable<Task> {
 		this.reminder = Utility.calendarToString(reminder);
 		this.label = label;
 		this.priority = priority;
-		this.done = false;
+		this.done = done;
 	}
 	
 	public Integer getIndex(){
