@@ -11,12 +11,8 @@ import java.util.GregorianCalendar;
 
 import java.io.*;
 
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
 
 import udo.storage.Task.TaskType;
-
-import com.google.gson.Gson;
 
 
 public class Storage {
@@ -53,7 +49,7 @@ public class Storage {
     	//printTest(test);
     	//test = st.query(true);
     	//printTest(test);
-    	boolean done;
+    	//boolean done;
     	//done = st.changeStatus(2);
     	//test = st.query(true);
     	//printTest(test);
@@ -85,6 +81,7 @@ public class Storage {
 			FileReader fr = new FileReader("setting.txt");
 			BufferedReader br = new BufferedReader(fr);
 			lastPath = br.readLine();
+			br.close();
 			taskList = JsonProcessor.readJson(lastPath);
 		} catch (Exception ex) {
 			File settingFile = new File("setting.txt");
@@ -136,6 +133,7 @@ public class Storage {
 		}
 		taskList.set(index, taskList.get(taskList.size() -1));
 		taskList.remove(taskList.get(taskList.size() -1));
+		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
 
@@ -145,6 +143,7 @@ public class Storage {
 			return false;
 		}
 		taskList.set(index, modifiedTask);
+		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
 
@@ -241,6 +240,7 @@ public class Storage {
 			return false;
 		}
 		taskList.get(index).setPriority(!taskList.get(index).isPriority());
+		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
 
@@ -250,6 +250,7 @@ public class Storage {
 			return false;
 		}
 		taskList.get(index).setDone();
+		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
 
