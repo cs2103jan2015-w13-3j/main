@@ -128,6 +128,7 @@ public class Storage {
 	}
 
 	public boolean add(Task newTask) {
+	    newTask.setIndex(taskList.size());
 		taskList.add(newTask);
 		JsonProcessor.writeJson(lastPath, taskList);
 		prevTask = newTask;
@@ -140,12 +141,18 @@ public class Storage {
 		if (index >= taskList.size()){
 			return false;
 		}
+		
 		prevTask = taskList.get(index);
 		prevCmd = "del";
-		taskList.set(index, taskList.get(taskList.size() -1));
-		taskList.remove(taskList.get(taskList.size() -1));
-		taskList.get(index).setIndex(index);
-		JsonProcessor.writeJson(lastPath, taskList);
+		if (taskList.size() > 1) {
+    		taskList.set(index, taskList.get(taskList.size() -1));
+		    System.out.println("Heyyy " + index);
+    		taskList.get(index).setIndex(index);
+    		taskList.remove(taskList.size()-1);
+    		JsonProcessor.writeJson(lastPath, taskList);
+		} else {
+		    taskList.clear(); 
+		}
 
 		return true;
 	}

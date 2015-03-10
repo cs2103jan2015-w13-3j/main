@@ -143,8 +143,8 @@ public class GUI extends Application {
         return primaryStage;
     }
 
-    public void passUserInput(String input) {
-        logic.executeCommand(input);
+    public boolean callLogicCommand(String input) {
+        return logic.executeCommand(input) == true ; 
     }
 
     public void displayStatus(String statusString) {
@@ -175,9 +175,6 @@ public class GUI extends Application {
     private void duplicateList(List<Task> rcvdList) {
         originalList = rcvdList;
         displayList = Utility.deepCopy(originalList);
-        
-        // TODO: sort curr list
-        // hash currentlist index against originallist index
     }
     
     /**
@@ -185,8 +182,9 @@ public class GUI extends Application {
      * 
      * @param Arraylist<Task>
      */
-    private static void convertToObservable(ArrayList<Task> testingInputTaskList) {
-        taskData = FXCollections.observableArrayList(testingInputTaskList);       
+    private static void convertToObservable(ArrayList<Task> displayList) {
+        taskData = FXCollections.observableArrayList(displayList);  
+        System.out.println("taskData " + taskData);
     }
 
     /**

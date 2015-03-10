@@ -27,6 +27,8 @@ public class Logic {
             "Task's duration must be positive";
     private static final String ERR_STORAGE =
             "Tasks' storage input/output error";
+    private static final String ERR_INVALID_INDEX =
+            "Specified task's index is not valid";
 
     private static final String STATUS_ADDED = "Task: %s added sucessfully";
     private static final String STATUS_DELETED =
@@ -137,6 +139,7 @@ public class Logic {
             return false;
         }
 
+        gui.display(storage.query());
         status = getDeleteSucessStatus(parsedCommand);
         return true;
     }
@@ -146,15 +149,19 @@ public class Logic {
     }
 
     private boolean executeModifyCommand(Command parsedCommand) {
+        System.out.println("Modifying task...");
         assert(parsedCommand.argIndex != null);
         
         Integer storageIndex = getStorageIndex(parsedCommand.argIndex);
         assert(storageIndex != null);
+
         Task task = storage.query(storageIndex);
 
-        if (task.getTaskType() == getTaskType(parsedCommand)) {
+        Task.TaskType newTaskType = getTaskType(parsedCommand);
+        if (task.getTaskType() == newTaskType) {
             fillTaskFromCommand(parsedCommand, task);
         } else {
+            task.setTaskType(newTaskType);
             fillTaskFromCommand(parsedCommand, task);
             fillDefaults(task);
         }
@@ -170,9 +177,15 @@ public class Logic {
         return true;
     }
 
+    /**
+     * Get the lower-level task's index in storage from the task's index
+     * as displayed by gui
+     * @param argIndex the displayed index
+     * @return the storage index or null if it's not found
+     */
     private Integer getStorageIndex(Integer argIndex) {
-        // TODO Auto-generated method stub
-        return 0;
+        assert(argIndex != null);
+        return Utility.indexMap.get(argIndex);
     }
 
     private String getModifySucessStatus(Command parsedCommand) {
@@ -426,10 +439,30 @@ public class Logic {
                 return isModifyCmdValid(parsedCommand);
             case DISPLAY:
                 return isDisplayCmdValid(parsedCommand);
+            case DONE:
+                return isDoneCommandValid(parsedCommand);
+            case CHDIR:
+                return isChdirCommandValid(parsedCommand);
+            case SEARCH:
+                return isSearchCommandValid(parsedCommand);
             default:
                 status = formatErrorStr(ERR_UNSUPPORTED_CMD);
                 return false;
         }
+    }
+
+    private boolean isSearchCommandValid(Command parsedCommand) {
+        return true;
+    }
+
+    private boolean isChdirCommandValid(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return true;
+    }
+
+    private boolean isDoneCommandValid(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return true;
     }
 
     private boolean isDisplayCmdValid(Command parsedCommand) {
@@ -442,7 +475,8 @@ public class Logic {
             return false;
         }
 
-        return isStartBeforeEnd(parsedCommand) &&
+        return isIndexValid(parsedCommand) &&
+               isStartBeforeEnd(parsedCommand) &&
                isDurationValid(parsedCommand) &&
                isDeadlineValid(parsedCommand);
     }
@@ -452,6 +486,19 @@ public class Logic {
             status = ERR_UNSPECIFIED_INDEX;
             return false;
         }
+        return isIndexValid(parsedCommand);
+    }
+
+    /**
+     * Check if the specified index corresponds to a valid storage index
+     * @param parsedCommand
+     */
+    private boolean isIndexValid(Command parsedCommand) {
+        if (getStorageIndex(parsedCommand.argIndex) == null) {
+            status = formatErrorStr(ERR_INVALID_INDEX);
+            return false;
+        }
+        
         return true;
     }
 

@@ -15,7 +15,7 @@ public class GUIFormatter {
     public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     
     public static final String EMPTY_STRING = "";
-
+    public static final String HEADER_TODO = "To-Dos";
     public static void formatDisplayList(ArrayList<Task> displayList) {
         if (displayList == null) {
             return;
@@ -24,6 +24,7 @@ public class GUIFormatter {
         Collections.sort(displayList);
         mapIndex(displayList);
         formatEntryLoop(displayList);
+        System.out.println("Formatted List = " + displayList);
     }
 
     private static void mapIndex(ArrayList<Task> displayList) {
@@ -48,42 +49,43 @@ public class GUIFormatter {
         String prevDate = EMPTY_STRING;
 
         for (int i = 0; i < displayList.size(); i++) {
-            String date = new String();
+            String header = new String();
             Task task = displayList.get(i);
             formatDisplayTime(task);
             
             switch (task.getTaskType()) {
                 case TODO :
-                    return ;
+                    header = HEADER_TODO;
+                    break;
                 case EVENT :
-                    date = formatDateGUI(task.getStart());
+                    header = formatDateGUI(task.getStart());
                     break;
                 case DEADLINE :
-                    date = formatDateGUI(task.getDeadline());
+                    header = formatDateGUI(task.getDeadline());
             }
         
-            i = insertIfNewDate(displayList, prevDate, i, date);
-            prevDate = date;
+            i = insertIfNewHeader(displayList, prevDate, i, header);
+            prevDate = header;
         }
 
     }
 
-    private static int insertIfNewDate(ArrayList<Task> displayList,
+    private static int insertIfNewHeader(ArrayList<Task> displayList,
                                        String prevDate, int i, String date) {
         if (!date.equals(prevDate) || prevDate.isEmpty()) {
-            insertDateHeader(displayList, date, i);
+            insertHeader(displayList, date, i);
     
             i++;
         }
         return i;
     }
 
-    private static void insertDateHeader(ArrayList<Task> displayList,
+    private static void insertHeader(ArrayList<Task> displayList,
                                          String date, int i) {
         
-        Task dateHeader = new Task(null, date, new GregorianCalendar(),
-                new GregorianCalendar(), new GregorianCalendar(), 0,
-                new GregorianCalendar(), EMPTY_STRING, false, false);
+        Task dateHeader = new Task(null, date, null,
+                null, null, 0,
+                null, EMPTY_STRING, false, false);
         displayList.add(i, dateHeader);
     }
 
