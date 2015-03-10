@@ -2,19 +2,21 @@ package udo.gui.view;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.InputEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
-
 import javafx.util.Callback;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import udo.gui.GUI;
 import udo.gui.GUIFormatter;
 import udo.storage.Task;
@@ -53,6 +55,7 @@ public class HomeController {
         initialiseTableColumns();
         disableDefaults();
         setFocusInputBox();
+        inputBox.setOnKeyPressed(handleTab);
         setVariables();
     }
 
@@ -145,7 +148,7 @@ public class HomeController {
         cell.setTextFill(Color.WHITE);
         cell.setAlignment(Pos.CENTER_LEFT);
         cell.getStyleClass().remove(STYLE_ITALIC);
-        cell.getStyleClass().remove(STYLE_STRAIGHT);
+        cell.getStyleClass().add(STYLE_STRAIGHT);
     }
     
     private boolean isHeader(String str) {
@@ -171,7 +174,18 @@ public class HomeController {
         }
 
     }
-
+    
+    // Event handler for Tab Key
+    EventHandler<KeyEvent> handleTab = new EventHandler<KeyEvent>() {
+        @Override
+        public void handle(KeyEvent event) {
+            if(event.getCode() == KeyCode.TAB) {
+                System.out.println("Handling event " + event.getEventType()); 
+                event.consume();
+            }
+        }
+    };
+    
     public void displayStatus(String rcvdString) {
         if(rcvdString == null) {
             System.out.println("In Controller: rcvdString is Null");

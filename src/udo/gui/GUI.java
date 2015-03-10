@@ -34,8 +34,6 @@ public class GUI extends Application {
     private static ObservableList<Task> taskData;
     private static List<Task> originalList;
     private static ArrayList<Task> displayList = new ArrayList<Task>();
-    private static ArrayList<Task> testList = new ArrayList<Task>();    
-   
     /**
      * Constructor
      */
@@ -43,42 +41,8 @@ public class GUI extends Application {
 
         logic = new Logic(this);
         
-        // For unit testing purposes
-        //populateTest();
-        //display(testList);
-    }
-
-    private void populateTest() {
-       /* testList.add(new Task(Task.TaskType.EVENT, "drink coffee in jan",
-                new GregorianCalendar(2015, 0, 1, 1, 1), new GregorianCalendar(2015, 0, 1, 10, 10), 0,
-                new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "drink more coffee in feb",
-                new GregorianCalendar(2015, 1, 2, 2, 2), new GregorianCalendar(2015, 1, 2, 10, 10), 0,
-                new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.TOD, "say hello",
-                new GregorianCalendar(), new GregorianCalendar(), 0,
-                new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "look at the moon in feb",
-                new GregorianCalendar(2015, 1, 2, 7, 1), new GregorianCalendar(2015, 1, 2), 0,
-                new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "code in march",
-                new GregorianCalendar(2015, 2, 3, 3, 3), new GregorianCalendar(2015, 2, 3, 10, 10), 0,
-                new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.TOD, "say second hello",
-                new GregorianCalendar(), new GregorianCalendar(), 0,
-                new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "should code more in jan",
-                new GregorianCalendar(2015, 0, 1, 2, 1), new GregorianCalendar(2015, 0, 1, 10, 10), 0,
-                new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "can't think in feb",
-                new GregorianCalendar(2015, 1, 25, 1, 1), new GregorianCalendar(2015, 1, 25, 10, 10), 0,
-                new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.TOD, "say second hello",
-                new GregorianCalendar(), new GregorianCalendar(), 0,
-                new GregorianCalendar(), "time", true));
-        testList.add(new Task(Task.TaskType.EVENT, "shoot for the moon in jan",
-                new GregorianCalendar(2015, 0, 1, 1, 1), new GregorianCalendar(2015, 0, 1, 9, 9), 0,
-                new GregorianCalendar(), "time", true));*/
+        // For unit testing purposes      
+        //display();
     }
 
     @Override
