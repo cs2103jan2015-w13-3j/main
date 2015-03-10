@@ -31,14 +31,14 @@ public class Storage {
 
 		//testing purposes:
 
-		boolean function = st.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+		/*boolean function = st.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
 						0, new GregorianCalendar(2005,01,02), "work",true, false));
 		boolean function2 = st.add(new Task(TaskType.TODO, "fighting", null,null, null,
 				120, new GregorianCalendar(2011,01,02), "personal", false, false));
 		boolean function3 = st.add(new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
 				0, null, "leisure", false, false));
 		if (function&&function2&&function3) System.out.println("Adding successfully");
-
+	*/
 		//ArrayList<Task> test = new ArrayList<Task>();
 		//test = st.query();
 		//printTest(test);
@@ -56,8 +56,8 @@ public class Storage {
 		//done = st.changeStatus(2);
 		//test = st.query(true);
 		//printTest(test);
-		boolean done = st.delete(2);
-		done = st.undo();
+		//boolean done = st.delete(2);
+		boolean done = st.undo();
 		//test = st.query();
 		//printTest(test);
 		//done = st.modify(2, "deadline", null, null, new GregorianCalendar(2006,01,05),0, new GregorianCalendar(2006,01,02), null);
@@ -129,6 +129,9 @@ public class Storage {
 	}
 
 	public boolean add(Task newTask) {
+		if (newTask == null){
+			return false;
+		}
 	    newTask.setIndex(taskList.size());
 		taskList.add(newTask);
 		JsonProcessor.writeJson(lastPath, taskList);
@@ -138,8 +141,8 @@ public class Storage {
 	}
 
 	//delete function, swap deleted task with last task on list 
-	public boolean delete(int index){
-		if (index >= taskList.size()|| taskList.size() == 0){
+	public boolean delete(Integer index){
+		if (index == null || index < 0||index >= taskList.size()|| taskList.size() == 0){
 			return false;
 		}
 		
@@ -159,8 +162,8 @@ public class Storage {
 	}
 
 	//modify function
-	public boolean modify(int index, Task modifiedTask){
-		if (index >= taskList.size()||taskList.size() == 0){
+	public boolean modify(Integer index, Task modifiedTask){
+		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
 			return false;
 		}
 		prevTask = taskList.get(index);
@@ -176,8 +179,8 @@ public class Storage {
 	}
 
 	//query a specific task
-	public Task query(int index){
-		if (index >= taskList.size()){
+	public Task query(Integer index){
+		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
 			return new Task();
 		}
 		return taskList.get(index);
@@ -186,9 +189,11 @@ public class Storage {
 
 	public ArrayList<Task> query(String label){
 		ArrayList<Task> returnList = new ArrayList<Task>();
-		for(int i=0; i<taskList.size();i++){
-			if (taskList.get(i).getLabel().equals(label)){
-				returnList.add(taskList.get(i));
+		if (label != null){
+			for(int i=0; i<taskList.size();i++){
+				if (taskList.get(i).getLabel().equals(label)){
+					returnList.add(taskList.get(i));
+				}
 			}
 		}
 		return returnList;
@@ -206,31 +211,31 @@ public class Storage {
 
 	public ArrayList<Task> query(GregorianCalendar date){
 		ArrayList<Task> returnList = new ArrayList<Task>();
-		for (int i =0; i < taskList.size(); i++){
-			if (taskList.get(i).getTaskType() == Task.TaskType.DEADLINE &&
-					isSameDate(date,taskList.get(i).getEnd())){
-				returnList.add(taskList.get(i));
-			}
-			else if (taskList.get(i).getTaskType() == Task.TaskType.EVENT &&
+		if (date != null){
+			for (int i =0; i < taskList.size(); i++){
+				if (taskList.get(i).getTaskType() == Task.TaskType.DEADLINE &&
+					isSameDate(date,taskList.get(i).getDeadline())){
+					returnList.add(taskList.get(i));
+				}
+				else if (taskList.get(i).getTaskType() == Task.TaskType.EVENT &&
 					isBefore(date,taskList.get(i).getEnd()) &&
 					isAfter(date,taskList.get(i).getStart())){
-				returnList.add(taskList.get(i));
+					returnList.add(taskList.get(i));
+				}
 			}
-
 		}
-
 		return returnList;
 	}
 
 	public ArrayList<Task> query(Task.TaskType taskType){
 		ArrayList<Task> returnList = new ArrayList<Task>();
-
-		for (int i = 0; i < taskList.size(); i++) {
-			if (taskList.get(i).getTaskType() == taskType) {
-				returnList.add(taskList.get(i));
+		if (taskType != null){
+			for (int i = 0; i < taskList.size(); i++) {
+				if (taskList.get(i).getTaskType() == taskType) {
+					returnList.add(taskList.get(i));
+				}
 			}
 		}
-
 		return returnList;
 	}
 
@@ -249,17 +254,19 @@ public class Storage {
 	//search function
 	public ArrayList<Task> search(String searchedContent){
 		ArrayList<Task> returnList = new ArrayList<Task>();
-		for (int i =0; i< taskList.size(); i++){
-			if (taskList.get(i).getContent().contains(searchedContent)){
-				returnList.add(taskList.get(i));
+		if (searchedContent != null){
+			for (int i =0; i< taskList.size(); i++){
+				if (taskList.get(i).getContent().contains(searchedContent)){
+					returnList.add(taskList.get(i));
+				}
 			}
 		}
 		return returnList;
 	}
 
 	//toggle priority
-	public boolean togglePriority(int index){
-		if (index >= taskList.size()){
+	public boolean togglePriority(Integer index){
+		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
 			return false;
 		}
 		prevTask = taskList.get(index);
@@ -270,8 +277,8 @@ public class Storage {
 	}
 
 	//mark as done or undone
-	public boolean markDone(int index){
-		if (index >= taskList.size()){
+	public boolean markDone(Integer index){
+		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
 			return false;
 		}
 		prevTask = taskList.get(index);
