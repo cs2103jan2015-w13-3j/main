@@ -91,6 +91,8 @@ public class Logic {
                 case SEARCH:
                     isSuccessful = executeSearchCommand(parsedCommand);
                     break;
+                case UNDO:
+                    isSuccessful = executeUndoCommand(parsedCommand);
                 default:
                     status = ERR_UNSUPPORTED_CMD;
                     return false;
@@ -104,18 +106,40 @@ public class Logic {
         }
     }
 
+    private boolean executeUndoCommand(Command parsedCommand) {
+        boolean isSuccessful = storage.undo();
+        if (!isSuccessful) {
+            status = formatErrorStr(ERR_STORAGE);
+        }
+        return isSuccessful;
+    }
+
     private boolean executeSearchCommand(Command parsedCommand) {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     private boolean executeChdirCommand(Command parsedCommand) {
-        // TODO Auto-generated method stub
-        return false;
+        assert(parsedCommand.argStr != null);
+
+        boolean isSuccessful = storage.chDir(parsedCommand.argStr);
+        if (!isSuccessful) {
+            status = formatErrorStr(ERR_STORAGE);
+        }
+
+        return isSuccessful;
     }
 
     private boolean executeDoneCommand(Command parsedCommand) {
-        // TODO Auto-generated method stub
+        assert(parsedCommand.argIndex != null);
+        Integer storageIndex = getStorageIndex(parsedCommand.argIndex);
+        assert(storageIndex != null);
+
+        boolean isSuccessful = storage.markDone(storageIndex);
+        if (!isSuccessful) {
+            status = formatErrorStr(ERR_STORAGE);
+        }
+
         return false;
     }
 
@@ -445,13 +469,21 @@ public class Logic {
                 return isChdirCommandValid(parsedCommand);
             case SEARCH:
                 return isSearchCommandValid(parsedCommand);
+            case UNDO:
+                return isUndoCommandValid(parsedCommand);
             default:
                 status = formatErrorStr(ERR_UNSUPPORTED_CMD);
                 return false;
         }
     }
 
+    private boolean isUndoCommandValid(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return true;
+    }
+
     private boolean isSearchCommandValid(Command parsedCommand) {
+        // TODO implement this
         return true;
     }
 
