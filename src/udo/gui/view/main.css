@@ -55,10 +55,13 @@
 	-fx-font-family:  'Open Sans', sans-serif;
 	-fx-font-size: 15px;
 	-fx-font-weight: bold;
-	/*-fx-alignment: left;*/
 	-fx-text-fill: -fx-text-color;
 }
 
-.italic.table-cell { 
-  -fx-font-style: italic; 
+.italic { 
+  -fx-font-style: italic;
+}
+
+.straight { 
+  -fx-font-style: normal;
 }

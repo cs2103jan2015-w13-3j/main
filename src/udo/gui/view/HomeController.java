@@ -37,6 +37,7 @@ public class HomeController {
     private static String COLUMN_FIELD_CONTENT = "content";
     private static String COLUMN_FIELD_LABEL= "label";
     private static String STYLE_ITALIC = "italic";
+    private static String STYLE_STRAIGHT = "straight";
     private static Label statusString;
     
     public HomeController() {
@@ -125,16 +126,26 @@ public class HomeController {
             throws ClassCastException {
 
         if (isHeader(item)) {
-            tableCell.setTextFill(COLOR_TABLE_HEADERS);
-            tableCell.setAlignment(Pos.CENTER);
-            tableCell.getStyleClass().add(STYLE_ITALIC);
-            
-        } else if (item.contains("important")) {
+            setHeaderStyle(tableCell);
+        } else if (item.contains("important")) { //for later milestones
             tableCell.setTextFill(Color.RED);
-
         } else {
-            tableCell.setTextFill(Color.WHITE);
+           setTextStyle(tableCell);
         }
+    }
+    
+    private void  setHeaderStyle(TableCell<Task, String> cell) {
+        cell.setTextFill(COLOR_TABLE_HEADERS);
+        cell.setAlignment(Pos.CENTER);
+        cell.getStyleClass().remove(STYLE_STRAIGHT);
+        cell.getStyleClass().add(STYLE_ITALIC);
+    }
+    
+    private void setTextStyle(TableCell<Task, String> cell) {
+        cell.setTextFill(Color.WHITE);
+        cell.setAlignment(Pos.CENTER_LEFT);
+        cell.getStyleClass().remove(STYLE_ITALIC);
+        cell.getStyleClass().remove(STYLE_STRAIGHT);
     }
     
     private boolean isHeader(String str) {
@@ -176,32 +187,30 @@ public class HomeController {
      */
     public void setMainApp(GUI gui) {
         this.gui = gui;
-        //refreshTableView();
         
         // Add observable list data to the table
-        TaskTable.setItems(gui.getTaskData());
-       
+        TaskTable.setItems(gui.getTaskData());      
     }
 
-    public void refreshTableView() {
-        TaskTable.getColumns().get(0).setVisible(false);
-        TaskTable.getColumns().get(0).setVisible(true);
-    }
-    
     public class TaskCell extends TableCell<Task,String> {
 
-        public TaskCell() {}
+        public TaskCell() {
+            
+        }
           
         @Override protected void updateItem(String item, boolean empty) {            
             super.updateItem(item, empty);  
-            this.setText("");
+            this.setText(GUIFormatter.EMPTY_STRING);
             formatCCellIfNotEmpty(item, this);
         }
+
     }
     
     public class TimeCell extends TableCell<Task,String> {
 
-        public TimeCell() {}
+        public TimeCell() {
+            
+        }
           
         @Override
         public void updateItem(String item, boolean empty) {
