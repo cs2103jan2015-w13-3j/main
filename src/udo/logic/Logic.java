@@ -34,9 +34,9 @@ public class Logic {
 
     private static final String STATUS_ADDED = "Task: %s added sucessfully";
     private static final String STATUS_DELETED =
-            "Task: %d deleted sucessfully";
+            "Task: %s deleted sucessfully";
     private static final String STATUS_MODIFIED =
-            "Task: %d modified sucessfully";
+            "Task: %s modified sucessfully";
     private static final Integer MAX_STATUS_LENGTH = 40;
 
     private InputParser parser;
@@ -159,6 +159,8 @@ public class Logic {
         assert(parsedCommand.argIndex != null);
         Integer index = getStorageIndex(parsedCommand.argIndex);
         assert(index != null);
+        
+        Task deletedTask = storage.query(index);
 
         if (!storage.delete(index)) {
             status = ERR_STORAGE;
@@ -166,12 +168,13 @@ public class Logic {
         }
 
         gui.display(storage.query());
-        status = getDeleteSucessStatus(parsedCommand);
+        status = getDeleteSucessStatus(deletedTask);
         return true;
     }
 
-    private String getDeleteSucessStatus(Command parsedCommand) {
-        return String.format(STATUS_DELETED, parsedCommand.argIndex);
+    private String getDeleteSucessStatus(Task task) {
+        return String.format(STATUS_DELETED,
+                             summarizeContent(task.getContent()));
     }
 
     private boolean executeModifyCommand(Command parsedCommand) {
@@ -200,7 +203,7 @@ public class Logic {
             return false;
         }
 
-        status = getModifySucessStatus(parsedCommand);
+        status = getModifySucessStatus(task);
         gui.display(storage.query());
         
         return true;
@@ -217,8 +220,9 @@ public class Logic {
         return Utility.indexMap.get(argIndex);
     }
 
-    private String getModifySucessStatus(Command parsedCommand) {
-        return String.format(STATUS_MODIFIED, summarizeContent(parsedCommand));
+    private String getModifySucessStatus(Task task) {
+        return String.format(STATUS_MODIFIED,
+                             summarizeContent(task.getContent()));
     }
 
     private boolean executeAddCommand(Command parsedCommand) {
@@ -443,7 +447,7 @@ public class Logic {
     }
 
     private String getAddSucessStatus(Command parsedCommand) {
-        String taskContent = summarizeContent(parsedCommand);
+        String taskContent = summarizeContent(parsedCommand.argStr);
 
         return String.format(STATUS_ADDED, taskContent);
     }
@@ -452,8 +456,10 @@ public class Logic {
      * @param parsedCommand
      * @return
      */
-    private String summarizeContent(Command parsedCommand) {
-        String taskContent = parsedCommand.argStr;
+    private String summarizeContent(String taskContent) {
+        if (taskContent == null) {
+            return "";
+        }
 
         if (taskContent.length() > MAX_STATUS_LENGTH) {
             taskContent = taskContent.substring(0, MAX_STATUS_LENGTH);
