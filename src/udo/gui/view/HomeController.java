@@ -2,19 +2,21 @@ package udo.gui.view;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.InputEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
-
 import javafx.util.Callback;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import udo.gui.GUI;
 import udo.gui.GUIFormatter;
 import udo.storage.Task;
@@ -37,6 +39,7 @@ public class HomeController {
     private static String COLUMN_FIELD_CONTENT = "content";
     private static String COLUMN_FIELD_LABEL= "label";
     private static String STYLE_ITALIC = "italic";
+    private static String STYLE_STRAIGHT = "straight";
     private static Label statusString;
     
     public HomeController() {
@@ -52,6 +55,7 @@ public class HomeController {
         initialiseTableColumns();
         disableDefaults();
         setFocusInputBox();
+        inputBox.setOnKeyPressed(handleTab);
         setVariables();
     }
 
@@ -125,16 +129,26 @@ public class HomeController {
             throws ClassCastException {
 
         if (isHeader(item)) {
-            tableCell.setTextFill(COLOR_TABLE_HEADERS);
-            tableCell.setAlignment(Pos.CENTER);
-            tableCell.getStyleClass().add(STYLE_ITALIC);
-            
-        } else if (item.contains("important")) {
+            setHeaderStyle(tableCell);
+        } else if (item.contains("important")) { //for later milestones
             tableCell.setTextFill(Color.RED);
-
         } else {
-            tableCell.setTextFill(Color.WHITE);
+           setTextStyle(tableCell);
         }
+    }
+    
+    private void  setHeaderStyle(TableCell<Task, String> cell) {
+        cell.setTextFill(COLOR_TABLE_HEADERS);
+        cell.setAlignment(Pos.CENTER);
+        cell.getStyleClass().remove(STYLE_STRAIGHT);
+        cell.getStyleClass().add(STYLE_ITALIC);
+    }
+    
+    private void setTextStyle(TableCell<Task, String> cell) {
+        cell.setTextFill(Color.WHITE);
+        cell.setAlignment(Pos.CENTER_LEFT);
+        cell.getStyleClass().remove(STYLE_ITALIC);
+        cell.getStyleClass().add(STYLE_STRAIGHT);
     }
     
     private boolean isHeader(String str) {
@@ -160,7 +174,18 @@ public class HomeController {
         }
 
     }
-
+    
+    // Event handler for Tab Key
+    EventHandler<KeyEvent> handleTab = new EventHandler<KeyEvent>() {
+        @Override
+        public void handle(KeyEvent event) {
+            if(event.getCode() == KeyCode.TAB) {
+                System.out.println("Handling event " + event.getEventType()); 
+                event.consume();
+            }
+        }
+    };
+    
     public void displayStatus(String rcvdString) {
         if(rcvdString == null) {
             System.out.println("In Controller: rcvdString is Null");
@@ -176,32 +201,30 @@ public class HomeController {
      */
     public void setMainApp(GUI gui) {
         this.gui = gui;
-        //refreshTableView();
         
         // Add observable list data to the table
-        TaskTable.setItems(gui.getTaskData());
-       
+        TaskTable.setItems(gui.getTaskData());      
     }
 
-    public void refreshTableView() {
-        TaskTable.getColumns().get(0).setVisible(false);
-        TaskTable.getColumns().get(0).setVisible(true);
-    }
-    
     public class TaskCell extends TableCell<Task,String> {
 
-        public TaskCell() {}
+        public TaskCell() {
+            
+        }
           
         @Override protected void updateItem(String item, boolean empty) {            
             super.updateItem(item, empty);  
             this.setText(GUIFormatter.EMPTY_STRING);
             formatCCellIfNotEmpty(item, this);
         }
+
     }
     
     public class TimeCell extends TableCell<Task,String> {
 
-        public TimeCell() {}
+        public TimeCell() {
+            
+        }
           
         @Override
         public void updateItem(String item, boolean empty) {

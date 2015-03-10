@@ -51,8 +51,14 @@ public class Reminder extends TimerTask {
 					"personal", false, true));
 
 			for (int i =0; i<taskList.size(); i++) {
-				if (!taskList.get(i).isDone())
+				GregorianCalendar current = new GregorianCalendar();
+				if (!taskList.get(i).isDone()) {
 					taskQueue.add(taskList.get(i));
+					while (!taskQueue.isEmpty()) {
+						if (taskQueue.peek().getReminder().getTime().compareTo(current.getTime())<=0)
+							remindList.add(taskQueue.poll());
+					}
+				}
 			}
 		} catch (Exception ex) {
 			PQ();
@@ -62,13 +68,14 @@ public class Reminder extends TimerTask {
 	public static ArrayList<Task> remind() {
 		Timer timer = new Timer();
 		if (!taskQueue.isEmpty()) {
-		timer.schedule(new Reminder(), taskQueue.peek().getReminder().getTime());
+			timer.schedule(new Reminder(), taskQueue.peek().getReminder().getTime());
 		}
 		return remindList;
 	}
 	public static ArrayList<Task> remindList = new ArrayList<Task>();
 	public Reminder() {
 		run();
+		remind();
 	}
 	@Override
 	public void run() {

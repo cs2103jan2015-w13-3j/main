@@ -34,15 +34,13 @@ public class GUI extends Application {
     private static ObservableList<Task> taskData;
     private static List<Task> originalList;
     private static ArrayList<Task> displayList = new ArrayList<Task>();
-    private static ArrayList<Task> testList = new ArrayList<Task>();    
-   
     /**
      * Constructor
      */
     public GUI() {
 
         logic = new Logic(this);
-        
+
         // For unit testing purposes
         //TestDriver();
     }

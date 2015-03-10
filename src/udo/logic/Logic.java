@@ -29,12 +29,14 @@ public class Logic {
             "Tasks' storage input/output error";
     private static final String ERR_INVALID_INDEX =
             "Specified task's index is not valid";
+    private static final String ERR_EMPTY_CONTENT =
+            "task's content cannot be empty";
 
     private static final String STATUS_ADDED = "Task: %s added sucessfully";
     private static final String STATUS_DELETED =
-            "Task: %d deleted sucessfully";
+            "Task: %s deleted sucessfully";
     private static final String STATUS_MODIFIED =
-            "Task: %d modified sucessfully";
+            "Task: %s modified sucessfully";
     private static final Integer MAX_STATUS_LENGTH = 40;
 
     private InputParser parser;
@@ -91,6 +93,8 @@ public class Logic {
                 case SEARCH:
                     isSuccessful = executeSearchCommand(parsedCommand);
                     break;
+                case UNDO:
+                    isSuccessful = executeUndoCommand(parsedCommand);
                 default:
                     status = ERR_UNSUPPORTED_CMD;
                     return false;
@@ -104,18 +108,40 @@ public class Logic {
         }
     }
 
+    private boolean executeUndoCommand(Command parsedCommand) {
+        boolean isSuccessful = storage.undo();
+        if (!isSuccessful) {
+            status = formatErrorStr(ERR_STORAGE);
+        }
+        return isSuccessful;
+    }
+
     private boolean executeSearchCommand(Command parsedCommand) {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     private boolean executeChdirCommand(Command parsedCommand) {
-        // TODO Auto-generated method stub
-        return false;
+        assert(parsedCommand.argStr != null);
+
+        boolean isSuccessful = storage.chDir(parsedCommand.argStr);
+        if (!isSuccessful) {
+            status = formatErrorStr(ERR_STORAGE);
+        }
+
+        return isSuccessful;
     }
 
     private boolean executeDoneCommand(Command parsedCommand) {
-        // TODO Auto-generated method stub
+        assert(parsedCommand.argIndex != null);
+        Integer storageIndex = getStorageIndex(parsedCommand.argIndex);
+        assert(storageIndex != null);
+
+        boolean isSuccessful = storage.markDone(storageIndex);
+        if (!isSuccessful) {
+            status = formatErrorStr(ERR_STORAGE);
+        }
+
         return false;
     }
 
@@ -133,6 +159,8 @@ public class Logic {
         assert(parsedCommand.argIndex != null);
         Integer index = getStorageIndex(parsedCommand.argIndex);
         assert(index != null);
+        
+        Task deletedTask = storage.query(index);
 
         if (!storage.delete(index)) {
             status = ERR_STORAGE;
@@ -140,12 +168,13 @@ public class Logic {
         }
 
         gui.display(storage.query());
-        status = getDeleteSucessStatus(parsedCommand);
+        status = getDeleteSucessStatus(deletedTask);
         return true;
     }
 
-    private String getDeleteSucessStatus(Command parsedCommand) {
-        return String.format(STATUS_DELETED, parsedCommand.argIndex);
+    private String getDeleteSucessStatus(Task task) {
+        return String.format(STATUS_DELETED,
+                             summarizeContent(task.getContent()));
     }
 
     private boolean executeModifyCommand(Command parsedCommand) {
@@ -165,15 +194,18 @@ public class Logic {
             fillTaskFromCommand(parsedCommand, task);
             fillDefaults(task);
         }
+        
+        System.out.println("Modified task: ");
+        System.out.println(task);
 
         if (!storage.modify(storageIndex, task)) {
             status = ERR_STORAGE;
             return false;
         }
-        status = getModifySucessStatus(parsedCommand);
+
+        status = getModifySucessStatus(task);
         gui.display(storage.query());
         
-        System.out.println(task);
         return true;
     }
 
@@ -188,9 +220,9 @@ public class Logic {
         return Utility.indexMap.get(argIndex);
     }
 
-    private String getModifySucessStatus(Command parsedCommand) {
-        // TODO Make status more informative
-        return String.format(STATUS_MODIFIED, parsedCommand.argIndex);
+    private String getModifySucessStatus(Task task) {
+        return String.format(STATUS_MODIFIED,
+                             summarizeContent(task.getContent()));
     }
 
     private boolean executeAddCommand(Command parsedCommand) {
@@ -213,7 +245,6 @@ public class Logic {
         Task task = new Task();
 
         task.setTaskType(getTaskType(parsedCommand));
-        task.setContent(parsedCommand.argStr);
 
         fillTaskFromCommand(parsedCommand, task);
 
@@ -229,6 +260,7 @@ public class Logic {
      * @param task
      */
     private void fillTaskFromCommand(Command parsedCommand, Task task) {
+        fillContent(task, parsedCommand);
         fillDeadline(task, parsedCommand);
         fillStartDate(task, parsedCommand);
         fillEndDate(task, parsedCommand);
@@ -236,6 +268,13 @@ public class Logic {
         fillReminder(task, parsedCommand);
         fillLabel(task, parsedCommand);
         fillPriority(task, parsedCommand);
+    }
+
+    private void fillContent(Task task, Command parsedCommand) {
+        if (parsedCommand.argStr != null &&
+            !parsedCommand.argStr.trim().equals("")) {
+            task.setContent(parsedCommand.argStr);
+        }
     }
 
     /**
@@ -408,14 +447,25 @@ public class Logic {
     }
 
     private String getAddSucessStatus(Command parsedCommand) {
-        String taskContent = parsedCommand.argStr;
+        String taskContent = summarizeContent(parsedCommand.argStr);
+
+        return String.format(STATUS_ADDED, taskContent);
+    }
+
+    /**
+     * @param parsedCommand
+     * @return
+     */
+    private String summarizeContent(String taskContent) {
+        if (taskContent == null) {
+            return "";
+        }
 
         if (taskContent.length() > MAX_STATUS_LENGTH) {
             taskContent = taskContent.substring(0, MAX_STATUS_LENGTH);
             taskContent += "...";
         }
-
-        return String.format(STATUS_ADDED, taskContent);
+        return taskContent;
     }
 
     /**
@@ -445,13 +495,21 @@ public class Logic {
                 return isChdirCommandValid(parsedCommand);
             case SEARCH:
                 return isSearchCommandValid(parsedCommand);
+            case UNDO:
+                return isUndoCommandValid(parsedCommand);
             default:
                 status = formatErrorStr(ERR_UNSUPPORTED_CMD);
                 return false;
         }
     }
 
+    private boolean isUndoCommandValid(Command parsedCommand) {
+        // TODO Auto-generated method stub
+        return true;
+    }
+
     private boolean isSearchCommandValid(Command parsedCommand) {
+        // TODO implement this
         return true;
     }
 
@@ -508,9 +566,20 @@ public class Logic {
             return false;
         }
 
-        return isStartBeforeEnd(parsedCommand) &&
+        return isContentNonEmpty(parsedCommand) &&
+               isStartBeforeEnd(parsedCommand) &&
                isDurationValid(parsedCommand) &&
                isDeadlineValid(parsedCommand);
+    }
+
+    private boolean isContentNonEmpty(Command parsedCommand) {
+        if (parsedCommand.argStr == null || 
+            parsedCommand.argStr.trim().equals("")) {
+            status = formatErrorStr(ERR_EMPTY_CONTENT);
+            return false;
+        }
+        
+        return true;
     }
 
     private boolean isDeadlineValid(Command cmd) {
