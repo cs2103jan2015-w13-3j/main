@@ -153,11 +153,10 @@ public class Storage {
 		    System.out.println("Heyyy " + index);
     		taskList.get(index).setIndex(index);
     		taskList.remove(taskList.size()-1);
-    		JsonProcessor.writeJson(lastPath, taskList);
 		} else {
 		    taskList.clear(); 
 		}
-
+		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
 
