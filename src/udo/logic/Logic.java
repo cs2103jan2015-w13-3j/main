@@ -29,6 +29,8 @@ public class Logic {
             "Tasks' storage input/output error";
     private static final String ERR_INVALID_INDEX =
             "Specified task's index is not valid";
+    private static final String ERR_EMPTY_CONTENT =
+            "task's content cannot be empty";
 
     private static final String STATUS_ADDED = "Task: %s added sucessfully";
     private static final String STATUS_DELETED =
@@ -189,15 +191,18 @@ public class Logic {
             fillTaskFromCommand(parsedCommand, task);
             fillDefaults(task);
         }
+        
+        System.out.println("Modified task: ");
+        System.out.println(task);
 
         if (!storage.modify(storageIndex, task)) {
             status = ERR_STORAGE;
             return false;
         }
+
         status = getModifySucessStatus(parsedCommand);
         gui.display(storage.query());
         
-        System.out.println(task);
         return true;
     }
 
@@ -213,8 +218,7 @@ public class Logic {
     }
 
     private String getModifySucessStatus(Command parsedCommand) {
-        // TODO Make status more informative
-        return String.format(STATUS_MODIFIED, parsedCommand.argIndex);
+        return String.format(STATUS_MODIFIED, summarizeContent(parsedCommand));
     }
 
     private boolean executeAddCommand(Command parsedCommand) {
@@ -237,7 +241,6 @@ public class Logic {
         Task task = new Task();
 
         task.setTaskType(getTaskType(parsedCommand));
-        task.setContent(parsedCommand.argStr);
 
         fillTaskFromCommand(parsedCommand, task);
 
@@ -253,6 +256,7 @@ public class Logic {
      * @param task
      */
     private void fillTaskFromCommand(Command parsedCommand, Task task) {
+        fillContent(task, parsedCommand);
         fillDeadline(task, parsedCommand);
         fillStartDate(task, parsedCommand);
         fillEndDate(task, parsedCommand);
@@ -260,6 +264,13 @@ public class Logic {
         fillReminder(task, parsedCommand);
         fillLabel(task, parsedCommand);
         fillPriority(task, parsedCommand);
+    }
+
+    private void fillContent(Task task, Command parsedCommand) {
+        if (parsedCommand.argStr != null &&
+            !parsedCommand.argStr.trim().equals("")) {
+            task.setContent(parsedCommand.argStr);
+        }
     }
 
     /**
@@ -432,14 +443,23 @@ public class Logic {
     }
 
     private String getAddSucessStatus(Command parsedCommand) {
+        String taskContent = summarizeContent(parsedCommand);
+
+        return String.format(STATUS_ADDED, taskContent);
+    }
+
+    /**
+     * @param parsedCommand
+     * @return
+     */
+    private String summarizeContent(Command parsedCommand) {
         String taskContent = parsedCommand.argStr;
 
         if (taskContent.length() > MAX_STATUS_LENGTH) {
             taskContent = taskContent.substring(0, MAX_STATUS_LENGTH);
             taskContent += "...";
         }
-
-        return String.format(STATUS_ADDED, taskContent);
+        return taskContent;
     }
 
     /**
@@ -540,9 +560,20 @@ public class Logic {
             return false;
         }
 
-        return isStartBeforeEnd(parsedCommand) &&
+        return isContentNonEmpty(parsedCommand) &&
+               isStartBeforeEnd(parsedCommand) &&
                isDurationValid(parsedCommand) &&
                isDeadlineValid(parsedCommand);
+    }
+
+    private boolean isContentNonEmpty(Command parsedCommand) {
+        if (parsedCommand.argStr == null || 
+            parsedCommand.argStr.trim().equals("")) {
+            status = formatErrorStr(ERR_EMPTY_CONTENT);
+            return false;
+        }
+        
+        return true;
     }
 
     private boolean isDeadlineValid(Command cmd) {
