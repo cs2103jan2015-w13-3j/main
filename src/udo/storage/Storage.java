@@ -31,14 +31,13 @@ public class Storage {
 
 		//testing purposes:
 
-		/*boolean function = st.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
-				boolean function = st.add(new Task(0,TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), new GregorianCalendar(2005,01,03),
-						0, new GregorianCalendar(2005,01,02), "work", true));
-		boolean function2 = st.add(new Task(1,TaskType.DEADLINE, "fighting", null, new GregorianCalendar(2010,01,03),
-				0, new GregorianCalendar(2011,01,02), "personal", false));
-		boolean function3 = st.add(new Task(2,TaskType.DEADLINE, "reading books", null, null,
-				120, null, "leisure", false));
-		if (function&&function2&&function3) System.out.println("Adding successfully");*/
+		boolean function = st.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+						0, new GregorianCalendar(2005,01,02), "work",true, false));
+		boolean function2 = st.add(new Task(TaskType.TODO, "fighting", null,null, null,
+				120, new GregorianCalendar(2011,01,02), "personal", false, false));
+		boolean function3 = st.add(new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
+				0, null, "leisure", false, false));
+		if (function&&function2&&function3) System.out.println("Adding successfully");
 
 		//ArrayList<Task> test = new ArrayList<Task>();
 		//test = st.query();
@@ -57,8 +56,8 @@ public class Storage {
 		//done = st.changeStatus(2);
 		//test = st.query(true);
 		//printTest(test);
-		//boolean done = st.delete(1);
-		//done = st.undo();
+		boolean done = st.delete(2);
+		done = st.undo();
 		//test = st.query();
 		//printTest(test);
 		//done = st.modify(2, "deadline", null, null, new GregorianCalendar(2006,01,05),0, new GregorianCalendar(2006,01,02), null);
@@ -81,6 +80,8 @@ public class Storage {
 	String lastPath;
 	public Storage(){
 		taskList = new ArrayList<Task>();
+		prevTask = new Task();
+		prevCmd = "";
 		try {
 			System.out.println("Reading JSON file from setting");
 			FileReader fr = new FileReader("setting.txt");
@@ -138,7 +139,7 @@ public class Storage {
 
 	//delete function, swap deleted task with last task on list 
 	public boolean delete(int index){
-		if (index >= taskList.size()){
+		if (index >= taskList.size()|| taskList.size() == 0){
 			return false;
 		}
 		
@@ -159,7 +160,7 @@ public class Storage {
 
 	//modify function
 	public boolean modify(int index, Task modifiedTask){
-		if (index >= taskList.size()){
+		if (index >= taskList.size()||taskList.size() == 0){
 			return false;
 		}
 		prevTask = taskList.get(index);
@@ -289,10 +290,15 @@ public class Storage {
 			taskList.set(prevTask.getIndex(), prevTask);
 			break;
 		case "del":	
-			Task temp = taskList.get(prevTask.getIndex());
-			temp.setIndex(taskList.size());
-			taskList.add(temp);
-			taskList.set(prevTask.getIndex(), prevTask);
+			if(taskList.size() ==0 || prevTask.getIndex() == taskList.size()){
+				taskList.add(prevTask);
+			}
+			else {
+				Task temp = taskList.get(prevTask.getIndex());
+				temp.setIndex(taskList.size());
+				taskList.add(temp);
+				taskList.set(prevTask.getIndex(), prevTask);
+			}
 			break;
 		default: return false;
 		}
