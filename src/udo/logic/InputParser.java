@@ -8,7 +8,17 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import udo.logic.command.AddCommand;
+import udo.logic.command.ChdirCommand;
+import udo.logic.command.Command;
+import udo.logic.command.DeleteCommand;
+import udo.logic.command.DisplayCommand;
+import udo.logic.command.DoneCommand;
+import udo.logic.command.ModifyCommand;
+import udo.logic.command.SearchCommand;
+import udo.logic.command.UndoCommand;
 import udo.util.Config;
+import udo.util.Config.CommandName;
 import udo.util.Utility;
 
 import com.joestelmach.natty.DateGroup;
@@ -23,8 +33,6 @@ public class InputParser {
                             "search|done|chdir|undo)");
     
     // Regex used to parse command's argument
-    private static final Pattern indexPattern =
-            Pattern.compile("^(\\d+)");
 
     // Regex strings and pattern used for matching an option
     private static final String OPTION_NO_ARG_FORMATER = "(/%s|/%s)";
@@ -66,7 +74,7 @@ public class InputParser {
             "Date time format is invalid";
     private static final String ERR_INVALID_INT_FORMAT =
            "Argument to an option is not a valid integer"; 
-    private static final String ERR_UNSPECIFIED_INDEX =
+    public static final String ERR_UNSPECIFIED_INDEX =
             "Task's index is not specified";
 
     public InputParser() {
@@ -132,66 +140,53 @@ public class InputParser {
             return null;
         }
         
-        Command resultCommand = new Command();
-
-        int cmdEndIndex = extractCommandName(command, resultCommand);
-        if (resultCommand.commandName == null || errorStatus != null) {
+        Config.CommandName cmdName = extractCommandName(command);
+        Command resultCommand = createCommandFromName(cmdName);
+        if (resultCommand.getCommandName() == null || errorStatus != null) {
             return resultCommand;
         }
         
         extractOptions(command);
         
-        parseCommandArg(extractCmdArg(command, cmdEndIndex, resultCommand),
-                        resultCommand);
+        if (!resultCommand.setArg(extractCmdArg(command, resultCommand))) {
+            errorStatus = resultCommand.getStatus();
+        }
         
         parseAllOptions(command, resultCommand);
 
-        //System.out.println(resultCommand);
         return resultCommand;
     }
 
     /**
-     * Parse different components inside a argument string of the command
-     * and store the result in argStr and argIndex of a Command datastructure
-     * @param extractCmdArg
-     * @param resultCommand
+     * Create a new Command instance from the given command name
+     * @param cmdName
+     * @return an instance of a subclass of Command
+     *         corresponding to the command name. Returns null if
+     *         command name is invalid
      */
-    private void parseCommandArg(String extractCmdArg, Command resultCommand) {
-        if (extractCmdArg == null || resultCommand == null) {
-            return;
-        }
-        
-        switch (resultCommand.commandName) {
+    public static Command createCommandFromName(CommandName cmdName) {
+        switch (cmdName) {
+            case ADD:
+                return new AddCommand();
             case MODIFY:
+                return new ModifyCommand();
             case DELETE:
+                return new DeleteCommand();
+            case DISPLAY:
+                return new DisplayCommand();
             case DONE:
-                int idxEnd = extractIndex(extractCmdArg, resultCommand);
-                resultCommand.argStr = extractCmdArg.substring(idxEnd).trim();
-                break;
+                return new DoneCommand(); 
+            case CHDIR:
+                return new ChdirCommand();
+            case SEARCH:
+                return new SearchCommand();
+            case UNDO:
+                return new UndoCommand();
             default:
-                resultCommand.argStr = extractCmdArg;
+                return null;
         }
     }
 
-    /**
-     * Extract the task's index from the command's argument and store
-     * it in the argIndex component of resultCommand
-     * @param extractCmdArg
-     * @param resultCommand
-     * @return the end position of the index in the argument string
-     */
-    private int extractIndex(String extractCmdArg, Command resultCommand) {
-        Matcher indexMatcher = indexPattern.matcher(extractCmdArg);
-
-        if (indexMatcher.find()) {
-            resultCommand.argIndex = Integer.parseInt(indexMatcher.group());
-            return indexMatcher.end();
-        } else {
-            errorStatus = ERR_UNSPECIFIED_INDEX;
-            resultCommand.argIndex = null;
-            return 0;
-        }
-    }
 
     /**
      * Extract the argument part of the command string that is not
@@ -200,39 +195,51 @@ public class InputParser {
      * @param cmdEndIndex the end index of the cmd name in the cmd string
      * @return the string containing the command's argumument
      */
-    private String extractCmdArg(String command, int cmdNameEndIndex,
-                                 Command resultCommand) {
-        if (cmdNameEndIndex < 0) {
-            return null;
-        }
+    private String extractCmdArg(String command, Command resultCommand) {
+        int cmdNameEndIndex = getCmdNameEndIndex(command);
+        assert(cmdNameEndIndex >= 0);
         
         int argEndIndex = command.length();
-        if (resultCommand.commandName != Config.CommandName.CHDIR &&
+
+        if (resultCommand.getCommandName() != Config.CommandName.CHDIR &&
             extractedOptions.size() > 0) {
             argEndIndex = optionStarts.get(0);
         }
         
         return command.substring(cmdNameEndIndex, argEndIndex).trim();
     }
+    
+    /**
+     * Return the end index of the command name in the command string
+     * @param command
+     * @return
+     */
+    private int getCmdNameEndIndex(String command) {
+        Matcher cmdNameMatcher = commandNamePattern.matcher(command);
+
+        if (cmdNameMatcher.find()) {
+            return cmdNameMatcher.end(GROUP_NAME);
+        } else {
+            return 0;
+        }
+    }
 
     /**
      * Extract the command name from the command string and store it
-     * in the resultCommand data-structure. If there is no command name
-     * detected, it is assumed to be the add command
+     * If there is no command name detected, it is assumed to be
+     * the 'add' command
      * @param command
      * @param resultCommand
      * @return the end index of command name in the command string
      */
-    private int extractCommandName(String command, Command resultCommand) {
+    private Config.CommandName extractCommandName(String command) {
         Matcher cmdNameMatcher = commandNamePattern.matcher(command);
 
         if (cmdNameMatcher.find()) {
-            resultCommand.commandName = Utility.convertToCommandName(
-                                            cmdNameMatcher.group(GROUP_NAME));
-            return cmdNameMatcher.end(GROUP_NAME);
+            return Utility.convertToCommandName(
+                                    cmdNameMatcher.group(GROUP_NAME));
         } else {
-            resultCommand.commandName = Config.CommandName.ADD;
-            return 0;
+            return Config.CommandName.ADD;
         }
     }
 
@@ -298,7 +305,7 @@ public class InputParser {
             option.timeArgument = parseTimeArg(i, command);
         }
         
-        resultCommand.options.put(optionName, option);
+        resultCommand.setOption(optionName, option);
     }
 
     /**
