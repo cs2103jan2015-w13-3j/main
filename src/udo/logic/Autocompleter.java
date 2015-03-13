@@ -1,12 +1,37 @@
 package udo.logic;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class Autocompleter {
+    TernarySearchTree keywordsTree;
+    TernarySearchTree dictTree;
+    
+    List<String> commandHistory;
+    
+    String dictPath = "res/dict.txt";
+
     public Autocompleter() {
         /* TODO: Create ternary search trees and add words to them
          * Initialize commands history
          */
+        keywordsTree = new TernarySearchTree();
+        dictTree = new TernarySearchTree();
+        
+        commandHistory = new LinkedList<String>();
+        
+        addDictWordsToTree(dictTree);
+        addKeywordsToTree(keywordsTree);
+    }
+
+    private void addKeywordsToTree(TernarySearchTree keywordsTree2) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private void addDictWordsToTree(TernarySearchTree dictTree2) {
+        // TODO Auto-generated method stub
+        
     }
 
     /**

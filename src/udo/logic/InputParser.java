@@ -76,23 +76,9 @@ public class InputParser {
         for (int i = 0; i < Config.OPTIONS_TABLE.length; i++) {
             String[] option = Config.OPTIONS_TABLE[i];
                     
-            optionTypeMap.put(option[Config.OPT_LONG],
-                              option[Config.OPT_TYPE]);
-            optionTypeMap.put(option[Config.OPT_SHORT],
-                              option[Config.OPT_TYPE]);
-            shortToLongMap.put(option[Config.OPT_SHORT],
-                               option[Config.OPT_LONG]);
+            fillOptionTypeMap(option);
             
-            if (option[Config.OPT_TYPE] != Config.TYPE_NONE) {
-                optionPattern = String.format(OPTION_WITH_ARG_FORMATER,
-                                              option[Config.OPT_LONG],
-                                              option[Config.OPT_SHORT]);
-
-            } else {
-                optionPattern = String.format(OPTION_NO_ARG_FORMATER,
-                                              option[Config.OPT_LONG],
-                                              option[Config.OPT_SHORT]);
-            }
+            optionPattern = createOptionPattern(option);
 
             if (i == Config.OPTIONS_TABLE.length - 1) {
                 optionPatternBuilder.append(optionPattern);
@@ -102,6 +88,40 @@ public class InputParser {
         }
         
         optionsPattern = Pattern.compile(optionPatternBuilder.toString());
+    }
+
+    /**
+     * Create a regex pattern for a single option depending on the option type
+     * @param option
+     * @return the string representation of the regex pattern
+     */
+    private String createOptionPattern(String[] option) {
+        String optionPattern;
+        if (option[Config.OPT_TYPE] != Config.TYPE_NONE) {
+            optionPattern = String.format(OPTION_WITH_ARG_FORMATER,
+                                          option[Config.OPT_LONG],
+                                          option[Config.OPT_SHORT]);
+
+        } else {
+            optionPattern = String.format(OPTION_NO_ARG_FORMATER,
+                                          option[Config.OPT_LONG],
+                                          option[Config.OPT_SHORT]);
+        }
+        return optionPattern;
+    }
+
+    /**
+     * Fill pairs of option name and option type into the map data structure
+     * Both long option and short option names are considered
+     * @param option
+     */
+    private void fillOptionTypeMap(String[] option) {
+        optionTypeMap.put(option[Config.OPT_LONG],
+                          option[Config.OPT_TYPE]);
+        optionTypeMap.put(option[Config.OPT_SHORT],
+                          option[Config.OPT_TYPE]);
+        shortToLongMap.put(option[Config.OPT_SHORT],
+                           option[Config.OPT_LONG]);
     }
 
     public Command parseCommand(String command) {
