@@ -7,4 +7,24 @@ public class DisplayCommand extends Command {
         super();
         setCommandName(CommandName.DISPLAY);
     }
+
+    @Override
+    public boolean isValid() {
+        return super.isValid();
+    }
+
+    @Override
+    public boolean execute() {
+        if (!super.execute()) {
+            return false;
+        }
+
+        status = getDisplaySucessStatus();
+        gui.display(storage.query());
+        return true;
+    }
+
+    private String getDisplaySucessStatus() {
+        return "";
+    }
 }

@@ -142,6 +142,7 @@ public class InputParser {
         
         Config.CommandName cmdName = extractCommandName(command);
         Command resultCommand = createCommandFromName(cmdName);
+
         if (resultCommand.getCommandName() == null || errorStatus != null) {
             return resultCommand;
         }

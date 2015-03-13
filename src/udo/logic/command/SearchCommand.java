@@ -7,4 +7,18 @@ public class SearchCommand extends Command {
         super();
         setCommandName(CommandName.SEARCH);
     }
+    
+    @Override
+    public boolean isValid() {
+        return super.isValid();
+    }
+    
+    @Override
+    public boolean execute() {
+        if (!super.execute()) {
+            return false;
+        }
+        
+        return true;
+    }
 }
