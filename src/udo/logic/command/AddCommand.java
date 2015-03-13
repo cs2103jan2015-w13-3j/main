@@ -23,22 +23,24 @@ public class AddCommand extends Command {
 
     @Override
     public boolean execute() {
-        System.out.println("Adding new task...");
+        //System.out.println("Adding new task...");
         if (!super.execute()) {
             return false;
         }
 
         Task task = fillAddedTask();
-        if (!storage.add(task)) {
+
+        boolean isSuccessful = storage.add(task);
+        if (!isSuccessful) {
             setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
-            return false;
+        } else {
+            setStatus(getAddSucessStatus());
+            gui.display(storage.query());
         }
 
-        status = getAddSucessStatus();
-        gui.display(storage.query());
-
-        System.out.println(task);
-        return true;
+        //System.out.println(task);
+        updateGUIStatus();
+        return isSuccessful;
     }
 
 

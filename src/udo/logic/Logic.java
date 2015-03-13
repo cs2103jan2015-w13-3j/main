@@ -61,17 +61,7 @@ public class Logic {
         parsedCommand.setGUI(gui);
         parsedCommand.setStorage(storage);
 
-        boolean isSuccessful;
-
-        if (!parsedCommand.isValid()) {
-            isSuccessful = false;
-        } else {
-            isSuccessful = parsedCommand.execute();
-        }
-
-        parsedCommand.updateGUIStatus();
-        
-        return isSuccessful;
+        return parsedCommand.execute();
     }
 
     /**

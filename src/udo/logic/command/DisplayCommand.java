@@ -1,5 +1,6 @@
 package udo.logic.command;
 
+import udo.util.Config;
 import udo.util.Config.CommandName;
 
 public class DisplayCommand extends Command {
@@ -19,8 +20,13 @@ public class DisplayCommand extends Command {
             return false;
         }
 
-        status = getDisplaySucessStatus();
-        gui.display(storage.query());
+        if (getOption(Config.OPT_PRIO) != null) {
+            gui.display(storage.query(true));
+        } else {
+            gui.display(storage.query());
+        }
+
+        setStatus(getDisplaySucessStatus());
         return true;
     }
 

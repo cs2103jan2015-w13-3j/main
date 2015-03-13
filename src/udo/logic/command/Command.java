@@ -160,6 +160,12 @@ public abstract class Command {
     public boolean execute() {
         assert(gui != null);
         assert(storage != null);
+        
+        if (!isValid()) {
+            updateGUIStatus();
+            return false;
+        }
+
         return true;
     }
 
@@ -167,8 +173,8 @@ public abstract class Command {
     /** Helper methods to retrieve various external data **/
     /******************************************************/
 
-    private Option getOption(String[] option) {
-        return options.get(option[Config.OPT_LONG]);
+    public Option getOption(String[] option) {
+        return getOption(option[Config.OPT_LONG]);
     }
 
     /**

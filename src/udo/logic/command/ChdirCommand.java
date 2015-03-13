@@ -27,6 +27,7 @@ public class ChdirCommand extends Command {
             setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
         }
 
+        updateGUIStatus();
         return isSuccessful;
     }
 }

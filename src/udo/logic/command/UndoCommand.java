@@ -19,6 +19,7 @@ public class UndoCommand extends Command {
         if (!isSuccessful) {
             setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
         }
+
         return isSuccessful;
     }
     

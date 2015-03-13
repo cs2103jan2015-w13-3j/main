@@ -29,6 +29,7 @@ public class ModifyCommand extends Command {
         if (!super.execute()) {
             return false;
         }
+
         assert(argIndex != null);
         
         Integer storageIndex = getStorageIndex(argIndex);
@@ -48,15 +49,16 @@ public class ModifyCommand extends Command {
         System.out.println("Modified task: ");
         System.out.println(task);
 
-        if (!storage.modify(storageIndex, task)) {
+        boolean isSuccessful = storage.modify(storageIndex, task);
+        if (!isSuccessful) {
             setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
-            return false;
+        } else {
+            status = getModifySucessStatus(task);
+            gui.display(storage.query());
         }
-
-        status = getModifySucessStatus(task);
-        gui.display(storage.query());
         
-        return true;
+        updateGUIStatus();
+        return isSuccessful;
     }
 
     private String getModifySucessStatus(Task task) {

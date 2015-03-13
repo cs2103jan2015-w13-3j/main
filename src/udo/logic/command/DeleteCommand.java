@@ -31,15 +31,16 @@ public class DeleteCommand extends Command {
         
         Task deletedTask = storage.query(index);
 
-        if (!storage.delete(index)) {
+        boolean isSuccessful = storage.delete(index);
+        if (!isSuccessful) {
             setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
-            return false;
+        } else {
+            gui.display(storage.query());
+            setStatus(getDeleteSucessStatus(deletedTask));
         }
-
-        gui.display(storage.query());
-        status = getDeleteSucessStatus(deletedTask);
         
-        return true;
+        updateGUIStatus();
+        return isSuccessful;
     }
 
     private String getDeleteSucessStatus(Task task) {

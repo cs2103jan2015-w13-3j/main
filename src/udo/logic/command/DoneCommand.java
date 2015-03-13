@@ -29,7 +29,7 @@ public class DoneCommand extends Command {
             setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
         }
 
-        return false;
+        return isSuccessful;
     }
 
     @Override
