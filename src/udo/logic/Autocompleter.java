@@ -72,42 +72,8 @@ public class Autocompleter {
      * @return list of suggested words
      */
     public List<String> getSuggestions(String text) {
-        String[] tokenizedString = text.split("\\s");
-        String lastWord = getLastWord(tokenizedString);
-
-        List<String> keywordsList = null;
-        List<String> dictWordsList;
-        List<String> contentWordsList;
-        
-        ArrayList<String> result = new ArrayList<>();
-
-        if (lastWord != null) {
-            if (text.length() == 1) {
-                keywordsList = keywordsTree.searchPrefix(lastWord);
-                if (keywordsList != null) {
-                    //Collections.sort(keywordsList);
-                    result.addAll(keywordsList);
-                }
-            }
-
-            if (text.length() != 1 || keywordsList == null ||
-                keywordsList.size() == 0) {
-
-                contentWordsList = taskContentTree.searchPrefix(lastWord);
-                if (contentWordsList != null) {
-                    //Collections.sort(contentWordsList);
-                    result.addAll(contentWordsList);
-                }
-
-                dictWordsList = dictTree.searchPrefix(lastWord);
-                if (dictWordsList != null) {
-                    //Collections.sort(dictWordsList);
-                    result.addAll(dictWordsList);
-                }
-            }
-        }
-
-        return result; 
+        List<String> result = getSuggestions(text, null);
+        return result;
     }
 
     /**
@@ -130,9 +96,44 @@ public class Autocompleter {
      * @param maxWords
      * @return list of suggested words
      */
-    public List<String> getSuggestions(String text, int maxWords) {
-        List<String> result = getSuggestions(text);
-        return result.subList(0, maxWords);
+    public List<String> getSuggestions(String text, Integer maxWords) {
+        String[] tokenizedString = text.split("\\s");
+        String lastWord = getLastWord(tokenizedString);
+
+        List<String> keywordsList = null;
+        List<String> dictWordsList;
+        List<String> contentWordsList;
+        
+        ArrayList<String> result = new ArrayList<>();
+
+        if (lastWord != null) {
+            if (tokenizedString.length == 1) {
+                keywordsList = keywordsTree.searchPrefix(lastWord);
+                if (keywordsList != null) {
+                    result.addAll(keywordsList);
+                }
+            }
+
+            if (tokenizedString.length == 1 ||
+                keywordsList == null || keywordsList.size() == 0) {
+
+                contentWordsList = taskContentTree.searchPrefix(lastWord);
+                if (contentWordsList != null) {
+                    result.addAll(contentWordsList);
+                }
+
+                if (maxWords == null) {
+                    dictWordsList = dictTree.searchPrefix(lastWord);
+                } else {
+                    dictWordsList = dictTree.searchPrefix(lastWord, maxWords);
+                }
+                if (dictWordsList != null) {
+                    result.addAll(dictWordsList);
+                }
+            }
+        }
+
+        return result; 
     }
     
     /**
@@ -168,6 +169,6 @@ public class Autocompleter {
 
     public static void main(String[] args) {
         Autocompleter completer = new Autocompleter();
-        System.out.println(completer.getSuggestions("I'm a sch"));
+        System.out.println(completer.getSuggestions("/", 5));
     }
 }
