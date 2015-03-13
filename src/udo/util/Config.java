@@ -11,6 +11,7 @@ public class Config {
      * Add a new string array of 3 entries here:
      *      [option long name, option short name, option arg type]
      * Add the string array name into the OPTIONS_TABLE array
+     * Add the option's strings to res/dict.txt for autocomplete
      * -> see existing options as examples
      */
 

@@ -35,6 +35,7 @@ public class InputParser {
     // Regex used to parse command's argument
 
     // Regex strings and pattern used for matching an option
+    public static final String OPTION_MAKER = "/";
     private static final String OPTION_NO_ARG_FORMATER = "(/%s|/%s)";
     private static final String OPTION_WITH_ARG_FORMATER = "((/%s)|(/%s)\\s+)";
     private Pattern optionsPattern;
