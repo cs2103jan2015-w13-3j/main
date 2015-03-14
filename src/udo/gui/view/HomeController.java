@@ -1,5 +1,8 @@
 package udo.gui.view;
 
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -8,15 +11,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import udo.gui.GUI;
 import udo.gui.GUIFormatter;
 import udo.storage.Task;
@@ -43,18 +41,10 @@ public class HomeController {
     private static String STYLE_STRAIGHT = "straight";
     private static Label statusString;
     
-    private HomeController() {
+    public HomeController() {
         
     }
-    
-    public HomeController getInstance() {
-        if (homeController == null) {
-            homeController = new HomeController();
-        }
-        
-        return homeController;
-    }
-    
+
     /**
      * Initializes the controller class. This method is automatically called
      * after the fxml file has been loaded.
@@ -210,9 +200,12 @@ public class HomeController {
      */
     public void setMainApp(GUI gui) {
         this.gui = gui;
-        
+            
+    }
+    
+    public void setData() {
         // Add observable list data to the table
-        TaskTable.setItems(gui.getTaskData());      
+        TaskTable.setItems(gui.getTaskData());  
     }
 
     public class TaskCell extends TableCell<Task,String> {

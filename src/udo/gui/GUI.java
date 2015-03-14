@@ -40,9 +40,8 @@ public class GUI extends Application {
      * Constructor
      */
     public GUI() {
-
         logic = Logic.getInstance();
-        Logic.setGUI(this);
+        logic.setGUI(this);
         // For unit testing purposes      
         //display();
     }
@@ -135,7 +134,7 @@ public class GUI extends Application {
         duplicateList(rcvdList);
         GUIFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);
-        controller.setMainApp(this);
+        controller.setData();
     }
 
     private void duplicateList(List<Task> rcvdList) {

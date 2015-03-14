@@ -5,7 +5,8 @@ import udo.logic.command.Command;
 import udo.storage.Storage;
 
 public class Logic {
-    private static GUI gui;
+    private GUI gui;
+    private static Logic logicObj = null;
     private Storage storage;
 
     private static final String ERR_FORMAT = "Error: %s";
@@ -34,7 +35,6 @@ public class Logic {
     public static final Integer MAX_STATUS_LENGTH = 40;
 
     private InputParser parser;
-    private static Logic logicObj = null;
 
     private static String status;
 
@@ -54,7 +54,7 @@ public class Logic {
         return logicObj;
     }
     
-    public static void setGUI(GUI guiObj) {
+    public void setGUI(GUI guiObj) {
         gui = guiObj;
     }
 
