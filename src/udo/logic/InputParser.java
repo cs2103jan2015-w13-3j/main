@@ -36,6 +36,7 @@ public class InputParser {
     public static final String OPTION_MAKER = "/";
     private static final String OPTION_NO_ARG_FORMATER = "(/%s|/%s)";
     private static final String OPTION_WITH_ARG_FORMATER = "((/%s)|(/%s)\\s+)";
+    private static final String DATE_DELIMITER = "\\sor\\s";
     private Pattern optionsPattern;
     // Map option names to their corresponding types
     private Map<String, String> optionTypeMap = new HashMap<>();
@@ -356,18 +357,24 @@ public class InputParser {
      * @param command the full command string
      * @return the Date that the date/time string represents
      */
-    private Date parseDateTimeArg(int i, String command) {
-        String argStr = getArgStr(i, command);
+    private Date[] parseDateTimeArg(int i, String command) {
+        String[] dateStrs = getArgStr(i, command).split(DATE_DELIMITER);
+        Date[] result = new Date[dateStrs.length];
         
-        List<DateGroup> groups = dateParser.parse(argStr);
-        if (groups == null || groups.size() == 0 ||
-            groups.get(0).getDates() == null ||
-            groups.get(0).getDates().size() == 0) {
-            errorStatus = ERR_INVALID_DATE_FORMAT;
-            return null;
+        for (int j = 0; j < dateStrs.length; j++) {
+            List<DateGroup> groups = dateParser.parse(dateStrs[j]);
+    
+            if (groups == null || groups.size() == 0 ||
+                groups.get(0).getDates() == null ||
+                groups.get(0).getDates().size() == 0) {
+                errorStatus = ERR_INVALID_DATE_FORMAT;
+                return null;
+            }
+    
+            result[j] = groups.get(0).getDates().get(0);
         }
-
-        return groups.get(0).getDates().get(0);
+        
+        return result;
     }
 
     /**
@@ -461,5 +468,9 @@ public class InputParser {
         System.out.println(inputParser.parseCommand("chdir /deadline"));
         System.out.println(inputParser.parseCommand("search school tomorrow"));
         System.out.println(inputParser.parseCommand("done 2"));
+        
+        /* Testing multiple dates */
+        System.out.println(inputParser.parseCommand("add match midterm /start next friday or next thursday /end 11/02/15 or 20/02/2015"));
+        System.out.println(inputParser.parseCommand("submit the report /dl tomorrow or the day after tomorrow /reminder next thursday"));
     }
 }

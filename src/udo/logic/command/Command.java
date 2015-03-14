@@ -21,12 +21,12 @@ public abstract class Command {
     public static class Option {
         public String strArgument;
         public Integer intArgument;
-        public Date dateArgument;
+        public Date[] dateArgument;
         public Integer timeArgument;
     }
 
     protected static final DateFormat DATE_FORMAT =
-            new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
+            new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
     protected static final Pattern indexPattern =
             Pattern.compile("^(\\d+)");
 
@@ -224,12 +224,12 @@ public abstract class Command {
         return true;
     }
 
-    protected boolean isStartBeforeEnd() {
-        Option start = getOption(Config.OPT_DEADLINE);
-        Option end = getOption(Config.OPT_END);
+    protected boolean isStartBeforeEnd(Task task) {
+        GregorianCalendar start = task.getStart();
+        GregorianCalendar end = task.getEnd();
 
         if (start != null && end != null) {
-            if (start.dateArgument.compareTo(end.dateArgument) >= 0) {
+            if (start.compareTo(end) >= 0) {
                 setStatus(Logic.formatErrorStr(Logic.ERR_NON_POSITIVE_DUR));
                 return false;
             }
@@ -247,11 +247,11 @@ public abstract class Command {
         return true;
     }
 
-    protected boolean isDeadlineValid() {
-        Option deadline = getOption(Config.OPT_DEADLINE);
+    protected boolean isDeadlineValid(Task task) {
+        Date deadline = task.getDeadline().getTime();
 
         if (deadline != null) {
-            if (deadline.dateArgument.compareTo(new Date()) < 0) {
+            if (deadline.compareTo(new Date()) < 0) {
                 setStatus(Logic.formatErrorStr(Logic.ERR_LATE_DEADLINE));
                 return false;
             }
@@ -283,13 +283,13 @@ public abstract class Command {
      * @param parsedCommand
      * @param task
      */
-    protected void fillTaskFromCommand(Task task) {
+    protected void fillTaskFromCommand(Task task, int dateIndex) {
         fillContent(task);
-        fillDeadline(task);
-        fillStartDate(task);
-        fillEndDate(task);
+        fillDeadline(task, dateIndex);
+        fillStartDate(task, dateIndex);
+        fillEndDate(task, dateIndex);
         fillDuration(task);
-        fillReminder(task);
+        fillReminder(task, dateIndex);
         fillLabel(task);
         fillPriority(task);
     }
@@ -396,12 +396,12 @@ public abstract class Command {
         }
     }
 
-    private void fillReminder(Task task) {
+    private void fillReminder(Task task, int dateIndex) {
         Option reminder = getOption(Config.OPT_REMINDER);
 
         if (reminder != null) {
             GregorianCalendar reminderCalendar = new GregorianCalendar();
-            reminderCalendar.setTime(reminder.dateArgument);
+            reminderCalendar.setTime(reminder.dateArgument[dateIndex]);
             task.setReminder(reminderCalendar);
         }
     }
@@ -414,32 +414,32 @@ public abstract class Command {
         }
     }
 
-    private void fillEndDate(Task task) {
+    private void fillEndDate(Task task, int dateIndex) {
         Option end = getOption(Config.OPT_END);
 
         if (end != null) {
             GregorianCalendar endCalendar = new GregorianCalendar();
-            endCalendar.setTime(end.dateArgument);
+            endCalendar.setTime(end.dateArgument[dateIndex]);
             task.setEnd(endCalendar);
         }
     }
 
-    private void fillStartDate(Task task) {
+    private void fillStartDate(Task task, int dateIndex) {
         Option start = getOption(Config.OPT_START);
 
         if (start != null) {
             GregorianCalendar startCalendar = new GregorianCalendar();
-            startCalendar.setTime(start.dateArgument);
+            startCalendar.setTime(start.dateArgument[dateIndex]);
             task.setStart(startCalendar);
         }
     }
 
-    private void fillDeadline(Task task) {
+    private void fillDeadline(Task task, int dateIndex) {
         Option deadline = getOption(Config.OPT_DEADLINE);
 
         if (deadline != null) {
             GregorianCalendar deadlineCalendar = new GregorianCalendar();
-            deadlineCalendar.setTime(deadline.dateArgument);
+            deadlineCalendar.setTime(deadline.dateArgument[dateIndex]);
             task.setDeadline(deadlineCalendar);
         }
     }
@@ -463,8 +463,12 @@ public abstract class Command {
             Option op = opEntry.getValue();
 
             str += "  " + opName + ": ";
-            if (op.dateArgument != null) {
-                str += DATE_FORMAT.format(op.dateArgument);
+            if (op.dateArgument != null && op.dateArgument.length > 0) {
+                for (int i = 0; i < op.dateArgument.length - 1; i++) {
+                    str += DATE_FORMAT.format(op.dateArgument[i]) + " or ";
+                }
+                str += DATE_FORMAT.format(
+                            op.dateArgument[op.dateArgument.length - 1]);
             } else if (op.strArgument != null) {
                 str += op.strArgument;
             } else if (op.intArgument != null) {
