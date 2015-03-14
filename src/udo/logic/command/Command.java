@@ -224,6 +224,11 @@ public abstract class Command {
         return true;
     }
 
+    protected boolean isTaskDatesValid(Task task) {
+        return isStartBeforeEnd(task) && isDeadlineValid(task);
+    }
+
+
     protected boolean isStartBeforeEnd(Task task) {
         GregorianCalendar start = task.getStart();
         GregorianCalendar end = task.getEnd();
@@ -248,10 +253,10 @@ public abstract class Command {
     }
 
     protected boolean isDeadlineValid(Task task) {
-        Date deadline = task.getDeadline().getTime();
+        GregorianCalendar deadline = task.getDeadline();
 
         if (deadline != null) {
-            if (deadline.compareTo(new Date()) < 0) {
+            if (deadline.getTime().compareTo(new Date()) < 0) {
                 setStatus(Logic.formatErrorStr(Logic.ERR_LATE_DEADLINE));
                 return false;
             }
@@ -289,7 +294,7 @@ public abstract class Command {
         fillStartDate(task, dateIndex);
         fillEndDate(task, dateIndex);
         fillDuration(task);
-        fillReminder(task, dateIndex);
+        fillReminder(task);
         fillLabel(task);
         fillPriority(task);
     }
@@ -396,12 +401,12 @@ public abstract class Command {
         }
     }
 
-    private void fillReminder(Task task, int dateIndex) {
+    private void fillReminder(Task task) {
         Option reminder = getOption(Config.OPT_REMINDER);
 
         if (reminder != null) {
             GregorianCalendar reminderCalendar = new GregorianCalendar();
-            reminderCalendar.setTime(reminder.dateArgument[dateIndex]);
+            reminderCalendar.setTime(reminder.dateArgument[0]);
             task.setReminder(reminderCalendar);
         }
     }
@@ -417,7 +422,7 @@ public abstract class Command {
     private void fillEndDate(Task task, int dateIndex) {
         Option end = getOption(Config.OPT_END);
 
-        if (end != null) {
+        if (end != null && dateIndex < end.dateArgument.length) {
             GregorianCalendar endCalendar = new GregorianCalendar();
             endCalendar.setTime(end.dateArgument[dateIndex]);
             task.setEnd(endCalendar);
@@ -427,7 +432,7 @@ public abstract class Command {
     private void fillStartDate(Task task, int dateIndex) {
         Option start = getOption(Config.OPT_START);
 
-        if (start != null) {
+        if (start != null && dateIndex < start.dateArgument.length) {
             GregorianCalendar startCalendar = new GregorianCalendar();
             startCalendar.setTime(start.dateArgument[dateIndex]);
             task.setStart(startCalendar);
@@ -437,7 +442,7 @@ public abstract class Command {
     private void fillDeadline(Task task, int dateIndex) {
         Option deadline = getOption(Config.OPT_DEADLINE);
 
-        if (deadline != null) {
+        if (deadline != null && dateIndex < deadline.dateArgument.length) {
             GregorianCalendar deadlineCalendar = new GregorianCalendar();
             deadlineCalendar.setTime(deadline.dateArgument[dateIndex]);
             task.setDeadline(deadlineCalendar);

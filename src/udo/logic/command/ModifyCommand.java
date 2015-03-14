@@ -17,10 +17,7 @@ public class ModifyCommand extends Command {
             return false;
         }
 
-        return super.isValid() && isIndexValid() &&
-               isStartBeforeEnd() &&
-               isDurationValid() &&
-               isDeadlineValid();
+        return super.isValid() && isIndexValid() && isDurationValid();
     }
     
     @Override
@@ -31,7 +28,7 @@ public class ModifyCommand extends Command {
         }
 
         assert(argIndex != null);
-        
+
         Integer storageIndex = getStorageIndex(argIndex);
         assert(storageIndex != null);
 
@@ -39,28 +36,33 @@ public class ModifyCommand extends Command {
 
         Task.TaskType newTaskType = getTaskType();
         if (task.getTaskType() == newTaskType) {
-            fillTaskFromCommand(task);
+            fillTaskFromCommand(task, 0);
         } else {
             task.setTaskType(newTaskType);
-            fillTaskFromCommand(task);
+            fillTaskFromCommand(task, 0);
             fillDefaults(task);
         }
         
         System.out.println("Modified task: ");
         System.out.println(task);
 
-        boolean isSuccessful = storage.modify(storageIndex, task);
-        if (!isSuccessful) {
-            setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
-        } else {
-            status = getModifySucessStatus(task);
-            gui.display(storage.query());
+        boolean isSuccessful = false;
+
+        if (isTaskDatesValid(task)) {
+            isSuccessful = storage.modify(storageIndex, task);
+
+            if (!isSuccessful) {
+                setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
+            } else {
+                status = getModifySucessStatus(task);
+                gui.display(storage.query());
+            }
         }
         
         updateGUIStatus();
         return isSuccessful;
     }
-
+    
     private String getModifySucessStatus(Task task) {
         return String.format(Logic.STATUS_MODIFIED,
                              Logic.summarizeContent(task.getContent()));
