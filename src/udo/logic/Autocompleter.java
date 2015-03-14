@@ -1,12 +1,68 @@
 package udo.logic;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import udo.util.Config.CommandName;
+
 public class Autocompleter {
+    // Used to store command and options keywords
+    TernarySearchTree keywordsTree;
+    // Used to store words from english dictionary
+    TernarySearchTree dictTree;
+    // Used to store words extracted from tasks' content
+    TernarySearchTree taskContentTree;
+    
+    List<String> commandHistory;
+    
+    String dictPath = "res/dict.txt";
+
     public Autocompleter() {
-        /* TODO: Create ternary search trees and add words to them
-         * Initialize commands history
-         */
+        keywordsTree = new TernarySearchTree();
+        dictTree = new TernarySearchTree();
+        taskContentTree = new TernarySearchTree();
+        
+        commandHistory = new LinkedList<String>();
+        
+        addKeywordsToTree(keywordsTree);
+        addDictWordsToTree(dictTree);
+    }
+
+    private void addKeywordsToTree(TernarySearchTree keywordsTree) {
+        for (CommandName cmdName : CommandName.values()) {
+            keywordsTree.add(cmdName.toString().toLowerCase());
+        }
+    }
+
+    private void addDictWordsToTree(TernarySearchTree dictTree) {
+        BufferedReader reader = null;
+        
+        try {
+            reader = new BufferedReader(new FileReader(dictPath));
+            String s = reader.readLine();
+
+            while (s != null) {
+                dictTree.add(s);
+                s = reader.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -16,6 +72,20 @@ public class Autocompleter {
      * @return list of suggested words
      */
     public List<String> getSuggestions(String text) {
+        List<String> result = getSuggestions(text, null);
+        return result;
+    }
+
+    /**
+     * Get the last word in a text string
+     * @param text
+     * @return
+     */
+    private String getLastWord(String[] text) {
+        if (text != null && text.length > 0) {
+            return text[text.length - 1];
+        }
+
         return null;
     }
 
@@ -26,8 +96,44 @@ public class Autocompleter {
      * @param maxWords
      * @return list of suggested words
      */
-    public List<String> getSuggestions(String text, int maxWords) {
-        return null;
+    public List<String> getSuggestions(String text, Integer maxWords) {
+        String[] tokenizedString = text.split("\\s");
+        String lastWord = getLastWord(tokenizedString);
+
+        List<String> keywordsList = null;
+        List<String> dictWordsList;
+        List<String> contentWordsList;
+        
+        ArrayList<String> result = new ArrayList<>();
+
+        if (lastWord != null) {
+            if (tokenizedString.length == 1) {
+                keywordsList = keywordsTree.searchPrefix(lastWord);
+                if (keywordsList != null) {
+                    result.addAll(keywordsList);
+                }
+            }
+
+            if (tokenizedString.length == 1 ||
+                keywordsList == null || keywordsList.size() == 0) {
+
+                contentWordsList = taskContentTree.searchPrefix(lastWord);
+                if (contentWordsList != null) {
+                    result.addAll(contentWordsList);
+                }
+
+                if (maxWords == null) {
+                    dictWordsList = dictTree.searchPrefix(lastWord);
+                } else {
+                    dictWordsList = dictTree.searchPrefix(lastWord, maxWords);
+                }
+                if (dictWordsList != null) {
+                    result.addAll(dictWordsList);
+                }
+            }
+        }
+
+        return result; 
     }
     
     /**
@@ -62,6 +168,7 @@ public class Autocompleter {
     }
 
     public static void main(String[] args) {
-
+        Autocompleter completer = new Autocompleter();
+        System.out.println(completer.getSuggestions("/", 5));
     }
 }

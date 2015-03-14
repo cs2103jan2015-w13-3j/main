@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
 import udo.gui.view.HomeController;
 import udo.logic.Logic;
 import udo.storage.Task;
@@ -34,19 +35,15 @@ public class GUI extends Application {
     private static ObservableList<Task> taskData;
     private static List<Task> originalList;
     private static ArrayList<Task> displayList = new ArrayList<Task>();
+    
     /**
      * Constructor
      */
     public GUI() {
-
-        logic = new Logic(this);
-
-        // For unit testing purposes
-        //TestDriver();
-    }
-
-    private void TestDriver() {
-
+        logic = Logic.getInstance();
+        logic.setGUI(this);
+        // For unit testing purposes      
+        //display();
     }
 
     @Override
@@ -137,7 +134,7 @@ public class GUI extends Application {
         duplicateList(rcvdList);
         GUIFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);
-        controller.setMainApp(this);
+        controller.setData();
     }
 
     private void duplicateList(List<Task> rcvdList) {

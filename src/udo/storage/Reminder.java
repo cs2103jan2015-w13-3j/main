@@ -54,9 +54,8 @@ public class Reminder extends TimerTask {
 				GregorianCalendar current = new GregorianCalendar();
 				if (!taskList.get(i).isDone()) {
 					taskQueue.add(taskList.get(i));
-					while (!taskQueue.isEmpty()) {
-						if (taskQueue.peek().getReminder().getTime().compareTo(current.getTime())<=0)
-							remindList.add(taskQueue.poll());
+					while (!taskQueue.isEmpty()&&(taskQueue.peek().getReminder().getTime().compareTo(current.getTime())<=0)) {
+						remindList.add(taskQueue.poll());
 					}
 				}
 			}
