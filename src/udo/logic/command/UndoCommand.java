@@ -18,6 +18,8 @@ public class UndoCommand extends Command {
         boolean isSuccessful = storage.undo();
         if (!isSuccessful) {
             setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
+        } else {
+            gui.display(storage.query());
         }
 
         return isSuccessful;

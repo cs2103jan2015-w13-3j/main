@@ -65,7 +65,7 @@ public class Logic {
     public boolean executeCommand(String command) {
         Command parsedCommand = parser.parseCommand(command);
         if (parser.getErrorStatus() != null) {
-            status = parser.getErrorStatus();
+            status = formatErrorStr(parser.getErrorStatus());
             gui.displayStatus(status);
             return false;
         }

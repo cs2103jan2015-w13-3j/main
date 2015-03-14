@@ -30,10 +30,8 @@ public class InputParser {
     private Pattern commandNamePattern =
             Pattern.compile("(?i)^(?:\\s)*" +
                             "(?<name>add|modify|delete|display|" +
-                            "search|done|chdir|undo)");
+                            "search|done|chdir|undo|confirm)");
     
-    // Regex used to parse command's argument
-
     // Regex strings and pattern used for matching an option
     public static final String OPTION_MAKER = "/";
     private static final String OPTION_NO_ARG_FORMATER = "(/%s|/%s)";
@@ -144,7 +142,7 @@ public class InputParser {
         Config.CommandName cmdName = extractCommandName(command);
         Command resultCommand = createCommandFromName(cmdName);
 
-        if (resultCommand.getCommandName() == null || errorStatus != null) {
+        if (resultCommand == null || errorStatus != null) {
             return resultCommand;
         }
         
@@ -166,7 +164,7 @@ public class InputParser {
      *         corresponding to the command name. Returns null if
      *         command name is invalid
      */
-    public static Command createCommandFromName(CommandName cmdName) {
+    public Command createCommandFromName(CommandName cmdName) {
         switch (cmdName) {
             case ADD:
                 return new AddCommand();
@@ -185,6 +183,7 @@ public class InputParser {
             case UNDO:
                 return new UndoCommand();
             default:
+                 errorStatus = Logic.ERR_UNSUPPORTED_CMD;
                 return null;
         }
     }

@@ -6,6 +6,8 @@ public class Config {
      * Add the corresponding entry in the CommandName enum here
      * Add the command name into the regex pattern in InputParser
      * Add a new branch for string to enum conversion in Utility class
+     * Implement a subclass of Command with an 'execute' method and
+     * add to createCommandFromName method in InputParse
      * 
      * Procedure for adding a new option:
      * Add a new string array of 3 entries here:
@@ -24,9 +26,10 @@ public class Config {
     public static final String CMD_STR_DONE = "done";
     public static final String CMD_STR_CHDIR = "chdir";
     public static final String CMD_STR_UNDO = "undo";
+    public static final String CMD_STR_CONFIRM = "confirm";
     
     public static enum CommandName {
-        ADD, MODIFY, DELETE, DISPLAY, SEARCH, DONE, CHDIR, UNDO
+        ADD, MODIFY, DELETE, DISPLAY, SEARCH, DONE, CHDIR, UNDO, CONFIRM
     }
     
     /** Constants for command options **/

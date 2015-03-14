@@ -33,6 +33,8 @@ public class Utility {
             return Config.CommandName.SEARCH;
         } else if (cmdName.equals(Config.CMD_STR_UNDO)) {
             return Config.CommandName.UNDO;
+        } else if (cmdName.equals(Config.CMD_STR_CONFIRM)) {
+            return Config.CommandName.CONFIRM;
         } else {
             return null;
         }
