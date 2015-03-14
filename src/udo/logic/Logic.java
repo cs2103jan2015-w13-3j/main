@@ -34,16 +34,28 @@ public class Logic {
     public static final Integer MAX_STATUS_LENGTH = 40;
 
     private InputParser parser;
+    private Logic logicObj = null;
 
     private static String status;
 
-    public Logic(GUI gui) {
-        this.gui = gui;
+    private Logic() {
         parser = new InputParser();
         storage = new Storage();
         /* TODO:
          * Initialize and start up passive thread for reminder
          */
+    }
+    
+    public Logic getInstance() {
+        if (logicObj == null) {
+            logicObj = new Logic();
+        }
+        
+        return logicObj;
+    }
+    
+    public void setGUI(GUI gui) {
+        this.gui = gui;
     }
 
     /**
@@ -85,7 +97,7 @@ public class Logic {
     }
 
     public static void main(String[] argv) {
-        Logic logic = new Logic(new GUI());
+        Logic logic = new Logic();
         logic.executeCommand("go to school /deadline tomorrow");
         logic.executeCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm");
         logic.executeCommand("add AAAI conference /start in 2 days /end tuesday");
