@@ -5,75 +5,95 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 
+import javafx.geometry.Pos;
+import javafx.scene.control.TableCell;
+import javafx.scene.paint.Color;
 import udo.storage.Task;
 import udo.util.Utility;
 
 public class GUIFormatter {
-
-    public static SimpleDateFormat dateFormat = new SimpleDateFormat(
-            "EEE, dd MMM yyyy");
-    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     
     public static final String EMPTY_STRING = "";
     public static final String HEADER_TODO = "To-Dos";
+    public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
+    
+    public static SimpleDateFormat dateFormat = 
+            new SimpleDateFormat("EEE, dd MMM yyyy");
+    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+   
+    public static String STYLE_ITALIC = "italic";
+    public static String STYLE_STRAIGHT = "straight";
+    
     public static void formatDisplayList(ArrayList<Task> displayList) {
         if (displayList == null) {
             return;
         }
 
         Collections.sort(displayList);
-        mapIndex(displayList);
-        formatEntryLoop(displayList);
-        System.out.println("Formatted List = " + displayList);
+        formatIndexLoop(displayList);
+        formatDateLoop(displayList);
+        //System.out.println("Formatted List = " + displayList);
     }
 
-    private static void mapIndex(ArrayList<Task> displayList) {
+    /**
+     * Maps the displayIndex to the Task's actual index
+     * @param displayList
+     */
+    private static void formatIndexLoop(ArrayList<Task> displayList) {
         
         for (int i = 0; i < displayList.size(); i++) {
             int displayIndex = i + 1;
             Task task = displayList.get(i);
-            Utility.indexMap.put(displayIndex, task.getIndex());
-            addSerialNumber(task, displayIndex);
+            mapIndex(displayIndex, task.getIndex());
+            appendSerialNumber(task, displayIndex);
         }
     }
-
-    private static void addSerialNumber(Task task, int counter) {    
+    
+    private static void mapIndex(Integer displayIndex, Integer actualIndex) {
+        Utility.indexMap.put(displayIndex, actualIndex);
+    }
+    
+    private static void appendSerialNumber(Task task, int counter) {    
         task.setContent("" + counter + ".  " + task.getContent());
     }
 
     /**
      * Formats list into a GUI display format, inserts date headers and time
      */
-    private static void formatEntryLoop(ArrayList<Task> displayList) {
+    private static void formatDateLoop(ArrayList<Task> displayList) {
 
-        String prevDate = EMPTY_STRING;
+        String prevHeader = EMPTY_STRING;
 
         for (int i = 0; i < displayList.size(); i++) {
             String header = new String();
             Task task = displayList.get(i);
             formatDisplayTime(task);
             
-            switch (task.getTaskType()) {
-                case TODO :
-                    header = HEADER_TODO;
-                    break;
-                case EVENT :
-                    header = formatDateGUI(task.getStart());
-                    break;
-                case DEADLINE :
-                    header = formatDateGUI(task.getDeadline());
-            }
-        
-            i = insertIfNewHeader(displayList, prevDate, i, header);
-            prevDate = header;
+            header = getHeader(header, task);       
+            i = insertIfNewHeader(displayList, prevHeader, i, header);
+            prevHeader = header;
         }
 
     }
 
+    private static String getHeader(String header, Task task) {
+        switch (task.getTaskType()) {
+            case TODO :
+                return HEADER_TODO;              
+            case EVENT :
+                return getDateGUI(task.getStart());
+            case DEADLINE :
+                return getDateGUI(task.getDeadline());
+            default :
+                return EMPTY_STRING;
+        }
+    }
+
     private static int insertIfNewHeader(ArrayList<Task> displayList,
-                                       String prevDate, int i, String date) {
-        if (!date.equals(prevDate) || prevDate.isEmpty()) {
-            insertHeader(displayList, date, i);
+                                         String prevHeader, int i, 
+                                         String header) {
+        if (!header.equals(prevHeader) || prevHeader.isEmpty()) {
+            insertHeader(displayList, header, i);
     
             i++;
         }
@@ -81,12 +101,12 @@ public class GUIFormatter {
     }
 
     private static void insertHeader(ArrayList<Task> displayList,
-                                         String date, int i) {
+                                         String header, int i) {
         
-        Task dateHeader = new Task(null, date, null,
+        Task newHeader = new Task(null, header, null,
                 null, null, 0,
                 null, EMPTY_STRING, false, false);
-        displayList.add(i, dateHeader);
+        displayList.add(i, newHeader);
     }
 
     /**
@@ -111,35 +131,55 @@ public class GUIFormatter {
                 break;
             case TODO:
                 formatDisplayTimeTodo(task);
-                break;
         }
+    }
+
+    private static void formatDisplayTimeDeadLine(Task task) {
+        task.setLabel(getTimeGUI(task.getDeadline()));
+    }
+
+    private static void formatDisplayTimeEvent(Task task) {
+        String start = getTimeGUI(task.getStart());
+        String end = getTimeGUI(task.getEnd());
+        task.setLabel(start + " - " + end);
     }
 
     private static void formatDisplayTimeTodo(Task task) {
         task.setLabel(EMPTY_STRING);
     }
 
-    private static void formatDisplayTimeEvent(Task task) {
-        String start = formatTimeGUI(task.getStart());
-        String end = formatTimeGUI(task.getEnd());
-        task.setLabel(start + " - " + end);
-    }
-
-    private static void formatDisplayTimeDeadLine(Task task) {
-        task.setLabel(formatTimeGUI(task.getDeadline()));
-    }
-
-    private static String formatTimeGUI(GregorianCalendar calendar) {
+    private static String getTimeGUI(GregorianCalendar calendar) {
         if (calendar == null) {
             return EMPTY_STRING;
         }
         return timeFormat.format(calendar.getTime());
     }
 
-    private static String formatDateGUI(GregorianCalendar calendar) {
+    private static String getDateGUI(GregorianCalendar calendar) {
         if (calendar == null) {
             return EMPTY_STRING;
         }
         return dateFormat.format(calendar.getTime());
+    }
+    
+    public static void setHeaderStyle(TableCell<Task, String> cell) {        
+        cell.setTextFill(GUIFormatter.COLOR_TABLE_HEADERS);
+        cell.setAlignment(Pos.CENTER);
+        cell.getStyleClass().remove(STYLE_STRAIGHT);
+        cell.getStyleClass().add(STYLE_ITALIC);
+    }
+    
+    public static void setTextStyle(TableCell<Task, String> cell) {
+        cell.setTextFill(Color.WHITE);
+        cell.setAlignment(Pos.CENTER_LEFT);
+        cell.getStyleClass().remove(STYLE_ITALIC);
+        cell.getStyleClass().add(STYLE_STRAIGHT);
+    }
+    
+    public static void setImportantStyle(TableCell<Task, String> cell) {
+        cell.setTextFill(Color.RED);
+        cell.setAlignment(Pos.CENTER_LEFT);
+        cell.getStyleClass().remove(STYLE_ITALIC);
+        cell.getStyleClass().add(STYLE_STRAIGHT);
     }
 }
