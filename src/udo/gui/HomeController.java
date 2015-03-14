@@ -14,12 +14,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-
 import udo.storage.Task;
 
 public class HomeController {
-    
-    private static HomeController homeController;
+
     private static String COLUMN_FIELD_CONTENT = "content";
     private static String COLUMN_FIELD_LABEL= "label";
     private static Label statusString;
@@ -45,7 +43,7 @@ public class HomeController {
 
     /**
      * Initializes the controller class. This method is automatically called
-     * after the fxml file has been loaded.
+     * after the FXML file has been loaded.
      */
     @FXML
     private void initialize() {
@@ -60,7 +58,7 @@ public class HomeController {
     }
     
     /**
-     * Disables the sorting function of tableview
+     * Disables the sorting function of TableView
      */
     private void disableDefaults() {
         taskNameColumn.setSortable(false);
@@ -69,7 +67,7 @@ public class HomeController {
 
     private void configureTextField() {
         setFocusInputBox();
-        inputBox.setOnKeyPressed(handleTab);
+        inputBox.setOnKeyPressed(handleTabKey);
     }
 
     @FXML
@@ -87,7 +85,7 @@ public class HomeController {
     }
 
     /**
-     * Initialises the TableView with 2 columns
+     * Initializes the TableView with 2 columns
      */
     private void initialiseTableColumns() {
         initialiseTaskNameColumn();
@@ -116,7 +114,7 @@ public class HomeController {
        });
     }
     
-    private void formatCCellIfNotEmpty(String item, TableCell<Task, String> tableCell) {
+    private void formatCellIfNotEmpty(String item, TableCell<Task, String> tableCell) {
        
         if (!tableCell.isEmpty()) {
             formatCellText(item, tableCell);
@@ -129,8 +127,8 @@ public class HomeController {
 
         if (isHeader(item)) {
             GUIFormatter.setHeaderStyle(tableCell);
-        } else if (item.contains("important")) { //for later milestones
-            tableCell.setTextFill(Color.RED);
+        } else if (isImportant(item)) { //for later milestones
+            GUIFormatter.setImportantStyle(tableCell);
         } else {
            GUIFormatter.setTextStyle(tableCell);
         }
@@ -140,7 +138,7 @@ public class HomeController {
         return (isValidDate(str) || str.equals(GUIFormatter.HEADER_TODO));
     }
     
-    private boolean isValidDate(String dateString) {
+    private boolean isValidDate(String dateString) {       
         try {
             GUIFormatter.dateFormat.parse(dateString);
             return true;
@@ -148,7 +146,11 @@ public class HomeController {
             return false;
         }
     }
-
+    
+    private boolean isImportant(String str){
+        return false;
+    }
+    
     @FXML
     private void handleReturnKey(ActionEvent event) {
 
@@ -161,7 +163,7 @@ public class HomeController {
     }
     
     // Event handler for Tab Key
-    EventHandler<KeyEvent> handleTab = new EventHandler<KeyEvent>() {
+    EventHandler<KeyEvent> handleTabKey = new EventHandler<KeyEvent>() {
         @Override
         public void handle(KeyEvent event) {
             if(event.getCode() == KeyCode.TAB) {
@@ -171,16 +173,15 @@ public class HomeController {
         }
     };
     
-    public void displayStatus(String rcvdString) {
-        if(rcvdString == null) {
-            System.out.println("In Controller: rcvdString is Null");
-            rcvdString = GUIFormatter.EMPTY_STRING;
+    public void displayStatus(String receivedString) {
+        if(receivedString == null) {
+            receivedString = GUIFormatter.EMPTY_STRING;
         }
-        statusString.setText(rcvdString);
+        statusString.setText(receivedString);
     }
 
     /**
-     * Is called by the main application to give a reference back to itself.
+     * Called by the main application to give a reference back to itself.
      * 
      * @param gui
      */
@@ -189,7 +190,6 @@ public class HomeController {
     }
     
     public void setData() {
-        // Add observable list data to the table
         TaskTable.setItems(gui.getNewData());  
     }
 
@@ -202,7 +202,7 @@ public class HomeController {
         @Override protected void updateItem(String item, boolean empty) {            
             super.updateItem(item, empty);  
             this.setText(GUIFormatter.EMPTY_STRING);
-            formatCCellIfNotEmpty(item, this);
+            formatCellIfNotEmpty(item, this);
         }
 
     }

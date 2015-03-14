@@ -47,13 +47,17 @@ public class GUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        
+        setPrimaryStage(primaryStage);
+        showRootLayout();
+        showOverview();       
+        
+        callLogicCommand(Config.CMD_STR_DISPLAY);
+    }
+
+    private void setPrimaryStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle(NAME_APP);
-
-        showRootLayout();
-
-        showOverview();
-        
     }
 
     /**
@@ -61,13 +65,11 @@ public class GUI extends Application {
      */
     private void showRootLayout() {
         try {
-            // Load root layout from fxml file.
             FXMLLoader loader = getLoader(GUI.class.getResource(PATH_TO_ROOTLAYOUT));
             rootLayout = (BorderPane) loader.load();
 
-            // Show the scene containing the root layout.
-            Scene scene = new Scene(rootLayout);
-            scene.getStylesheets().add(PATH_TO_FONTS);
+            Scene scene = setRootScene(rootLayout);
+            
             primaryStage.setScene(scene);
             primaryStage.show();
 
@@ -76,21 +78,26 @@ public class GUI extends Application {
         }
     }
 
+    private Scene setRootScene(BorderPane pane) {
+        Scene scene = new Scene(pane);
+        scene.getStylesheets().add(PATH_TO_FONTS);
+        return scene;
+    }
+
     /**
      * Shows overview inside the root layout.
      */
     private void showOverview() {
         try {
-            // Load person overview. 
             FXMLLoader loader = getLoader(GUI.class.getResource(PATH_TO_OVERVIEW));
             AnchorPane homeOverview = (AnchorPane) loader.load();
 
             rootLayout.setCenter(homeOverview);
 
-            // Give the controller access to the main application.
+            // Get Controller Access 
             controller = loader.getController();
             controller.setMainApp(this);
-            callLogicCommand(Config.CMD_STR_DISPLAY);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -107,6 +114,7 @@ public class GUI extends Application {
      * 
      * @return primaryStage
      */
+    @SuppressWarnings("unused")
     private Stage getPrimaryStage() {
         return primaryStage;
     }
@@ -122,30 +130,34 @@ public class GUI extends Application {
     }
     
     /**
-     * Called by logic component to change the status information
+     * Called by Logic component to change the status information
      * 
      * @param statusString
      */
     public void displayStatus(String statusString) {
-        assert(statusString != null);
-        
+        assert(statusString != null);        
         System.out.println("In GUI: statusString = " + statusString);
+        
         controller.displayStatus(statusString);
     }
 
     /**
-     * Called by logic component to display information
+     * Called by Logic component to display information
      * 
      * @param Object that implements List<Task>
      */
-    public void display(List<Task> rcvdList) {
-        assert(rcvdList != null);
+    public void display(List<Task> receivedList) {
+        assert(receivedList != null);        
+        System.out.println("In GUI: received list is " + receivedList);
         
-        System.out.println("In GUI: received list is " + rcvdList);
-        duplicateList(rcvdList);
+        processReceivedList(receivedList);
+        controller.setData();
+    }
+
+    private void processReceivedList(List<Task> receivedList) {
+        duplicateList(receivedList);
         GUIFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);
-        controller.setData();
     }
 
     private void duplicateList(List<Task> rcvdList) {
@@ -154,17 +166,17 @@ public class GUI extends Application {
     }
     
     /**
-     * Maps Arraylist of objects to an ObservableArrayList
+     * Associate an ArrayList of objects to an ObservableArrayList
      * 
      * @param Arraylist<Task>
      */
     private static void convertToObservable(ArrayList<Task> displayList) {
         taskData = FXCollections.observableArrayList(displayList);  
-        System.out.println("taskData " + taskData);
+        System.out.println("In GUI: taskData " + taskData);
     }
 
     /**
-     * Returns the data as an Observable list of Task
+     * Returns the data as an ObservableList of Task
      * 
      * @return taskData
      */
