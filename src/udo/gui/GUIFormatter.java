@@ -5,17 +5,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 
+import javafx.geometry.Pos;
+import javafx.scene.control.TableCell;
+import javafx.scene.paint.Color;
 import udo.storage.Task;
 import udo.util.Utility;
 
 public class GUIFormatter {
-
-    public static SimpleDateFormat dateFormat = new SimpleDateFormat(
-            "EEE, dd MMM yyyy");
-    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     
     public static final String EMPTY_STRING = "";
     public static final String HEADER_TODO = "To-Dos";
+    public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
+    
+    public static SimpleDateFormat dateFormat = new SimpleDateFormat(
+            "EEE, dd MMM yyyy");
+    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+   
+    public static String STYLE_ITALIC = "italic";
+    public static String STYLE_STRAIGHT = "straight";
     
     public static void formatDisplayList(ArrayList<Task> displayList) {
         if (displayList == null) {
@@ -147,4 +154,19 @@ public class GUIFormatter {
         }
         return dateFormat.format(calendar.getTime());
     }
+    
+    public static void setHeaderStyle(TableCell<Task, String> cell) {        
+        cell.setTextFill(GUIFormatter.COLOR_TABLE_HEADERS);
+        cell.setAlignment(Pos.CENTER);
+        cell.getStyleClass().remove(STYLE_STRAIGHT);
+        cell.getStyleClass().add(STYLE_ITALIC);
+    }
+    
+    public static void setTextStyle(TableCell<Task, String> cell) {
+        cell.setTextFill(Color.WHITE);
+        cell.setAlignment(Pos.CENTER_LEFT);
+        cell.getStyleClass().remove(STYLE_ITALIC);
+        cell.getStyleClass().add(STYLE_STRAIGHT);
+    }
+
 }

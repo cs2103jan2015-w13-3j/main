@@ -1,6 +1,7 @@
 package udo.gui;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,8 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
-import udo.gui.view.HomeController;
 import udo.logic.Logic;
 import udo.storage.Task;
 import udo.util.Config;
@@ -21,20 +20,20 @@ import udo.util.Utility;
 
 public class GUI extends Application {
 
-    private Stage primaryStage;
-    private BorderPane rootLayout;
-    private Logic logic;
-    private static HomeController controller;
-
     private static final String NAME_APP = "JustU";
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
     private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
     private static final String PATH_TO_FONTS = "http://fonts.googleapis.com/css?family=Open+Sans:" +
                                                 "300italic,400italic,600italic,700,600,400";
-
-    private static ObservableList<Task> taskData;
+    
     private static List<Task> originalList;
     private static ArrayList<Task> displayList = new ArrayList<Task>();
+    private static HomeController controller;
+    private static ObservableList<Task> taskData;
+    
+    private Stage primaryStage;
+    private BorderPane rootLayout;
+    private Logic logic;
     
     /**
      * Constructor
@@ -51,7 +50,7 @@ public class GUI extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle(NAME_APP);
 
-        initRootLayout();
+        showRootLayout();
 
         showOverview();
         
@@ -60,11 +59,10 @@ public class GUI extends Application {
     /**
      * Initializes the root layout.
      */
-    public void initRootLayout() {
+    private void showRootLayout() {
         try {
             // Load root layout from fxml file.
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(GUI.class.getResource(PATH_TO_ROOTLAYOUT));
+            FXMLLoader loader = getLoader(GUI.class.getResource(PATH_TO_ROOTLAYOUT));
             rootLayout = (BorderPane) loader.load();
 
             // Show the scene containing the root layout.
@@ -81,11 +79,10 @@ public class GUI extends Application {
     /**
      * Shows overview inside the root layout.
      */
-    public void showOverview() {
+    private void showOverview() {
         try {
-            // Load person overview.
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(GUI.class.getResource(PATH_TO_OVERVIEW));
+            // Load person overview. 
+            FXMLLoader loader = getLoader(GUI.class.getResource(PATH_TO_OVERVIEW));
             AnchorPane homeOverview = (AnchorPane) loader.load();
 
             rootLayout.setCenter(homeOverview);
@@ -99,23 +96,39 @@ public class GUI extends Application {
         }
     }
 
+    private FXMLLoader getLoader(URL url) {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(url);
+        return loader;
+    }
+    
     /**
      * Returns the main stage.
      * 
-     * @return
+     * @return primaryStage
      */
-    public Stage getPrimaryStage() {
+    private Stage getPrimaryStage() {
         return primaryStage;
     }
 
-    public boolean callLogicCommand(String input) {
-        return logic.executeCommand(input) == true ; 
+    /**
+     * Calls the execution command 
+     *     
+     * @param userInput
+     * @return true if userInput is successfully executed
+     */
+    public boolean callLogicCommand(String userInput) {
+        return logic.executeCommand(userInput) == true ; 
     }
-
+    
+    /**
+     * Called by logic component to change the status information
+     * 
+     * @param statusString
+     */
     public void displayStatus(String statusString) {
-        if (statusString == null) {
-            statusString = "Null value received"; //testing
-        }
+        assert(statusString != null);
+        
         System.out.println("In GUI: statusString = " + statusString);
         controller.displayStatus(statusString);
     }
@@ -126,9 +139,7 @@ public class GUI extends Application {
      * @param Object that implements List<Task>
      */
     public void display(List<Task> rcvdList) {
-        if(rcvdList == null) {
-            System.out.println("In GUI: rcvdList is Null");
-        }
+        assert(rcvdList != null);
         
         System.out.println("In GUI: received list is " + rcvdList);
         duplicateList(rcvdList);
@@ -157,7 +168,7 @@ public class GUI extends Application {
      * 
      * @return taskData
      */
-    public ObservableList<Task> getTaskData() {
+    public ObservableList<Task> getNewData() {
         return taskData;
     }
 

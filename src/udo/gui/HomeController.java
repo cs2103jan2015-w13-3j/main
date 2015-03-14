@@ -1,10 +1,9 @@
-package udo.gui.view;
+package udo.gui;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -15,11 +14,16 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-import udo.gui.GUI;
-import udo.gui.GUIFormatter;
+
 import udo.storage.Task;
 
 public class HomeController {
+    
+    private static HomeController homeController;
+    private static String COLUMN_FIELD_CONTENT = "content";
+    private static String COLUMN_FIELD_LABEL= "label";
+    private static Label statusString;
+    
     @FXML
     private TableView<Task> TaskTable;
     @FXML
@@ -33,13 +37,7 @@ public class HomeController {
 
     // Reference to the Main Application.
     private GUI gui;
-    private static HomeController homeController;
-    public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
-    private static String COLUMN_FIELD_CONTENT = "content";
-    private static String COLUMN_FIELD_LABEL= "label";
-    private static String STYLE_ITALIC = "italic";
-    private static String STYLE_STRAIGHT = "straight";
-    private static Label statusString;
+
     
     public HomeController() {
         
@@ -51,15 +49,31 @@ public class HomeController {
      */
     @FXML
     private void initialize() {
-        initialiseTableColumns();
+        configureSettings();
+        initialiseTableColumns();        
+    }
+    
+    private void configureSettings() {
         disableDefaults();
+        configureTextField();
+        configureStatus();      
+    }
+    
+    /**
+     * Disables the sorting function of tableview
+     */
+    private void disableDefaults() {
+        taskNameColumn.setSortable(false);
+        timeColumn.setSortable(false);       
+    }
+
+    private void configureTextField() {
         setFocusInputBox();
         inputBox.setOnKeyPressed(handleTab);
-        setVariables();
     }
 
     @FXML
-    private void setVariables() {
+    private void configureStatus() {
         statusString = status;
     }
 
@@ -70,20 +84,6 @@ public class HomeController {
                 inputBox.requestFocus();
             }
         });
-    }
-
-    private void disableDefaults() {
-        disableDefaultSort();
-        //disableMouse();
-    }
-
-    private void disableMouse() {
-        TaskTable.setMouseTransparent(true);
-    }
-
-    private void disableDefaultSort() {
-        taskNameColumn.setSortable(false);
-        timeColumn.setSortable(false);
     }
 
     /**
@@ -128,28 +128,14 @@ public class HomeController {
             throws ClassCastException {
 
         if (isHeader(item)) {
-            setHeaderStyle(tableCell);
+            GUIFormatter.setHeaderStyle(tableCell);
         } else if (item.contains("important")) { //for later milestones
             tableCell.setTextFill(Color.RED);
         } else {
-           setTextStyle(tableCell);
+           GUIFormatter.setTextStyle(tableCell);
         }
     }
-    
-    private void  setHeaderStyle(TableCell<Task, String> cell) {
-        cell.setTextFill(COLOR_TABLE_HEADERS);
-        cell.setAlignment(Pos.CENTER);
-        cell.getStyleClass().remove(STYLE_STRAIGHT);
-        cell.getStyleClass().add(STYLE_ITALIC);
-    }
-    
-    private void setTextStyle(TableCell<Task, String> cell) {
-        cell.setTextFill(Color.WHITE);
-        cell.setAlignment(Pos.CENTER_LEFT);
-        cell.getStyleClass().remove(STYLE_ITALIC);
-        cell.getStyleClass().add(STYLE_STRAIGHT);
-    }
-    
+  
     private boolean isHeader(String str) {
         return (isValidDate(str) || str.equals(GUIFormatter.HEADER_TODO));
     }
@@ -199,16 +185,15 @@ public class HomeController {
      * @param gui
      */
     public void setMainApp(GUI gui) {
-        this.gui = gui;
-            
+        this.gui = gui;            
     }
     
     public void setData() {
         // Add observable list data to the table
-        TaskTable.setItems(gui.getTaskData());  
+        TaskTable.setItems(gui.getNewData());  
     }
 
-    public class TaskCell extends TableCell<Task,String> {
+    private class TaskCell extends TableCell<Task,String> {
 
         public TaskCell() {
             
@@ -222,7 +207,7 @@ public class HomeController {
 
     }
     
-    public class TimeCell extends TableCell<Task,String> {
+    private class TimeCell extends TableCell<Task,String> {
 
         public TimeCell() {
             
