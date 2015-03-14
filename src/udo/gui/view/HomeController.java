@@ -35,6 +35,7 @@ public class HomeController {
 
     // Reference to the Main Application.
     private GUI gui;
+    private static HomeController homeController;
     public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
     private static String COLUMN_FIELD_CONTENT = "content";
     private static String COLUMN_FIELD_LABEL= "label";
@@ -42,10 +43,18 @@ public class HomeController {
     private static String STYLE_STRAIGHT = "straight";
     private static Label statusString;
     
-    public HomeController() {
-
+    private HomeController() {
+        
     }
-
+    
+    public HomeController getInstance() {
+        if (homeController == null) {
+            homeController = new HomeController();
+        }
+        
+        return homeController;
+    }
+    
     /**
      * Initializes the controller class. This method is automatically called
      * after the fxml file has been loaded.
