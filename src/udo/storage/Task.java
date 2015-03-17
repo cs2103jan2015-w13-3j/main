@@ -8,7 +8,8 @@ public class Task implements Comparable<Task> {
     public static enum TaskType {DEADLINE, EVENT, TODO};
 
 	//class defines Task objects
-	private Integer index;
+	private Integer groupId;
+    private Integer index;
     private TaskType taskType;
 	private String content;
 	private String deadline;
@@ -40,6 +41,10 @@ public class Task implements Comparable<Task> {
 		this.label = label;
 		this.priority = priority;
 		this.done = done;
+	}
+	
+	public Integer getGroupId(){
+		return groupId;
 	}
 	
 	public Integer getIndex(){
@@ -86,6 +91,10 @@ public class Task implements Comparable<Task> {
 		return done;
 	}
 
+	public void setGroupId(Integer groupId){
+		this.groupId = groupId;
+	}
+	
 	public void setIndex(Integer index){
 		this.index = index;
 	}
@@ -131,8 +140,15 @@ public class Task implements Comparable<Task> {
 	}
 	
 	public String toString() {
-	    String finalString = index + ". ";
-
+	    String finalString = "";
+	    if (groupId != null){
+	    	finalString += "Group: " + groupId + "\n"; 
+	    }
+	    
+	    if (index != null){
+	    	finalString += index + ". ";
+	    }
+	    
 	    if (!priority) {
 	        finalString += taskType + ": ";
 	    } else {
@@ -160,6 +176,7 @@ public class Task implements Comparable<Task> {
 	public Task copy() {
 	    Task copy = new Task();
 	    
+	    copy.setGroupId(this.getGroupId());
 	    copy.setIndex(this.getIndex());
 	    copy.setTaskType(taskType);
 	    copy.setContent(content);

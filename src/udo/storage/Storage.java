@@ -11,9 +11,10 @@ import java.util.GregorianCalendar;
 
 import java.io.*;
 
-
 import udo.storage.Task.TaskType;
 
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 
 public class Storage {
 
@@ -23,22 +24,30 @@ public class Storage {
 	public enum TASK_TYPE{ EVENT, DEADLINE, TODO};
 	private static Task prevTask;
 	private static String prevCmd;
-
+	
+	private static Integer maxId;    		//store current maximum group Id
+	//private static final Logger logger = Logger.getLogger(Storage.class.getName());
+	
 	public static void main(String[] args) throws IOException{
 
 		Storage st = new Storage();
-		prevTask = new Task();
 
 		//testing purposes:
-
-		/*boolean function = st.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
-						0, new GregorianCalendar(2005,01,02), "work",true, false));
-		boolean function2 = st.add(new Task(TaskType.TODO, "fighting", null,null, null,
-				120, new GregorianCalendar(2011,01,02), "personal", false, false));
-		boolean function3 = st.add(new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
-				0, null, "leisure", false, false));
-		if (function&&function2&&function3) System.out.println("Adding successfully");
-	*/
+		/*Task task1 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+				0, new GregorianCalendar(2005,01,02), "work",true, false);
+		Task task2 = new Task(TaskType.TODO, "fighting", null,null, null,
+				120, new GregorianCalendar(2011,01,02), "personal", false, false);
+		Task task3 = new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
+				0, null, "leisure", false, false);
+		//st.add(task1);
+		
+		ArrayList<Task> temp = new ArrayList<Task>();
+		temp.add(task2); temp.add(task3);
+	
+		//boolean f4 = st.add(null);
+		//if (function&&function2&&function3) System.out.println("Adding successfully");
+		st.add(temp);
+		*/
 		//ArrayList<Task> test = new ArrayList<Task>();
 		//test = st.query();
 		//printTest(test);
@@ -56,8 +65,8 @@ public class Storage {
 		//done = st.changeStatus(2);
 		//test = st.query(true);
 		//printTest(test);
-		//boolean done = st.delete(2);
-		boolean done = st.undo();
+		//boolean done = st.delete(-1);
+		//boolean done = st.undo();
 		//test = st.query();
 		//printTest(test);
 		//done = st.modify(2, "deadline", null, null, new GregorianCalendar(2006,01,05),0, new GregorianCalendar(2006,01,02), null);
@@ -65,31 +74,36 @@ public class Storage {
 		//done = st.modify(0, "todo", null,null, null, 3, null, null);
 		//test = st.query();
 		//printTest(test);
+		//boolean done = st.confirm(4,1);
+		//System.out.println(done);
 		st.chDir("testTask.json");
 		st.exit();
 	}
 
 
-	/*public static void printTest(ArrayList<Task> test){
+	public static void printTest(ArrayList<Task> test){
 		for (int i =0; i < test.size(); i++)
 			System.out.println(test.get(i));
 		System.out.println("");
-	}*/
+	}
 
 	//read from json file
 	String lastPath;
 	public Storage(){
+		//logger.entering(getClass().getName(),"Storage");
 		taskList = new ArrayList<Task>();
 		prevTask = new Task();
 		prevCmd = "";
 		try {
-			System.out.println("Reading JSON file from setting");
+			//System.out.println("Reading JSON file from setting");
 			FileReader fr = new FileReader("setting.txt");
 			BufferedReader br = new BufferedReader(fr);
 			lastPath = br.readLine();
 			br.close();
 			taskList = JsonProcessor.readJson(lastPath);
 		} catch (Exception ex) {
+			//logger.log(Level.WARNING,"No setting files",ex);
+			
 			File settingFile = new File("setting.txt");
 			lastPath = "task.json";
 			JsonProcessor.writeJson(lastPath, taskList);
@@ -102,14 +116,15 @@ public class Storage {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
+		//logger.exiting(getClass().getName(),"Storage");
 	}
 
 	//store to json file when exits
 	public void exit() throws IOException{
 		JsonProcessor.writeJson(lastPath, taskList);
 	}
+	
 	//change data file's directory
 	public boolean chDir(String path) {
 		JsonProcessor.writeJson(path, taskList);
@@ -129,28 +144,91 @@ public class Storage {
 	}
 
 	public boolean add(Task newTask) {
+		//assert newTask != null;
 		if (newTask == null){
 			return false;
 		}
 	    newTask.setIndex(taskList.size());
-		taskList.add(newTask);
+		newTask.setGroupId(0);
+	    taskList.add(newTask);
 		JsonProcessor.writeJson(lastPath, taskList);
 		prevTask = newTask;
 		prevCmd = "add";
 		return true;
 	}
 
-	//delete function, swap deleted task with last task on list 
-	public boolean delete(Integer index){
-		if (index == null || index < 0||index >= taskList.size()|| taskList.size() == 0){
+	//method for adding dummy tasks
+	public boolean add(ArrayList<Task> dummyTasks){
+		if (dummyTasks.size() == 0){
 			return false;
 		}
+		
+		if (maxId == null){
+			updateMaxGroupId();
+		}
+		maxId++;
+		for (int i = 0; i < dummyTasks.size(); i++){
+			dummyTasks.get(i).setGroupId(maxId);
+			dummyTasks.get(i).setIndex(taskList.size());
+			taskList.add(dummyTasks.get(i));
+			
+		}
+		JsonProcessor.writeJson(lastPath, taskList);
+		return true;
+	}
+
+	//find maximum group Id
+	private void updateMaxGroupId() {
+		maxId = 0;
+		for (int i = 0; i < taskList.size(); i++){
+			if (taskList.get(i).getGroupId() > maxId){
+				maxId = taskList.get(i).getGroupId();
+			}
+		}
+	}
+	
+	//delete dummy tasks
+	public boolean confirm(Integer index, Integer groupId){
+		if (maxId == null){
+			updateMaxGroupId();
+		}
+
+		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0
+				|| groupId == null || groupId < 1 || maxId == 0 || maxId < groupId){
+			return false;
+		}
+		
+		for (int i = 0; i < taskList.size(); i++){
+			if (taskList.get(i).getGroupId() == groupId && taskList.get(i).getIndex() != index){
+				Task lastTask = taskList.get(taskList.size() -1);
+				
+				if (lastTask.getGroupId() == groupId && lastTask.getIndex() == index){	
+					index = i;
+				}
+				taskList.set(i, lastTask);
+				taskList.get(i).setIndex(i);
+				taskList.remove(taskList.size()-1);
+				i--;		
+			}
+		}
+		JsonProcessor.writeJson(lastPath,taskList);
+		return true;
+	}
+	
+	//delete function, swap deleted task with last task on list 
+	public boolean delete(Integer index){
+		
+		//assert index >= 0 : "index is invalid";
+		if( index == null || index < 0||index >= taskList.size()|| taskList.size() == 0){
+			return false;
+		}
+		
 		
 		prevTask = taskList.get(index);
 		prevCmd = "del";
 		if (taskList.size() > 1) {
     		taskList.set(index, taskList.get(taskList.size() -1));
-		    System.out.println("Heyyy " + index);
+		    //System.out.println("Heyyy " + index);
     		taskList.get(index).setIndex(index);
     		taskList.remove(taskList.size()-1);
 		} else {
