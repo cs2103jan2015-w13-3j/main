@@ -27,11 +27,6 @@ public class Logic {
     public static final String ERR_EMPTY_CONTENT =
             "task's content cannot be empty";
 
-    public static final String STATUS_ADDED = "Task: %s added sucessfully";
-    public static final String STATUS_DELETED =
-            "Task: %s deleted sucessfully";
-    public static final String STATUS_MODIFIED =
-            "Task: %s modified sucessfully";
     public static final Integer MAX_STATUS_LENGTH = 40;
 
     private InputParser parser;

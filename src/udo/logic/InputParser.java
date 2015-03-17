@@ -48,7 +48,7 @@ public class InputParser {
     private ArrayList<Integer> optionEnds = new ArrayList<>();
     
     // Used to parse date in natural language using Natty library
-    private static final Parser dateParser = new Parser();
+    public static final Parser dateParser = new Parser();
     
     // Patterns used to parse time
     private static final String GROUP_HOUR = "h";

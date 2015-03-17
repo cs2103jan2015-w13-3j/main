@@ -5,6 +5,8 @@ import udo.storage.Task;
 import udo.util.Config;
 
 public class DeleteCommand extends Command {
+    public static final String STATUS_DELETED = "Task: %s deleted sucessfully";
+
     public DeleteCommand() {
         super();
         setCommandName(Config.CommandName.DELETE);
@@ -44,7 +46,7 @@ public class DeleteCommand extends Command {
     }
 
     private String getDeleteSucessStatus(Task task) {
-        return String.format(Logic.STATUS_DELETED,
+        return String.format(STATUS_DELETED,
                              Logic.summarizeContent(task.getContent()));
     }
 

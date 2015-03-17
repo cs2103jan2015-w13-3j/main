@@ -174,6 +174,28 @@ public class Task implements Comparable<Task> {
 	    return copy;
 	}
 	
+	@Override
+	public boolean equals(Object taskObj) {
+	    if (taskObj == null) {
+	        return false;
+	    }
+	    if (taskObj == this) {
+	        return true;
+	    }
+	    if (!(taskObj instanceof Task)) {
+	        return false;
+	    }
+
+	    Task task = (Task) taskObj;
+	    
+	    if (index == null || task.index == null) {
+	        return false;
+	    }
+
+	    return index.equals(task.index);
+	}
+	
+	@Override
 	public int compareTo(Task task2) {
 	    TaskType taskType = this.getTaskType();
 	    	    

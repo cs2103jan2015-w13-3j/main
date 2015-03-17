@@ -5,6 +5,9 @@ import udo.storage.Task;
 import udo.util.Config.CommandName;
 
 public class ModifyCommand extends Command {
+    public static final String STATUS_MODIFIED =
+            "Task: %s modified sucessfully";
+
     public ModifyCommand() {
         super();
         setCommandName(CommandName.MODIFY);
@@ -64,7 +67,7 @@ public class ModifyCommand extends Command {
     }
     
     private String getModifySucessStatus(Task task) {
-        return String.format(Logic.STATUS_MODIFIED,
+        return String.format(STATUS_MODIFIED,
                              Logic.summarizeContent(task.getContent()));
     }
 

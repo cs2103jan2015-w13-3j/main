@@ -11,6 +11,8 @@ import udo.util.Config;
 import udo.util.Config.CommandName;
 
 public class AddCommand extends Command {
+    public static final String STATUS_ADDED = "Task: %s added sucessfully";
+
     public AddCommand() {
         super();
         setCommandName(CommandName.ADD);
@@ -71,7 +73,7 @@ public class AddCommand extends Command {
     private String getAddSucessStatus() {
         String taskContent = Logic.summarizeContent(argStr);
 
-        return String.format(Logic.STATUS_ADDED, taskContent);
+        return String.format(STATUS_ADDED, taskContent);
     }
 
 
