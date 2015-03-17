@@ -1,0 +1,40 @@
+Command: MODIFY
+Index: 10
+Argument: modify reflection
+#
+Command: ADD
+Argument: go to school
+#
+Command: ADD
+Argument: AAAI conference
+#
+Command: ADD
+Argument: match midterm
+#
+Command: ADD
+Argument: watch a movie
+#
+Command: ADD
+Argument: submit the report
+#
+Command: UNDO
+#
+Command: DELETE
+Index: 1
+#
+Command: DISPLAY
+#
+Command: CHDIR
+Argument: /deadline
+#
+Command: SEARCH
+Argument: school tomorrow
+#
+Command: DONE
+Index: 2
+#
+Command: ADD
+Argument: match midterm
+#
+Command: ADD
+Argument: submit the report
