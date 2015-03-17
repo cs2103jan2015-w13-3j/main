@@ -9,6 +9,7 @@ import java.util.GregorianCalendar;
 
 //import com.google.gson.Gson;
 
+import java.util.List;
 import java.io.*;
 
 import udo.storage.Task.TaskType;
@@ -33,21 +34,22 @@ public class Storage {
 		Storage st = new Storage();
 
 		//testing purposes:
-		/*Task task1 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+		Task task1 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
 				0, new GregorianCalendar(2005,01,02), "work",true, false);
 		Task task2 = new Task(TaskType.TODO, "fighting", null,null, null,
 				120, new GregorianCalendar(2011,01,02), "personal", false, false);
 		Task task3 = new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
 				0, null, "leisure", false, false);
-		//st.add(task1);
-		
-		ArrayList<Task> temp = new ArrayList<Task>();
-		temp.add(task2); temp.add(task3);
+		st.add(task1);
+		st.modify(0, task2);
+		st.modify(0,task3);
+		//ArrayList<Task> temp = new ArrayList<Task>();
+		//temp.add(task2); temp.add(task3);
 	
 		//boolean f4 = st.add(null);
 		//if (function&&function2&&function3) System.out.println("Adding successfully");
-		st.add(temp);
-		*/
+		
+		st.undo();
 		//ArrayList<Task> test = new ArrayList<Task>();
 		//test = st.query();
 		//printTest(test);
@@ -158,7 +160,7 @@ public class Storage {
 	}
 
 	//method for adding dummy tasks
-	public boolean add(ArrayList<Task> dummyTasks){
+	public boolean add(List<Task> dummyTasks){
 		if (dummyTasks.size() == 0){
 			return false;
 		}
@@ -245,7 +247,12 @@ public class Storage {
 		}
 		prevTask = taskList.get(index);
 		prevCmd = "mod";
+		modifiedTask.setIndex(index);
+		if (modifiedTask.getGroupId() == null){
+			modifiedTask.setGroupId(0);
+		}
 		taskList.set(index, modifiedTask);
+		
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
