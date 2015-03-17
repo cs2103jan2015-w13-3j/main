@@ -1,6 +1,8 @@
 package udo.logic.command;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 
@@ -32,9 +34,16 @@ public class SearchCommand extends Command {
         
         List<Task> strSearchTasks = storage.search(argStr);
         
-        List<DateGroup> dates = InputParser.dateParser.parse(argStr);
+        List<DateGroup> dateGroups = InputParser.dateParser.parse(argStr);
         List<Task> dateSearchTasks = storage.search(argStr);
-        // TODO: call storage's dates search api
+        GregorianCalendar cal = new GregorianCalendar();
+
+        for (DateGroup group : dateGroups) {
+            for (Date date : group.getDates()) {
+                cal.setTime(date);
+                dateSearchTasks.addAll(storage.query(cal));
+            }
+        }
         
         List<Task> result = removeDuplicates(strSearchTasks,
                                              dateSearchTasks);

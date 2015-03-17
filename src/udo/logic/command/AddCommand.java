@@ -50,8 +50,7 @@ public class AddCommand extends Command {
             if (tasks.size() == 1) {
                 isSuccessful = storage.add(tasks.get(0));
             } else {
-                // TODO: call storage api for adding group of unconfirmed tasks
-                isSuccessful = false;
+                isSuccessful = storage.add(tasks);
             }
 
             if(!isSuccessful) {
