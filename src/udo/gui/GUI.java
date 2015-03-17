@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -13,13 +14,14 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
 import udo.logic.Logic;
 import udo.storage.Task;
 import udo.util.Config;
 import udo.util.Utility;
 
 public class GUI extends Application {
-
+        
     private static final String NAME_APP = "JustU";
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
     private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
@@ -148,7 +150,7 @@ public class GUI extends Application {
      */
     public void display(List<Task> receivedList) {
         assert(receivedList != null);        
-        System.out.println("In GUI: received list is " + receivedList);
+        //System.out.println("In GUI: received list is " + receivedList);
         
         processReceivedList(receivedList);
         controller.setData();

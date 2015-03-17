@@ -118,7 +118,6 @@ public class HomeController {
        
         if (!tableCell.isEmpty()) {
             formatCellText(item, tableCell);
-            tableCell.setText(item);
         }
     }
     
@@ -147,7 +146,8 @@ public class HomeController {
         }
     }
     
-    private boolean isImportant(String str){
+    //TODO define how to find out important task
+    private boolean isImportant(String str) {
         return false;
     }
     
@@ -190,9 +190,15 @@ public class HomeController {
     }
     
     public void setData() {
+        refreshTable();
         TaskTable.setItems(gui.getNewData());  
     }
-
+    
+    private void refreshTable() {
+        TaskTable.getColumns().get(0).setVisible(false);
+        TaskTable.getColumns().get(0).setVisible(true);
+    }
+    
     private class TaskCell extends TableCell<Task,String> {
 
         public TaskCell() {
@@ -203,6 +209,7 @@ public class HomeController {
             super.updateItem(item, empty);  
             this.setText(GUIFormatter.EMPTY_STRING);
             formatCellIfNotEmpty(item, this);
+            this.setText(item);
         }
 
     }

@@ -30,11 +30,16 @@ public class GUIFormatter {
         }
 
         Collections.sort(displayList);
-        formatIndexLoop(displayList);
+        formatIndex(displayList);
         formatDateLoop(displayList);
         //System.out.println("Formatted List = " + displayList);
     }
-
+    
+    private static void formatIndex(ArrayList<Task> displayList) {
+        Utility.indexMap.clear();
+        formatIndexLoop(displayList);
+    }
+    
     /**
      * Maps the displayIndex to the Task's actual index
      * @param displayList
