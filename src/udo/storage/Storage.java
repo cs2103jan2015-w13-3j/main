@@ -13,6 +13,7 @@ import java.util.List;
 import java.io.*;
 
 import udo.storage.Task.TaskType;
+import udo.util.Utility;
 
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
@@ -259,7 +260,7 @@ public class Storage {
 
 	//query
 	public ArrayList<Task> query(){
-		return taskList;
+		return Utility.deepCopy(taskList);
 	}
 
 	//query a specific task
@@ -267,7 +268,7 @@ public class Storage {
 		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
 			return new Task();
 		}
-		return taskList.get(index);
+		return taskList.get(index).copy();
 	}
 
 
@@ -276,7 +277,7 @@ public class Storage {
 		if (label != null){
 			for(int i=0; i<taskList.size();i++){
 				if (taskList.get(i).getLabel().equals(label)){
-					returnList.add(taskList.get(i));
+					returnList.add(taskList.get(i).copy());
 				}
 			}
 		}
@@ -287,7 +288,7 @@ public class Storage {
 		ArrayList<Task> returnList = new ArrayList<Task>();
 		for(int i=0; i<taskList.size();i++){
 			if (taskList.get(i).getPriority() == priority){
-				returnList.add(taskList.get(i));
+				returnList.add(taskList.get(i).copy());
 			}
 		}
 		return returnList;
@@ -299,12 +300,12 @@ public class Storage {
 			for (int i =0; i < taskList.size(); i++){
 				if (taskList.get(i).getTaskType() == Task.TaskType.DEADLINE &&
 					isSameDate(date,taskList.get(i).getDeadline())){
-					returnList.add(taskList.get(i));
+					returnList.add(taskList.get(i).copy());
 				}
 				else if (taskList.get(i).getTaskType() == Task.TaskType.EVENT &&
 					isBefore(date,taskList.get(i).getEnd()) &&
 					isAfter(date,taskList.get(i).getStart())){
-					returnList.add(taskList.get(i));
+					returnList.add(taskList.get(i).copy());
 				}
 			}
 		}
@@ -316,7 +317,7 @@ public class Storage {
 		if (taskType != null){
 			for (int i = 0; i < taskList.size(); i++) {
 				if (taskList.get(i).getTaskType() == taskType) {
-					returnList.add(taskList.get(i));
+					returnList.add(taskList.get(i).copy());
 				}
 			}
 		}
@@ -324,14 +325,23 @@ public class Storage {
 	}
 
 	private boolean isSameDate(GregorianCalendar date1, GregorianCalendar date2){
+		if (date1.get(Calendar.YEAR) != date2.get(Calendar.YEAR)){
+			return false;
+		}
 		return date1.get(Calendar.DAY_OF_YEAR) == date2.get(Calendar.DAY_OF_YEAR);
 	}
 
 	private boolean isAfter(GregorianCalendar date1, GregorianCalendar date2){
+		if (date1.get(Calendar.YEAR) != date2.get(Calendar.YEAR)){
+			return date1.get(Calendar.YEAR) > date2.get(Calendar.YEAR);
+		}
 		return date1.get(Calendar.DAY_OF_YEAR) >= date2.get(Calendar.DAY_OF_YEAR);
 	}
 
 	private boolean isBefore(GregorianCalendar date1, GregorianCalendar date2){
+		if (date1.get(Calendar.YEAR) != date2.get(Calendar.YEAR)){
+			return date1.get(Calendar.YEAR) < date2.get(Calendar.YEAR);
+		}
 		return date1.get(Calendar.DAY_OF_YEAR) <= date2.get(Calendar.DAY_OF_YEAR);
 	}
 
