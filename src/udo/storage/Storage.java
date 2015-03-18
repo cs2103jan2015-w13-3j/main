@@ -35,7 +35,7 @@ public class Storage {
 		Storage st = new Storage();
 
 		//testing purposes:
-		Task task1 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+		/*Task task1 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
 				0, new GregorianCalendar(2005,01,02), "work",true, false);
 		Task task2 = new Task(TaskType.TODO, "fighting", null,null, null,
 				120, new GregorianCalendar(2011,01,02), "personal", false, false);
@@ -50,7 +50,7 @@ public class Storage {
 		//boolean f4 = st.add(null);
 		//if (function&&function2&&function3) System.out.println("Adding successfully");
 		
-		st.undo();
+		st.undo();*/
 		//ArrayList<Task> test = new ArrayList<Task>();
 		//test = st.query();
 		//printTest(test);
@@ -63,7 +63,9 @@ public class Storage {
 		//test = st.search("read");
 		//printTest(test);
 		//test = st.query(true);
-		//printTest(test);
+		printTest(taskList);
+		ArrayList<Task> temp = (new TimeSlots(taskList)).getOccupiedSlots();
+		printTest(temp);
 		//boolean done;
 		//done = st.changeStatus(2);
 		//test = st.query(true);
@@ -258,6 +260,11 @@ public class Storage {
 		return true;
 	}
 
+	public ArrayList<Task> findFreeSlots(){
+		TimeSlots timeSlots = new TimeSlots(taskList);
+		return timeSlots.getFreeSlots();
+	}
+	
 	//query
 	public ArrayList<Task> query(){
 		return Utility.deepCopy(taskList);
@@ -377,7 +384,11 @@ public class Storage {
 		}
 		prevTask = taskList.get(index);
 		prevCmd = "mod";
-		taskList.get(index).setDone();
+		if (taskList.get(index).isDone() == false){
+			taskList.get(index).setDone();
+		} else {
+			return false;
+		}
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
