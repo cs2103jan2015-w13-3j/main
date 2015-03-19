@@ -136,7 +136,7 @@ public class AddCommand extends Command {
             Task task = new Task();
             task.setTaskType(taskType);
 
-            fillTaskFromCommand(task, 0);
+            fillTaskFromCommand(task, i);
 
             fillDefaults(task);
             

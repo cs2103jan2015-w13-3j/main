@@ -192,6 +192,15 @@ public class Task implements Comparable<Task> {
 	}
 	
 	@Override
+	public int hashCode() {
+	    if (getIndex() == null) {
+	        return super.hashCode();
+	    }
+	    
+	    return getIndex();
+	}
+	
+	@Override
 	public boolean equals(Object taskObj) {
 	    if (taskObj == null) {
 	        return false;

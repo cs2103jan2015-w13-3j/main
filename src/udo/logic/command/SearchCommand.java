@@ -33,9 +33,9 @@ public class SearchCommand extends Command {
         }
         
         List<Task> strSearchTasks = storage.search(argStr);
-        
+
         List<DateGroup> dateGroups = InputParser.dateParser.parse(argStr);
-        List<Task> dateSearchTasks = storage.search(argStr);
+        List<Task> dateSearchTasks = new ArrayList<>();
         GregorianCalendar cal = new GregorianCalendar();
 
         for (DateGroup group : dateGroups) {
