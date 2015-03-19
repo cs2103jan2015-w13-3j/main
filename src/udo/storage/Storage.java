@@ -25,7 +25,6 @@ public class Storage {
 	private static ArrayList<Task> taskList;
 	private static ArrayList<Task> doneTasks;
 	
-	public enum TASK_TYPE{ EVENT, DEADLINE, TODO};
 	private static Task prevTask;
 	private static String prevCmd;
 	
@@ -66,8 +65,8 @@ public class Storage {
 		//printTest(test);
 		//test = st.query(true);
 		
-		ArrayList<Task> temp = st.getDone();
-		printTest(temp);
+		//ArrayList<Task> temp = st.getDone();
+		//printTest(temp);
 		//boolean done;
 		//done = st.changeStatus(2);
 		//test = st.query(true);
@@ -375,15 +374,116 @@ public class Storage {
 	public ArrayList<Task> search(String searchedContent){
 		ArrayList<Task> returnList = new ArrayList<Task>();
 		if (searchedContent != null){
-			for (int i =0; i< taskList.size(); i++){
-				if (taskList.get(i).getContent().contains(searchedContent)){
-					returnList.add(taskList.get(i).copy());
-				}
+			returnList = exactSearch(searchedContent);
+			if (returnList.size() > 0){
+				return returnList;
+			}
+			if ((searchedContent.contains("*")) || (searchedContent.contains("?"))){
+				returnList = wildcardSearch(searchedContent);
+			} else{
+				returnList = nearMatchSearch(searchedContent);
 			}
 		}
 		return returnList;
 	}
 
+	public ArrayList<Task> exactSearch(String searchedContent){
+		ArrayList<Task> returnList = new ArrayList<Task>();
+		String cmpStr = searchedContent.toLowerCase();
+		for (int i =0; i< taskList.size(); i++){
+			String cmpStr2 = taskList.get(i).getContent().toLowerCase();
+			if (cmpStr2.contains(cmpStr)){
+				returnList.add(taskList.get(i).copy());
+			}
+		}
+		return returnList;
+	}
+	
+	public ArrayList<Task> wildcardSearch(String searchedContent){
+		ArrayList<Task> returnList = new ArrayList<Task>();
+		for (int i = 0; i< taskList.size(); i++){
+			if (isWildcardMatched(taskList.get(i).copy().getContent().toLowerCase(), 
+					searchedContent.toLowerCase())){
+				returnList.add(taskList.get(i).copy());
+			}
+		}
+		return returnList;
+	}
+	
+	public boolean isWildcardMatched(String tameStr, String cardStr){
+		String[] cards = cardStr.split("\\*");
+		
+		if (cardStr.charAt(0) != '*'){
+			int index = firstIndexOf(tameStr, cards[0]);
+			//System.out.println(index);
+			if (index != 0){
+				return false;
+			}
+			tameStr = tameStr.substring(cards[0].length());
+		}
+		
+		for (int i = 1; i < cards.length; i++){
+			String card = cards[i];
+			int index = firstIndexOf(tameStr, card);
+			//System.out.println(index);
+			if (index == -1){
+				return false;
+			}
+			tameStr = tameStr.substring(index + card.length());
+		}	
+		
+		if (cardStr.charAt(cardStr.length() -1) != '*'){
+			if (tameStr.length() > 0){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public int firstIndexOf(String str1, String str2){
+		int str1Index =0;
+		int str2Index = 0;
+		int index = -1;
+		while (str1Index < str1.length() && str2Index < str2.length()){
+			if (str2.charAt(str2Index) == '?'){
+				if (index == -1){
+					index = str1Index;
+				}
+				str2Index++;
+				str1Index++;
+			}
+			else {
+				if (str1.charAt(str1Index) == str2.charAt(str2Index)){
+					if (index == -1){
+						index = str1Index;
+					}
+					str2Index++;
+					str1Index++;
+				} else {
+					if (str2Index == 0){
+						str1Index++;
+					}
+					if (index != -1){
+						str1Index = index + 1;
+					}
+					str2Index = 0;
+					index = -1;
+				}
+			}
+		}
+		if (str2Index == str2.length()){
+			return index;
+		}
+		return -1;
+	}
+	
+	public ArrayList<Task> nearMatchSearch(String searchedContent){
+		//stub
+		ArrayList<Task> returnList = new ArrayList<Task>();
+		
+		return returnList;
+	}
+	
 	//toggle priority
 	public boolean togglePriority(Integer index){
 		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
