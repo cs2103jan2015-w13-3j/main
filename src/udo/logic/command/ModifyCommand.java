@@ -1,5 +1,9 @@
 package udo.logic.command;
 
+import java.util.logging.Level;
+
+import com.sun.istack.internal.logging.Logger;
+
 import udo.logic.Logic;
 import udo.storage.Task;
 import udo.util.Config.CommandName;
@@ -7,6 +11,7 @@ import udo.util.Config.CommandName;
 public class ModifyCommand extends Command {
     public static final String STATUS_MODIFIED =
             "Task: %s modified sucessfully";
+    private static final Logger log = Logger.getLogger(ModifyCommand.class);
 
     public ModifyCommand() {
         super();
@@ -25,7 +30,7 @@ public class ModifyCommand extends Command {
     
     @Override
     public boolean execute() {
-        System.out.println("Modifying task...");
+        log.log(Level.INFO, "Modifying task...");
         if (!super.execute()) {
             return false;
         }
@@ -46,18 +51,24 @@ public class ModifyCommand extends Command {
             fillDefaults(task);
         }
         
-        System.out.println("Modified task: ");
-        System.out.println(task);
+        log.log(Level.FINER, "Modified task: ");
+        log.log(Level.FINER, task.toString(), task);
 
         boolean isSuccessful = false;
 
         if (isTaskDatesValid(task)) {
+            Task clash = findClashedTask(task, storage.query());
             isSuccessful = storage.modify(storageIndex, task);
 
             if (!isSuccessful) {
                 setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
             } else {
-                status = getModifySucessStatus(task);
+                if (clash == null) {
+                    setStatus(getModifySucessStatus(task));
+                } else {
+                    setStatus(getClashWarning(getArgStr(),
+                                              clash.getContent()));
+                }
                 gui.display(storage.query());
             }
         }

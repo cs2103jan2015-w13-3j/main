@@ -3,6 +3,9 @@ package udo.logic.command;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+
+import com.sun.istack.internal.logging.Logger;
 
 import udo.logic.Logic;
 import udo.storage.Task;
@@ -12,6 +15,7 @@ import udo.util.Config.CommandName;
 
 public class AddCommand extends Command {
     public static final String STATUS_ADDED = "Task: %s added sucessfully";
+    private static final Logger log = Logger.getLogger(AddCommand.class);
 
     public AddCommand() {
         super();
@@ -30,7 +34,7 @@ public class AddCommand extends Command {
 
     @Override
     public boolean execute() {
-        System.out.println("Adding new task...");
+        log.log(Level.INFO, "Adding new task...");
         if (!super.execute()) {
             return false;
         }
@@ -39,33 +43,74 @@ public class AddCommand extends Command {
 
         List<Task> tasks = fillAddedTask();
 
-        for (Task task : tasks) {
-            if (!isStartBeforeEnd(task) || !isDeadlineValid(task)) {
-                isSuccessful = false;
-                break;
-            }
-        }
+        isSuccessful = isTaskValid(tasks);
 
         if (isSuccessful) {
+            Task clash = findClashedTask(tasks, storage.query());
+
             if (tasks.size() == 1) {
                 isSuccessful = storage.add(tasks.get(0));
             } else {
                 isSuccessful = storage.add(tasks);
             }
 
-            if(!isSuccessful) {
+            if (!isSuccessful) {
                 setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
             } else {
-                setStatus(getAddSucessStatus());
+                if (clash == null) {
+                    setStatus(getAddSucessStatus());
+                } else {
+                    setStatus(getClashWarning(getArgStr(),
+                                              clash.getContent()));
+                }
                 gui.display(storage.query());
             }
         }
 
 
-        System.out.println(tasks);
-        System.out.println("Done adding task!");
+        log.log(Level.FINER, tasks.toString(), tasks);
+        log.log(Level.INFO, "Done adding task!");
+
         updateGUIStatus();
         return isSuccessful;
+    }
+
+    /**
+     * @param isSuccessful
+     * @param tasks
+     * @return
+     */
+    private boolean isTaskValid(List<Task> tasks) {
+        for (Task task : tasks) {
+            if (!isTaskDatesValid(task)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Find an event that clashed with an input event 
+     * @param task
+     * @return a clashed with the input event argument or null if the input
+     *         Task is not an event, or there is not clashed event
+     */
+    protected Task findClashedTask(List<Task> tasks, List<Task> existingTasks) {
+        assert(tasks != null);
+        assert(existingTasks != null);
+        
+        Task clash = null;
+
+        for (Task task : tasks) {
+            clash = findClashedTask(task, existingTasks);
+
+            if (clash != null) {
+                return clash;
+            }
+        }
+        
+        return null;
     }
 
 

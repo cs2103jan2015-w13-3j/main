@@ -31,6 +31,9 @@ public abstract class Command {
             new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
     protected static final Pattern indexPattern =
             Pattern.compile("^(\\d+)");
+    
+    private static final String WARNING_CLASH =
+            "task %s clashes with task %s";
 
     protected Config.CommandName commandName;
     protected String argStr;
@@ -296,17 +299,15 @@ public abstract class Command {
      * @return a clashed with the input event argument or null if the input
      *         Task is not an event, or there is not clashed event
      */
-    protected Task findClashedTask(Task task) {
+    protected Task findClashedTask(Task task, List<Task> existingTasks) {
         assert(task != null);
+        assert(existingTasks != null);
         
         if (task.getTaskType() != TaskType.EVENT) {
             return null;
         }
         
-        List<Task> tasks = storage.query();
-        assert(tasks != null);
-        
-        for (Task t : tasks) {
+        for (Task t : existingTasks) {
             if (!(task.getStart().compareTo(t.getEnd()) >= 0 ||
                   task.getEnd().compareTo(t.getStart()) <= 0)) {
                 return t;
@@ -498,6 +499,11 @@ public abstract class Command {
             deadlineCalendar.setTime(deadline.dateArgument[dateIndex]);
             task.setDeadline(deadlineCalendar);
         }
+    }
+    
+    protected String getClashWarning(String task, String clashedTask) {
+        return Logic.formatWarningStr(String.format(WARNING_CLASH,
+                                                    task, clashedTask));
     }
     
     public void updateGUIStatus() {
