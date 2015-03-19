@@ -51,8 +51,8 @@ public class ModifyCommand extends Command {
             fillDefaults(task);
         }
         
-        log.log(Level.FINER, "Modified task: ");
-        log.log(Level.FINER, task.toString(), task);
+        log.log(Level.INFO, "Modified task: ");
+        log.log(Level.INFO, task.toString(), task);
 
         boolean isSuccessful = false;
 
@@ -66,7 +66,7 @@ public class ModifyCommand extends Command {
                 if (clash == null) {
                     setStatus(getModifySucessStatus(task));
                 } else {
-                    setStatus(getClashWarning(getArgStr(),
+                    setStatus(getClashWarning(task.getContent(),
                                               clash.getContent()));
                 }
                 gui.display(storage.query());

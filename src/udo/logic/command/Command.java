@@ -249,6 +249,10 @@ public abstract class Command {
      * @return
      */
     protected boolean isStartBeforeEnd(Task task) {
+        if (task.getTaskType() != TaskType.EVENT) {
+            return true;
+        }
+
         GregorianCalendar start = task.getStart();
         GregorianCalendar end = task.getEnd();
 
@@ -281,6 +285,10 @@ public abstract class Command {
      * @return
      */
     protected boolean isDeadlineValid(Task task) {
+        if (task.getTaskType() != TaskType.DEADLINE) {
+            return true;
+        }
+
         GregorianCalendar deadline = task.getDeadline();
 
         if (deadline != null) {
@@ -308,9 +316,11 @@ public abstract class Command {
         }
         
         for (Task t : existingTasks) {
-            if (!(task.getStart().compareTo(t.getEnd()) >= 0 ||
-                  task.getEnd().compareTo(t.getStart()) <= 0)) {
-                return t;
+            if (t.getTaskType() == TaskType.EVENT) {
+                if (!(task.getStart().compareTo(t.getEnd()) >= 0 ||
+                      task.getEnd().compareTo(t.getStart()) <= 0)) {
+                    return t;
+                }
             }
         }
         
