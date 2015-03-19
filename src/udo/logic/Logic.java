@@ -26,6 +26,8 @@ public class Logic {
             "Specified task's index is not valid";
     public static final String ERR_EMPTY_CONTENT =
             "task's content cannot be empty";
+    
+    public static final String WARN_FORMAT = "Warning: %s";
 
     public static final Integer MAX_STATUS_LENGTH = 40;
 
@@ -87,8 +89,12 @@ public class Logic {
         return taskContent;
     }
 
-    public static String formatErrorStr(String errorInvalidCmdName) {
-        return String.format(ERR_FORMAT, errorInvalidCmdName);
+    public static String formatErrorStr(String error) {
+        return String.format(ERR_FORMAT, error);
+    }
+    
+    public static String formatWarningStr(String warning) {
+        return String.format(WARN_FORMAT, warning);
     }
 
     public static void main(String[] argv) {

@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,6 +15,7 @@ import udo.logic.InputParser;
 import udo.logic.Logic;
 import udo.storage.Storage;
 import udo.storage.Task;
+import udo.storage.Task.TaskType;
 import udo.util.Config;
 import udo.util.Utility;
 
@@ -211,6 +213,10 @@ public abstract class Command {
      * Helper methods for error checking of command sematics *
      * ******************************************************/
 
+    /**
+     * Check if a given duration in the command is positive
+     * @return
+     */
     protected boolean isDurationValid() {
         Option duration = getOption(Config.OPT_DUR);
 
@@ -224,11 +230,21 @@ public abstract class Command {
         return true;
     }
 
+    /**
+     * Check if dates given in various command's options are valid
+     * @param task
+     * @return
+     */
     protected boolean isTaskDatesValid(Task task) {
         return isStartBeforeEnd(task) && isDeadlineValid(task);
     }
 
 
+    /**
+     * Check if the start date is before the end date
+     * @param task
+     * @return
+     */
     protected boolean isStartBeforeEnd(Task task) {
         GregorianCalendar start = task.getStart();
         GregorianCalendar end = task.getEnd();
@@ -243,6 +259,10 @@ public abstract class Command {
         return true;
     }
 
+    /**
+     * Check if the content give to the command's argument is non-empty
+     * @return
+     */
     protected boolean isContentNonEmpty() {
         if (argStr == null || argStr.trim().equals("")) {
             status = Logic.formatErrorStr(Logic.ERR_EMPTY_CONTENT);
@@ -252,6 +272,11 @@ public abstract class Command {
         return true;
     }
 
+    /**
+     * Check if the deadline has not already passed
+     * @param task
+     * @return
+     */
     protected boolean isDeadlineValid(Task task) {
         GregorianCalendar deadline = task.getDeadline();
 
@@ -263,6 +288,32 @@ public abstract class Command {
         }
 
         return true;
+    }
+    
+    /**
+     * Find an event that clashed with an input event 
+     * @param task
+     * @return a clashed with the input event argument or null if the input
+     *         Task is not an event, or there is not clashed event
+     */
+    protected Task findClashedTask(Task task) {
+        assert(task != null);
+        
+        if (task.getTaskType() != TaskType.EVENT) {
+            return null;
+        }
+        
+        List<Task> tasks = storage.query();
+        assert(tasks != null);
+        
+        for (Task t : tasks) {
+            if (!(task.getStart().compareTo(t.getEnd()) >= 0 ||
+                  task.getEnd().compareTo(t.getStart()) <= 0)) {
+                return t;
+            }
+        }
+        
+        return null;
     }
 
     /**
