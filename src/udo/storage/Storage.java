@@ -23,6 +23,8 @@ public class Storage {
 	public static final String EOL = System.getProperty("line.separator");
 	//private static File storageFile;
 	private static ArrayList<Task> taskList;
+	private static ArrayList<Task> doneTasks;
+	
 	public enum TASK_TYPE{ EVENT, DEADLINE, TODO};
 	private static Task prevTask;
 	private static String prevCmd;
@@ -63,8 +65,8 @@ public class Storage {
 		//test = st.search("read");
 		//printTest(test);
 		//test = st.query(true);
-		printTest(taskList);
-		ArrayList<Task> temp = (new TimeSlots(taskList)).getOccupiedSlots();
+		
+		ArrayList<Task> temp = st.getDone();
 		printTest(temp);
 		//boolean done;
 		//done = st.changeStatus(2);
@@ -95,10 +97,25 @@ public class Storage {
 	//read from json file
 	String lastPath;
 	public Storage(){
-		//logger.entering(getClass().getName(),"Storage");
 		taskList = new ArrayList<Task>();
+		doneTasks = new ArrayList<Task>();
 		prevTask = new Task();
 		prevCmd = "";
+		readTaskList();
+		readDoneTasks();
+	}
+
+
+	private void readDoneTasks() {
+		try{
+			doneTasks = JsonProcessor.readJson("done.json");
+		} catch (Exception e){
+			JsonProcessor.writeJson("done.json", doneTasks);
+		}
+	}
+
+
+	private void readTaskList() {
 		try {
 			//System.out.println("Reading JSON file from setting");
 			FileReader fr = new FileReader("setting.txt");
@@ -107,7 +124,6 @@ public class Storage {
 			br.close();
 			taskList = JsonProcessor.readJson(lastPath);
 		} catch (Exception ex) {
-			//logger.log(Level.WARNING,"No setting files",ex);
 			
 			File settingFile = new File("setting.txt");
 			lastPath = "task.json";
@@ -122,7 +138,6 @@ public class Storage {
 				e.printStackTrace();
 			}
 		}
-		//logger.exiting(getClass().getName(),"Storage");
 	}
 
 	//store to json file when exits
@@ -231,16 +246,20 @@ public class Storage {
 		
 		prevTask = taskList.get(index);
 		prevCmd = "del";
+		swapWithLastTask(index);
+		JsonProcessor.writeJson(lastPath, taskList);
+		return true;
+	}
+
+
+	private void swapWithLastTask(Integer index) {
 		if (taskList.size() > 1) {
     		taskList.set(index, taskList.get(taskList.size() -1));
-		    //System.out.println("Heyyy " + index);
     		taskList.get(index).setIndex(index);
     		taskList.remove(taskList.size()-1);
 		} else {
 		    taskList.clear(); 
 		}
-		JsonProcessor.writeJson(lastPath, taskList);
-		return true;
 	}
 
 	//modify function
@@ -358,7 +377,7 @@ public class Storage {
 		if (searchedContent != null){
 			for (int i =0; i< taskList.size(); i++){
 				if (taskList.get(i).getContent().contains(searchedContent)){
-					returnList.add(taskList.get(i));
+					returnList.add(taskList.get(i).copy());
 				}
 			}
 		}
@@ -370,7 +389,7 @@ public class Storage {
 		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
 			return false;
 		}
-		prevTask = taskList.get(index);
+		prevTask = taskList.get(index).copy();
 		prevCmd = "mod";
 		taskList.get(index).setPriority(!taskList.get(index).getPriority());
 		JsonProcessor.writeJson(lastPath, taskList);
@@ -382,17 +401,27 @@ public class Storage {
 		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
 			return false;
 		}
-		prevTask = taskList.get(index);
-		prevCmd = "mod";
+		prevTask = taskList.get(index).copy();
+		prevCmd = "done";
+		
 		if (taskList.get(index).isDone() == false){
 			taskList.get(index).setDone();
+			doneTasks.add(taskList.get(index));
+			doneTasks.get(doneTasks.size() -1).setIndex(doneTasks.size() -1);
+			swapWithLastTask(index);
 		} else {
 			return false;
 		}
+		JsonProcessor.writeJson("done.json", doneTasks);
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
 
+	//method to retrieve tasks have been done
+	public ArrayList<Task> getDone(){
+		return Utility.deepCopy(doneTasks);
+	}
+	
 	public boolean undo(){
 		switch(prevCmd){
 		case "add":
@@ -402,19 +431,29 @@ public class Storage {
 			taskList.set(prevTask.getIndex(), prevTask);
 			break;
 		case "del":	
-			if(taskList.size() ==0 || prevTask.getIndex() == taskList.size()){
-				taskList.add(prevTask);
-			}
-			else {
-				Task temp = taskList.get(prevTask.getIndex());
-				temp.setIndex(taskList.size());
-				taskList.add(temp);
-				taskList.set(prevTask.getIndex(), prevTask);
-			}
+			undoDelete();
+			break;
+		case "done":
+			undoDelete();
+			doneTasks.remove(doneTasks.size() -1);
+			JsonProcessor.writeJson("done.json", doneTasks);
 			break;
 		default: return false;
 		}
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
+	}
+
+
+	private void undoDelete() {
+		if(taskList.size() ==0 || prevTask.getIndex() == taskList.size()){
+			taskList.add(prevTask);
+		}
+		else {
+			Task temp = taskList.get(prevTask.getIndex());
+			temp.setIndex(taskList.size());
+			taskList.add(temp);
+			taskList.set(prevTask.getIndex(), prevTask);
+		}
 	}
 }
