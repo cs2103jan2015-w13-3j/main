@@ -1,5 +1,6 @@
 package udo.storage;
 
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import udo.util.Utility;
@@ -240,9 +241,9 @@ public class Task implements Comparable<Task> {
      * Todo tasks are always displayed at the end
      */	
     private int compareWithTodo(Task task2) {           
-        TaskType task2TaskType = task2.getTaskType();
+        TaskType taskType = task2.getTaskType();
         
-        if(!task2TaskType.equals(TaskType.TODO)) {
+        if(!taskType.equals(TaskType.TODO)) {
             return 1;
         } else {
             return 0;
@@ -250,34 +251,57 @@ public class Task implements Comparable<Task> {
     }
 
     private int compareWithDeadline(Task task2) {
-        TaskType task2TaskType = task2.getTaskType();
-        GregorianCalendar cal1 = this.getDeadline();
+        TaskType taskType = task2.getTaskType();
+        GregorianCalendar deadlineTime = this.getDeadline();
         
-        if(task2TaskType.equals(TaskType.TODO)) {
+        if(taskType.equals(TaskType.TODO)) {
             return -1;
-        } else if (task2TaskType.equals(TaskType.DEADLINE)){
-            GregorianCalendar cal2 = task2.getDeadline();
-            return cal1.compareTo(cal2);
+        } else if (taskType.equals(TaskType.DEADLINE)){
+            GregorianCalendar deadlineTime2 = task2.getDeadline();
+            return deadlineTime.compareTo(deadlineTime2);
         } else {
-            GregorianCalendar cal2 = task2.getStart();
-            return cal1.compareTo(cal2);
+            GregorianCalendar eventStart = task2.getStart();
+            return compareDeadlineEvent(deadlineTime, eventStart);
         }
     }
 
     private int compareWithEvent(Task task2) {
-        TaskType task2TaskType = task2.getTaskType();
-        assert(task2TaskType != null);
-        GregorianCalendar cal1 = this.getStart();
+        TaskType taskType = task2.getTaskType();
+        assert(taskType != null);
+        GregorianCalendar eventStart = this.getStart();
 
-        if(task2TaskType.equals(TaskType.TODO)) {
+        if(taskType.equals(TaskType.TODO)) {
             return -1;
-        } else if (task2TaskType.equals(TaskType.DEADLINE)){
-            GregorianCalendar cal2 = task2.getDeadline();
-            return cal1.compareTo(cal2);
+        } else if (taskType.equals(TaskType.DEADLINE)){
+            GregorianCalendar deadlineTime = task2.getDeadline();
+            return compareDeadlineEvent(deadlineTime, eventStart);
         } else {
-            GregorianCalendar cal2 = task2.getStart();
-            return cal1.compareTo(cal2);
+            GregorianCalendar eventStart2 = task2.getStart();
+            return eventStart.compareTo(eventStart2);
         }
         
+    }
+    
+    /**
+     * Compares events and deadlines, if they land on the same day, deadlines 
+     * will be placed before events
+     * 
+     * @param deadlineCal
+     * @param eventCal
+     * @return -1
+     */
+    private int compareDeadlineEvent(GregorianCalendar deadlineCal, 
+                                     GregorianCalendar eventCal) {        
+        if(isSameDate(deadlineCal, eventCal)) {
+            return -1;
+        }
+        else {
+            return deadlineCal.compareTo(eventCal);
+        }
+    }
+    
+    private boolean isSameDate(GregorianCalendar cal1, GregorianCalendar cal2) {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 }
