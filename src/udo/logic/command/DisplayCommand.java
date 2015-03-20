@@ -22,6 +22,8 @@ public class DisplayCommand extends Command {
 
         if (getOption(Config.OPT_PRIO) != null) {
             gui.display(storage.query(true));
+        } else if (getOption(Config.OPT_FREE) != null) {
+            gui.display(storage.findFreeSlots());
         } else {
             gui.display(storage.query());
         }

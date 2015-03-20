@@ -51,6 +51,7 @@ public class Config {
     public static final String[] OPT_START = {"start", "s", TYPE_DATETIME};
     public static final String[] OPT_END = {"end", "e", TYPE_DATETIME};
     public static final String[] OPT_REMINDER = {"reminder", "r", TYPE_DATETIME};
+    public static final String[] OPT_FREE = {"free", "f", TYPE_NONE};
     
     /**
      * New options can be added to the following table following the same
@@ -58,5 +59,5 @@ public class Config {
      **/
     public static final String OPTIONS_TABLE[][] =
         { OPT_DUR, OPT_LABEL, OPT_PRIO, OPT_DEADLINE,
-          OPT_START, OPT_END, OPT_REMINDER };
+          OPT_START, OPT_END, OPT_REMINDER, OPT_FREE };
 }

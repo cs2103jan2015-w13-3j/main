@@ -6,6 +6,8 @@ import edu.emory.mathcs.backport.java.util.Collections;
 import udo.storage.Task.TaskType;
 
 public class TimeSlots {
+    private static final String CONTENT_FREE_SLOT = "Free slot";
+
 	private ArrayList<Task> occupiedSlots;
 	private ArrayList<Task> freeSlots;
 	
@@ -40,8 +42,12 @@ public class TimeSlots {
 	private void setFreeSlots(){
 		for (int i = 0; i < occupiedSlots.size() -1; i++){
 			Task temp = new Task();
+
+			temp.setTaskType(TaskType.EVENT);
+			temp.setContent(CONTENT_FREE_SLOT);
 			temp.setStart(occupiedSlots.get(i).getEnd());
 			temp.setEnd(occupiedSlots.get(i+1).getStart());
+
 			freeSlots.add(temp);
 		}
 	}

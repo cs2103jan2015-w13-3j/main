@@ -12,6 +12,8 @@
 /e
 /reminder
 /r
+/free
+/f
 American
 Brown
 Christian
@@ -320,7 +322,7 @@ atmosphere
 attach
 attached
 attaching
-attachés
+attachï¿½s
 attack
 attempt
 attempt's
