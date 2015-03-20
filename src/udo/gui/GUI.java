@@ -21,12 +21,12 @@ import udo.util.Config;
 import udo.util.Utility;
 
 public class GUI extends Application {
-        
     private static final String NAME_APP = "JustU";
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
     private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
-    private static final String PATH_TO_FONTS = "http://fonts.googleapis.com/css?family=Open+Sans:" +
-                                                "300italic,400italic,600italic,700,600,400";
+    private static final String PATH_TO_FONTS =
+            "http://fonts.googleapis.com/css?family=Open+Sans:" +
+            "300italic,400italic,600italic,700,600,400";
     
     private static List<Task> originalList;
     private static ArrayList<Task> displayList = new ArrayList<Task>();
@@ -49,7 +49,6 @@ public class GUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        
         setPrimaryStage(primaryStage);
         showRootLayout();
         showOverview();       
@@ -91,7 +90,8 @@ public class GUI extends Application {
      */
     private void showOverview() {
         try {
-            FXMLLoader loader = getLoader(GUI.class.getResource(PATH_TO_OVERVIEW));
+            URL url = GUI.class.getResource(PATH_TO_OVERVIEW);
+            FXMLLoader loader = getLoader(url);
             AnchorPane homeOverview = (AnchorPane) loader.load();
 
             rootLayout.setCenter(homeOverview);
@@ -128,7 +128,7 @@ public class GUI extends Application {
      * @return true if userInput is successfully executed
      */
     public boolean callLogicCommand(String userInput) {
-        return logic.executeCommand(userInput) == true ; 
+        return logic.executeCommand(userInput) == true; 
     }
     
     /**
