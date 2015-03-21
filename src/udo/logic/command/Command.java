@@ -7,6 +7,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +46,8 @@ public abstract class Command {
 
     protected GUI gui;
     protected Storage storage;
+    
+    private static final Logger log = Logger.getLogger(Command.class.getName());
     
     public Command() {
         options = new HashMap<>();
@@ -150,7 +154,8 @@ public abstract class Command {
      */
     public boolean isValid() {
         if (commandName == null) {
-            status = Logic.formatErrorStr(Logic.ERR_INVALID_CMD_NAME);
+            setStatus(Logic.formatErrorStr(Logic.ERR_INVALID_CMD_NAME));
+            log.log(Level.FINE, getStatus());
             return false;
         }
         
@@ -167,6 +172,7 @@ public abstract class Command {
         assert(storage != null);
         
         if (!isValid()) {
+            log.log(Level.FINE, getStatus());
             updateGUIStatus();
             return false;
         }

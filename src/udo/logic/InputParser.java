@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,7 +69,6 @@ public class InputParser {
     
     private String errorStatus;
     /** Syntax errors messages */
-    //private static final String ERR_INVALID_CMD_NAME = "Invalid command name";
     private static final String ERR_INVALID_TIME_FORMAT =
             "Hours and minutes are not integers";
     private static final String ERR_INVALID_DATE_FORMAT =
@@ -76,6 +77,8 @@ public class InputParser {
            "Argument to an option is not a valid integer"; 
     public static final String ERR_UNSPECIFIED_INDEX =
             "Task's index is not specified";
+    
+    private static final Logger log = Logger.getLogger(InputParser.class.getName());
 
     public InputParser() {
         StringBuilder optionPatternBuilder = new StringBuilder();
@@ -133,6 +136,7 @@ public class InputParser {
     }
 
     public Command parseCommand(String command) {
+        log.log(Level.FINE, "Parsing: " + command);
         clearPreviousOptions();
         clearErrorStatus();
 
@@ -149,10 +153,12 @@ public class InputParser {
         
         extractOptions(command);
         
+        log.log(Level.FINE, "Parsing argument");
         if (!resultCommand.setArg(extractCmdArg(command, resultCommand))) {
             errorStatus = resultCommand.getStatus();
         }
         
+        log.log(Level.FINE, "Parsing options");
         parseAllOptions(command, resultCommand);
 
         return resultCommand;

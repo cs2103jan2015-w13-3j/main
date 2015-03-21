@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import udo.logic.InputParser;
 import udo.logic.Logic;
@@ -15,6 +17,8 @@ import com.joestelmach.natty.DateGroup;
 
 public class SearchCommand extends Command {
     private static final String STATUS_SEARCH = "Search results for: %s";
+    
+    private static final Logger log = Logger.getLogger(SearchCommand.class.getName());
     
     public SearchCommand() {
         super();
@@ -31,6 +35,8 @@ public class SearchCommand extends Command {
         if (!super.execute()) {
             return false;
         }
+        
+        log.log(Level.FINE, "Searching for " + argStr);
         
         List<Task> strSearchTasks = storage.search(argStr);
 
@@ -51,6 +57,8 @@ public class SearchCommand extends Command {
         setStatus(getSearchStatus());
         gui.display(result);
         updateGUIStatus();
+        
+        log.log(Level.FINER, "Search result: " + result.toString(), result);
 
         return true;
     }

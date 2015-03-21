@@ -2,6 +2,8 @@ package udo.logic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TernarySearchTree {
     protected static class Node {
@@ -16,6 +18,8 @@ public class TernarySearchTree {
     }
     
     private Node root = null;
+    
+    private static final Logger log = Logger.getLogger(TernarySearchTree.class.getName());
     
     /**
      * Add the string s into the search tree
@@ -49,6 +53,8 @@ public class TernarySearchTree {
      * @param s
      */
     public void add(String s) {
+        log.log(Level.FINEST, "Adding " + s);
+        
         if (s == null) {
             return;
         }
