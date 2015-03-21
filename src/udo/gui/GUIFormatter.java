@@ -145,24 +145,24 @@ public class GUIFormatter {
         task.setLabel(getTimeGUIFormat(task.getDeadline()));
     }
 
+    private static void formatDisplayTimeTodo(Task task) {
+        task.setLabel(EMPTY_STRING);
+    }
+
     private static void formatDisplayTimeEvent(Task task) {
         String start = getTimeGUIFormat(task.getStart());
-        String end = getEndTimeEvent(task);
+        String end = getEndTime(task);
         task.setLabel(start + " - " + end);
     }
 
-    private static String getEndTimeEvent(Task task) {
+    private static String getEndTime(Task task) {
         GregorianCalendar start = task.getStart();
         GregorianCalendar end = task.getEnd();
         if(Utility.isSameDate(start, end)) {
             return getTimeGUIFormat(end);
         } else {
-            return getEndDateFormat(end);
+            return getEndDateGUIFormat(end);
         }        
-    }
-
-    private static void formatDisplayTimeTodo(Task task) {
-        task.setLabel(EMPTY_STRING);
     }
 
     private static String getTimeGUIFormat(GregorianCalendar calendar) {
@@ -172,7 +172,7 @@ public class GUIFormatter {
         return timeFormat.format(calendar.getTime());
     }
     
-    private static String getEndDateFormat(GregorianCalendar calendar) {
+    private static String getEndDateGUIFormat(GregorianCalendar calendar) {
         if (calendar == null) {
             return EMPTY_STRING;
         }
