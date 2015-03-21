@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import udo.storage.Task;
@@ -54,7 +55,7 @@ public class HomeController {
     private void configureSettings() {
         disableDefaults();
         configureTextField();
-        configureStatus();      
+        configureStatus();  
     }
     
     /**
