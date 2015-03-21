@@ -1,6 +1,8 @@
 package udo.logic;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import udo.gui.GUI;
 import udo.logic.command.Command;
@@ -37,6 +39,8 @@ public class Logic {
     private Autocompleter autocompleter;
 
     private static String status;
+    
+    private static final Logger log = Logger.getLogger(Logic.class.getName());
 
     private Logic() {
         parser = new InputParser();
@@ -64,12 +68,20 @@ public class Logic {
      * @param command the command string
      */
     public boolean executeCommand(String command) {
+        log.log(Level.FINE, "Receive command: " + command);
+        
         Command parsedCommand = parser.parseCommand(command);
+
         if (parser.getErrorStatus() != null) {
+            log.log(Level.FINE,
+                    "Command syntax error: " + parser.getErrorStatus());
+
             status = formatErrorStr(parser.getErrorStatus());
             gui.displayStatus(status);
             return false;
         }
+        
+        log.log(Level.FINER, parsedCommand.toString(), parsedCommand);
         
         parsedCommand.setGUI(gui);
         parsedCommand.setStorage(storage);

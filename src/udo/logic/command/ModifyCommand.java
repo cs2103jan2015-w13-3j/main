@@ -1,8 +1,7 @@
 package udo.logic.command;
 
 import java.util.logging.Level;
-
-import com.sun.istack.internal.logging.Logger;
+import java.util.logging.Logger;
 
 import udo.logic.Logic;
 import udo.storage.Task;
@@ -11,7 +10,7 @@ import udo.util.Config.CommandName;
 public class ModifyCommand extends Command {
     public static final String STATUS_MODIFIED =
             "Task: %s modified sucessfully";
-    private static final Logger log = Logger.getLogger(ModifyCommand.class);
+    private static final Logger log = Logger.getLogger(ModifyCommand.class.getName());
 
     public ModifyCommand() {
         super();

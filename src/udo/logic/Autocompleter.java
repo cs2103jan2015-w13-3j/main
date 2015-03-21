@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import udo.util.Config.CommandName;
 
@@ -19,6 +21,8 @@ public class Autocompleter {
     TernarySearchTree taskContentTree;
     
     List<String> commandHistory;
+    
+    private static final Logger log = Logger.getLogger(Autocompleter.class.getName());
     
     String dictPath = "res/dict.txt";
 
@@ -51,16 +55,16 @@ public class Autocompleter {
                 s = reader.readLine();
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE, e.toString(), e);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE, e.toString(), e);
         } finally {
             try {
                 if (reader != null) {
                     reader.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.log(Level.SEVERE, e.toString(), e);
             }
         }
     }
@@ -107,11 +111,9 @@ public class Autocompleter {
         ArrayList<String> result = new ArrayList<>();
 
         if (lastWord != null) {
-            if (tokenizedString.length == 1) {
-                keywordsList = keywordsTree.searchPrefix(lastWord);
-                if (keywordsList != null) {
-                    result.addAll(keywordsList);
-                }
+            keywordsList = getKeywordsList(tokenizedString, lastWord);
+            if (keywordsList != null) {
+                result.addAll(keywordsList);
             }
 
             if (tokenizedString.length == 1 ||
@@ -134,6 +136,20 @@ public class Autocompleter {
         }
 
         return result; 
+    }
+
+    /**
+     * @param tokenizedString
+     * @param lastWord
+     * @return
+     */
+    private List<String> getKeywordsList(String[] tokenizedString,
+                                         String lastWord) {
+        if (tokenizedString.length == 1) {
+            return keywordsTree.searchPrefix(lastWord);
+        }
+    
+        return null;
     }
     
     /**

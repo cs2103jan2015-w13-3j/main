@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
-import com.sun.istack.internal.logging.Logger;
+import java.util.logging.Logger;
 
 import udo.logic.Logic;
 import udo.storage.Task;
@@ -15,7 +15,7 @@ import udo.util.Config.CommandName;
 
 public class AddCommand extends Command {
     public static final String STATUS_ADDED = "Task: %s added sucessfully";
-    private static final Logger log = Logger.getLogger(AddCommand.class);
+    private static final Logger log = Logger.getLogger(AddCommand.class.getName());
 
     public AddCommand() {
         super();
