@@ -115,8 +115,7 @@ public class HomeController {
        });
     }
     
-    private void formatCellIfNotEmpty(String item, TableCell<Task, String> tableCell) {
-       
+    private void formatCellIfNotEmpty(String item, TableCell<Task, String> tableCell) {      
         if (!tableCell.isEmpty()) {
             formatCellText(item, tableCell);
         }
@@ -154,7 +153,6 @@ public class HomeController {
     
     @FXML
     private void handleReturnKey(ActionEvent event) {
-
         String text = inputBox.getText();
 
         if (gui.callLogicCommand(text) == true) {
