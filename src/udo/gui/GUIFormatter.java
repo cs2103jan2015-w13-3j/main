@@ -20,7 +20,8 @@ public class GUIFormatter {
     public static SimpleDateFormat dateFormat = 
             new SimpleDateFormat("EEE, dd MMM yyyy");
     public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-   
+    public static SimpleDateFormat endDateFormat = new SimpleDateFormat("dd/MM HH:mm");
+    
     public static String STYLE_ITALIC = "italic";
     public static String STYLE_STRAIGHT = "straight";
     
@@ -41,7 +42,9 @@ public class GUIFormatter {
     }
     
     /**
-     * Maps the displayIndex to the Task's actual index
+     * Maps the displayIndex to the Task's actual index 
+     * and appends serial number
+     * 
      * @param displayList
      */
     private static void formatIndexLoop(ArrayList<Task> displayList) {
@@ -86,9 +89,9 @@ public class GUIFormatter {
             case TODO :
                 return HEADER_TODO;              
             case EVENT :
-                return getDateGUI(task.getStart());
+                return getDateGUIFormat(task.getStart());
             case DEADLINE :
-                return getDateGUI(task.getDeadline());
+                return getDateGUIFormat(task.getDeadline());
             default :
                 return EMPTY_STRING;
         }
@@ -106,16 +109,15 @@ public class GUIFormatter {
     }
 
     private static void insertHeader(ArrayList<Task> displayList,
-                                         String header, int i) {
-        
+                                     String header, int i) {       
         Task newHeader = new Task(null, header, null,
-                null, null, 0,
-                null, EMPTY_STRING, false, false);
+                                  null, null, 0, null,
+                                  EMPTY_STRING, false, false);
         displayList.add(i, newHeader);
     }
 
     /**
-     * Format the start, end time into display string
+     * Format the start, end, deadline time into a string for display
      * 
      * @param task
      */
@@ -140,27 +142,44 @@ public class GUIFormatter {
     }
 
     private static void formatDisplayTimeDeadLine(Task task) {
-        task.setLabel(getTimeGUI(task.getDeadline()));
+        task.setLabel(getTimeGUIFormat(task.getDeadline()));
     }
 
     private static void formatDisplayTimeEvent(Task task) {
-        String start = getTimeGUI(task.getStart());
-        String end = getTimeGUI(task.getEnd());
+        String start = getTimeGUIFormat(task.getStart());
+        String end = getEndTimeEvent(task);
         task.setLabel(start + " - " + end);
+    }
+
+    private static String getEndTimeEvent(Task task) {
+        GregorianCalendar start = task.getStart();
+        GregorianCalendar end = task.getEnd();
+        if(Utility.isSameDate(start, end)) {
+            return getTimeGUIFormat(end);
+        } else {
+            return getEndDateFormat(end);
+        }        
     }
 
     private static void formatDisplayTimeTodo(Task task) {
         task.setLabel(EMPTY_STRING);
     }
 
-    private static String getTimeGUI(GregorianCalendar calendar) {
+    private static String getTimeGUIFormat(GregorianCalendar calendar) {
         if (calendar == null) {
             return EMPTY_STRING;
         }
         return timeFormat.format(calendar.getTime());
     }
-
-    private static String getDateGUI(GregorianCalendar calendar) {
+    
+    private static String getEndDateFormat(GregorianCalendar calendar) {
+        if (calendar == null) {
+            return EMPTY_STRING;
+        }
+        return endDateFormat.format(calendar.getTime());
+    }
+    
+    private static String getDateGUIFormat(GregorianCalendar calendar) {
         if (calendar == null) {
             return EMPTY_STRING;
         }

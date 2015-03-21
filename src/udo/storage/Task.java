@@ -253,15 +253,15 @@ public class Task implements Comparable<Task> {
     private int compareWithDeadline(Task task2) {
         TaskType taskType = task2.getTaskType();
         GregorianCalendar deadlineTime = this.getDeadline();
+        GregorianCalendar deadlineTime2 = task2.getDeadline();
+        GregorianCalendar eventStart2 = task2.getStart();
         
         if(taskType.equals(TaskType.TODO)) {
             return -1;
-        } else if (taskType.equals(TaskType.DEADLINE)){
-            GregorianCalendar deadlineTime2 = task2.getDeadline();
+        } else if (taskType.equals(TaskType.DEADLINE)){           
             return deadlineTime.compareTo(deadlineTime2);
         } else {
-            GregorianCalendar eventStart = task2.getStart();
-            return compareDeadlineEvent(deadlineTime, eventStart);
+            return compareDeadlineEvent(deadlineTime, eventStart2, taskType);
         }
     }
 
@@ -269,39 +269,47 @@ public class Task implements Comparable<Task> {
         TaskType taskType = task2.getTaskType();
         assert(taskType != null);
         GregorianCalendar eventStart = this.getStart();
+        GregorianCalendar eventStart2 = task2.getStart();
+        GregorianCalendar deadlineTime2 = task2.getDeadline();
 
         if(taskType.equals(TaskType.TODO)) {
             return -1;
         } else if (taskType.equals(TaskType.DEADLINE)){
-            GregorianCalendar deadlineTime = task2.getDeadline();
-            return compareDeadlineEvent(deadlineTime, eventStart);
-        } else {
-            GregorianCalendar eventStart2 = task2.getStart();
-            return eventStart.compareTo(eventStart2);
+            return compareDeadlineEvent(eventStart, deadlineTime2, taskType);
+        } else {           
+            return compareStartAndEnd(task2, eventStart, eventStart2);
         }
         
+    }
+
+    private int compareStartAndEnd(Task task2, GregorianCalendar eventStart,
+                                   GregorianCalendar eventStart2) {
+        int comparedStartValue = eventStart.compareTo(eventStart2);
+        if(comparedStartValue == 0) {
+            return this.getEnd().compareTo(task2.getEnd());
+        } else {
+            return comparedStartValue;
+        }
     }
     
     /**
      * Compares events and deadlines, if they land on the same day, deadlines 
      * will be placed before events
      * 
-     * @param deadlineCal
-     * @param eventCal
-     * @return -1
+     * @param cal1
+     * @param cal2
+     * @param tasktype refers to TaskType of the specified task
+     * @return 1 if 2 dates are equal or cal1 is after cal2  
+     *         -1 if cal1 is before cal2
      */
-    private int compareDeadlineEvent(GregorianCalendar deadlineCal, 
-                                     GregorianCalendar eventCal) {        
-        if(isSameDate(deadlineCal, eventCal)) {
-            return -1;
-        }
-        else {
-            return deadlineCal.compareTo(eventCal);
+    private int compareDeadlineEvent(GregorianCalendar cal1, 
+                                     GregorianCalendar cal2, 
+                                     TaskType taskType) {        
+        if(Utility.isSameDate(cal1, cal2)) {
+            return (taskType.equals(TaskType.DEADLINE)) ? 1 : -1;
+        } else {
+            return cal1.compareTo(cal2);
         }
     }
     
-    private boolean isSameDate(GregorianCalendar cal1, GregorianCalendar cal2) {
-        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
-    }
 }
