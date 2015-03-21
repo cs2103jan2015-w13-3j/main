@@ -1,5 +1,7 @@
 package udo.logic;
 
+import java.util.List;
+
 import udo.gui.GUI;
 import udo.logic.command.Command;
 import udo.storage.Storage;
@@ -32,12 +34,14 @@ public class Logic {
     public static final Integer MAX_STATUS_LENGTH = 40;
 
     private InputParser parser;
+    private Autocompleter autocompleter;
 
     private static String status;
 
     private Logic() {
         parser = new InputParser();
         storage = new Storage();
+        autocompleter = new Autocompleter();
         /* TODO:
          * Initialize and start up passive thread for reminder
          */
@@ -71,6 +75,45 @@ public class Logic {
         parsedCommand.setStorage(storage);
 
         return parsedCommand.execute();
+    }
+    
+    /******************************
+     * Interface for autocomplete *
+     ******************************/
+
+    /**
+     * Refer to same method in Autocompleter
+     */
+    public List<String> getSuggestions(String text) {
+        return autocompleter.getSuggestions(text);
+    }
+    
+    /**
+     * Refer to same method in Autocompleter
+     */
+    public List<String> getSuggestions(String text, Integer maxWords) {
+        return autocompleter.getSuggestions(text, maxWords);
+    }
+    
+    /**
+     * Refer to same method in Autocompleter
+     */
+    public String autocomplete(String text) {
+        return autocompleter.autocomplete(text);
+    }
+
+    /**
+     * Refer to same method in Autocompleter
+     */
+    public String getPreviousCmd() {
+        return autocompleter.getPreviousCmd();
+    }
+    
+    /**
+     * Refer to same method in Autocompleter
+     */
+    public String getNextCmd() {
+        return autocompleter.getNextCmd();
     }
 
     /**
