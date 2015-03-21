@@ -21,8 +21,8 @@ See developer guide for more details
 
 ### Third-party libraries
 
-- Natty natural language date parser [link](http://natty.joestelmach.com/)
-- Gson [link](https://code.google.com/p/google-gson/)
+- Natty natural language date parser - [link](http://natty.joestelmach.com/)
+- Gson - [link](https://code.google.com/p/google-gson/)
 
 
 ### Version
