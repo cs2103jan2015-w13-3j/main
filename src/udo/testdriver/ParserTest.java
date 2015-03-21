@@ -28,7 +28,8 @@ public class ParserTest {
 
     @Test
     public void test1() {
-        String[] inputs = readFile(testsDir + "input1.txt").split(System.lineSeparator());
+        String[] inputs = readFile(testsDir + "input1.txt").
+                              split(System.lineSeparator());
         String[] expected = readFile(testsDir + "expected1.txt").split("#");
         
         InputParser parser = new InputParser();

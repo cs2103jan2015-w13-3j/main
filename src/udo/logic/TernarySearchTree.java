@@ -122,11 +122,11 @@ public class TernarySearchTree {
      * @param prefix
      * @param numWords upperbound for number of words to return in the list
      *                 if this is null, there will be no upperbound
-     * @return
+     * @return a list of words with specified prefix
      */
     public List<String> searchPrefix(String prefix, Integer numWords) {
         if (prefix == null) {
-            return null;
+            return new ArrayList<String>();
         }
 
         Node n = searchString(prefix);
@@ -139,7 +139,7 @@ public class TernarySearchTree {
             }
         }
         
-        return null;
+        return new ArrayList<String>();
     }
     
     /**
