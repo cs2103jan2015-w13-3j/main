@@ -14,6 +14,8 @@
 /r
 /free
 /f
+/done
+/do
 American
 Brown
 Christian

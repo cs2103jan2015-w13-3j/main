@@ -44,7 +44,7 @@ public class Config {
     public static final String TYPE_INT = "int_t";
     public static final String TYPE_NONE = "notype_t";
 
-    public static final String[] OPT_DUR = {"duration", "d", TYPE_TIME};
+    public static final String[] OPT_DUR = {"duration", "du", TYPE_TIME};
     public static final String[] OPT_LABEL = {"label", "l", TYPE_STR};
     public static final String[] OPT_PRIO = {"important", "im", TYPE_NONE};
     public static final String[] OPT_DEADLINE = {"deadline", "dl", TYPE_DATETIME};
@@ -52,6 +52,7 @@ public class Config {
     public static final String[] OPT_END = {"end", "e", TYPE_DATETIME};
     public static final String[] OPT_REMINDER = {"reminder", "r", TYPE_DATETIME};
     public static final String[] OPT_FREE = {"free", "f", TYPE_NONE};
+    public static final String[] OPT_DONE = {"done", "do", TYPE_NONE};
     
     /**
      * New options can be added to the following table following the same
@@ -59,5 +60,5 @@ public class Config {
      **/
     public static final String OPTIONS_TABLE[][] =
         { OPT_DUR, OPT_LABEL, OPT_PRIO, OPT_DEADLINE,
-          OPT_START, OPT_END, OPT_REMINDER, OPT_FREE };
+          OPT_START, OPT_END, OPT_REMINDER, OPT_FREE, OPT_DONE };
 }
