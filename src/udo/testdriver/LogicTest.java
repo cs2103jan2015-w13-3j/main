@@ -2,7 +2,6 @@ package udo.testdriver;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.List;
@@ -16,14 +15,10 @@ import udo.storage.Task.TaskType;
 
 public class LogicTest {
     private void removeExistingTasks() {
-        File tasksFile = new File("task.json");
-
-        if (tasksFile.isFile()) {
-            try {
-                (new RandomAccessFile(tasksFile, "rws")).setLength(0);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            (new RandomAccessFile("task.json", "rws")).setLength(0);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

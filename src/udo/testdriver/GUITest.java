@@ -1,6 +1,5 @@
 package udo.testdriver;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -15,14 +14,10 @@ public class GUITest {
     
     //Code reuse from Thien
     private void removeExistingTasks() {
-        File tasksFile = new File("task.json");
-
-        if (tasksFile.isFile()) {
-            try {
-                (new RandomAccessFile(tasksFile, "rws")).setLength(0);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            (new RandomAccessFile("task.json", "rws")).setLength(0);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
     
