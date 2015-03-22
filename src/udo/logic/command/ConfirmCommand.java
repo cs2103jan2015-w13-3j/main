@@ -1,8 +1,16 @@
 package udo.logic.command;
 
 import udo.logic.Logic;
+import udo.storage.Task;
+import udo.util.Config.CommandName;
 
 public class ConfirmCommand extends Command {
+    private static final String STATUS_CONFIRM = "Task %s confirmed";
+    
+    public ConfirmCommand() {
+        setCommandName(CommandName.CONFIRM);
+    }
+    
     @Override
     public boolean isValid() {
         return super.isValid();
@@ -17,18 +25,27 @@ public class ConfirmCommand extends Command {
         assert(argIndex != null);
         Integer storageIndex = getStorageIndex(argIndex);
         assert(storageIndex != null);
+        
+        Task confirmedTask = storage.query(storageIndex);
 
-        // TODO: call the correct confirm api from storage
-        boolean isSuccessful = storage.markDone(storageIndex);
+        boolean isSuccessful = storage.confirm(storageIndex);
         if (!isSuccessful) {
             setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
+        } else {
+            setStatus(getConfirmStatus(confirmedTask));
+            gui.display(storage.query());
         }
 
+        updateGUIStatus();
         return isSuccessful;
     }
 
     @Override
     protected boolean parseArg(String arg) {
         return parseIndexContentPair(arg);
+    }
+    
+    private String getConfirmStatus(Task task) {
+        return String.format(STATUS_CONFIRM, task.getContent());
     }
 }

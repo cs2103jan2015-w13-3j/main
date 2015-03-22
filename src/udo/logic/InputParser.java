@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import udo.logic.command.AddCommand;
 import udo.logic.command.ChdirCommand;
 import udo.logic.command.Command;
+import udo.logic.command.ConfirmCommand;
 import udo.logic.command.DeleteCommand;
 import udo.logic.command.DisplayCommand;
 import udo.logic.command.DoneCommand;
@@ -189,6 +190,8 @@ public class InputParser {
                 return new SearchCommand();
             case UNDO:
                 return new UndoCommand();
+            case CONFIRM:
+                return new ConfirmCommand();
             default:
                  errorStatus = Logic.ERR_UNSUPPORTED_CMD;
                 return null;

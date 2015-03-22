@@ -7,7 +7,7 @@ public class Config {
      * Add the command name into the regex pattern in InputParser
      * Add a new branch for string to enum conversion in Utility class
      * Implement a subclass of Command with an 'execute' method and
-     * add to createCommandFromName method in InputParse
+     * Add a branch to createCommandFromName method in InputParser
      * 
      * Procedure for adding a new option:
      * Add a new string array of 3 entries here:

@@ -14,7 +14,7 @@ public class Logic {
     private Storage storage;
 
     private static final String ERR_FORMAT = "Error: %s";
-    public static final String ERR_INVALID_CMD_NAME = "Invalid command";
+    public static final String ERR_INVALID_CMD_NAME = "Invalid command name";
     public static final String ERR_UNSUPPORTED_CMD = "Unsupported command";
     public static final String ERR_INVALID_CMD_ARG =
             "Invalid command's argument";
