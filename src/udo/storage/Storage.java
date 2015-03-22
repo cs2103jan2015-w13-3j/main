@@ -207,7 +207,8 @@ public class Storage {
 	}
 	
 	//delete dummy tasks
-	public boolean confirm(Integer index, Integer groupId){
+	public boolean confirm(Integer index){
+		Integer groupId = taskList.get(index).getGroupId();
 		if (maxId == null){
 			updateMaxGroupId();
 		}
