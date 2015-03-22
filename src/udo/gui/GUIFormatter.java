@@ -11,16 +11,25 @@ import javafx.scene.paint.Color;
 import udo.storage.Task;
 import udo.util.Utility;
 
+/**
+ * This class serves as a Utility class for GUI class and HomeController class.
+ * It first sorts the list and process a given List with insertion of date
+ * headers, serial numbers and formats the time displayed.
+ * 
+ * @author Sharmine
+ *
+ */
 public class GUIFormatter {
     
     public static final String EMPTY_STRING = "";
     public static final String HEADER_TODO = "To-Dos";
     public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
     
+    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     public static SimpleDateFormat dateFormat = 
             new SimpleDateFormat("EEE, dd MMM yyyy");
-    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-    public static SimpleDateFormat endDateFormat = new SimpleDateFormat("dd/MM HH:mm");
+    public static SimpleDateFormat endDateFormat = 
+            new SimpleDateFormat("dd/MM HH:mm");
     
     public static String STYLE_ITALIC = "italic";
     public static String STYLE_STRAIGHT = "straight";
@@ -31,12 +40,12 @@ public class GUIFormatter {
         }
 
         Collections.sort(displayList);
-        formatIndex(displayList);
+        processIndex(displayList);
         formatDateLoop(displayList);
         //System.out.println("Formatted List = " + displayList);
     }
     
-    private static void formatIndex(ArrayList<Task> displayList) {
+    private static void processIndex(ArrayList<Task> displayList) {
         Utility.indexMap.clear();
         formatIndexLoop(displayList);
     }
@@ -77,14 +86,14 @@ public class GUIFormatter {
             Task task = displayList.get(i);
             formatDisplayTime(task);
             
-            header = getHeader(header, task);       
+            header = getHeader(task);       
             i = insertIfNewHeader(displayList, prevHeader, i, header);
             prevHeader = header;
         }
 
     }
 
-    private static String getHeader(String header, Task task) {
+    private static String getHeader(Task task) {
         switch (task.getTaskType()) {
             case TODO :
                 return HEADER_TODO;              

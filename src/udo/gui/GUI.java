@@ -149,17 +149,21 @@ public class GUI extends Application {
      * @param Object that implements List<Task>
      */
     public void display(List<Task> receivedList) {
-        assert(receivedList != null);        
-        //System.out.println("In GUI: received list is " + receivedList);
-        
-        processReceivedList(receivedList);
-        controller.setData();
+        assert(receivedList != null);              
+        processReceivedList(receivedList);        
+        setDataToController();
     }
 
     private void processReceivedList(List<Task> receivedList) {
         duplicateList(receivedList);
         GUIFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);
+    }
+
+    private void setDataToController() {
+        if(controller != null) {
+            controller.setData();
+        }
     }
 
     private void duplicateList(List<Task> rcvdList) {
