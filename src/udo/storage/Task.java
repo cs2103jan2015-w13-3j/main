@@ -242,55 +242,69 @@ public class Task implements Comparable<Task> {
     /**
      * Todo tasks are always displayed at the end
      */	
-    private int compareWithTodo(Task task2) {           
-        TaskType taskType = task2.getTaskType();
+    private int compareWithTodo(Task task) {           
+        TaskType taskType = task.getTaskType();
         
         if(!taskType.equals(TaskType.TODO)) {
             return 1;
         } else {
-            return 0;
+            return compareLex(this, task);
         }
     }
 
-    private int compareWithDeadline(Task task2) {
-        TaskType taskType = task2.getTaskType();
+    private int compareWithDeadline(Task task) {
+        TaskType taskType = task.getTaskType();
         GregorianCalendar deadlineTime = this.getDeadline();
-        GregorianCalendar deadlineTime2 = task2.getDeadline();
-        GregorianCalendar eventStart2 = task2.getStart();
+        GregorianCalendar eventStart = task.getStart();
         
-        if(taskType.equals(TaskType.TODO)) {
-            return -1;
-        } else if (taskType.equals(TaskType.DEADLINE)){           
-            return deadlineTime.compareTo(deadlineTime2);
-        } else {
-            return compareDeadlineEvent(deadlineTime, eventStart2, taskType);
+        switch(taskType) {
+            case EVENT:
+                return compareDeadlineWithEvent(deadlineTime, eventStart, taskType);
+            case DEADLINE:
+                return compareTwoDeadlines(this, task);
+            case TODO: 
+                return -1;
+            default: 
+                return 0;
         }
     }
 
-    private int compareWithEvent(Task task2) {
-        TaskType taskType = task2.getTaskType();
+    private int compareWithEvent(Task task) {
+        TaskType taskType = task.getTaskType();
         assert(taskType != null);
         GregorianCalendar eventStart = this.getStart();
-        GregorianCalendar eventStart2 = task2.getStart();
-        GregorianCalendar deadlineTime2 = task2.getDeadline();
+        GregorianCalendar deadlineTime = task.getDeadline();
 
-        if(taskType.equals(TaskType.TODO)) {
-            return -1;
-        } else if (taskType.equals(TaskType.DEADLINE)){
-            return compareDeadlineEvent(eventStart, deadlineTime2, taskType);
-        } else {           
-            return compareStartAndEnd(task2, eventStart, eventStart2);
+        switch(taskType) {
+            case EVENT:
+                return compareTwoEvents(task);
+            case DEADLINE:
+                return compareDeadlineWithEvent(eventStart, deadlineTime, taskType);
+            case TODO: 
+                return -1;
+            default: 
+                return 0;
         }
-        
     }
-
-    private int compareStartAndEnd(Task task2, GregorianCalendar eventStart,
-                                   GregorianCalendar eventStart2) {
-        int comparedStartValue = eventStart.compareTo(eventStart2);
-        if(comparedStartValue == 0) {
-            return this.getEnd().compareTo(task2.getEnd());
+    
+    /**
+     * Compares 2 Tasks of event types. Sorts them in order of start time, 
+     * end time and lexicographically
+     * 
+     * @param task
+     * @return
+     */
+    private int compareTwoEvents(Task task) {
+        
+        int comparisonStartValue = this.getStart().compareTo(task.getStart());
+        int comparisonEndValue = this.getEnd().compareTo(task.getEnd());
+        
+        if(comparisonStartValue != 0 ) {
+            return comparisonStartValue;
+        } else if (comparisonEndValue != 0) {
+            return comparisonEndValue;
         } else {
-            return comparedStartValue;
+            return compareLex(this, task);
         }
     }
     
@@ -304,14 +318,32 @@ public class Task implements Comparable<Task> {
      * @return 1 if 2 dates are equal or cal1 is after cal2  
      *         -1 if cal1 is before cal2
      */
-    private int compareDeadlineEvent(GregorianCalendar cal1, 
-                                     GregorianCalendar cal2, 
-                                     TaskType taskType) {        
+    private int compareDeadlineWithEvent(GregorianCalendar cal1, 
+                                         GregorianCalendar cal2, 
+                                         TaskType taskType) {        
         if(Utility.isSameDate(cal1, cal2)) {
             return (taskType.equals(TaskType.DEADLINE)) ? 1 : -1;
         } else {
             return cal1.compareTo(cal2);
         }
+    }
+    
+    private int compareTwoDeadlines(Task task, 
+                                    Task specifiedTask) {
+        GregorianCalendar time = task.getDeadline();
+        GregorianCalendar specifiedTime = specifiedTask.getDeadline();
+
+        int comparisonValue = time.compareTo(specifiedTime);
+        
+        return (comparisonValue == 0) ? compareLex(task, specifiedTask)
+                                      : comparisonValue;
+    }
+    
+    private int compareLex(Task task, Task specifiedTask) {
+        String title = task.getContent();
+        String specifiedTitle = specifiedTask.getContent();
+        
+        return title.compareTo(specifiedTitle);
     }
     
 }

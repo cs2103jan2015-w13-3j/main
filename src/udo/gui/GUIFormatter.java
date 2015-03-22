@@ -83,9 +83,9 @@ public class GUIFormatter {
             case TODO :
                 return HEADER_TODO;              
             case EVENT :
-                return GUIUtil.getDateGUIFormat(task.getStart());
+                return GUIUtil.guiDateFormat(task.getStart());
             case DEADLINE :
-                return GUIUtil.getDateGUIFormat(task.getDeadline());
+                return GUIUtil.guiDateFormat(task.getDeadline());
             default :
                 return GUIUtil.EMPTY_STRING;
         }
@@ -136,7 +136,7 @@ public class GUIFormatter {
     }
 
     private static void setDisplayTimeDeadLine(Task task) {
-        task.setLabel(GUIUtil.getTimeGUIFormat(task.getDeadline()));
+        task.setLabel(GUIUtil.guiTimeFormat(task.getDeadline()));
     }
 
     private static void setDisplayTimeTodo(Task task) {
@@ -144,18 +144,18 @@ public class GUIFormatter {
     }
 
     private static void setDisplayTimeEvent(Task task) {
-        String start = GUIUtil.getTimeGUIFormat(task.getStart());
-        String end = getEndTime(task);
+        String start = GUIUtil.guiTimeFormat(task.getStart());
+        String end = getEnd(task);
         task.setLabel(start + " - " + end);
     }
-
-    private static String getEndTime(Task task) {
+    
+    private static String getEnd(Task task) {
         GregorianCalendar start = task.getStart();
         GregorianCalendar end = task.getEnd();
         if(Utility.isSameDate(start, end)) {
-            return GUIUtil.getTimeGUIFormat(end);
+            return GUIUtil.guiTimeFormat(end);
         } else {
-            return GUIUtil.getEndDateGUIFormat(end);
+            return GUIUtil.guiEndDateFormat(end);
         }        
     }
 }

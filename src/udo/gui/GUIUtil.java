@@ -5,6 +5,7 @@ import java.util.GregorianCalendar;
 
 import javafx.collections.ObservableList;
 import udo.storage.Task;
+import udo.util.Utility;
 
 public class GUIUtil {
     
@@ -53,7 +54,7 @@ public class GUIUtil {
      * Returns -1 if serial number is not present
      * 
      * @param title
-     * @return
+     * @return serial number or -1
      * @throws NumberFormatException
      */
     private static int extractIndex(String title) throws NumberFormatException {
@@ -72,24 +73,24 @@ public class GUIUtil {
         return receivedString.substring(0, 5).equals(PREFIX_ERROR);
     }
     
-    public static String getTimeGUIFormat(GregorianCalendar calendar) {
+    public static String guiTimeFormat(GregorianCalendar calendar) {
         if (calendar == null) {
             return EMPTY_STRING;
         }
         return timeFormat.format(calendar.getTime());
     }
     
-    public static String getEndDateGUIFormat(GregorianCalendar calendar) {
-        if (calendar == null) {
-            return EMPTY_STRING;
-        }
-        return endDateFormat.format(calendar.getTime());
-    }
-    
-    public static String getDateGUIFormat(GregorianCalendar calendar) {
+    public static String guiDateFormat(GregorianCalendar calendar) {
         if (calendar == null) {
             return EMPTY_STRING;
         }
         return dateFormat.format(calendar.getTime());
+    }
+
+    public static String guiEndDateFormat(GregorianCalendar calendar) {
+        if (calendar == null) {
+            return EMPTY_STRING;
+        }
+        return endDateFormat.format(calendar.getTime());
     }
 }
