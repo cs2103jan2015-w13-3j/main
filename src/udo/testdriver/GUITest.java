@@ -1,14 +1,10 @@
 package udo.testdriver;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
-import java.util.List;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 import org.junit.Test;
-
-import udo.gui.GUI;
-import udo.gui.GUIFormatter;
 
 
 /**
@@ -19,14 +15,14 @@ public class GUITest {
     
     //Code reuse from Thien
     private void removeExistingTasks() {
-        File settingFile = new File("setting.txt");
-        if (settingFile.isFile()) {
-            settingFile.delete();
-        }
+        File tasksFile = new File("task.json");
 
-        File tasksFile = new File("setting.txt");
         if (tasksFile.isFile()) {
-            tasksFile.delete();
+            try {
+                (new RandomAccessFile(tasksFile, "rws")).setLength(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
     

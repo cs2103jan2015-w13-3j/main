@@ -1,8 +1,10 @@
 package udo.testdriver;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.List;
 
 import org.junit.Test;
@@ -14,14 +16,14 @@ import udo.storage.Task.TaskType;
 
 public class LogicTest {
     private void removeExistingTasks() {
-        File settingFile = new File("setting.txt");
-        if (settingFile.isFile()) {
-            settingFile.delete();
-        }
+        File tasksFile = new File("task.json");
 
-        File tasksFile = new File("setting.txt");
         if (tasksFile.isFile()) {
-            tasksFile.delete();
+            try {
+                (new RandomAccessFile(tasksFile, "rws")).setLength(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -34,7 +36,8 @@ public class LogicTest {
         
         Storage storage = new Storage();
         
-        logic.executeCommand("go to school /deadline tomorrow");
+        assertEquals(true,
+                     logic.executeCommand("go to school /deadline tomorrow"));
         
         List<Task> tasks = storage.query();
 
