@@ -6,6 +6,8 @@ import udo.util.Config.CommandName;
 
 public class ConfirmCommand extends Command {
     private static final String STATUS_CONFIRM = "Task %s confirmed";
+    private static final String STATUS_NOT_BLOCKED =
+            "selected task is not an unconfirmed task";
     
     public ConfirmCommand() {
         setCommandName(CommandName.CONFIRM);
@@ -30,7 +32,7 @@ public class ConfirmCommand extends Command {
 
         boolean isSuccessful = storage.confirm(storageIndex);
         if (!isSuccessful) {
-            setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
+            setStatus(Logic.formatErrorStr(STATUS_NOT_BLOCKED));
         } else {
             setStatus(getConfirmStatus(confirmedTask));
             gui.display(storage.query());
