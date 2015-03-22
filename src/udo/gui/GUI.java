@@ -52,7 +52,7 @@ public class GUI extends Application {
         setPrimaryStage(primaryStage);
         showRootLayout();
         showOverview();       
-        
+
         callLogicCommand(Config.CMD_STR_DISPLAY);
     }
 

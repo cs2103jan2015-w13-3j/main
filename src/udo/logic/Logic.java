@@ -17,17 +17,17 @@ public class Logic {
     public static final String ERR_INVALID_CMD_NAME = "Invalid command name";
     public static final String ERR_UNSUPPORTED_CMD = "Unsupported command";
     public static final String ERR_INVALID_CMD_ARG =
-            "Invalid command's argument";
+            "invalid command's argument";
     public static final String ERR_UNSPECIFIED_INDEX =
-            "A valid task's index is required";
+            "a valid task's index is required";
     public static final String ERR_LATE_DEADLINE =
-            "Deadline has already passed";
+            "deadline has already passed";
     public static final String ERR_NON_POSITIVE_DUR =
-            "Task's duration must be positive";
+            "task's duration must be positive";
     public static final String ERR_STORAGE =
-            "Tasks' storage input/output error";
+            "tasks' storage input/output error";
     public static final String ERR_INVALID_INDEX =
-            "Specified task's index is not valid";
+            "specified task's index is not valid";
     public static final String ERR_EMPTY_CONTENT =
             "task's content cannot be empty";
     

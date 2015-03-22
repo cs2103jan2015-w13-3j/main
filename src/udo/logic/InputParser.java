@@ -74,8 +74,8 @@ public class InputParser {
             "Hours and minutes are not integers";
     private static final String ERR_INVALID_DATE_FORMAT =
             "Date time format is invalid";
-    private static final String ERR_INVALID_INT_FORMAT =
-           "Argument to an option is not a valid integer"; 
+    public static final String ERR_INVALID_INT_FORMAT =
+           "Argument contains invalid integers";
     public static final String ERR_UNSPECIFIED_INDEX =
             "Task's index is not specified";
     
