@@ -34,55 +34,8 @@ public class Storage {
 	public static void main(String[] args) throws IOException{
 
 		Storage st = new Storage();
-
-		//testing purposes:
-		/*Task task1 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
-				0, new GregorianCalendar(2005,01,02), "work",true, false);
-		Task task2 = new Task(TaskType.TODO, "fighting", null,null, null,
-				120, new GregorianCalendar(2011,01,02), "personal", false, false);
-		Task task3 = new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
-				0, null, "leisure", false, false);
-		st.add(task1);
-		st.modify(0, task2);
-		st.modify(0,task3);
-		//ArrayList<Task> temp = new ArrayList<Task>();
-		//temp.add(task2); temp.add(task3);
-	
-		//boolean f4 = st.add(null);
-		//if (function&&function2&&function3) System.out.println("Adding successfully");
 		
-		st.undo();*/
-		//ArrayList<Task> test = new ArrayList<Task>();
-		//test = st.query();
-		//printTest(test);
-		//test = st.query("leisure");
-		//printTest(test);
-		//test = st.query(new GregorianCalendar(2010,01,03));
-		//printTest(test);
-		//test = st.query(TASK_TYPE.DEADLINE);
-		//printTest(test);
-		//test = st.search("read");
-		//printTest(test);
-		//test = st.query(true);
-		
-		//ArrayList<Task> temp = st.getDone();
-		//printTest(temp);
-		//boolean done;
-		//done = st.changeStatus(2);
-		//test = st.query(true);
-		//printTest(test);
-		//boolean done = st.delete(-1);
-		//boolean done = st.undo();
-		//test = st.query();
-		//printTest(test);
-		//done = st.modify(2, "deadline", null, null, new GregorianCalendar(2006,01,05),0, new GregorianCalendar(2006,01,02), null);
-		//done = st.modify(1, "event", "hanging out", new GregorianCalendar(2013,05,04), new GregorianCalendar(2013,05,05), -1, new GregorianCalendar(2013,05,03), "leisure");
-		//done = st.modify(0, "todo", null,null, null, 3, null, null);
-		//test = st.query();
-		//printTest(test);
-		//boolean done = st.confirm(4,1);
-		//System.out.println(done);
-		st.chDir("testTask.json");
+		st.chDir("task.json");
 		st.exit();
 	}
 
@@ -209,12 +162,13 @@ public class Storage {
 	//delete dummy tasks
 	public boolean confirm(Integer index){
 		Integer groupId = taskList.get(index).getGroupId();
+		Task keptTask = taskList.get(index);
 		if (maxId == null){
 			updateMaxGroupId();
 		}
 
 		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0
-				|| groupId == null || groupId < 1 || maxId == 0 || maxId < groupId){
+				|| groupId == null || groupId < 1 || maxId == 0){
 			return false;
 		}
 		
@@ -231,6 +185,7 @@ public class Storage {
 				i--;		
 			}
 		}
+		keptTask.setGroupId(0);
 		JsonProcessor.writeJson(lastPath,taskList);
 		return true;
 	}
@@ -533,17 +488,21 @@ public class Storage {
 		switch(prevCmd){
 		case "add":
 			taskList.remove(taskList.size() -1);
+			prevCmd = "";
 			break;
 		case "mod":
 			taskList.set(prevTask.getIndex(), prevTask);
+			prevCmd = "";
 			break;
 		case "del":	
 			undoDelete();
+			prevCmd = "";
 			break;
 		case "done":
 			undoDelete();
 			doneTasks.remove(doneTasks.size() -1);
 			JsonProcessor.writeJson("done.json", doneTasks);
+			prevCmd = "";
 			break;
 		default: return false;
 		}
