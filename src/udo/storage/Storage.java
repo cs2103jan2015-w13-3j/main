@@ -412,33 +412,39 @@ public class Storage {
 	}
 	
 	public boolean isWildcardMatched(String tameStr, String cardStr){
-		String[] cards = cardStr.split("\\*");
-		
-		if (cardStr.charAt(0) != '*'){
-			int index = firstIndexOf(tameStr, cards[0]);
-			//System.out.println(index);
-			if (index != 0){
-				return false;
+		if (cardStr.contains("*")){
+			String[] cards = cardStr.split("\\*");
+			if (cardStr.charAt(0) != '*'){
+				int index = firstIndexOf(tameStr, cards[0]);
+				System.out.println("Yes");
+				if (index != 0){
+					return false;
+				}
+				tameStr = tameStr.substring(cards[0].length());
+			} 
+			for (int i = 1; i < cards.length; i++){
+				String card = cards[i];
+				int index = firstIndexOf(tameStr, card);
+				System.out.println("No");
+				if (index == -1){
+					return false;
+				}
+				tameStr = tameStr.substring(index + card.length());
+			}	
+			
+			if (cardStr.charAt(cardStr.length() -1) != '*'){
+				if (tameStr.length() > 0){
+					return false;
+				}
 			}
-			tameStr = tameStr.substring(cards[0].length());
-		}
-		
-		for (int i = 1; i < cards.length; i++){
-			String card = cards[i];
-			int index = firstIndexOf(tameStr, card);
-			//System.out.println(index);
+			return true;
+		} else {
+			int index = firstIndexOf(tameStr, cardStr);
 			if (index == -1){
 				return false;
 			}
-			tameStr = tameStr.substring(index + card.length());
-		}	
-		
-		if (cardStr.charAt(cardStr.length() -1) != '*'){
-			if (tameStr.length() > 0){
-				return false;
-			}
+			return true;
 		}
-		return true;
 	}
 	
 	public int firstIndexOf(String str1, String str2){
