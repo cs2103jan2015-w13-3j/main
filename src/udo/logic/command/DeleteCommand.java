@@ -44,7 +44,7 @@ public class DeleteCommand extends Command {
 
         Task deletedTask = null; 
         if (indices.length == 1) {
-            deletedTask = storage.query(indices[0]);
+            deletedTask = storage.query(getStorageIndex(indices[0]));
         }
 
         boolean isSuccessful = deleteTasks();
