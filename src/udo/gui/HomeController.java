@@ -1,9 +1,11 @@
 package udo.gui;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -12,16 +14,24 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import udo.storage.Task;
 
 public class HomeController {
+          
+    public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
+    public static final Color COLOR_TEXT_WARNING = Color.ORANGE;
+    public static final Color COLOR_TEXT_ERROR = Color.RED;
+    public static final Color COLOR_TEXT_NORMAL = Color.WHITE;
+    
+    public static String STYLE_ITALIC = "italic";
+    public static String STYLE_STRAIGHT = "straight";
 
     private static String COLUMN_FIELD_CONTENT = "content";
     private static String COLUMN_FIELD_LABEL= "label";
     private static Label statusString;
+    private static ObservableList<Task> data;
     
     @FXML
     private TableView<Task> TaskTable;
@@ -91,7 +101,6 @@ public class HomeController {
     private void initialiseTableColumns() {
         initialiseTaskNameColumn();
         initialiseTimeColumn();
-
     }
 
     private void initialiseTimeColumn() {
@@ -100,57 +109,37 @@ public class HomeController {
         timeColumn.setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
             public TableCell<Task, String> call(TableColumn<Task, String> param) {
                 return new TimeCell();
-
             }
        });
     }
-    
+
     private void initialiseTaskNameColumn() {
         taskNameColumn.setCellValueFactory(new PropertyValueFactory<Task, String>(COLUMN_FIELD_CONTENT));
         taskNameColumn.setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
             @Override public TableCell<Task, String> call(TableColumn<Task, String> param) {
                 return new TaskCell();
-
             }
        });
     }
-    
+
     private void formatCellIfNotEmpty(String item, TableCell<Task, String> tableCell) {      
         if (!tableCell.isEmpty()) {
             formatCellText(item, tableCell);
         }
     }
-    
+
     private void formatCellText(String item, TableCell<Task, String> tableCell)
             throws ClassCastException {
 
-        if (isHeader(item)) {
-            GUIFormatter.setHeaderStyle(tableCell);
-        } else if (isImportant(item)) { //for later milestones
-            GUIFormatter.setImportantStyle(tableCell);
+        if (GUIUtil.isHeader(item)) {
+            setHeaderStyle(tableCell);
+        } else if (GUIUtil.isImportant(item, data)) { 
+            setImportantStyle(tableCell);
         } else {
-           GUIFormatter.setTextStyle(tableCell);
+           setTextStyle(tableCell);
         }
     }
-  
-    private boolean isHeader(String str) {
-        return (isValidDate(str) || str.equals(GUIFormatter.HEADER_TODO));
-    }
-    
-    private boolean isValidDate(String dateString) {       
-        try {
-            GUIFormatter.dateFormat.parse(dateString);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-    
-    //TODO define how to find out important task
-    private boolean isImportant(String str) {
-        return false;
-    }
-    
+
     @FXML
     private void handleReturnKey(ActionEvent event) {
         String text = inputBox.getText();
@@ -158,7 +147,6 @@ public class HomeController {
         if (gui.callLogicCommand(text) == true) {
             inputBox.clear();
         }
-
     }
     
     // Event handler for Tab Key
@@ -174,11 +162,17 @@ public class HomeController {
     
     public void displayStatus(String receivedString) {
         if(receivedString == null) {
-            receivedString = GUIFormatter.EMPTY_STRING;
+            receivedString = GUIUtil.EMPTY_STRING;
+        } else if(GUIUtil.isWarning(receivedString)) {
+            statusString.setTextFill(COLOR_TEXT_WARNING);
+        } else if(GUIUtil.isError(receivedString)) {
+            statusString.setTextFill(COLOR_TEXT_ERROR);
+        } else {
+            statusString.setTextFill(COLOR_TEXT_NORMAL);
         }
         statusString.setText(receivedString);
     }
-
+    
     /**
      * Called by the main application to give a reference back to itself.
      * 
@@ -190,12 +184,34 @@ public class HomeController {
     
     public void setData() {
         refreshTable();
-        TaskTable.setItems(gui.getNewData());  
+        data = gui.getNewData();
+        TaskTable.setItems(data);  
     }
     
     private void refreshTable() {
         TaskTable.getColumns().get(0).setVisible(false);
         TaskTable.getColumns().get(0).setVisible(true);
+    }
+    
+    public static void setHeaderStyle(TableCell<Task, String> cell) {        
+        cell.setTextFill(COLOR_TABLE_HEADERS);
+        cell.setAlignment(Pos.CENTER);
+        cell.getStyleClass().remove(STYLE_STRAIGHT);
+        cell.getStyleClass().add(STYLE_ITALIC);
+    }
+    
+    public static void setTextStyle(TableCell<Task, String> cell) {
+        cell.setTextFill(Color.WHITE);
+        cell.setAlignment(Pos.CENTER_LEFT);
+        cell.getStyleClass().remove(STYLE_ITALIC);
+        cell.getStyleClass().add(STYLE_STRAIGHT);
+    }
+    
+    public static void setImportantStyle(TableCell<Task, String> cell) {
+        cell.setTextFill(Color.RED);
+        cell.setAlignment(Pos.CENTER_LEFT);
+        cell.getStyleClass().remove(STYLE_ITALIC);
+        cell.getStyleClass().add(STYLE_STRAIGHT);
     }
     
     private class TaskCell extends TableCell<Task,String> {
@@ -204,13 +220,13 @@ public class HomeController {
             
         }
           
-        @Override protected void updateItem(String item, boolean empty) {            
+        @Override 
+            protected void updateItem(String item, boolean empty) {            
             super.updateItem(item, empty);  
-            this.setText(GUIFormatter.EMPTY_STRING);
+            this.setText(GUIUtil.EMPTY_STRING);
             formatCellIfNotEmpty(item, this);
             this.setText(item);
         }
-
     }
     
     private class TimeCell extends TableCell<Task,String> {
@@ -222,9 +238,8 @@ public class HomeController {
         @Override
         public void updateItem(String item, boolean empty) {
             super.updateItem(item, empty);
-            this.setTextFill(Color.WHITE); 
+            this.setTextFill(COLOR_TEXT_NORMAL); 
             this.setText(item);
         }
     }
-
 }

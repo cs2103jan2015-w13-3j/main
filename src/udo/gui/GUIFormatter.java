@@ -1,38 +1,23 @@
 package udo.gui;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 
-import javafx.geometry.Pos;
-import javafx.scene.control.TableCell;
-import javafx.scene.paint.Color;
 import udo.storage.Task;
 import udo.util.Utility;
 
 /**
- * This class serves as a Utility class for GUI class and HomeController class.
- * It first sorts the list and process a given List with insertion of date
- * headers, serial numbers and formats the time displayed.
+ * This class serves as a helper class for the GUI class. It processes the given
+ * list of Tasks into a user-friendly format. It first sorts the list,
+ * inserts date headers, serial numbers and formats the time displayed.
  * 
  * @author Sharmine
  *
  */
 public class GUIFormatter {
     
-    public static final String EMPTY_STRING = "";
-    public static final String HEADER_TODO = "To-Dos";
-    public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
-    
-    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-    public static SimpleDateFormat dateFormat = 
-            new SimpleDateFormat("EEE, dd MMM yyyy");
-    public static SimpleDateFormat endDateFormat = 
-            new SimpleDateFormat("dd/MM HH:mm");
-    
-    public static String STYLE_ITALIC = "italic";
-    public static String STYLE_STRAIGHT = "straight";
+    public static final String HEADER_TODO = "To-Dos";    
     
     public static void formatDisplayList(ArrayList<Task> displayList) {
         if (displayList == null) {
@@ -79,7 +64,7 @@ public class GUIFormatter {
      */
     private static void formatDateLoop(ArrayList<Task> displayList) {
 
-        String prevHeader = EMPTY_STRING;
+        String prevHeader = GUIUtil.EMPTY_STRING;
 
         for (int i = 0; i < displayList.size(); i++) {
             String header = new String();
@@ -98,11 +83,11 @@ public class GUIFormatter {
             case TODO :
                 return HEADER_TODO;              
             case EVENT :
-                return getDateGUIFormat(task.getStart());
+                return GUIUtil.getDateGUIFormat(task.getStart());
             case DEADLINE :
-                return getDateGUIFormat(task.getDeadline());
+                return GUIUtil.getDateGUIFormat(task.getDeadline());
             default :
-                return EMPTY_STRING;
+                return GUIUtil.EMPTY_STRING;
         }
     }
 
@@ -121,7 +106,7 @@ public class GUIFormatter {
                                      String header, int i) {       
         Task newHeader = new Task(null, header, null,
                                   null, null, 0, null,
-                                  EMPTY_STRING, false, false);
+                                  GUIUtil.EMPTY_STRING, false, false);
         displayList.add(i, newHeader);
     }
 
@@ -140,26 +125,26 @@ public class GUIFormatter {
 
         switch (taskType) {
             case DEADLINE:
-                formatDisplayTimeDeadLine(task);
+                setDisplayTimeDeadLine(task);
                 break;
             case EVENT:
-                formatDisplayTimeEvent(task);
+                setDisplayTimeEvent(task);
                 break;
             case TODO:
-                formatDisplayTimeTodo(task);
+                setDisplayTimeTodo(task);
         }
     }
 
-    private static void formatDisplayTimeDeadLine(Task task) {
-        task.setLabel(getTimeGUIFormat(task.getDeadline()));
+    private static void setDisplayTimeDeadLine(Task task) {
+        task.setLabel(GUIUtil.getTimeGUIFormat(task.getDeadline()));
     }
 
-    private static void formatDisplayTimeTodo(Task task) {
-        task.setLabel(EMPTY_STRING);
+    private static void setDisplayTimeTodo(Task task) {
+        task.setLabel(GUIUtil.EMPTY_STRING);
     }
 
-    private static void formatDisplayTimeEvent(Task task) {
-        String start = getTimeGUIFormat(task.getStart());
+    private static void setDisplayTimeEvent(Task task) {
+        String start = GUIUtil.getTimeGUIFormat(task.getStart());
         String end = getEndTime(task);
         task.setLabel(start + " - " + end);
     }
@@ -168,51 +153,9 @@ public class GUIFormatter {
         GregorianCalendar start = task.getStart();
         GregorianCalendar end = task.getEnd();
         if(Utility.isSameDate(start, end)) {
-            return getTimeGUIFormat(end);
+            return GUIUtil.getTimeGUIFormat(end);
         } else {
-            return getEndDateGUIFormat(end);
+            return GUIUtil.getEndDateGUIFormat(end);
         }        
-    }
-
-    private static String getTimeGUIFormat(GregorianCalendar calendar) {
-        if (calendar == null) {
-            return EMPTY_STRING;
-        }
-        return timeFormat.format(calendar.getTime());
-    }
-    
-    private static String getEndDateGUIFormat(GregorianCalendar calendar) {
-        if (calendar == null) {
-            return EMPTY_STRING;
-        }
-        return endDateFormat.format(calendar.getTime());
-    }
-    
-    private static String getDateGUIFormat(GregorianCalendar calendar) {
-        if (calendar == null) {
-            return EMPTY_STRING;
-        }
-        return dateFormat.format(calendar.getTime());
-    }
-    
-    public static void setHeaderStyle(TableCell<Task, String> cell) {        
-        cell.setTextFill(GUIFormatter.COLOR_TABLE_HEADERS);
-        cell.setAlignment(Pos.CENTER);
-        cell.getStyleClass().remove(STYLE_STRAIGHT);
-        cell.getStyleClass().add(STYLE_ITALIC);
-    }
-    
-    public static void setTextStyle(TableCell<Task, String> cell) {
-        cell.setTextFill(Color.WHITE);
-        cell.setAlignment(Pos.CENTER_LEFT);
-        cell.getStyleClass().remove(STYLE_ITALIC);
-        cell.getStyleClass().add(STYLE_STRAIGHT);
-    }
-    
-    public static void setImportantStyle(TableCell<Task, String> cell) {
-        cell.setTextFill(Color.RED);
-        cell.setAlignment(Pos.CENTER_LEFT);
-        cell.getStyleClass().remove(STYLE_ITALIC);
-        cell.getStyleClass().add(STYLE_STRAIGHT);
     }
 }

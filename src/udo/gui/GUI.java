@@ -28,7 +28,6 @@ public class GUI extends Application {
             "http://fonts.googleapis.com/css?family=Open+Sans:" +
             "300italic,400italic,600italic,700,600,400";
     
-    private static List<Task> originalList;
     private static ArrayList<Task> displayList = new ArrayList<Task>();
     private static HomeController controller;
     private static ObservableList<Task> taskData;
@@ -122,7 +121,7 @@ public class GUI extends Application {
     }
 
     /**
-     * Calls the execution command 
+     * Calls the execution command in Logic 
      *     
      * @param userInput
      * @return true if userInput is successfully executed
@@ -149,13 +148,13 @@ public class GUI extends Application {
      * @param Object that implements List<Task>
      */
     public void display(List<Task> receivedList) {
-        assert(receivedList != null);              
-        processReceivedList(receivedList);        
+        assert(receivedList != null);
+        displayList = (ArrayList<Task>) receivedList;
+        processReceivedList(displayList);        
         setDataToController();
     }
 
     private void processReceivedList(List<Task> receivedList) {
-        duplicateList(receivedList);
         GUIFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);
     }
@@ -165,14 +164,9 @@ public class GUI extends Application {
             controller.setData();
         }
     }
-
-    private void duplicateList(List<Task> rcvdList) {
-        originalList = rcvdList;
-        displayList = Utility.deepCopy(originalList);
-    }
     
     /**
-     * Associate an ArrayList of objects to an ObservableArrayList
+     * Associate an ArrayList of objects with an ObservableArrayList
      * 
      * @param Arraylist<Task>
      */
