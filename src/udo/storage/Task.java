@@ -140,6 +140,7 @@ public class Task implements Comparable<Task> {
 		this.done = !(this.done);
 	}
 	
+	@Override
 	public String toString() {
 	    String finalString = "";
 	    if (groupId != null){
@@ -187,6 +188,7 @@ public class Task implements Comparable<Task> {
 	    copy.setDuration(this.getDuration());
 	    copy.setReminder(this.getReminder());
 	    copy.setLabel(this.getLabel());
+	    copy.setPriority(this.priority);
 	    if (this.isDone()) copy.setDone();
 
 	    return copy;
