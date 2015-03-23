@@ -61,7 +61,7 @@ public class GUITest extends TestCase {
         }
     }
     
-    //Test Todo task and Todo header
+    //Simple Test Case: Insertion of New Headers: Todo header
     public void test1() throws Exception {
         
         initialise();

@@ -18,10 +18,22 @@ import udo.util.Utility;
  */
 public class GUIFormatter {
     private static final Logger LOGGER = Logger.getLogger(GUIFormatter.class.getName());
-
+    
+    private static GUIFormatter guiFormatter;
     public static final String HEADER_TODO = "To-Dos";    
     
-    public static void formatDisplayList(ArrayList<Task> displayList) {
+    private GUIFormatter() {
+        
+    }
+    
+    public static GUIFormatter getInstance() {
+        if(guiFormatter == null) {
+            guiFormatter = new GUIFormatter();
+        }
+        return guiFormatter;
+    }
+    
+    public void formatDisplayList(ArrayList<Task> displayList) {
         if (displayList == null) {
             return;
         }

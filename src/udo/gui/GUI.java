@@ -35,6 +35,7 @@ public class GUI extends Application {
     
     private Stage primaryStage;
     private BorderPane rootLayout;
+    private GUIFormatter guiFormatter;
     private Logic logic;
     
     /**
@@ -43,14 +44,14 @@ public class GUI extends Application {
     public GUI() {
         logic = Logic.getInstance();
         logic.setGUI(this);
+        guiFormatter = GUIFormatter.getInstance();
         LOGGER.setLevel(Level.INFO);
     }
 
     @Override
     public void start(Stage primaryStage) {
         setPrimaryStage(primaryStage);
-        showRootLayout();
-        showOverview();       
+        setSecondaryStage();       
         LOGGER.fine("GUI Initiation Completed");
         
         callLogicCommand(Config.CMD_STR_DISPLAY);
@@ -61,6 +62,11 @@ public class GUI extends Application {
         this.primaryStage.setTitle(NAME_APP);
     }
 
+    private void setSecondaryStage() {
+        showRootLayout();
+        showOverview();
+    }
+
     /**
      * Initializes the root layout.
      */
@@ -68,15 +74,13 @@ public class GUI extends Application {
         try {
             FXMLLoader loader = getLoader(GUI.class.getResource(PATH_TO_ROOTLAYOUT));
             rootLayout = (BorderPane) loader.load();
+            
+            Scene scene = setRootScene(rootLayout);         
+            showSceneAtStage(scene);
 
-            Scene scene = setRootScene(rootLayout);
-            
-            primaryStage.setScene(scene);
-            primaryStage.show();
-            
             LOGGER.finer("Root Layout Initiated");
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.severe(e.toString());
         }
     }
 
@@ -84,6 +88,11 @@ public class GUI extends Application {
         Scene scene = new Scene(pane);
         scene.getStylesheets().add(PATH_TO_FONTS);
         return scene;
+    }
+
+    private void showSceneAtStage(Scene scene) {
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     /**
@@ -94,16 +103,13 @@ public class GUI extends Application {
             URL url = GUI.class.getResource(PATH_TO_OVERVIEW);
             FXMLLoader loader = getLoader(url);
             AnchorPane homeOverview = (AnchorPane) loader.load();
-
-            rootLayout.setCenter(homeOverview);
-
-            // Get Controller Access 
-            controller = loader.getController();
-            controller.setMainApp(this);
             
+            centerOverview(homeOverview);           
+            getControllerAccess(loader);            
             LOGGER.finer("Overview Scene Initiated");
+            
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.severe(e.toString());
         }
     }
 
@@ -113,6 +119,15 @@ public class GUI extends Application {
         return loader;
     }
     
+    private void centerOverview(AnchorPane homeOverview) {
+        rootLayout.setCenter(homeOverview);
+    }
+
+    private void getControllerAccess(FXMLLoader loader) {
+        controller = loader.getController();
+        controller.setMainApp(this);
+    }
+
     /**
      * Returns the main stage.
      * 
@@ -137,7 +152,7 @@ public class GUI extends Application {
     public boolean callAutocomplete(String userInput) {
         LOGGER.fine("Calls Logic Autocomplete");
         String str = logic.autocomplete(userInput);
-        System.out.println(str);
+        LOGGER.info("String returned from Autocomplete " + str);
         return false;
     }
     
@@ -168,7 +183,7 @@ public class GUI extends Application {
     }
 
     private void processReceivedList(List<Task> receivedList) {
-        GUIFormatter.formatDisplayList(displayList);
+        guiFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);
         LOGGER.info("In GUI: Data to be displayed " + taskData);
     }
