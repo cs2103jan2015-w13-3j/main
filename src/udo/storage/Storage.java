@@ -74,21 +74,36 @@ public class Storage {
 			BufferedReader br = new BufferedReader(fr);
 			lastPath = br.readLine();
 			br.close();
-			taskList = JsonProcessor.readJson(lastPath);
-		} catch (Exception ex) {
-
-			File settingFile = new File("setting.txt");
-			lastPath = "task.json";
-			JsonProcessor.writeJson(lastPath, taskList);
-			try {
-				FileWriter fw = new FileWriter(settingFile);
-				BufferedWriter bw = new BufferedWriter(fw);
-				bw.write(lastPath);
-				bw.close();
-				fw.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+			if (lastPath!=null) {
+				taskList = JsonProcessor.readJson(lastPath);
 			}
+			else {
+				writeSettingDefault();
+			}
+		} catch (Exception ex) {
+			writeSettingDefault();
+		}
+	}
+
+
+	public void writeSettingDefault() {
+		File settingFile = new File("setting.txt");
+		lastPath = "task.json";
+		try {
+			taskList = JsonProcessor.readJson(lastPath);
+		}
+		catch (Exception ex) {
+			JsonProcessor.writeJson(lastPath, taskList);
+		}
+
+		try {
+			FileWriter fw = new FileWriter(settingFile);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(lastPath);
+			bw.close();
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
