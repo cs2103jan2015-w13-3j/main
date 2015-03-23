@@ -63,6 +63,7 @@ public class Storage {
 			doneTasks = JsonProcessor.readJson("done.json");
 		} catch (Exception e){
 			JsonProcessor.writeJson("done.json", doneTasks);
+			System.out.println(e);
 		}
 	}
 
@@ -75,7 +76,12 @@ public class Storage {
 			lastPath = br.readLine();
 			br.close();
 			if (lastPath!=null) {
+				try {
 				taskList = JsonProcessor.readJson(lastPath);
+				}
+				catch (Exception e) {
+					System.out.println(e);
+				}
 			}
 			else {
 				writeSettingDefault();
@@ -93,6 +99,7 @@ public class Storage {
 			taskList = JsonProcessor.readJson(lastPath);
 		}
 		catch (Exception ex) {
+			System.out.println(ex);
 			JsonProcessor.writeJson(lastPath, taskList);
 		}
 
@@ -225,15 +232,16 @@ public class Storage {
 	}
 	
 	private boolean isValidIndex(Integer index) {
-		if( index == null)
-			return false;
-		int count = 0;
-		for (int i = 0 ; i<taskList.size(); i++) {
+		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0){			
+			return false; 
+			}
+		//int count = 0;
+		/*for (int i = 0 ; i<taskList.size(); i++) {
 			if (taskList.get(i).getIndex()==index)
 				count++;
 		}
 		if (count!=1)
-			return false;	
+			return false;*/
 		return true;
 	}
 

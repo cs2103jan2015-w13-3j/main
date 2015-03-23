@@ -42,7 +42,7 @@ public class JsonProcessor{
 	/*
 	 * Java Method to read JSON From File
 	 */
-	public static ArrayList<Task> readJson(String file) {
+	public static ArrayList<Task> readJson(String file) throws Exception {
 		JSONParser parser = new JSONParser();
 		ArrayList<Task> rtList = new ArrayList<Task>();
 		try {
@@ -51,7 +51,11 @@ public class JsonProcessor{
 			JSONArray json = (JSONArray) parser.parse(fileReader);
 			for (int i=0; i<json.size(); i++) {
 				Gson gson = new Gson();
-				rtList.add(gson.fromJson(json.get(i).toString(), Task.class));
+				Task temp = gson.fromJson(json.get(i).toString(), Task.class);
+				if (temp.getIndex()==i) {
+					rtList.add(temp);
+				}
+				else throw new Exception ("Index at "+i+" is invalid");
 			}
 
 			/*rtList.remove(1);
@@ -59,7 +63,8 @@ public class JsonProcessor{
 			writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/testUpdated.json", rtList);*/
 
 		} catch (Exception ex) {
-		//	ex.printStackTrace();
+			//	ex.printStackTrace();
+			throw ex;
 		}
 		return rtList;
 	}
