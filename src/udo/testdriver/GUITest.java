@@ -19,6 +19,15 @@ import udo.storage.Task.TaskType;
  * appropriate date headers after the list is formatted. It is unable 
  * to check for display properties like colours and styles
  * 
+ * 1. Insertion of new headers
+ * 2. Insertion of events, to be sorted before Todo
+ * 3. Multiple events of the same date
+ * 4. Insertion of an event with a later date
+ * 5. Insertion of an event with an earlier date
+ * 6. Insertion of an event with same start time, different end time
+ * 7. Insertion of deadline on the same day with a later time
+ * 8. Insertion of same deadline with different content
+ * 
  *  @author Sharmine
  *  
  */
@@ -139,7 +148,7 @@ public class GUITest extends TestCase {
         assertEquals(expectedList.toString(), gui.getNewData().toString());        
     }
     
-    //Later-added events to be placed before Todo
+    //Insertion of events, to be sorted before Todo
     public void test2() throws Exception {
         initialise();
         
@@ -166,7 +175,7 @@ public class GUITest extends TestCase {
         assertEquals(expectedList.toString(), gui.getNewData().toString());
     }
     
-    //Multiple events to be sorted by time
+    //Multiple events of the same date, to be sorted by time
     public void test3() throws Exception {
         
         initialise();
@@ -204,7 +213,8 @@ public class GUITest extends TestCase {
     }
     
     /*Insertion of an event with a later date 
-    separate headers for different dates*/
+     *separate headers for different dates
+     */
     public void test4() throws Exception {
         initialise();
                         
@@ -246,7 +256,8 @@ public class GUITest extends TestCase {
     }
     
     /*Insertion of an event with an earlier date 
-    separate headers to be inserted for different dates*/
+     *separate headers to be inserted for different dates
+     */
     public void test5() throws Exception {
         initialise();
 
@@ -287,8 +298,42 @@ public class GUITest extends TestCase {
         assertEquals(expectedList.toString(), gui.getNewData().toString());
     }
     
-    //Insertion of deadline on the same day with a later time
+    /*
+     * Insertion of an event with same start time, different end time
+     */
     public void test6() throws Exception {
+        initialise();
+
+        Task currDayEvent12pm4pm = new Task(TaskType.EVENT, "meeting", null,
+                new GregorianCalendar(2015, 02, 20, 12, 0),
+                new GregorianCalendar(2015, 02, 20, 16, 00), 0, null,
+                EMPTY_STRING, false, false);
+
+        Task currDayEvent12pm1pmAfter = new Task(TaskType.EVENT, "1.  meeting",
+                null, new GregorianCalendar(2015, 02, 20, 12, 0),
+                new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                EMPTY_STRING, false, false);
+
+        Task currDayEvent12pm4pmAfter = new Task(TaskType.EVENT, "2.  meeting",
+                null, new GregorianCalendar(2015, 02, 20, 12, 0),
+                new GregorianCalendar(2015, 02, 20, 16, 00), 0, null,
+                EMPTY_STRING, false, false);
+        
+
+        inputList.add(currDayEvent12pm4pm);
+        inputList.add(currDayEvent12pm);
+
+        expectedList.add(currDayHeader);
+        expectedList.add(currDayEvent12pm1pmAfter);
+        expectedList.add(currDayEvent12pm4pmAfter);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    //Insertion of deadline on the same day with a later time
+    public void test7() throws Exception {
         initialise();
         
         Task todoAfter1 = new Task(TaskType.TODO, "5.  Watch Harry Potter",
@@ -333,5 +378,40 @@ public class GUITest extends TestCase {
         gui.display(inputList);
 
         assertEquals(expectedList.toString(), gui.getNewData().toString());
-    } 
+    }
+    
+    /*Insertion of same deadlines with different content
+     * They will be sorted lexicographically
+     */
+    public void test8() throws Exception {
+        initialise();
+        
+        Task currDayDeadline5pmDuplicate =
+                new Task(TaskType.DEADLINE, "bonjour",
+                         new GregorianCalendar(2015, 02, 20, 17, 0),
+                         null, null, 0, null, EMPTY_STRING, false, 
+                         false);
+        
+        Task currDayDeadline5pmDuplicateAfter =
+                new Task(TaskType.DEADLINE, "1.  bonjour",
+                         new GregorianCalendar(2015, 02, 20, 17, 0),
+                         null, null, 0, null, EMPTY_STRING, false, 
+                         false);
+        
+        Task currDayDeadline5pmAfter = new Task(TaskType.DEADLINE, "2.  hand in work",  
+                                       new GregorianCalendar(2015, 02, 20, 17, 0),
+                                       null, null, 0, null, EMPTY_STRING, false, 
+                                       false);
+        
+        inputList.add(currDayDeadline5pm);
+        inputList.add(currDayDeadline5pmDuplicate);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(currDayDeadline5pmDuplicateAfter);
+        expectedList.add(currDayDeadline5pmAfter);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
 }
