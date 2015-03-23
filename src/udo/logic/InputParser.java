@@ -32,7 +32,7 @@ public class InputParser {
     private static final String GROUP_NAME = "name";
     private Pattern commandNamePattern =
             Pattern.compile("(?i)^(?:\\s)*" +
-                            "(?<name>add|modify|delete|display|" +
+                            "(?<name>add|modify|delete|dd|display|" +
                             "search|done|chdir|undo|confirm)");
     
     // Regex strings and pattern used for matching an option

@@ -28,6 +28,8 @@ public class Config {
     public static final String CMD_STR_UNDO = "undo";
     public static final String CMD_STR_CONFIRM = "confirm";
     
+    public static final String CMD_STR_DELETE_SHORT = "dd";
+
     public static enum CommandName {
         ADD, MODIFY, DELETE, DISPLAY, SEARCH, DONE, CHDIR, UNDO, CONFIRM
     }
