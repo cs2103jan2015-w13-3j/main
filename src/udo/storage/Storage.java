@@ -135,9 +135,8 @@ public class Storage {
 			return false;
 		}
 
-		if (maxId == null){
-			updateMaxGroupId();
-		}
+		updateMaxGroupId();
+		
 		maxId++;
 		for (int i = 0; i < dummyTasks.size(); i++){
 			dummyTasks.get(i).setGroupId(maxId);
@@ -161,14 +160,18 @@ public class Storage {
 
 	//delete dummy tasks
 	public boolean confirm(Integer index){
+		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0){
+			return false;
+		}
+		
 		Integer groupId = taskList.get(index).getGroupId();
 		Task keptTask = taskList.get(index);
+		
 		if (maxId == null){
 			updateMaxGroupId();
 		}
 
-		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0
-				|| groupId == null || groupId < 1 || maxId == 0){
+		if (groupId == null || groupId < 1 || maxId == 0){
 			return false;
 		}
 
@@ -186,6 +189,7 @@ public class Storage {
 			}
 		}
 		keptTask.setGroupId(0);
+		maxId = 0;
 		JsonProcessor.writeJson(lastPath,taskList);
 		return true;
 	}
@@ -204,6 +208,7 @@ public class Storage {
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
+	
 	private boolean isValidIndex(Integer index) {
 		if( index == null)
 			return false;
