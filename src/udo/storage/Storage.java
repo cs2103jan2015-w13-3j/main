@@ -24,17 +24,17 @@ public class Storage {
 	//private static File storageFile;
 	private static ArrayList<Task> taskList;
 	private static ArrayList<Task> doneTasks;
-	
+
 	private static Task prevTask;
 	private static String prevCmd;
-	
+
 	private static Integer maxId;    		//store current maximum group Id
 	//private static final Logger logger = Logger.getLogger(Storage.class.getName());
-	
+
 	public static void main(String[] args) throws IOException{
 
 		Storage st = new Storage();
-		
+
 		st.chDir("task.json");
 		st.exit();
 	}
@@ -76,7 +76,7 @@ public class Storage {
 			br.close();
 			taskList = JsonProcessor.readJson(lastPath);
 		} catch (Exception ex) {
-			
+
 			File settingFile = new File("setting.txt");
 			lastPath = "task.json";
 			JsonProcessor.writeJson(lastPath, taskList);
@@ -96,7 +96,7 @@ public class Storage {
 	public void exit() throws IOException{
 		JsonProcessor.writeJson(lastPath, taskList);
 	}
-	
+
 	//change data file's directory
 	public boolean chDir(String path) {
 		JsonProcessor.writeJson(path, taskList);
@@ -120,9 +120,9 @@ public class Storage {
 		if (newTask == null){
 			return false;
 		}
-	    newTask.setIndex(taskList.size());
+		newTask.setIndex(taskList.size());
 		newTask.setGroupId(0);
-	    taskList.add(newTask);
+		taskList.add(newTask);
 		JsonProcessor.writeJson(lastPath, taskList);
 		prevTask = newTask;
 		prevCmd = "add";
@@ -134,7 +134,7 @@ public class Storage {
 		if (dummyTasks.size() == 0){
 			return false;
 		}
-		
+
 		if (maxId == null){
 			updateMaxGroupId();
 		}
@@ -143,7 +143,7 @@ public class Storage {
 			dummyTasks.get(i).setGroupId(maxId);
 			dummyTasks.get(i).setIndex(taskList.size());
 			taskList.add(dummyTasks.get(i));
-			
+
 		}
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
@@ -158,7 +158,7 @@ public class Storage {
 			}
 		}
 	}
-	
+
 	//delete dummy tasks
 	public boolean confirm(Integer index){
 		Integer groupId = taskList.get(index).getGroupId();
@@ -171,11 +171,11 @@ public class Storage {
 				|| groupId == null || groupId < 1 || maxId == 0){
 			return false;
 		}
-		
+
 		for (int i = 0; i < taskList.size(); i++){
 			if (taskList.get(i).getGroupId() == groupId && taskList.get(i).getIndex() != index){
 				Task lastTask = taskList.get(taskList.size() -1);
-				
+
 				if (lastTask.getGroupId() == groupId && lastTask.getIndex() == index){	
 					index = i;
 				}
@@ -189,31 +189,42 @@ public class Storage {
 		JsonProcessor.writeJson(lastPath,taskList);
 		return true;
 	}
-	
+
 	//delete function, swap deleted task with last task on list 
 	public boolean delete(Integer index){
-		
+
 		//assert index >= 0 : "index is invalid";
-		if( index == null || index < 0||index >= taskList.size()|| taskList.size() == 0){
+
+		if (!isValidIndex(index))
 			return false;
-		}
-		
-		
+
 		prevTask = taskList.get(index);
 		prevCmd = "del";
 		swapWithLastTask(index);
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
+	private boolean isValidIndex(Integer index) {
+		if( index == null)
+			return false;
+		int count = 0;
+		for (int i = 0 ; i<taskList.size(); i++) {
+			if (taskList.get(i).getIndex()==index)
+				count++;
+		}
+		if (count!=1)
+			return false;	
+		return true;
+	}
 
 
 	private void swapWithLastTask(Integer index) {
 		if (taskList.size() > 1) {
-    		taskList.set(index, taskList.get(taskList.size() -1));
-    		taskList.get(index).setIndex(index);
-    		taskList.remove(taskList.size()-1);
+			taskList.set(index, taskList.get(taskList.size() -1));
+			taskList.get(index).setIndex(index);
+			taskList.remove(taskList.size()-1);
 		} else {
-		    taskList.clear(); 
+			taskList.clear(); 
 		}
 	}
 
@@ -229,7 +240,7 @@ public class Storage {
 			modifiedTask.setGroupId(0);
 		}
 		taskList.set(index, modifiedTask);
-		
+
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
@@ -238,7 +249,7 @@ public class Storage {
 		TimeSlots timeSlots = new TimeSlots(taskList);
 		return timeSlots.getFreeSlots();
 	}
-	
+
 	//query
 	public ArrayList<Task> query(){
 		return Utility.deepCopy(taskList);
@@ -280,12 +291,12 @@ public class Storage {
 		if (date != null){
 			for (int i =0; i < taskList.size(); i++){
 				if (taskList.get(i).getTaskType() == Task.TaskType.DEADLINE &&
-					isSameDate(date,taskList.get(i).getDeadline())){
+						isSameDate(date,taskList.get(i).getDeadline())){
 					returnList.add(taskList.get(i).copy());
 				}
 				else if (taskList.get(i).getTaskType() == Task.TaskType.EVENT &&
-					isBefore(date,taskList.get(i).getEnd()) &&
-					isAfter(date,taskList.get(i).getStart())){
+						isBefore(date,taskList.get(i).getEnd()) &&
+						isAfter(date,taskList.get(i).getStart())){
 					returnList.add(taskList.get(i).copy());
 				}
 			}
@@ -354,7 +365,7 @@ public class Storage {
 		}
 		return returnList;
 	}
-	
+
 	public ArrayList<Task> wildcardSearch(String searchedContent){
 		ArrayList<Task> returnList = new ArrayList<Task>();
 		for (int i = 0; i< taskList.size(); i++){
@@ -365,7 +376,7 @@ public class Storage {
 		}
 		return returnList;
 	}
-	
+
 	public boolean isWildcardMatched(String tameStr, String cardStr){
 		if (cardStr.contains("*")){
 			String[] cards = cardStr.split("\\*");
@@ -386,7 +397,7 @@ public class Storage {
 				}
 				tameStr = tameStr.substring(index + card.length());
 			}	
-			
+
 			if (cardStr.charAt(cardStr.length() -1) != '*'){
 				if (tameStr.length() > 0){
 					return false;
@@ -401,7 +412,7 @@ public class Storage {
 			return true;
 		}
 	}
-	
+
 	public int firstIndexOf(String str1, String str2){
 		int str1Index =0;
 		int str2Index = 0;
@@ -438,14 +449,14 @@ public class Storage {
 		}
 		return -1;
 	}
-	
+
 	public ArrayList<Task> nearMatchSearch(String searchedContent){
 		//stub
 		ArrayList<Task> returnList = new ArrayList<Task>();
-		
+
 		return returnList;
 	}
-	
+
 	//toggle priority
 	public boolean togglePriority(Integer index){
 		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
@@ -465,7 +476,7 @@ public class Storage {
 		}
 		prevTask = taskList.get(index).copy();
 		prevCmd = "done";
-		
+
 		if (taskList.get(index).isDone() == false){
 			taskList.get(index).setDone();
 			doneTasks.add(taskList.get(index));
@@ -483,7 +494,7 @@ public class Storage {
 	public ArrayList<Task> getDone(){
 		return Utility.deepCopy(doneTasks);
 	}
-	
+
 	public boolean undo(){
 		switch(prevCmd){
 		case "add":
