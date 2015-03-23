@@ -53,7 +53,7 @@ public class HomeController {
 
     
     public HomeController() {
-        LOGGER.setLevel(Level.ALL);
+        LOGGER.setLevel(Level.OFF);
     }
 
     /**

@@ -101,7 +101,8 @@ public class GUIFormatter {
                                          String header) {
         if (!header.equals(prevHeader) || prevHeader.isEmpty()) {
             insertHeader(displayList, header, i);
-    
+            LOGGER.finest("New Date Header Inserted = " + header);
+
             i++;
         }
         return i;

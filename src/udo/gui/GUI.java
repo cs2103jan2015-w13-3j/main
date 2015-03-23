@@ -43,7 +43,7 @@ public class GUI extends Application {
     public GUI() {
         logic = Logic.getInstance();
         logic.setGUI(this);
-        LOGGER.setLevel(Level.ALL);
+        LOGGER.setLevel(Level.INFO);
     }
 
     @Override
