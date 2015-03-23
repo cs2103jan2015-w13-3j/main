@@ -224,6 +224,9 @@ public class Task implements Comparable<Task> {
 	    return index.equals(task.index);
 	}
 	
+	/**
+	 * @author Sharmine
+	 */
 	@Override
 	public int compareTo(Task task2) {
 	    TaskType taskType = this.getTaskType();
@@ -312,8 +315,8 @@ public class Task implements Comparable<Task> {
      * Compares events and deadlines, if they land on the same day, deadlines 
      * will be placed before events
      * 
-     * @param cal1
-     * @param cal2
+     * @param cal1 is the caller's calendar to be compared
+     * @param cal2 is the specified calendar to be compared to
      * @param tasktype refers to TaskType of the specified task
      * @return 1 if 2 dates are equal or cal1 is after cal2  
      *         -1 if cal1 is before cal2
