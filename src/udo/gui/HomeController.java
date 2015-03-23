@@ -22,7 +22,7 @@ import javafx.util.Callback;
 import udo.storage.Task;
 
 public class HomeController {
-    private static final Logger LOGGER = Logger.getLogger(HomeController.class.getName());
+    private static final Logger logger = Logger.getLogger(HomeController.class.getName());
       
     public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
     public static final Color COLOR_TEXT_WARNING = Color.ORANGE;
@@ -53,7 +53,7 @@ public class HomeController {
 
     
     public HomeController() {
-        LOGGER.setLevel(Level.OFF);
+        logger.setLevel(Level.OFF);
     }
 
     /**
@@ -158,7 +158,7 @@ public class HomeController {
         @Override
         public void handle(KeyEvent event) {
             if(event.getCode() == KeyCode.TAB) {
-                LOGGER.info("Handling event " + event.getEventType());
+                logger.info("Handling event " + event.getEventType());
                 String userInput = retrieveUserInput();
                 gui.callAutocomplete(userInput);
                 event.consume();
@@ -166,6 +166,7 @@ public class HomeController {
         }
     };
     
+    //TODO null or empty string
     public void displayStatus(String receivedString) {
         if(receivedString == null) {
             receivedString = GUIUtil.EMPTY_STRING;
@@ -177,7 +178,7 @@ public class HomeController {
             statusString.setTextFill(COLOR_TEXT_NORMAL);
         }
         statusString.setText(receivedString);
-        LOGGER.finer("Status string = " + receivedString);
+        logger.finer(receivedString);
     }
     
     private String retrieveUserInput() {
@@ -197,7 +198,7 @@ public class HomeController {
         refreshTable();
         data = gui.getNewData();
         TaskTable.setItems(data);
-        LOGGER.finer("New Data set to Table");
+        logger.finer("New Data set to Table");
     }
     
     private void refreshTable() {
