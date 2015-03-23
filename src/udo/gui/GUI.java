@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.application.Application;
@@ -14,13 +15,13 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
 import udo.logic.Logic;
 import udo.storage.Task;
 import udo.util.Config;
-import udo.util.Utility;
 
 public class GUI extends Application {
+    private static final Logger LOGGER = Logger.getLogger(GUI.class.getName());
+    
     private static final String NAME_APP = "JustU";
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
     private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
@@ -42,8 +43,7 @@ public class GUI extends Application {
     public GUI() {
         logic = Logic.getInstance();
         logic.setGUI(this);
-        // For unit testing purposes      
-        //display();
+        LOGGER.setLevel(Level.ALL);
     }
 
     @Override
@@ -51,7 +51,8 @@ public class GUI extends Application {
         setPrimaryStage(primaryStage);
         showRootLayout();
         showOverview();       
-
+        LOGGER.fine("GUI Initiation Completed");
+        
         callLogicCommand(Config.CMD_STR_DISPLAY);
     }
 
@@ -72,7 +73,8 @@ public class GUI extends Application {
             
             primaryStage.setScene(scene);
             primaryStage.show();
-
+            
+            LOGGER.finer("Root Layout Initiated");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -98,7 +100,8 @@ public class GUI extends Application {
             // Get Controller Access 
             controller = loader.getController();
             controller.setMainApp(this);
-
+            
+            LOGGER.finer("Overview Scene Initiated");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -127,7 +130,15 @@ public class GUI extends Application {
      * @return true if userInput is successfully executed
      */
     public boolean callLogicCommand(String userInput) {
+        LOGGER.fine("Calls Logic Command");
         return logic.executeCommand(userInput) == true; 
+    }
+    
+    public boolean callAutocomplete(String userInput) {
+        LOGGER.fine("Calls Logic Autocomplete");
+        String str = logic.autocomplete(userInput);
+        System.out.println(str);
+        return false;
     }
     
     /**
@@ -137,7 +148,7 @@ public class GUI extends Application {
      */
     public void displayStatus(String statusString) {
         assert(statusString != null);        
-        System.out.println("In GUI: statusString = " + statusString);
+        LOGGER.info("Status string = " + statusString);
         
         controller.displayStatus(statusString);
     }
@@ -149,6 +160,8 @@ public class GUI extends Application {
      */
     public void display(List<Task> receivedList) {
         assert(receivedList != null);
+        LOGGER.info("Data received " + receivedList);
+        
         displayList = (ArrayList<Task>) receivedList;
         processReceivedList(displayList);        
         setDataToController();
@@ -157,6 +170,7 @@ public class GUI extends Application {
     private void processReceivedList(List<Task> receivedList) {
         GUIFormatter.formatDisplayList(displayList);
         convertToObservable(displayList);
+        LOGGER.info("In GUI: Data to be displayed " + taskData);
     }
 
     private void setDataToController() {
@@ -172,7 +186,6 @@ public class GUI extends Application {
      */
     private static void convertToObservable(ArrayList<Task> displayList) {
         taskData = FXCollections.observableArrayList(displayList);  
-        System.out.println("In GUI: taskData " + taskData);
     }
 
     /**

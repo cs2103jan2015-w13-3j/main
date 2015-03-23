@@ -1,5 +1,8 @@
 package udo.gui;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -19,7 +22,8 @@ import javafx.util.Callback;
 import udo.storage.Task;
 
 public class HomeController {
-          
+    private static final Logger LOGGER = Logger.getLogger(HomeController.class.getName());
+      
     public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
     public static final Color COLOR_TEXT_WARNING = Color.ORANGE;
     public static final Color COLOR_TEXT_ERROR = Color.RED;
@@ -49,7 +53,7 @@ public class HomeController {
 
     
     public HomeController() {
-        
+        LOGGER.setLevel(Level.ALL);
     }
 
     /**
@@ -59,7 +63,7 @@ public class HomeController {
     @FXML
     private void initialize() {
         configureSettings();
-        initialiseTableColumns();        
+        initialiseTableColumns();
     }
     
     private void configureSettings() {
@@ -142,7 +146,7 @@ public class HomeController {
 
     @FXML
     private void handleReturnKey(ActionEvent event) {
-        String text = inputBox.getText();
+        String text = retrieveUserInput();
 
         if (gui.callLogicCommand(text) == true) {
             inputBox.clear();
@@ -154,7 +158,9 @@ public class HomeController {
         @Override
         public void handle(KeyEvent event) {
             if(event.getCode() == KeyCode.TAB) {
-                System.out.println("Handling event " + event.getEventType()); 
+                LOGGER.info("Handling event " + event.getEventType());
+                String userInput = retrieveUserInput();
+                gui.callAutocomplete(userInput);
                 event.consume();
             }
         }
@@ -171,6 +177,11 @@ public class HomeController {
             statusString.setTextFill(COLOR_TEXT_NORMAL);
         }
         statusString.setText(receivedString);
+        LOGGER.finer("Status string = " + receivedString);
+    }
+    
+    private String retrieveUserInput() {
+        return inputBox.getText();
     }
     
     /**
@@ -185,7 +196,8 @@ public class HomeController {
     public void setData() {
         refreshTable();
         data = gui.getNewData();
-        TaskTable.setItems(data);  
+        TaskTable.setItems(data);
+        LOGGER.finer("New Data set to Table");
     }
     
     private void refreshTable() {

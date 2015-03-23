@@ -3,6 +3,7 @@ package udo.gui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
+import java.util.logging.Logger;
 
 import udo.storage.Task;
 import udo.util.Utility;
@@ -16,7 +17,8 @@ import udo.util.Utility;
  *
  */
 public class GUIFormatter {
-    
+    private static final Logger LOGGER = Logger.getLogger(GUIFormatter.class.getName());
+
     public static final String HEADER_TODO = "To-Dos";    
     
     public static void formatDisplayList(ArrayList<Task> displayList) {
@@ -27,7 +29,7 @@ public class GUIFormatter {
         Collections.sort(displayList);
         processIndex(displayList);
         formatDateLoop(displayList);
-        //System.out.println("Formatted List = " + displayList);
+        LOGGER.fine("Formatted List = " + displayList);
     }
     
     private static void processIndex(ArrayList<Task> displayList) {
@@ -48,6 +50,7 @@ public class GUIFormatter {
             Task task = displayList.get(i);
             mapIndex(displayIndex, task.getIndex());
             appendSerialNumber(task, displayIndex);
+            LOGGER.finest("Title after formatting = " + task.getContent());
         }
     }
     
@@ -74,6 +77,8 @@ public class GUIFormatter {
             header = getHeader(task);       
             i = insertIfNewHeader(displayList, prevHeader, i, header);
             prevHeader = header;
+            
+            LOGGER.finest("Current Header = " + header);
         }
 
     }
@@ -122,7 +127,7 @@ public class GUIFormatter {
         if (taskType == null) {
             return;
         }
-
+        
         switch (taskType) {
             case DEADLINE:
                 setDisplayTimeDeadLine(task);
@@ -133,6 +138,9 @@ public class GUIFormatter {
             case TODO:
                 setDisplayTimeTodo(task);
         }
+        
+        LOGGER.finest("Time formatted for " + task.getContent() + 
+                      " " + task.getLabel());
     }
 
     private static void setDisplayTimeDeadLine(Task task) {
