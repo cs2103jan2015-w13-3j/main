@@ -2,25 +2,33 @@ package udo.gui;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
 import udo.logic.Logic;
 import udo.storage.Task;
 import udo.util.Config;
 
+/**
+ * This class is the entry point for the application JustU. It provides an
+ * interface for the user to interact with and displays corresponding feedback.
+ * It initiates the Logic object.
+ * 
+ * @author Sharmine
+ *
+ */
+
 public class GUI extends Application {
-    private static final Logger LOGGER = Logger.getLogger(GUI.class.getName());
+    private static final Logger logger = Logger.getLogger(GUI.class.getName());
     
     private static final String NAME_APP = "JustU";
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
@@ -29,9 +37,10 @@ public class GUI extends Application {
             "http://fonts.googleapis.com/css?family=Open+Sans:" +
             "300italic,400italic,600italic,700,600,400";
     
-    private static ArrayList<Task> displayList = new ArrayList<Task>();
+    private static List<Task> displayList;
     private static HomeController controller;
     private static ObservableList<Task> taskData;
+    private static GUIFormatter guiFormatter;
     
     private Stage primaryStage;
     private BorderPane rootLayout;
@@ -43,15 +52,15 @@ public class GUI extends Application {
     public GUI() {
         logic = Logic.getInstance();
         logic.setGUI(this);
-        LOGGER.setLevel(Level.INFO);
+        guiFormatter = GUIFormatter.getInstance();
+        logger.setLevel(Level.INFO);
     }
 
     @Override
     public void start(Stage primaryStage) {
         setPrimaryStage(primaryStage);
-        showRootLayout();
-        showOverview();       
-        LOGGER.fine("GUI Initiation Completed");
+        setSecondaryStage();       
+        logger.fine("GUI Initiation Completed");
         
         callLogicCommand(Config.CMD_STR_DISPLAY);
     }
@@ -61,6 +70,11 @@ public class GUI extends Application {
         this.primaryStage.setTitle(NAME_APP);
     }
 
+    private void setSecondaryStage() {
+        showRootLayout();
+        showOverview();
+    }
+
     /**
      * Initializes the root layout.
      */
@@ -68,15 +82,13 @@ public class GUI extends Application {
         try {
             FXMLLoader loader = getLoader(GUI.class.getResource(PATH_TO_ROOTLAYOUT));
             rootLayout = (BorderPane) loader.load();
-
-            Scene scene = setRootScene(rootLayout);
             
-            primaryStage.setScene(scene);
-            primaryStage.show();
+            Scene scene = setRootScene(rootLayout);         
+            showSceneAtStage(scene);
+            logger.finer("Root Layout Initiated");
             
-            LOGGER.finer("Root Layout Initiated");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe(e.toString());
         }
     }
 
@@ -84,6 +96,11 @@ public class GUI extends Application {
         Scene scene = new Scene(pane);
         scene.getStylesheets().add(PATH_TO_FONTS);
         return scene;
+    }
+
+    private void showSceneAtStage(Scene scene) {
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     /**
@@ -94,16 +111,13 @@ public class GUI extends Application {
             URL url = GUI.class.getResource(PATH_TO_OVERVIEW);
             FXMLLoader loader = getLoader(url);
             AnchorPane homeOverview = (AnchorPane) loader.load();
-
-            rootLayout.setCenter(homeOverview);
-
-            // Get Controller Access 
-            controller = loader.getController();
-            controller.setMainApp(this);
             
-            LOGGER.finer("Overview Scene Initiated");
+            centerOverview(homeOverview);           
+            getControllerAccess(loader);            
+            logger.finer("Overview Scene Initiated");
+            
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe(e.toString());
         }
     }
 
@@ -113,6 +127,15 @@ public class GUI extends Application {
         return loader;
     }
     
+    private void centerOverview(AnchorPane homeOverview) {
+        rootLayout.setCenter(homeOverview);
+    }
+
+    private void getControllerAccess(FXMLLoader loader) {
+        controller = loader.getController();
+        controller.setMainApp(this);
+    }
+
     /**
      * Returns the main stage.
      * 
@@ -130,14 +153,12 @@ public class GUI extends Application {
      * @return true if userInput is successfully executed
      */
     public boolean callLogicCommand(String userInput) {
-        LOGGER.fine("Calls Logic Command");
         return logic.executeCommand(userInput) == true; 
     }
     
     public boolean callAutocomplete(String userInput) {
-        LOGGER.fine("Calls Logic Autocomplete");
         String str = logic.autocomplete(userInput);
-        System.out.println(str);
+        logger.info(str);
         return false;
     }
     
@@ -148,7 +169,7 @@ public class GUI extends Application {
      */
     public void displayStatus(String statusString) {
         assert(statusString != null);        
-        LOGGER.info("Status string = " + statusString);
+        logger.info(statusString);
         
         controller.displayStatus(statusString);
     }
@@ -160,32 +181,23 @@ public class GUI extends Application {
      */
     public void display(List<Task> receivedList) {
         assert(receivedList != null);
-        LOGGER.info("Data received " + receivedList);
+        logger.info(receivedList.toString());
         
-        displayList = (ArrayList<Task>) receivedList;
+        displayList = receivedList;
         processReceivedList(displayList);        
         setDataToController();
     }
 
-    private void processReceivedList(List<Task> receivedList) {
-        GUIFormatter.formatDisplayList(displayList);
-        convertToObservable(displayList);
-        LOGGER.info("In GUI: Data to be displayed " + taskData);
+    private void processReceivedList(List<Task> displayList) {
+        guiFormatter.setData(displayList);
+        taskData = guiFormatter.getFormattedData();
+        logger.info(taskData.toString());
     }
 
     private void setDataToController() {
         if(controller != null) {
             controller.setData();
         }
-    }
-    
-    /**
-     * Associate an ArrayList of objects with an ObservableArrayList
-     * 
-     * @param Arraylist<Task>
-     */
-    private static void convertToObservable(ArrayList<Task> displayList) {
-        taskData = FXCollections.observableArrayList(displayList);  
     }
 
     /**

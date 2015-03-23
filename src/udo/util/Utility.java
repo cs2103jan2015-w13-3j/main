@@ -20,7 +20,8 @@ public class Utility {
         
         if (cmdName.equals(Config.CMD_STR_ADD)) {
             return Config.CommandName.ADD;
-        } else if (cmdName.equals(Config.CMD_STR_DELETE)) {
+        } else if (cmdName.equals(Config.CMD_STR_DELETE) ||
+                   cmdName.equals(Config.CMD_STR_DELETE_SHORT)) {
             return Config.CommandName.DELETE;
         } else if (cmdName.equals(Config.CMD_STR_MODIFY)) {
             return Config.CommandName.MODIFY;

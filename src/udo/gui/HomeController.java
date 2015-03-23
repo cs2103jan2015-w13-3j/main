@@ -19,10 +19,22 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+
 import udo.storage.Task;
 
+/**
+ * This is the main controller class for the HomePage of the GUI. It controls
+ * the data displayed and its styling. It is also the interface between the java
+ * objects and its corresponding FXML objects. All user events are handled by
+ * this class
+ * 
+ * @author Sharmine
+ *
+ */
+
 public class HomeController {
-    private static final Logger LOGGER = Logger.getLogger(HomeController.class.getName());
+    private static final Logger logger = 
+            Logger.getLogger(HomeController.class.getName());
       
     public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
     public static final Color COLOR_TEXT_WARNING = Color.ORANGE;
@@ -53,7 +65,7 @@ public class HomeController {
 
     
     public HomeController() {
-        LOGGER.setLevel(Level.OFF);
+        logger.setLevel(Level.OFF);
     }
 
     /**
@@ -126,24 +138,6 @@ public class HomeController {
        });
     }
 
-    private void formatCellIfNotEmpty(String item, TableCell<Task, String> tableCell) {      
-        if (!tableCell.isEmpty()) {
-            formatCellText(item, tableCell);
-        }
-    }
-
-    private void formatCellText(String item, TableCell<Task, String> tableCell)
-            throws ClassCastException {
-
-        if (GUIUtil.isHeader(item)) {
-            setHeaderStyle(tableCell);
-        } else if (GUIUtil.isImportant(item, data)) { 
-            setImportantStyle(tableCell);
-        } else {
-           setTextStyle(tableCell);
-        }
-    }
-
     @FXML
     private void handleReturnKey(ActionEvent event) {
         String text = retrieveUserInput();
@@ -158,7 +152,7 @@ public class HomeController {
         @Override
         public void handle(KeyEvent event) {
             if(event.getCode() == KeyCode.TAB) {
-                LOGGER.info("Handling event " + event.getEventType());
+                logger.info("Handling event " + event.getEventType());
                 String userInput = retrieveUserInput();
                 gui.callAutocomplete(userInput);
                 event.consume();
@@ -166,6 +160,7 @@ public class HomeController {
         }
     };
     
+    //TODO null or empty string
     public void displayStatus(String receivedString) {
         if(receivedString == null) {
             receivedString = GUIUtil.EMPTY_STRING;
@@ -177,7 +172,7 @@ public class HomeController {
             statusString.setTextFill(COLOR_TEXT_NORMAL);
         }
         statusString.setText(receivedString);
-        LOGGER.finer("Status string = " + receivedString);
+        logger.finer(receivedString);
     }
     
     private String retrieveUserInput() {
@@ -197,7 +192,7 @@ public class HomeController {
         refreshTable();
         data = gui.getNewData();
         TaskTable.setItems(data);
-        LOGGER.finer("New Data set to Table");
+        logger.finer(data.toString());
     }
     
     private void refreshTable() {
@@ -205,40 +200,67 @@ public class HomeController {
         TaskTable.getColumns().get(0).setVisible(true);
     }
     
-    public static void setHeaderStyle(TableCell<Task, String> cell) {        
-        cell.setTextFill(COLOR_TABLE_HEADERS);
-        cell.setAlignment(Pos.CENTER);
-        cell.getStyleClass().remove(STYLE_STRAIGHT);
-        cell.getStyleClass().add(STYLE_ITALIC);
-    }
-    
-    public static void setTextStyle(TableCell<Task, String> cell) {
-        cell.setTextFill(Color.WHITE);
-        cell.setAlignment(Pos.CENTER_LEFT);
-        cell.getStyleClass().remove(STYLE_ITALIC);
-        cell.getStyleClass().add(STYLE_STRAIGHT);
-    }
-    
-    public static void setImportantStyle(TableCell<Task, String> cell) {
-        cell.setTextFill(Color.RED);
-        cell.setAlignment(Pos.CENTER_LEFT);
-        cell.getStyleClass().remove(STYLE_ITALIC);
-        cell.getStyleClass().add(STYLE_STRAIGHT);
-    }
-    
-    private class TaskCell extends TableCell<Task,String> {
+    private class TaskCell extends TableCell<Task, String> {
 
         public TaskCell() {
-            
+
         }
-          
-        @Override 
-            protected void updateItem(String item, boolean empty) {            
-            super.updateItem(item, empty);  
+
+        @Override
+        protected void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
             this.setText(GUIUtil.EMPTY_STRING);
             formatCellIfNotEmpty(item, this);
             this.setText(item);
         }
+        
+
+        private void formatCellIfNotEmpty(String item, TableCell<Task, String> tableCell) {      
+            if (!tableCell.isEmpty()) {
+                formatCellText(item, tableCell);
+            }
+        }
+
+        private void formatCellText(String item, TableCell<Task, String> tableCell)
+                throws ClassCastException {
+
+            if (GUIUtil.isHeader(item)) {
+                setHeaderStyle();
+            } else if (GUIUtil.isImportant(item, data)) { 
+                setImportantStyle();
+            } else {
+               setTextStyle();
+            }
+        }
+        
+        private void setHeaderStyle() {        
+            setTextFill(COLOR_TABLE_HEADERS);
+            setAlignment(Pos.CENTER);
+            styleItalic();
+        }
+        
+        private void setTextStyle() {
+            setTextFill(Color.WHITE);
+            setAlignment(Pos.CENTER_LEFT);
+            styleStraight();
+        }
+        
+        private void setImportantStyle() {
+            setTextFill(Color.RED);
+            setAlignment(Pos.CENTER_LEFT);
+            styleStraight();
+        }
+
+        private void styleStraight() {
+            getStyleClass().remove(STYLE_ITALIC);
+            getStyleClass().add(STYLE_STRAIGHT);
+        }
+        
+        private void styleItalic() {
+            getStyleClass().remove(STYLE_STRAIGHT);
+            getStyleClass().add(STYLE_ITALIC);
+        }
+        
     }
     
     private class TimeCell extends TableCell<Task,String> {
