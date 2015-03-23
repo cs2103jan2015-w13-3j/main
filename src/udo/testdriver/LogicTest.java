@@ -22,6 +22,7 @@ public class LogicTest {
         }
     }
 
+    /* A valid case when a new deadline is added */
     @Test
     public void testAdd1() {
         removeExistingTasks();
@@ -41,6 +42,7 @@ public class LogicTest {
         assertEquals("go to school", tasks.get(0).getContent());
     }
 
+    /* A valid case when a new event is added */
     @Test
     public void testAdd2() {
         removeExistingTasks();
@@ -60,6 +62,7 @@ public class LogicTest {
         assertEquals("go to school", tasks.get(0).getContent());
     }
 
+    /* A valid case in which a floating task is added */
     @Test
     public void testAdd3() {
         removeExistingTasks();
@@ -79,6 +82,7 @@ public class LogicTest {
         assertEquals("watch a movie", tasks.get(0).getContent());
     }
 
+    /* A valid case where multiple tasks are added */
     @Test
     public void testAdd4() {
         removeExistingTasks();
@@ -97,6 +101,7 @@ public class LogicTest {
         assertEquals(3, tasks.size());
     }
     
+    /* This is an invalid case in which the input dates is misspelled */
     @Test
     public void testInvalidDate() {
         removeExistingTasks();
