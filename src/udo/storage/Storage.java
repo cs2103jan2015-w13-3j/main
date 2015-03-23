@@ -182,7 +182,7 @@ public class Storage {
 
 	//delete dummy tasks
 	public boolean confirm(Integer index){
-		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0){
+		if(!isValidIndex(index)){
 			return false;
 		}
 		
@@ -258,7 +258,8 @@ public class Storage {
 
 	//modify function
 	public boolean modify(Integer index, Task modifiedTask){
-		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
+		
+		if (!isValidIndex(index)){
 			return false;
 		}
 		prevTask = taskList.get(index);
@@ -285,7 +286,7 @@ public class Storage {
 
 	//query a specific task
 	public Task query(Integer index){
-		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
+		if (!isValidIndex(index)){
 			return new Task();
 		}
 		return taskList.get(index).copy();
@@ -487,7 +488,7 @@ public class Storage {
 
 	//toggle priority
 	public boolean togglePriority(Integer index){
-		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
+		if (!isValidIndex(index)){
 			return false;
 		}
 		prevTask = taskList.get(index).copy();
@@ -499,7 +500,7 @@ public class Storage {
 
 	//mark as done or undone
 	public boolean markDone(Integer index){
-		if (index == null || index < 0||index >= taskList.size()||taskList.size() == 0){
+		if (!isValidIndex(index)){
 			return false;
 		}
 		prevTask = taskList.get(index).copy();
