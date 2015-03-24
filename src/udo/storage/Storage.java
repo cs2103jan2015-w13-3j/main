@@ -27,7 +27,8 @@ public class Storage {
 
 	private static Task prevTask;
 	private static String prevCmd;
-
+	private static String lastPath;
+	private static String prevPath;
 	private static Integer maxId;    		//store current maximum group Id
 	//private static final Logger logger = Logger.getLogger(Storage.class.getName());
 
@@ -47,7 +48,7 @@ public class Storage {
 	}
 
 	//read from json file
-	String lastPath;
+
 	public Storage(){
 		taskList = new ArrayList<Task>();
 		doneTasks = new ArrayList<Task>();
@@ -81,6 +82,7 @@ public class Storage {
 				}
 				catch (Exception e) {
 					System.out.println(e);
+					writeSettingDefault();
 				}
 			}
 			else {
@@ -100,7 +102,7 @@ public class Storage {
 		}
 		catch (Exception ex) {
 			System.out.println(ex);
-			JsonProcessor.writeJson(lastPath, taskList);
+			JsonProcessor.writeJson(lastPath,  taskList);
 		}
 
 		try {
@@ -116,44 +118,72 @@ public class Storage {
 
 	//store to json file when exits
 	public void exit() throws IOException{
-		JsonProcessor.writeJson(lastPath, taskList);
+		JsonProcessor.writeJson(lastPath,  taskList);
 	}
 
 	//change data file's directory
 	public boolean chDir(String path) {
+		if (path==null)
+			return false; 
+		else {
+			prevPath = lastPath;
+			if (path.endsWith(".json"))
+				lastPath = path;
+			else { 
+				if (!lastPath.equals("task.json")) {
+					int nameIndex = lastPath.lastIndexOf("\\") +1;
+					String fileName = lastPath.substring(nameIndex, lastPath.length());
+					if (path.endsWith("\\"))
+						lastPath = path.concat(fileName);
+					else
+						lastPath = path.concat("\\"+fileName);
+				}
+				else {
+					if (path.endsWith("\\"))
+						lastPath = path.concat("task.json");
+					else
+						lastPath = path.concat("\\task.json");
+				}
+			}
+			if (JsonProcessor.writeJson(lastPath,  taskList)) {
+				try {
+					File settingFile = new File("setting.txt");
+					FileWriter fw;
+					fw = new FileWriter(settingFile);
+					BufferedWriter bw = new BufferedWriter(fw);
+					bw.write(lastPath);
+					bw.close();
+					fw.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
-		if (path.endsWith(".json"))
-			lastPath = path;
-		else { 
-			if (!lastPath.equals("task.json")) {
-				int nameIndex = lastPath.lastIndexOf("\\") +1;
-				String fileName = lastPath.substring(nameIndex, lastPath.length());
-				if (path.endsWith("\\"))
-					lastPath = path.concat(fileName);
-				else
-					lastPath = path.concat("\\"+fileName);
+				return true;
 			}
-			else {
-				if (path.endsWith("\\"))
-					lastPath = path.concat("task.json");
-				else
-					lastPath = path.concat("\\task.json");
-			}
+			else 
+				lastPath = prevPath;
+			return false;
 		}
+	}
 
+
+	public boolean undoChDir() {
+		lastPath = prevPath;
+		JsonProcessor.writeJson(lastPath, taskList);
+		File settingFile = new File("setting.txt");
+		FileWriter fw;
 		try {
-			JsonProcessor.writeJson(lastPath, taskList);
-			File settingFile = new File("setting.txt");
-			FileWriter fw = new FileWriter(settingFile);
+			fw = new FileWriter(settingFile);
 			BufferedWriter bw = new BufferedWriter(fw);
 			bw.write(lastPath);
 			bw.close();
 			fw.close();
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+		return true;
 	}
 
 	public boolean add(Task newTask) {
@@ -164,7 +194,7 @@ public class Storage {
 		newTask.setIndex(taskList.size());
 		newTask.setGroupId(0);
 		taskList.add(newTask);
-		JsonProcessor.writeJson(lastPath, taskList);
+		JsonProcessor.writeJson(lastPath,  taskList);
 		prevTask = newTask;
 		prevCmd = "add";
 		return true;
@@ -185,7 +215,7 @@ public class Storage {
 			taskList.add(dummyTasks.get(i));
 
 		}
-		JsonProcessor.writeJson(lastPath, taskList);
+		JsonProcessor.writeJson(lastPath,  taskList);
 		return true;
 	}
 
@@ -246,7 +276,7 @@ public class Storage {
 		prevTask = taskList.get(index);
 		prevCmd = "del";
 		swapWithLastTask(index);
-		JsonProcessor.writeJson(lastPath, taskList);
+		JsonProcessor.writeJson(lastPath,  taskList);
 		return true;
 	}
 
@@ -282,7 +312,7 @@ public class Storage {
 		}
 		taskList.set(index, modifiedTask);
 
-		JsonProcessor.writeJson(lastPath, taskList);
+		JsonProcessor.writeJson(lastPath,  taskList);
 		return true;
 	}
 
@@ -506,7 +536,7 @@ public class Storage {
 		prevTask = taskList.get(index).copy();
 		prevCmd = "mod";
 		taskList.get(index).setPriority(!taskList.get(index).getPriority());
-		JsonProcessor.writeJson(lastPath, taskList);
+		JsonProcessor.writeJson(lastPath,  taskList);
 		return true;
 	}
 
@@ -527,7 +557,7 @@ public class Storage {
 			return false;
 		}
 		JsonProcessor.writeJson("done.json", doneTasks);
-		JsonProcessor.writeJson(lastPath, taskList);
+		JsonProcessor.writeJson(lastPath,  taskList);
 		return true;
 	}
 
@@ -558,7 +588,7 @@ public class Storage {
 			break;
 		default: return false;
 		}
-		JsonProcessor.writeJson(lastPath, taskList);
+		JsonProcessor.writeJson(lastPath,  taskList);
 		return true;
 	}
 

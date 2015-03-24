@@ -55,7 +55,9 @@ public class JsonProcessor{
 				if (temp.getIndex()==i) {
 					rtList.add(temp);
 				}
-				else throw new Exception ("Index at "+i+" is invalid");
+				else {
+					temp.setIndex(i);
+				}
 			}
 
 			/*rtList.remove(1);
@@ -71,7 +73,7 @@ public class JsonProcessor{
 
 	/* Java Method to write JSON String to file
 	 */
-	public static void writeJson(String path, ArrayList<Task> myArr) {
+	public static boolean writeJson(String path, ArrayList<Task> myArr) {
 		ArrayList<String> gsonArray = new ArrayList<String>();
 		for (int i=0; i<myArr.size(); i++) {
 			Gson gson = new Gson();
@@ -87,9 +89,11 @@ public class JsonProcessor{
 			jsonFileWriter.flush();
 			jsonFileWriter.close();
 			System.out.println("Done");
+			return true;
 
 		} catch (IOException e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
 }
