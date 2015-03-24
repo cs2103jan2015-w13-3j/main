@@ -47,7 +47,8 @@ public class TimeSlots {
 			temp.setContent(CONTENT_FREE_SLOT);
 			temp.setStart(occupiedSlots.get(i).getEnd());
 			temp.setEnd(occupiedSlots.get(i+1).getStart());
-
+			
+			temp.setIndex(freeSlots.size());
 			freeSlots.add(temp);
 		}
 	}

@@ -251,17 +251,10 @@ public class Storage {
 	}
 
 	private boolean isValidIndex(Integer index) {
-		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0){			
+		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0)		
 			return false; 
-		}
-		//int count = 0;
-		/*for (int i = 0 ; i<taskList.size(); i++) {
-			if (taskList.get(i).getIndex()==index)
-				count++;
-		}
-		if (count!=1)
-			return false;*/
 		return true;
+
 	}
 
 
