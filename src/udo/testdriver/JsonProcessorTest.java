@@ -76,9 +76,11 @@ public class JsonProcessorTest {
 			taskList.add(new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
 					0, null, "leisure", false, false));
 			assert testList.size() == taskList.size();
-			for (int i = 0; i < taskList.size(); i++){
-				assertEquals(testList.get(i).toString(), taskList.get(i).toString());
+			for (int i = 0; i <taskList.size(); i++){
+				taskList.get(i).setIndex(i);
 			}
+			assertEquals(taskList,testList);
+		
 
 		} catch (Exception e) {
 			testList = new ArrayList<Task>();
