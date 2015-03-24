@@ -25,6 +25,7 @@ public class JsonProcessor{
 		JSONParser parser = new JSONParser();
 		ArrayList<Task> rtList = new ArrayList<Task>();
 		try {
+			int countError = 0;
 			System.out.println("Reading JSON file from Java program");
 			FileReader fileReader = new FileReader(file);
 			JSONArray json = (JSONArray) parser.parse(fileReader);
@@ -36,7 +37,11 @@ public class JsonProcessor{
 				}
 				else {
 					temp.setIndex(i);
+					rtList.add(temp);
+					countError++;
 				}
+				if (countError>0)
+						writeJson(file, rtList);
 			}
 
 		} catch (Exception ex) {
