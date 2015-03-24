@@ -8,11 +8,11 @@ public class ConfirmCommand extends Command {
     private static final String STATUS_CONFIRM = "Task %s confirmed";
     private static final String STATUS_NOT_BLOCKED =
             "selected task is not an unconfirmed task";
-    
+
     public ConfirmCommand() {
         setCommandName(CommandName.CONFIRM);
     }
-    
+
     @Override
     public boolean isValid() {
         return super.isValid();
@@ -27,7 +27,7 @@ public class ConfirmCommand extends Command {
         assert(argIndex != null);
         Integer storageIndex = getStorageIndex(argIndex);
         assert(storageIndex != null);
-        
+
         Task confirmedTask = storage.query(storageIndex);
 
         boolean isSuccessful = storage.confirm(storageIndex);
@@ -46,7 +46,7 @@ public class ConfirmCommand extends Command {
     protected boolean parseArg(String arg) {
         return parseIndexContentPair(arg);
     }
-    
+
     private String getConfirmStatus(Task task) {
         return String.format(STATUS_CONFIRM, task.getContent());
     }

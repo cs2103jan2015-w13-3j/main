@@ -33,46 +33,46 @@ public abstract class Command {
             new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
     protected static final Pattern indexPattern =
             Pattern.compile("^(\\d+)");
-    
+
     private static final String WARNING_CLASH =
             "task %s clashes with task %s";
 
     protected Config.CommandName commandName;
     protected String argStr;
-    protected Integer argIndex; 
+    protected Integer argIndex;
     protected Map<String, Option> options;
-    
+
     protected String status;
 
     protected GUI gui;
     protected Storage storage;
-    
+
     private static final Logger log = Logger.getLogger(Command.class.getName());
-    
+
     public Command() {
         options = new HashMap<>();
     }
-    
+
     public Config.CommandName getCommandName() {
         return commandName;
     }
-    
+
     public String getArgStr() {
         return argStr;
     }
-    
+
     public Integer getArgIndex() {
         return argIndex;
     }
-    
+
     public Option getOption(String optionName) {
         return options.get(optionName);
     }
-    
+
     public boolean hasOption(String optionName) {
         return options.containsKey(optionName);
     }
-    
+
     public String getStatus() {
         return status;
     }
@@ -80,27 +80,27 @@ public abstract class Command {
     public void setCommandName(Config.CommandName commandName) {
         this.commandName = commandName;
     }
-    
+
     public boolean setArg(String argStr) {
         return parseArg(argStr);
     }
-    
+
     public void setOption(String optionName, Option option) {
         options.put(optionName, option);
     }
-    
+
     protected void setStatus(String status) {
         this.status = status;
     }
-    
+
     public void setGUI(GUI gui) {
         this.gui = gui;
     }
-    
+
     public void setStorage(Storage storage) {
         this.storage = storage;
     }
-    
+
     protected boolean parseArg(String argStr) {
         this.argStr = argStr;
         return true;
@@ -146,7 +146,7 @@ public abstract class Command {
             return -1;
         }
     }
-    
+
     /**
      * Check if this command has valid data values
      * To be overrided by subclasses
@@ -158,10 +158,10 @@ public abstract class Command {
             log.log(Level.FINE, getStatus());
             return false;
         }
-        
+
         return true;
     }
-    
+
     /**
      * Execute the current command. GUI and storage must be
      * set fore this method to be called without error
@@ -170,7 +170,7 @@ public abstract class Command {
     public boolean execute() {
         assert(gui != null);
         assert(storage != null);
-        
+
         if (!isValid()) {
             log.log(Level.FINE, getStatus());
             updateGUIStatus();
@@ -217,7 +217,7 @@ public abstract class Command {
             return Task.TaskType.TODO;
         }
     }
-    
+
     /*********************************************************
      * Helper methods for error checking of command sematics *
      * ******************************************************/
@@ -281,7 +281,7 @@ public abstract class Command {
             status = Logic.formatErrorStr(Logic.ERR_EMPTY_CONTENT);
             return false;
         }
-        
+
         return true;
     }
 
@@ -306,9 +306,9 @@ public abstract class Command {
 
         return true;
     }
-    
+
     /**
-     * Find an event that clashed with an input event 
+     * Find an event that clashed with an input event
      * @param task
      * @return a clashed with the input event argument or null if the input
      *         Task is not an event, or there is not clashed event
@@ -316,11 +316,11 @@ public abstract class Command {
     protected Task findClashedTask(Task task, List<Task> existingTasks) {
         assert(task != null);
         assert(existingTasks != null);
-        
+
         if (task.getTaskType() != TaskType.EVENT) {
             return null;
         }
-        
+
         for (Task t : existingTasks) {
             if (t.getTaskType() == TaskType.EVENT) {
                 if (!(task.getStart().compareTo(t.getEnd()) >= 0 ||
@@ -329,7 +329,7 @@ public abstract class Command {
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -342,14 +342,14 @@ public abstract class Command {
             setStatus(Logic.formatErrorStr(Logic.ERR_INVALID_INDEX));
             return false;
         }
-        
+
         return true;
     }
-    
+
     /*********************************************************
      * Helper methods for filling in fields in Task data structure *
      * ******************************************************/
-    
+
     /**
      * Extract data from the parsed command and fill in the task
      * data structure with retrieved information
@@ -516,16 +516,16 @@ public abstract class Command {
             task.setDeadline(deadlineCalendar);
         }
     }
-    
+
     protected String getClashWarning(String task, String clashedTask) {
         return Logic.formatWarningStr(String.format(WARNING_CLASH,
                                                     task, clashedTask));
     }
-    
+
     public void updateGUIStatus() {
         gui.displayStatus(getStatus());
     }
-    
+
     public String toString() {
         String str = "Command: " + commandName + "\n";
         if (argIndex != null) {
@@ -535,7 +535,7 @@ public abstract class Command {
             str += "Argument: " + argStr + "\n";
         }
         str += "Options:\n";
-        
+
         for (Map.Entry<String, Option> opEntry : options.entrySet()) {
             String opName = opEntry.getKey();
             Option op = opEntry.getValue();
@@ -555,10 +555,10 @@ public abstract class Command {
                 str += op.timeArgument / 60 + "h" +
                        op.timeArgument % 60 + "m";
             }
-            
+
             str += "\n";
         }
-        
+
         return str;
     }
 }
