@@ -25,8 +25,9 @@ import udo.storage.Task.TaskType;
  * 4. Insertion of an event with a later date
  * 5. Insertion of an event with an earlier date
  * 6. Insertion of an event with same start time, different end time
- * 7. Insertion of deadline on the same day with a later time
- * 8. Insertion of same deadline with different content
+ * 7. Insertion of an event with same start time, same end time
+ * 8. Insertion of deadline on the same day with a later time
+ * 9. Insertion of same deadline with different content
  * 
  *  @author Sharmine
  *  
@@ -132,7 +133,6 @@ public class GUITest extends TestCase {
     
     //Insertion of new headers: Todo header
     public void test1() throws Exception {
-        
         initialise();
 
         Task todoAfter1 = new Task(TaskType.TODO, "1.  Watch Harry Potter", null, 
@@ -177,7 +177,6 @@ public class GUITest extends TestCase {
     
     //Multiple events of the same date, to be sorted by time
     public void test3() throws Exception {
-        
         initialise();
         
         Task todoAfter = new Task(TaskType.TODO, "3.  Watch Harry Potter", null, 
@@ -212,30 +211,34 @@ public class GUITest extends TestCase {
         assertEquals(expectedList.toString(), gui.getNewData().toString());
     }
     
-    /*Insertion of an event with a later date 
-     *separate headers for different dates
+    /*
+     * Insertion of an event with a later date 
+     * Separate headers for different dates
      */
     public void test4() throws Exception {
         initialise();
                         
-        Task todoAfter1 = new Task(TaskType.TODO, "4.  Watch Harry Potter", null, 
-                                   null, null, 0, null, EMPTY_STRING,
+        Task todoAfter1 = new Task(TaskType.TODO, "4.  Watch Harry Potter",
+                                   null, null, null, 0, null, EMPTY_STRING, 
                                    false, false);
-     
-        Task currDayEvent12pmAfter = new Task(TaskType.EVENT, "1.  meeting", null, 
-                                   new GregorianCalendar(2015, 02, 20, 12, 0), 
-                                   new GregorianCalendar(2015, 02, 20, 13, 30),
-                                   0, null, EMPTY_STRING, false, false);
-        
-        Task currDayEvent2pmAfter = new Task(TaskType.EVENT, "2.  second meeting", null, 
-                                   new GregorianCalendar(2015, 02, 20, 14, 0), 
-                                   new GregorianCalendar(2015, 02, 20, 16, 0),
-                                   0, null, EMPTY_STRING, false, false);
-        
-        Task nextDayEvent11pmAfter = new Task(TaskType.EVENT, "3.  conference", null, 
-                                    new GregorianCalendar(2015, 02, 21, 11, 30), 
-                                    new GregorianCalendar(2015, 02, 21, 12, 0),
-                                    0, null, EMPTY_STRING, false, false);
+
+        Task currDayEvent12pmAfter = 
+                new Task(TaskType.EVENT, "1.  meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
+
+        Task currDayEvent2pmAfter = 
+                new Task(TaskType.EVENT, "2.  second meeting", null, 
+                         new GregorianCalendar(2015, 02, 20, 14, 0), 
+                         new GregorianCalendar(2015, 02, 20, 16, 0), 0,
+                         null, EMPTY_STRING, false, false);
+
+        Task nextDayEvent11pmAfter = 
+                new Task(TaskType.EVENT, "3.  conference", null,
+                         new GregorianCalendar(2015, 02, 21, 11, 30),
+                         new GregorianCalendar(2015, 02, 21, 12, 0), 0, null,
+                         EMPTY_STRING, false, false);
         
         inputList.add(todo1);
         inputList.add(currDayEvent12pm);
@@ -255,31 +258,35 @@ public class GUITest extends TestCase {
         assertEquals(expectedList.toString(), gui.getNewData().toString());
     }
     
-    /*Insertion of an event with an earlier date 
-     *separate headers to be inserted for different dates
+    /*
+     * Insertion of an event with an earlier date 
+     * Separate headers to be inserted for different dates
      */
     public void test5() throws Exception {
         initialise();
 
-        Task todoAfter1 = new Task(TaskType.TODO, "4.  Watch Harry Potter", null, 
-                                   null, null, 0, null, EMPTY_STRING,
-                                   false, false);
+        Task todoAfter1 = 
+                new Task(TaskType.TODO, "4.  Watch Harry Potter", null, 
+                         null, null, 0, null, EMPTY_STRING, false, false);
      
-        Task currDayEvent12pmAfter = new Task(TaskType.EVENT, "2.  meeting", null, 
-                                   new GregorianCalendar(2015, 02, 20, 12, 0), 
-                                   new GregorianCalendar(2015, 02, 20, 13, 30),
-                                   0, null, EMPTY_STRING, false, false);
+        Task currDayEvent12pmAfter = 
+                new Task(TaskType.EVENT, "2.  meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
         
-        Task currDayEvent2pmAfter = new Task(TaskType.EVENT, "3.  second meeting", null, 
-                                   new GregorianCalendar(2015, 02, 20, 14, 0), 
-                                   new GregorianCalendar(2015, 02, 20, 16, 0),
-                                   0, null, EMPTY_STRING, false, false);
+        Task currDayEvent2pmAfter = 
+                new Task(TaskType.EVENT, "3.  second meeting", null, 
+                         new GregorianCalendar(2015, 02, 20, 14, 0), 
+                         new GregorianCalendar(2015, 02, 20, 16, 0),
+                         0, null, EMPTY_STRING, false, false);
         
-        Task prevDayEvent11pmAfter = new Task(TaskType.EVENT, "1.  old macs", null, 
-                                    new GregorianCalendar(2015, 02, 19, 11, 30), 
-                                    new GregorianCalendar(2015, 02, 19, 12, 0),
-                                    0, null, EMPTY_STRING, false, false);
-        
+        Task prevDayEvent11pmAfter = 
+                new Task(TaskType.EVENT, "1.  old macs",
+                         null, new GregorianCalendar(2015, 02, 19, 11, 30),
+                         new GregorianCalendar(2015, 02, 19, 12, 0), 0, null,
+                         EMPTY_STRING, false, false);
+
         inputList.add(todo1);
         inputList.add(currDayEvent12pm);
         inputList.add(currDayEvent2pm);
@@ -304,22 +311,24 @@ public class GUITest extends TestCase {
     public void test6() throws Exception {
         initialise();
 
-        Task currDayEvent12pm4pm = new Task(TaskType.EVENT, "meeting", null,
-                new GregorianCalendar(2015, 02, 20, 12, 0),
-                new GregorianCalendar(2015, 02, 20, 16, 00), 0, null,
-                EMPTY_STRING, false, false);
+        Task currDayEvent12pm4pm = 
+                new Task(TaskType.EVENT, "meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 16, 00), 0, null,
+                         EMPTY_STRING, false, false);
 
-        Task currDayEvent12pm1pmAfter = new Task(TaskType.EVENT, "1.  meeting",
-                null, new GregorianCalendar(2015, 02, 20, 12, 0),
-                new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
-                EMPTY_STRING, false, false);
+        Task currDayEvent12pm1pmAfter = 
+                new Task(TaskType.EVENT, "1.  meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
 
-        Task currDayEvent12pm4pmAfter = new Task(TaskType.EVENT, "2.  meeting",
-                null, new GregorianCalendar(2015, 02, 20, 12, 0),
-                new GregorianCalendar(2015, 02, 20, 16, 00), 0, null,
-                EMPTY_STRING, false, false);
+        Task currDayEvent12pm4pmAfter = 
+                new Task(TaskType.EVENT, "2.  meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 16, 00), 
+                         0, null, EMPTY_STRING, false, false);
         
-
         inputList.add(currDayEvent12pm4pm);
         inputList.add(currDayEvent12pm);
 
@@ -332,58 +341,88 @@ public class GUITest extends TestCase {
         assertEquals(expectedList.toString(), gui.getNewData().toString());
     }
     
-    //Insertion of deadline on the same day with a later time
+    /*
+     * Insertion of an event with same start time, same end time
+     * To be sorted lexicographically
+     */
     public void test7() throws Exception {
         initialise();
+
+        Task currDayEvent12pm1pm = 
+                new Task(TaskType.EVENT, "second meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
+
+        Task currDayEvent12pm1pmAfter = 
+                new Task(TaskType.EVENT, "1.  meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
+
+        Task currDayEvent12pm4pmAfter = 
+                new Task(TaskType.EVENT, "2.  second meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 
+                         0, null, EMPTY_STRING, false, false);
         
-        Task todoAfter1 = new Task(TaskType.TODO, "5.  Watch Harry Potter",
-                                   null, null, null, 0, null, EMPTY_STRING, 
-                                   false, false);
-     
-        Task currDayEvent12pmAfter = new Task(TaskType.EVENT, "2.  meeting", null, 
-                                    new GregorianCalendar(2015, 02, 20, 12, 0), 
-                                    new GregorianCalendar(2015, 02, 20, 13, 30),
-                                    0, null, EMPTY_STRING, false, false);
-        
-        Task currDayEvent2pmAfter = new Task(TaskType.EVENT, "3.  second meeting", null, 
-                                    new GregorianCalendar(2015, 02, 20, 14, 0), 
-                                    new GregorianCalendar(2015, 02, 20, 16, 0),
-                                    0, null, EMPTY_STRING, false, false);
-        
-        Task nextDayEvent11pmAfter = new Task(TaskType.EVENT, "4.  conference", null, 
-                                    new GregorianCalendar(2015, 02, 21, 11, 30), 
-                                    new GregorianCalendar(2015, 02, 21, 12, 0),
-                                    0, null, EMPTY_STRING, false, false);
-        
-        Task currDayDeadline5pmAfter = new Task(TaskType.DEADLINE, "1.  hand in work",  
-                                       new GregorianCalendar(2015, 02, 20, 17, 0),
-                                       null, null, 0, null, EMPTY_STRING, false, 
-                                       false);
-        
-        inputList.add(todo1);
+
+        inputList.add(currDayEvent12pm1pm);
         inputList.add(currDayEvent12pm);
-        inputList.add(currDayEvent2pm);
-        inputList.add(nextDayEvent11pm);
-        inputList.add(currDayDeadline5pm);
-        
+
         expectedList.add(currDayHeader);
-        expectedList.add(currDayDeadline5pmAfter);
-        expectedList.add(currDayEvent12pmAfter);
-        expectedList.add(currDayEvent2pmAfter);
-        expectedList.add(nextDayHeader);
-        expectedList.add(nextDayEvent11pmAfter);
-        expectedList.add(todoHeader);
-        expectedList.add(todoAfter1);
+        expectedList.add(currDayEvent12pm1pmAfter);
+        expectedList.add(currDayEvent12pm4pmAfter);
       
         gui.display(inputList);
 
         assertEquals(expectedList.toString(), gui.getNewData().toString());
     }
     
-    /*Insertion of same deadlines with different content
-     * They will be sorted lexicographically
+    /*
+     * Insertion of deadline on the same day with a later time
+     * Deadline tasks to be displayed at the top
      */
     public void test8() throws Exception {
+        initialise();
+     
+        Task currDayEvent12pmAfter = 
+                new Task(TaskType.EVENT, "2.  meeting", null, 
+                         new GregorianCalendar(2015, 02, 20, 12, 0), 
+                         new GregorianCalendar(2015, 02, 20, 13, 30),
+                         0, null, EMPTY_STRING, false, false);
+        
+        Task currDayEvent2pmAfter = 
+                new Task(TaskType.EVENT, "3.  second meeting", null, 
+                         new GregorianCalendar(2015, 02, 20, 14, 0), 
+                         new GregorianCalendar(2015, 02, 20, 16, 0),
+                         0, null, EMPTY_STRING, false, false);
+        
+        Task currDayDeadline5pmAfter = 
+                new Task(TaskType.DEADLINE, "1.  hand in work",  
+                         new GregorianCalendar(2015, 02, 20, 17, 0),
+                         null, null, 0, null, EMPTY_STRING, false, 
+                         false);
+        
+        inputList.add(currDayEvent12pm);
+        inputList.add(currDayEvent2pm);
+        inputList.add(currDayDeadline5pm);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(currDayDeadline5pmAfter);
+        expectedList.add(currDayEvent12pmAfter);
+        expectedList.add(currDayEvent2pmAfter);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    /*
+     * Insertion of same deadlines with different content
+     * They will be sorted lexicographically
+     */
+    public void test9() throws Exception {
         initialise();
         
         Task currDayDeadline5pmDuplicate =

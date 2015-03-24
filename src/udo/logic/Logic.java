@@ -30,7 +30,7 @@ public class Logic {
             "specified task's index is not valid";
     public static final String ERR_EMPTY_CONTENT =
             "task's content cannot be empty";
-    
+
     public static final String WARN_FORMAT = "Warning: %s";
 
     public static final Integer MAX_STATUS_LENGTH = 40;
@@ -39,7 +39,7 @@ public class Logic {
     private Autocompleter autocompleter;
 
     private static String status;
-    
+
     private static final Logger log = Logger.getLogger(Logic.class.getName());
 
     private Logic() {
@@ -50,15 +50,15 @@ public class Logic {
          * Initialize and start up passive thread for reminder
          */
     }
-    
+
     public static Logic getInstance() {
         if (logicObj == null) {
             logicObj = new Logic();
         }
-        
+
         return logicObj;
     }
-    
+
     public void setGUI(GUI guiObj) {
         gui = guiObj;
     }
@@ -69,7 +69,7 @@ public class Logic {
      */
     public boolean executeCommand(String command) {
         log.log(Level.FINE, "Receive command: " + command);
-        
+
         Command parsedCommand = parser.parseCommand(command);
 
         if (parser.getErrorStatus() != null) {
@@ -80,15 +80,15 @@ public class Logic {
             gui.displayStatus(status);
             return false;
         }
-        
+
         log.log(Level.FINER, parsedCommand.toString(), parsedCommand);
-        
+
         parsedCommand.setGUI(gui);
         parsedCommand.setStorage(storage);
 
         return parsedCommand.execute();
     }
-    
+
     /******************************
      * Interface for autocomplete *
      ******************************/
@@ -99,14 +99,14 @@ public class Logic {
     public List<String> getSuggestions(String text) {
         return autocompleter.getSuggestions(text);
     }
-    
+
     /**
      * Refer to same method in Autocompleter
      */
     public List<String> getSuggestions(String text, Integer maxWords) {
         return autocompleter.getSuggestions(text, maxWords);
     }
-    
+
     /**
      * Refer to same method in Autocompleter
      */
@@ -120,7 +120,7 @@ public class Logic {
     public String getPreviousCmd() {
         return autocompleter.getPreviousCmd();
     }
-    
+
     /**
      * Refer to same method in Autocompleter
      */
@@ -147,7 +147,7 @@ public class Logic {
     public static String formatErrorStr(String error) {
         return String.format(ERR_FORMAT, error);
     }
-    
+
     public static String formatWarningStr(String warning) {
         return String.format(WARN_FORMAT, warning);
     }

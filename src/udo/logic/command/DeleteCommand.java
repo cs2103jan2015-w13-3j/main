@@ -16,19 +16,19 @@ import udo.util.Config;
 public class DeleteCommand extends Command {
     private static final String STATUS_DELETED = "Task: %s deleted sucessfully";
     private static final String STATUS_ALL_DELETED = "All tasks deleted";
-    
+
     private static final String ERR_INVALID_RANGE = "invalid index range";
-    
+
     private Integer[] indices;
     private static final String INDEX_RANGE_MARKER = "-";
-    
+
     private static final Logger log = Logger.getLogger(DeleteCommand.class.getName());
 
     public DeleteCommand() {
         super();
         setCommandName(Config.CommandName.DELETE);
     }
-    
+
     @Override
     public boolean isValid() {
         return super.isValid();
@@ -42,7 +42,7 @@ public class DeleteCommand extends Command {
 
         assert(indices != null && indices.length > 0);
 
-        Task deletedTask = null; 
+        Task deletedTask = null;
         if (indices.length == 1) {
             deletedTask = storage.query(getStorageIndex(indices[0]));
         }
@@ -52,7 +52,7 @@ public class DeleteCommand extends Command {
         if (isSuccessful) {
             setStatus(getDeleteSucessStatus(deletedTask));
             gui.display(storage.query());
-        }        
+        }
 
         updateGUIStatus();
         return isSuccessful;
@@ -68,10 +68,10 @@ public class DeleteCommand extends Command {
         if (storageIndices == null) {
             return false;
         }
-        
+
         Collections.sort(storageIndices);
         Collections.reverse(storageIndices);
-        
+
         log.log(Level.INFO, "Deleting task " + storageIndices.toString(),
                 storageIndices);
 
@@ -133,9 +133,9 @@ public class DeleteCommand extends Command {
                 }
             }
         }
-        
+
         this.indices = indices.toArray(new Integer[indices.size()]);
-        
+
         return true;
     }
 
@@ -147,16 +147,16 @@ public class DeleteCommand extends Command {
      */
     private boolean getIndexRange(String s, Set<Integer> indices) {
         String[] range = s.split(INDEX_RANGE_MARKER);
-        
+
         if (range.length != 2) {
             setStatus(ERR_INVALID_RANGE);
             return false;
         }
-        
+
         try {
             int from = Integer.parseInt(range[0]);
             int to = Integer.parseInt(range[1]);
-            
+
             for (int i = from; i <= to; i++) {
                 indices.add(i);
             }
@@ -165,7 +165,7 @@ public class DeleteCommand extends Command {
             log.log(Level.FINE, getStatus());
             return false;
         }
-        
+
         return true;
     }
 }

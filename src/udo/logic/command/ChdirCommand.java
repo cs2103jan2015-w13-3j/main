@@ -4,6 +4,9 @@ import udo.logic.Logic;
 import udo.util.Config.CommandName;
 
 public class ChdirCommand extends Command {
+    private static final String STATUS_FILE_PATH =
+            "Tasks file is at: %s";
+
     public ChdirCommand() {
         super();
         setCommandName(CommandName.CHDIR);
@@ -20,7 +23,13 @@ public class ChdirCommand extends Command {
             return false;
         }
 
-        assert(argStr != null);
+        if (argStr == null || argStr.equals("")) {
+            assert(storage.getPath() != null);
+            setStatus(String.format(STATUS_FILE_PATH, storage.getPath()));
+
+            updateGUIStatus();
+            return true;
+        }
 
         boolean isSuccessful = storage.chDir(argStr);
         if (!isSuccessful) {

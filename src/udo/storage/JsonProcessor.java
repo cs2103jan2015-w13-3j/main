@@ -15,30 +15,9 @@ import com.google.gson.Gson;
 public class JsonProcessor{
 
 	public static void main(String args[]) {
-		// generate JSON String in Java
-		//Gson gson = new Gson();
 
-		//  JSONArray jsonArray = new JSONArray();
-		/*Task task1 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(1995, 10, 20, 0, 1) , new GregorianCalendar(1995, 10, 20, 11, 30), 
-				5, new GregorianCalendar(1995, 10, 20, 23, 59), "boring",  false);
-		Task task2 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(1995, 10, 20) , new GregorianCalendar(1995, 10, 20), 
-				5, new GregorianCalendar(1995, 10, 20), "boring",  false);
-		Task task3 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(1995, 10, 20) , new GregorianCalendar(1995, 10, 20), 
-				10, new GregorianCalendar(1995, 10, 20), "boring",  false);
-		//String jtask1 = gson.toJson(task1);
-		ArrayList<Task> myArr = new ArrayList<Task>();
-		myArr.add(task1);
-		myArr.add(task2);
-		myArr.add(task2);
-		myArr.add(task3);*/
-
-
-		// generate JSON String in Java
-		//writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json", myArr);
-
-		// let's read
-		//readJson("E:/Subject/CS2103T/project1/main/src/udo/storage/test2.json");
 	}
+	
 	/*
 	 * Java Method to read JSON From File
 	 */
@@ -60,12 +39,7 @@ public class JsonProcessor{
 				}
 			}
 
-			/*rtList.remove(1);
-			rtList.get(0).setDuration(1);
-			writeJson("E:/Subject/CS2103T/project1/main/src/udo/storage/testUpdated.json", rtList);*/
-
 		} catch (Exception ex) {
-			//	ex.printStackTrace();
 			throw ex;
 		}
 		return rtList;

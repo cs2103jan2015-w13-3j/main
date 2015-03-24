@@ -92,7 +92,7 @@ public class AddCommand extends Command {
     }
 
     /**
-     * Find an event that clashed with an input event 
+     * Find an event that clashed with an input event
      * @param task
      * @return a clashed with the input event argument or null if the input
      *         Task is not an event, or there is not clashed event
@@ -100,7 +100,7 @@ public class AddCommand extends Command {
     protected Task findClashedTask(List<Task> tasks, List<Task> existingTasks) {
         assert(tasks != null);
         assert(existingTasks != null);
-        
+
         Task clash = null;
 
         for (Task task : tasks) {
@@ -110,7 +110,7 @@ public class AddCommand extends Command {
                 return clash;
             }
         }
-        
+
         return null;
     }
 
@@ -132,7 +132,7 @@ public class AddCommand extends Command {
         List<Task> tasks = new ArrayList<>();
 
         int numOfTasks = getNumberOfTasks(taskType);
-        
+
         for (int i = 0; i < numOfTasks; i++) {
             Task task = new Task();
             task.setTaskType(taskType);
@@ -140,13 +140,13 @@ public class AddCommand extends Command {
             fillTaskFromCommand(task, i);
 
             fillDefaults(task);
-            
+
             tasks.add(task);
         }
 
         return tasks;
     }
-    
+
     private int getNumberOfTasks(TaskType taskType) {
         switch (taskType) {
             case DEADLINE:
@@ -169,7 +169,7 @@ public class AddCommand extends Command {
             case TODO:
                 return 1;
         }
-        
+
         return 0;
     }
 }

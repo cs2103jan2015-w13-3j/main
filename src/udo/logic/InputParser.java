@@ -34,7 +34,7 @@ public class InputParser {
             Pattern.compile("(?i)^(?:\\s)*" +
                             "(?<name>add|modify|delete|dd|display|" +
                             "search|done|chdir|undo|confirm)");
-    
+
     // Regex strings and pattern used for matching an option
     public static final String OPTION_MAKER = "/";
     private static final String OPTION_NO_ARG_FORMATER = "(/%s|/%s)";
@@ -44,15 +44,15 @@ public class InputParser {
     // Map option names to their corresponding types
     private Map<String, String> optionTypeMap = new HashMap<>();
     private Map<String, String> shortToLongMap = new HashMap<>();
-    
+
     // Used to store the option strings and their positions within the command
     private ArrayList<String> extractedOptions = new ArrayList<>();
     private ArrayList<Integer> optionStarts = new ArrayList<>();
     private ArrayList<Integer> optionEnds = new ArrayList<>();
-    
+
     // Used to parse date in natural language using Natty library
     public static final Parser dateParser = new Parser();
-    
+
     // Patterns used to parse time
     private static final String GROUP_HOUR = "h";
     private static final String GROUP_MINUTE1 = "m1";
@@ -65,9 +65,9 @@ public class InputParser {
             "((?<m2>\\d{1,2})\\s*(minutes?|min|m))";
     private static final Pattern hourPat = Pattern.compile(hourPatStr);
     private static final Pattern minPat = Pattern.compile(minutePatStr);
-    
+
     private static final int MINUTES_IN_HOUR = 60;
-    
+
     private String errorStatus;
     /** Syntax errors messages */
     private static final String ERR_INVALID_TIME_FORMAT =
@@ -78,18 +78,18 @@ public class InputParser {
            "Argument contains invalid integers";
     public static final String ERR_UNSPECIFIED_INDEX =
             "Task's index is not specified";
-    
+
     private static final Logger log = Logger.getLogger(InputParser.class.getName());
 
     public InputParser() {
         StringBuilder optionPatternBuilder = new StringBuilder();
         String optionPattern;
-        
+
         for (int i = 0; i < Config.OPTIONS_TABLE.length; i++) {
             String[] option = Config.OPTIONS_TABLE[i];
-                    
+
             fillOptionTypeMap(option);
-            
+
             optionPattern = createOptionPattern(option);
 
             if (i == Config.OPTIONS_TABLE.length - 1) {
@@ -98,7 +98,7 @@ public class InputParser {
                 optionPatternBuilder.append(optionPattern + "|");
             }
         }
-        
+
         optionsPattern = Pattern.compile(optionPatternBuilder.toString());
     }
 
@@ -144,21 +144,21 @@ public class InputParser {
         if (command == null) {
             return null;
         }
-        
+
         Config.CommandName cmdName = extractCommandName(command);
         Command resultCommand = createCommandFromName(cmdName);
 
         if (resultCommand == null || errorStatus != null) {
             return resultCommand;
         }
-        
+
         extractOptions(command);
-        
+
         log.log(Level.FINE, "Parsing argument");
         if (!resultCommand.setArg(extractCmdArg(command, resultCommand))) {
             errorStatus = resultCommand.getStatus();
         }
-        
+
         log.log(Level.FINE, "Parsing options");
         parseAllOptions(command, resultCommand);
 
@@ -183,7 +183,7 @@ public class InputParser {
             case DISPLAY:
                 return new DisplayCommand();
             case DONE:
-                return new DoneCommand(); 
+                return new DoneCommand();
             case CHDIR:
                 return new ChdirCommand();
             case SEARCH:
@@ -209,17 +209,17 @@ public class InputParser {
     private String extractCmdArg(String command, Command resultCommand) {
         int cmdNameEndIndex = getCmdNameEndIndex(command);
         assert(cmdNameEndIndex >= 0);
-        
+
         int argEndIndex = command.length();
 
         if (resultCommand.getCommandName() != Config.CommandName.CHDIR &&
             extractedOptions.size() > 0) {
             argEndIndex = optionStarts.get(0);
         }
-        
+
         return command.substring(cmdNameEndIndex, argEndIndex).trim();
     }
-    
+
     /**
      * Return the end index of the command name in the command string
      * @param command
@@ -269,7 +269,7 @@ public class InputParser {
             if (longOpt != null) {
                 option = longOpt;
             }
-            
+
             extractedOptions.add(option);
 
             optionStarts.add(optionsMatcher.start());
@@ -302,7 +302,7 @@ public class InputParser {
      */
     private void parseOption(int i, String command, Command resultCommand) {
         Command.Option option = new Command.Option();
-        
+
         String optionName = extractedOptions.get(i);
         String optionArgType = optionTypeMap.get(optionName);
 
@@ -312,10 +312,10 @@ public class InputParser {
             option.intArgument = parseIntArg(i, command);
         } else if (optionArgType.equals(Config.TYPE_DATETIME)) {
             option.dateArgument = parseDateTimeArg(i, command);
-        } else if (optionArgType.equals(Config.TYPE_TIME)) { 
+        } else if (optionArgType.equals(Config.TYPE_TIME)) {
             option.timeArgument = parseTimeArg(i, command);
         }
-        
+
         resultCommand.setOption(optionName, option);
     }
 
@@ -328,12 +328,12 @@ public class InputParser {
      */
     private Integer parseTimeArg(int i, String command) {
         String argStr = getArgStr(i, command);
-        
+
         Matcher hourMatcher = hourPat.matcher(argStr);
         Matcher minMatcher = minPat.matcher(argStr);
         int h = 0;
         int m = 0;
-        
+
         if (hourMatcher.find()) {
             try {
                 h = Integer.parseInt(hourMatcher.group(GROUP_HOUR));
@@ -342,7 +342,7 @@ public class InputParser {
                 return null;
             }
         }
-        
+
         if (minMatcher.find()) {
             try {
                 if (minMatcher.group(GROUP_MINUTE1) != null) {
@@ -369,20 +369,20 @@ public class InputParser {
     private Date[] parseDateTimeArg(int i, String command) {
         String[] dateStrs = getArgStr(i, command).split(DATE_DELIMITER);
         Date[] result = new Date[dateStrs.length];
-        
+
         for (int j = 0; j < dateStrs.length; j++) {
             List<DateGroup> groups = dateParser.parse(dateStrs[j]);
-    
+
             if (groups == null || groups.size() == 0 ||
                 groups.get(0).getDates() == null ||
                 groups.get(0).getDates().size() == 0) {
                 errorStatus = ERR_INVALID_DATE_FORMAT;
                 return null;
             }
-    
+
             result[j] = groups.get(0).getDates().get(0);
         }
-        
+
         return result;
     }
 
@@ -399,7 +399,7 @@ public class InputParser {
         if (i < extractedOptions.size() - 1) {
            argEnd =  optionStarts.get(i + 1);
         }
-        
+
         return command.substring(argStart, argEnd).trim();
     }
 
@@ -411,9 +411,9 @@ public class InputParser {
      */
     private Integer parseIntArg(int i, String command) {
         String argStr = getArgStr(i, command);
-        
+
         Integer result = null;
-        
+
         try {
             result = Integer.parseInt(argStr);
         } catch (NumberFormatException e) {
@@ -432,7 +432,7 @@ public class InputParser {
      */
     private String parseStringArg(int i, String command) {
         String argStr = getArgStr(i, command);
-        
+
         if (argStr == null) {
             return "";
         }
@@ -449,11 +449,11 @@ public class InputParser {
         optionStarts.clear();
         optionEnds.clear();
     }
-    
+
     public String getErrorStatus() {
         return errorStatus;
     }
-    
+
     private void clearErrorStatus() {
         errorStatus = null;
     }
@@ -464,7 +464,7 @@ public class InputParser {
      */
     public static void main(String[] args) {
         InputParser inputParser = new InputParser();
-        
+
         System.out.println(inputParser.parseCommand("modify 10 modify reflection /deadline 1/3/2015 /reminder today"));
         System.out.println(inputParser.parseCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm"));
         System.out.println(inputParser.parseCommand("add AAAI conference /start in 2 days /end tuesday"));
@@ -477,7 +477,7 @@ public class InputParser {
         System.out.println(inputParser.parseCommand("chdir /deadline"));
         System.out.println(inputParser.parseCommand("search school tomorrow"));
         System.out.println(inputParser.parseCommand("done 2"));
-        
+
         /* Testing multiple dates */
         System.out.println(inputParser.parseCommand("add match midterm /start next friday or next thursday /end 11/02/15 or 20/02/2015"));
         System.out.println(inputParser.parseCommand("submit the report /dl tomorrow or the day after tomorrow /reminder next thursday"));

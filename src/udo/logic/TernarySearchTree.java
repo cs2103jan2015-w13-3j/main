@@ -10,17 +10,17 @@ public class TernarySearchTree {
         private char myChar;
         private Node left, right, center;
         protected Boolean isWordEnd;
-        
+
         public Node(char myChar, Boolean isWordEnd) {
             this.myChar = myChar;
             this.isWordEnd = isWordEnd;
         }
     }
-    
+
     private Node root = null;
-    
+
     private static final Logger log = Logger.getLogger(TernarySearchTree.class.getName());
-    
+
     /**
      * Add the string s into the search tree
      * @param s the string from which characters are added into the tree
@@ -32,7 +32,7 @@ public class TernarySearchTree {
         if (node == null) {
             node = new Node(s.charAt(index), false);
         }
-        
+
         if (s.charAt(index) < node.myChar) {
             node.left = add(s, index, node.left);
         } else if (s.charAt(index) > node.myChar) {
@@ -41,32 +41,32 @@ public class TernarySearchTree {
             if (index + 1 == s.length()) {
                 node.isWordEnd = true;
             } else {
-                node.center = add(s, index + 1, node.center); 
+                node.center = add(s, index + 1, node.center);
             }
         }
-        
+
         return node;
     }
-    
+
     /**
      * Add the string s into the search tree
      * @param s
      */
     public void add(String s) {
         log.log(Level.FINEST, "Adding " + s);
-        
+
         if (s == null) {
             return;
         }
-        
+
         s = s.trim();
         if (s.equalsIgnoreCase("")) {
             return;
         }
-        
+
         root = add(s, 0, root);
     }
-    
+
     /**
      * Search if the tree contains the word s
      * @param s
@@ -76,16 +76,16 @@ public class TernarySearchTree {
         if (s == null) {
             return false;
         }
-        
+
         Node n = searchString(s);
 
         if (n != null && n.isWordEnd) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Search for a sequence of characters in the tree that matches
      * s. The sequence does not have to form a full word
@@ -99,7 +99,7 @@ public class TernarySearchTree {
 
         int index = 0;
         Node curNode = root;
-        
+
         while (curNode != null) {
             if (s.charAt(index) < curNode.myChar) {
                 curNode = curNode.left;
@@ -113,7 +113,7 @@ public class TernarySearchTree {
                 curNode = curNode.center;
             }
         }
-        
+
         return null;
     }
 
@@ -138,10 +138,10 @@ public class TernarySearchTree {
                 return searchTree(prefix, false, n.center, numWords);
             }
         }
-        
+
         return new ArrayList<String>();
     }
-    
+
     /**
      * Search a return a list of words with the specified prefix
      * @param prefix
@@ -150,7 +150,7 @@ public class TernarySearchTree {
     public List<String> searchPrefix(String prefix) {
         return searchPrefix(prefix, null);
     }
-    
+
     /**
      * Find words in the tree rooted at some node appended by prefix
      * @param prefix the prefix from the root to this tree
@@ -164,12 +164,12 @@ public class TernarySearchTree {
                                     Node node, Integer numWords) {
         List<Character> curWord = stringToCharList(prefix);
         List<String> result = new ArrayList<>();
-        
+
         if (prefixIncluded) {
             result.add(prefix);
         }
         searchTreeHelper(node, numWords, curWord, result);
-        
+
         return result;
     }
 
@@ -181,7 +181,7 @@ public class TernarySearchTree {
                 result.add(prefix.charAt(i));
             }
         }
-        
+
         return result;
     }
 
@@ -194,7 +194,7 @@ public class TernarySearchTree {
         if (node == null) {
             return;
         }
-        
+
         searchTreeHelper(node.left, numWords, curWord, result);
         if (numWords != null && result.size() == numWords) {
             return;
@@ -206,7 +206,7 @@ public class TernarySearchTree {
             result.add(charListToString(curWord));
         }
         searchTreeHelper(node.center, numWords, curWord, result);
-        
+
         curWord.remove(curWord.size() - 1);
 
         searchTreeHelper(node.right, numWords, curWord, result);
@@ -218,22 +218,22 @@ public class TernarySearchTree {
         for (char c : curWord) {
             builder.append(c);
         }
-        
+
         return builder.toString();
     }
 
     public static void main(String[] args) {
         TernarySearchTree t = new TernarySearchTree();
-        
+
         t.add("cat"); t.add("category"); t.add("catalyzt");
         t.add("dog"); t.add("dogmatic"); t.add("dogwood");
         t.add("add"); t.add("addition"); t.add("additional");
-        
+
         List<String> r = t.searchPrefix("ad");
         for (String s : r) {
             System.out.println(s);
         }
-        
+
         System.out.println(t.contains("dogwood"));
         System.out.println(t.contains("catalyst"));
     }

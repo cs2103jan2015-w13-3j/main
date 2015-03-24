@@ -6,7 +6,7 @@ import udo.util.Config.CommandName;
 
 public class DoneCommand extends Command {
     private static final String STATUS_DONE = "Task %s is done";
-    
+
     public DoneCommand() {
         super();
         setCommandName(CommandName.DONE);
@@ -26,7 +26,7 @@ public class DoneCommand extends Command {
         assert(argIndex != null);
         Integer storageIndex = getStorageIndex(argIndex);
         assert(storageIndex != null);
-        
+
         Task doneTask = storage.query(storageIndex);
 
         boolean isSuccessful = storage.markDone(storageIndex);
@@ -45,7 +45,7 @@ public class DoneCommand extends Command {
     protected boolean parseArg(String arg) {
         return parseIndexContentPair(arg);
     }
-    
+
     private String getDoneStatus(Task task) {
         return String.format(STATUS_DONE, task.getContent());
     }
