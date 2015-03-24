@@ -16,7 +16,7 @@ public class ModifyCommand extends Command {
         super();
         setCommandName(CommandName.MODIFY);
     }
-    
+
     @Override
     public boolean isValid() {
         if (argIndex == null) {
@@ -26,7 +26,7 @@ public class ModifyCommand extends Command {
 
         return super.isValid() && isIndexValid() && isDurationValid();
     }
-    
+
     @Override
     public boolean execute() {
         log.log(Level.INFO, "Modifying task...");
@@ -49,7 +49,7 @@ public class ModifyCommand extends Command {
             fillTaskFromCommand(task, 0);
             fillDefaults(task);
         }
-        
+
         log.log(Level.INFO, "Modified task: ");
         log.log(Level.INFO, task.toString(), task);
 
@@ -71,11 +71,11 @@ public class ModifyCommand extends Command {
                 gui.display(storage.query());
             }
         }
-        
+
         updateGUIStatus();
         return isSuccessful;
     }
-    
+
     private String getModifySucessStatus(Task task) {
         return String.format(STATUS_MODIFIED,
                              Logic.summarizeContent(task.getContent()));

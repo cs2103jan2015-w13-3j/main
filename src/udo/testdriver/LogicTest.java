@@ -26,15 +26,15 @@ public class LogicTest {
     @Test
     public void testAdd1() {
         removeExistingTasks();
-        
+
         Logic logic = Logic.getInstance();
         logic.setGUI(new GUIStub());
-        
+
         Storage storage = new Storage();
-        
+
         assertEquals(true,
                      logic.executeCommand("go to school /deadline tomorrow"));
-        
+
         List<Task> tasks = storage.query();
 
         assertEquals(1, tasks.size());
@@ -46,15 +46,15 @@ public class LogicTest {
     @Test
     public void testAdd2() {
         removeExistingTasks();
-        
+
         Logic logic = Logic.getInstance();
         logic.setGUI(new GUIStub());
-        
+
         Storage storage = new Storage();
-        
+
         assertEquals(true,
                      logic.executeCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm"));
-        
+
         List<Task> tasks = storage.query();
 
         assertEquals(1, tasks.size());
@@ -66,15 +66,15 @@ public class LogicTest {
     @Test
     public void testAdd3() {
         removeExistingTasks();
-        
+
         Logic logic = Logic.getInstance();
         logic.setGUI(new GUIStub());
-        
+
         Storage storage = new Storage();
-        
+
         assertEquals(true,
                      logic.executeCommand("add watch a movie /duration 2 hours 30 minutes"));
-        
+
         List<Task> tasks = storage.query();
 
         assertEquals(1, tasks.size());
@@ -86,21 +86,21 @@ public class LogicTest {
     @Test
     public void testAdd4() {
         removeExistingTasks();
-        
+
         Logic logic = Logic.getInstance();
         logic.setGUI(new GUIStub());
-        
+
         Storage storage = new Storage();
-        
+
         logic.executeCommand("go to school /deadline tomorrow");
         logic.executeCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm");
         logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
-        
+
         List<Task> tasks = storage.query();
 
         assertEquals(3, tasks.size());
     }
-    
+
     /* This is an invalid case in which the input dates is misspelled */
     @Test
     public void testInvalidDate() {

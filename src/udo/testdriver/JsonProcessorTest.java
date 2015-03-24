@@ -59,7 +59,7 @@ public class JsonProcessorTest {
 				0, null, "leisure", false, false));
 		JsonProcessor.writeJson(storageFile,taskList);
 		String expected = readFile(expectedFile);
-		assertEquals(expected.trim(), readFile(storageFile).trim());
+		assertEquals(expected.trim(), readFile(storageFile).trim());		//general case
 	}
 
 	@Test
@@ -67,21 +67,6 @@ public class JsonProcessorTest {
 		ArrayList<Task> testList;
 		try {
 			testList = JsonProcessor.readJson(inputFile);
-
-			taskList.clear();
-			taskList.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
-					0, new GregorianCalendar(2005,01,02), "work",true, false));
-			taskList.add(new Task(TaskType.TODO, "fighting", null,null, null,
-					120, new GregorianCalendar(2011,01,02), "personal", false, false));
-			taskList.add(new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
-					0, null, "leisure", false, false));
-			assert testList.size() == taskList.size();
-			for (int i = 0; i <taskList.size(); i++){
-				taskList.get(i).setIndex(i);
-			}
-			assertEquals(taskList,testList);
-		
-
 		} catch (Exception e) {
 			testList = new ArrayList<Task>();
 			e.printStackTrace();
@@ -99,9 +84,8 @@ public class JsonProcessorTest {
 			taskList.get(i).setGroupId(0);
 		}
 
-		assert testList.size() == taskList.size();
-		for (int i = 0; i < taskList.size(); i++){
-			assertEquals(taskList, testList);
-		}
+		assert testList.size() == taskList.size();		//case when jsonFile has been manually modified
+	
+		assertEquals(taskList, testList);			//general case
 	}
 }

@@ -19,20 +19,20 @@ public class Autocompleter {
     TernarySearchTree dictTree;
     // Used to store words extracted from tasks' content
     TernarySearchTree taskContentTree;
-    
+
     List<String> commandHistory;
-    
+
     private static final Logger log = Logger.getLogger(Autocompleter.class.getName());
-    
+
     String dictPath = "res/dict.txt";
 
     public Autocompleter() {
         keywordsTree = new TernarySearchTree();
         dictTree = new TernarySearchTree();
         taskContentTree = new TernarySearchTree();
-        
+
         commandHistory = new LinkedList<String>();
-        
+
         addKeywordsToTree(keywordsTree);
         addDictWordsToTree(dictTree);
     }
@@ -45,7 +45,7 @@ public class Autocompleter {
 
     private void addDictWordsToTree(TernarySearchTree dictTree) {
         BufferedReader reader = null;
-        
+
         try {
             reader = new BufferedReader(new FileReader(dictPath));
             String s = reader.readLine();
@@ -107,7 +107,7 @@ public class Autocompleter {
         List<String> keywordsList = null;
         List<String> dictWordsList;
         List<String> contentWordsList;
-        
+
         ArrayList<String> result = new ArrayList<>();
 
         if (lastWord != null) {
@@ -135,7 +135,7 @@ public class Autocompleter {
             }
         }
 
-        return result; 
+        return result;
     }
 
     /**
@@ -148,10 +148,10 @@ public class Autocompleter {
         if (tokenizedString.length == 1) {
             return keywordsTree.searchPrefix(lastWord);
         }
-    
+
         return null;
     }
-    
+
     /**
      * Fill in the autocompleted word for the last word in text
      * @param text
@@ -160,22 +160,22 @@ public class Autocompleter {
     public String autocomplete(String text) {
         return null;
     }
-    
+
     /**
      * Add a command text to the commands history
      * @param cmd
      */
     public void addToHistory(String cmd) {
-        
+
     }
-    
+
     /**
      * @return the previous command text in history
      */
     public String getPreviousCmd() {
         return null;
     }
-    
+
     /**
      * @return the next command text in history
      */

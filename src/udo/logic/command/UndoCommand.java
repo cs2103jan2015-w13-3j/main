@@ -30,7 +30,7 @@ public class UndoCommand extends Command {
         updateGUIStatus();
         return isSuccessful;
     }
-    
+
     @Override
     public boolean isValid() {
         return super.isValid();

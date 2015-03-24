@@ -14,10 +14,10 @@ public class Utility {
 	private static final SimpleDateFormat fmt =
 	        new SimpleDateFormat("dd/MM/yyyy HH:mm");
 	public static HashMap<Integer, Integer> indexMap = new HashMap<>();
-	
+
     public static Config.CommandName convertToCommandName(String cmdName) {
         cmdName = cmdName.toLowerCase();
-        
+
         if (cmdName.equals(Config.CMD_STR_ADD)) {
             return Config.CommandName.ADD;
         } else if (cmdName.equals(Config.CMD_STR_DELETE) ||
@@ -67,7 +67,7 @@ public class Utility {
 	    }
 		return fmt.format(calendar.getTime());
 	}
-	
+
 	/**
 	 * Convert a formatted date string into a calendar object
 	 * @param dateStr the formatted string representation of a date
@@ -87,8 +87,8 @@ public class Utility {
             return null;
         }
 	}
-	
-	
+
+
 	public static ArrayList<Task> deepCopy(List<Task> firstCopy) {
 	    ArrayList<Task> copy = new ArrayList<>();
 	    for(Task element : firstCopy) {
@@ -96,7 +96,7 @@ public class Utility {
 	    }
 	    return copy;
 	}
-	
+
 	public static boolean isSameDate(GregorianCalendar cal1, GregorianCalendar cal2) {
         return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                 cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);

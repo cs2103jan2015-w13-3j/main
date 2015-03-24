@@ -13,7 +13,7 @@ import udo.logic.command.Command;
 
 public class ParserTest {
     private static final String testsDir = "res/tests/parser/";
-    
+
     public String readFile(String filename) {
         String result = null;
 
@@ -22,7 +22,7 @@ public class ParserTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return result;
     }
 
@@ -31,11 +31,11 @@ public class ParserTest {
         String[] inputs = readFile(testsDir + "input1.txt").
                               split(System.lineSeparator());
         String[] expected = readFile(testsDir + "expected1.txt").split("#");
-        
+
         InputParser parser = new InputParser();
-        
+
         assert(inputs.length == expected.length);
-        
+
         for (int i = 0; i < inputs.length; i++) {
             assertEquals(expected[i].trim(),
                          ignoreOptions(parser.parseCommand(inputs[i])));
