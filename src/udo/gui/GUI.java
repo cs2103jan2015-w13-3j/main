@@ -80,11 +80,10 @@ public class GUI extends Application {
      */
     private void showRootLayout() {
         try {
-            FXMLLoader loader = getLoader(GUI.class.getResource(PATH_TO_ROOTLAYOUT));
-            rootLayout = (BorderPane) loader.load();
-            
-            Scene scene = setRootScene(rootLayout);         
-            showSceneAtStage(scene);
+            URL url = GUI.class.getResource(PATH_TO_ROOTLAYOUT);
+            FXMLLoader loader = getLoader(url);
+            Scene rootScene = setRootScene(loader);         
+            showSceneAtStage(rootScene);
             logger.finer("Root Layout Initiated");
             
         } catch (IOException e) {
@@ -92,7 +91,13 @@ public class GUI extends Application {
         }
     }
 
-    private Scene setRootScene(BorderPane pane) {
+    private Scene setRootScene(FXMLLoader loader) throws IOException {
+        rootLayout = (BorderPane) loader.load();    
+        Scene scene = castPaneToScene(rootLayout);
+        return scene;
+    }
+    
+    private Scene castPaneToScene(BorderPane pane) {
         Scene scene = new Scene(pane);
         scene.getStylesheets().add(PATH_TO_FONTS);
         return scene;
@@ -110,15 +115,18 @@ public class GUI extends Application {
         try {
             URL url = GUI.class.getResource(PATH_TO_OVERVIEW);
             FXMLLoader loader = getLoader(url);
-            AnchorPane homeOverview = (AnchorPane) loader.load();
-            
-            centerOverview(homeOverview);           
+            setOverview(loader);           
             getControllerAccess(loader);            
             logger.finer("Overview Scene Initiated");
             
         } catch (IOException e) {
             logger.severe(e.toString());
         }
+    }
+
+    private void setOverview(FXMLLoader loader) throws IOException {
+        AnchorPane homeOverview = (AnchorPane) loader.load();      
+        centerOverview(homeOverview);
     }
 
     private FXMLLoader getLoader(URL url) {

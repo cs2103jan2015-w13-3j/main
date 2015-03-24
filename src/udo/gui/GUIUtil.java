@@ -7,6 +7,13 @@ import javafx.collections.ObservableList;
 import udo.storage.Task;
 import udo.util.Utility;
 
+/**
+ * This class is a Utility class catered for GUI package
+ * mainly.
+ * 
+ * @author Sharmine
+ *
+ */
 public class GUIUtil {
     
     public static final String EMPTY_STRING = "";
