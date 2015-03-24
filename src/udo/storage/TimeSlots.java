@@ -19,14 +19,21 @@ public class TimeSlots {
 	public TimeSlots(ArrayList<Task> taskList){
 		occupiedSlots = new ArrayList<Task>();
 		freeSlots = new ArrayList<Task>();
+		
+		addEventTasks(taskList);
+		
+		Collections.sort(occupiedSlots, new StartTimeComparator());
+		
+		mergeSlots();
+		setFreeSlots();
+	}
+
+	private void addEventTasks(ArrayList<Task> taskList) {
 		for (int i = 0; i < taskList.size(); i++){
 			if (taskList.get(i).getTaskType() == TaskType.EVENT){
 				occupiedSlots.add(taskList.get(i).copy());
 			}
 		}
-		Collections.sort(occupiedSlots, new StartTimeComparator());
-		mergeSlots();
-		setFreeSlots();
 	}
 
 	private void mergeSlots(){
