@@ -79,9 +79,27 @@ public class JsonProcessorTest {
 			for (int i = 0; i < taskList.size(); i++){
 				assertEquals(testList.get(i).toString(), taskList.get(i).toString());
 			}
+
 		} catch (Exception e) {
-			//System.out.println(e);
-			System.out.println(e);
+			testList = new ArrayList<Task>();
+			e.printStackTrace();
+		}
+		taskList.clear();
+		taskList.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+				0, new GregorianCalendar(2005,01,02), "work",true, false));
+		taskList.add(new Task(TaskType.TODO, "fighting", null,null, null,
+				120, new GregorianCalendar(2011,01,02), "personal", false, false));
+		taskList.add(new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
+				0, null, "leisure", false, false));
+
+		for (int i = 0; i <taskList.size(); i++){
+			taskList.get(i).setIndex(i);
+			taskList.get(i).setGroupId(0);
+		}
+
+		assert testList.size() == taskList.size();
+		for (int i = 0; i < taskList.size(); i++){
+			assertEquals(taskList, testList);
 		}
 	}
 }
