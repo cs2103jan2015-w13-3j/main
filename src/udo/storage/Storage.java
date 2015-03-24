@@ -12,16 +12,12 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.io.*;
 
-import udo.storage.Task.TaskType;
 import udo.util.Utility;
-
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
 
 public class Storage {
 
 	public static final String EOL = System.getProperty("line.separator");
-	//private static File storageFile;
+
 	private static ArrayList<Task> taskList;
 	private static ArrayList<Task> doneTasks;
 
@@ -29,7 +25,6 @@ public class Storage {
 	private static String prevCmd;
 
 	private static Integer maxId;    		//store current maximum group Id
-	//private static final Logger logger = Logger.getLogger(Storage.class.getName());
 
 	public static void main(String[] args) throws IOException{
 
@@ -39,13 +34,7 @@ public class Storage {
 		st.exit();
 	}
 
-
-	public static void printTest(ArrayList<Task> test){
-		for (int i =0; i < test.size(); i++)
-			System.out.println(test.get(i));
-		System.out.println("");
-	}
-
+	
 	//read from json file
 	String lastPath;
 	public Storage(){
@@ -56,8 +45,12 @@ public class Storage {
 		readTaskList();
 		readDoneTasks();
 	}
-
-
+	
+	//return current path to store json file
+	public String getPath(){
+		return new String(lastPath);
+	}
+	
 	private void readDoneTasks() {
 		try{
 			doneTasks = JsonProcessor.readJson("done.json");
@@ -70,7 +63,6 @@ public class Storage {
 
 	private void readTaskList() {
 		try {
-			//System.out.println("Reading JSON file from setting");
 			FileReader fr = new FileReader("setting.txt");
 			BufferedReader br = new BufferedReader(fr);
 			lastPath = br.readLine();
@@ -218,8 +210,6 @@ public class Storage {
 
 	//delete function, swap deleted task with last task on list 
 	public boolean delete(Integer index){
-
-		//assert index >= 0 : "index is invalid";
 
 		if (!isValidIndex(index))
 			return false;
