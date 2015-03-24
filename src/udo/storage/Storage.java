@@ -73,7 +73,7 @@ public class Storage {
 				catch (Exception e) {
 					System.out.println(e);
 					try {
-						JsonProcessor.writeJson(lastPath, null);
+						JsonProcessor.writeJson(lastPath, taskList);
 					}
 					catch (Exception ex) {
 						writeSettingDefault();
