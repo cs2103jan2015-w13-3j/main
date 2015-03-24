@@ -5,7 +5,6 @@ import java.util.GregorianCalendar;
 
 import javafx.collections.ObservableList;
 import udo.storage.Task;
-import udo.util.Utility;
 
 /**
  * This class is a Utility class catered for GUI package

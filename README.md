@@ -11,7 +11,7 @@ A text command oriented Task Manger application. This application supports the c
 
 or
 
-> Type 'java JustU.jar' in your terminal
+> Type 'java -jar JustU.jar' in your terminal
 
 
 ### Development
