@@ -149,7 +149,6 @@ public class Storage {
 	}
 
 	public boolean add(Task newTask) {
-		//assert newTask != null;
 		if (newTask == null){
 			return false;
 		}
