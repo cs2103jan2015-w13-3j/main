@@ -35,7 +35,7 @@ public class Storage {
 
 		Storage st = new Storage();
 
-		st.chDir("task.json");
+		//st.chDir("E:/Subject/CS2103T/Project2");
 		st.exit();
 	}
 
@@ -77,7 +77,7 @@ public class Storage {
 			br.close();
 			if (lastPath!=null) {
 				try {
-				taskList = JsonProcessor.readJson(lastPath);
+					taskList = JsonProcessor.readJson(lastPath);
 				}
 				catch (Exception e) {
 					System.out.println(e);
@@ -121,13 +121,32 @@ public class Storage {
 
 	//change data file's directory
 	public boolean chDir(String path) {
-		JsonProcessor.writeJson(path, taskList);
-		File settingFile = new File("setting.txt");
-		lastPath = path;
+
+		if (path.endsWith(".json"))
+			lastPath = path;
+		else { 
+			if (!lastPath.equals("task.json")) {
+				int nameIndex = lastPath.lastIndexOf("\\") +1;
+				String fileName = lastPath.substring(nameIndex, lastPath.length());
+				if (path.endsWith("\\"))
+					lastPath = path.concat(fileName);
+				else
+					lastPath = path.concat("\\"+fileName);
+			}
+			else {
+				if (path.endsWith("\\"))
+					lastPath = path.concat("task.json");
+				else
+					lastPath = path.concat("\\task.json");
+			}
+		}
+
 		try {
+			JsonProcessor.writeJson(lastPath, taskList);
+			File settingFile = new File("setting.txt");
 			FileWriter fw = new FileWriter(settingFile);
 			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write(path);
+			bw.write(lastPath);
 			bw.close();
 			fw.close();
 			return true;
@@ -158,7 +177,7 @@ public class Storage {
 		}
 
 		updateMaxGroupId();
-		
+
 		maxId++;
 		for (int i = 0; i < dummyTasks.size(); i++){
 			dummyTasks.get(i).setGroupId(maxId);
@@ -185,10 +204,10 @@ public class Storage {
 		if(!isValidIndex(index)){
 			return false;
 		}
-		
+
 		Integer groupId = taskList.get(index).getGroupId();
 		Task keptTask = taskList.get(index);
-		
+
 		if (maxId == null){
 			updateMaxGroupId();
 		}
@@ -230,11 +249,11 @@ public class Storage {
 		JsonProcessor.writeJson(lastPath, taskList);
 		return true;
 	}
-	
+
 	private boolean isValidIndex(Integer index) {
 		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0){			
 			return false; 
-			}
+		}
 		//int count = 0;
 		/*for (int i = 0 ; i<taskList.size(); i++) {
 			if (taskList.get(i).getIndex()==index)
@@ -258,7 +277,7 @@ public class Storage {
 
 	//modify function
 	public boolean modify(Integer index, Task modifiedTask){
-		
+
 		if (!isValidIndex(index)){
 			return false;
 		}
