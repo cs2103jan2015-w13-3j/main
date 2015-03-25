@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import udo.storage.Task;
-import udo.util.Config.CommandName;
 
 public class Autocompleter {
     // Used to store command and options keywords
@@ -26,6 +25,7 @@ public class Autocompleter {
     private static final Logger log = Logger.getLogger(Autocompleter.class.getName());
 
     String dictPath = "res/dict.txt";
+    String keywordsPath = "res/keywords.txt";
 
     public Autocompleter() {
         keywordsTree = new TernarySearchTree();
@@ -68,8 +68,28 @@ public class Autocompleter {
     }
 
     private void addKeywordsToTree() {
-        for (CommandName cmdName : CommandName.values()) {
-            keywordsTree.add(cmdName.toString().toLowerCase());
+        BufferedReader reader = null;
+
+        try {
+            reader = new BufferedReader(new FileReader(keywordsPath));
+            String s = reader.readLine();
+
+            while (s != null) {
+                keywordsTree.add(s);
+                s = reader.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            log.log(Level.SEVERE, e.toString(), e);
+        } catch (IOException e) {
+            log.log(Level.SEVERE, e.toString(), e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                log.log(Level.SEVERE, e.toString(), e);
+            }
         }
     }
 
@@ -81,7 +101,9 @@ public class Autocompleter {
             String s = reader.readLine();
 
             while (s != null) {
-                dictTree.add(s);
+                if (!keywordsTree.contains(s)) {
+                    dictTree.add(s);
+                }
                 s = reader.readLine();
             }
         } catch (FileNotFoundException e) {
@@ -151,7 +173,8 @@ public class Autocompleter {
         ArrayList<String> result = new ArrayList<>();
 
         if (lastWord != null && lastWord.length() > 0) {
-            keywordsList = getKeywordsList(tokens, lastWord);
+            keywordsList = retrieveWords(keywordsTree,
+                                         maxWords, lastWord);
             result.addAll(keywordsList);
 
             contentWordsList = retrieveWords(taskContentTree,
@@ -188,26 +211,6 @@ public class Autocompleter {
         }
 
         return wordsList;
-    }
-
-    /**
-     * @param tokenizedString
-     * @param lastWord
-     * @return
-     */
-    private List<String> getKeywordsList(String[] tokens,
-                                         String lastWord) {
-        List<String> result = null;
-
-        if (tokens.length == 1) {
-            result = keywordsTree.searchPrefix(lastWord);
-        }
-
-        if (result == null) {
-            return new ArrayList<String>();
-        }
-
-        return result;
     }
 
     /**
@@ -274,6 +277,6 @@ public class Autocompleter {
         System.out.println(completer.autocomplete("sing a song /de"));
         System.out.println(completer.autocomplete("do homework "));
         System.out.println(completer.autocomplete("go for meeting /start tomo"));
-        System.out.println(completer.autocomplete("submit report /dl next mont"));
+        System.out.println(completer.autocomplete("submit report /dl next fri"));
     }
 }

@@ -100,4 +100,18 @@ public class AutocompleteTest {
         assertEquals(expected, autocompleter.getSuggestions("/", 5));
     }
 
+    @Test
+    public void testDictAutocomplete1() {
+        Autocompleter autocompleter = new Autocompleter();
+
+        assertEquals("add", autocompleter.autocomplete("ad"));
+        assertEquals("sing a song /deadline",
+                     autocompleter.autocomplete("sing a song /de"));
+        assertEquals("do homework ", autocompleter.autocomplete("do homework "));
+        assertEquals("go for meeting /start tomorrow",
+                     autocompleter.autocomplete("go for meeting /start tomo"));
+        assertEquals("submit report /dl next friday",
+                     autocompleter.autocomplete("submit report /dl next fr"));
+    }
+
 }

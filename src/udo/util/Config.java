@@ -2,7 +2,7 @@ package udo.util;
 
 public class Config {
     /** Procedure for adding a new command:
-     * Add a new command name string here
+     * Add a new command name string here and keywords.txt
      * Add the corresponding entry in the CommandName enum here
      * Add the command name into the regex pattern in InputParser
      * Add a new branch for string to enum conversion in Utility class
@@ -13,7 +13,7 @@ public class Config {
      * Add a new string array of 3 entries here:
      *      [option long name, option short name, option arg type]
      * Add the string array name into the OPTIONS_TABLE array
-     * Add the option's strings to res/dict.txt for autocomplete
+     * Add the option's strings to res/keywords.txt for autocomplete
      * -> see existing options as examples
      */
 
