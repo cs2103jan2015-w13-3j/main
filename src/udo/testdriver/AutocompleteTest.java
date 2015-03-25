@@ -73,7 +73,17 @@ public class AutocompleteTest {
     @Test
     public void testSuggestionsNonPositive() {
         Autocompleter autocompleter = new Autocompleter();
-        assert(true);
+
+        assertEquals(0, autocompleter.getSuggestions("ad", 0).size());
+        assertEquals(0, autocompleter.getSuggestions("ad", -1).size());
+    }
+
+    @Test
+    public void testSuggestionsEmpty() {
+        Autocompleter autocompleter = new Autocompleter();
+
+        assertEquals(0, autocompleter.getSuggestions("").size());
+        assertEquals(0, autocompleter.getSuggestions("modify ").size());
     }
 
 }

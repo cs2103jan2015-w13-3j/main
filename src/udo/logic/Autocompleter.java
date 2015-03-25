@@ -86,7 +86,8 @@ public class Autocompleter {
      * @return
      */
     private String getLastWord(String[] tokens, String text) {
-        if (Character.isWhitespace(text.charAt(text.length() - 1))) {
+        if (text.length() == 0 ||
+            Character.isWhitespace(text.charAt(text.length() - 1))) {
             return "";
         }
 
@@ -105,6 +106,10 @@ public class Autocompleter {
      * @return list of suggested words
      */
     public List<String> getSuggestions(String text, Integer maxWords) {
+        if (maxWords != null && maxWords <= 0) {
+            return new ArrayList<String>();
+        }
+
         String[] tokens = text.split("\\s");
         String lastWord = getLastWord(tokens, text);
 
@@ -159,11 +164,11 @@ public class Autocompleter {
      * @param lastWord
      * @return
      */
-    private List<String> getKeywordsList(String[] tokenizedString,
+    private List<String> getKeywordsList(String[] tokens,
                                          String lastWord) {
         List<String> result = null;
 
-        if (tokenizedString.length == 1) {
+        if (tokens.length == 1) {
             result = keywordsTree.searchPrefix(lastWord);
         }
 
