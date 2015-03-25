@@ -25,7 +25,7 @@ public class Storage {
 		Storage st = new Storage();
 		//st.chDir("C:\\Users\\Tue\\Desktop\\Task.json");
 		//st.undoChDir();
-		st.search("cry   *");
+	
 		st.exit();
 	}
 
@@ -116,6 +116,7 @@ public class Storage {
 
 	//change data file's directory
 	public boolean chDir(String path) {
+		prevCmd = "chDir";
 		updateLastPath(path);
 		return writeNewDir(path);
 
@@ -135,7 +136,6 @@ public class Storage {
 
 				return true;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return false;
 			}
@@ -171,8 +171,7 @@ public class Storage {
 	public boolean undoChDir() {
 		lastPath = prevPath;
 		JsonProcessor.writeJson(lastPath, taskList);
-		writeNewDir(lastPath);
-		return true;
+		return writeNewDir(lastPath);	
 	}
 
 	public boolean add(Task newTask) {
@@ -603,6 +602,9 @@ public class Storage {
 			undoMarkDone();
 			prevCmd = "";
 			break;
+		case "chDir":
+			prevCmd = "";
+			return undoChDir();
 		default: return false;
 		}
 		storeTasks();
