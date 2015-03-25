@@ -86,4 +86,18 @@ public class AutocompleteTest {
         assertEquals(0, autocompleter.getSuggestions("modify ").size());
     }
 
+    @Test
+    public void testSuggetionOptions() {
+        Autocompleter autocompleter = new Autocompleter();
+
+        List<String> expected = new ArrayList<String>();
+        expected.add("/d");
+        expected.add("/deadline");
+        expected.add("/dl");
+        expected.add("/do");
+        expected.add("/done");
+
+        assertEquals(expected, autocompleter.getSuggestions("/", 5));
+    }
+
 }

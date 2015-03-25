@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import udo.storage.Task;
 import udo.util.Config.CommandName;
 
 public class Autocompleter {
@@ -33,17 +34,30 @@ public class Autocompleter {
 
         commandHistory = new LinkedList<String>();
 
-        addKeywordsToTree(keywordsTree);
-        addDictWordsToTree(dictTree);
+        addKeywordsToTree();
+        addDictWordsToTree();
     }
 
-    private void addKeywordsToTree(TernarySearchTree keywordsTree) {
+    public void addTaskContentToTree(List<Task> tasks) {
+        for (Task t : tasks) {
+            String[] tokens = t.getContent().split("//s");
+            for (String token : tokens) {
+                token = token.toLowerCase();
+                if (!keywordsTree.contains(token) &&
+                    !dictTree.contains(token)) {
+                    taskContentTree.add(token);
+                }
+            }
+        }
+    }
+
+    private void addKeywordsToTree() {
         for (CommandName cmdName : CommandName.values()) {
             keywordsTree.add(cmdName.toString().toLowerCase());
         }
     }
 
-    private void addDictWordsToTree(TernarySearchTree dictTree) {
+    private void addDictWordsToTree() {
         BufferedReader reader = null;
 
         try {
