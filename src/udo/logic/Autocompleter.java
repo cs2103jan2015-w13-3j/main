@@ -36,29 +36,12 @@ public class Autocompleter {
 
         addKeywordsToTree();
         addDictWordsToTree();
-        addDateTimeWords();
-    }
-
-    private void addDateTimeWords() {
-
-    }
-
-    public void addTaskContentToTree(Task task) {
-        String[] tokens = task.getContent().split("//s");
-        for (String token : tokens) {
-            token = token.toLowerCase();
-            if (!keywordsTree.contains(token) &&
-                !dictTree.contains(token)) {
-                taskContentTree.add(token);
-            }
-        }
     }
 
     public void addTaskContentToTree(List<Task> tasks) {
         for (Task t : tasks) {
-            String[] tokens = t.getContent().split("//s");
+            String[] tokens = t.getContent().split("\\s");
             for (String token : tokens) {
-                token = token.toLowerCase();
                 if (!keywordsTree.contains(token) &&
                     !dictTree.contains(token)) {
                     taskContentTree.add(token);
@@ -138,7 +121,9 @@ public class Autocompleter {
      * @param text
      * @return
      */
-    private String getLastWord(String[] tokens, String text) {
+    private String getLastWord(String text) {
+        String[] tokens = text.split("\\s");
+
         if (text.length() == 0 ||
             Character.isWhitespace(text.charAt(text.length() - 1))) {
             return "";
@@ -163,8 +148,8 @@ public class Autocompleter {
             return new ArrayList<String>();
         }
 
-        String[] tokens = text.split("\\s");
-        String lastWord = getLastWord(tokens, text).toLowerCase();
+        String lastWord = getLastWord(text);
+        String lastWordLower = lastWord.toLowerCase();
 
         List<String> keywordsList = null;
         List<String> dictWordsList;
@@ -174,7 +159,7 @@ public class Autocompleter {
 
         if (lastWord != null && lastWord.length() > 0) {
             keywordsList = retrieveWords(keywordsTree,
-                                         maxWords, lastWord);
+                                         maxWords, lastWordLower);
             result.addAll(keywordsList);
 
             contentWordsList = retrieveWords(taskContentTree,
@@ -182,7 +167,7 @@ public class Autocompleter {
             result.addAll(contentWordsList);
 
             dictWordsList = retrieveWords(dictTree,
-                                          maxWords, lastWord);
+                                          maxWords, lastWordLower);
             result.addAll(dictWordsList);
         }
 

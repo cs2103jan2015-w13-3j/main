@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import udo.gui.GUI;
 import udo.logic.command.Command;
 import udo.storage.Storage;
+import udo.testdriver.GUIStub;
 
 public class Logic {
     private GUI gui;
@@ -44,8 +45,12 @@ public class Logic {
 
     private Logic() {
         parser = new InputParser();
+
         storage = new Storage();
+
         autocompleter = new Autocompleter();
+        autocompleter.addTaskContentToTree(storage.query());
+
         /* TODO:
          * Initialize and start up passive thread for reminder
          */
@@ -85,6 +90,7 @@ public class Logic {
 
         parsedCommand.setGUI(gui);
         parsedCommand.setStorage(storage);
+        parsedCommand.setAutocompleter(autocompleter);
 
         return parsedCommand.execute();
     }
@@ -154,6 +160,7 @@ public class Logic {
 
     public static void main(String[] argv) {
         Logic logic = new Logic();
+        logic.setGUI(new GUIStub());
         logic.executeCommand("go to school /deadline tomorrow");
         logic.executeCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm");
         logic.executeCommand("add AAAI conference /start in 2 days /end tuesday");

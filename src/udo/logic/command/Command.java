@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import udo.gui.GUI;
+import udo.logic.Autocompleter;
 import udo.logic.InputParser;
 import udo.logic.Logic;
 import udo.storage.Storage;
@@ -46,6 +47,7 @@ public abstract class Command {
 
     protected GUI gui;
     protected Storage storage;
+    protected Autocompleter autocompleter;
 
     private static final Logger log = Logger.getLogger(Command.class.getName());
 
@@ -99,6 +101,10 @@ public abstract class Command {
 
     public void setStorage(Storage storage) {
         this.storage = storage;
+    }
+
+    public void setAutocompleter(Autocompleter completer) {
+        this.autocompleter = completer;
     }
 
     protected boolean parseArg(String argStr) {
@@ -526,6 +532,7 @@ public abstract class Command {
         gui.displayStatus(getStatus());
     }
 
+    @Override
     public String toString() {
         String str = "Command: " + commandName + "\n";
         if (argIndex != null) {

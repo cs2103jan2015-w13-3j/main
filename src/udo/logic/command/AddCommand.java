@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
-
 import java.util.logging.Logger;
 
 import udo.logic.Logic;
@@ -64,6 +63,11 @@ public class AddCommand extends Command {
                     setStatus(getClashWarning(getArgStr(),
                                               clash.getContent()));
                 }
+
+                if (autocompleter != null) {
+                    autocompleter.addTaskContentToTree(tasks);
+                }
+
                 gui.display(storage.query());
             }
         }
