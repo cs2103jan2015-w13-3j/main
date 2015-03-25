@@ -72,12 +72,8 @@ public class Storage {
 				}
 				catch (Exception e) {
 					System.out.println(e);
-					try {
-						JsonProcessor.writeJson(lastPath, taskList);
-					}
-					catch (Exception ex) {
+					if (!storeTasks())
 						writeSettingDefault();
-					}
 				}
 			}
 			else {
