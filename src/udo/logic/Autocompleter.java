@@ -36,6 +36,22 @@ public class Autocompleter {
 
         addKeywordsToTree();
         addDictWordsToTree();
+        addDateTimeWords();
+    }
+
+    private void addDateTimeWords() {
+
+    }
+
+    public void addTaskContentToTree(Task task) {
+        String[] tokens = task.getContent().split("//s");
+        for (String token : tokens) {
+            token = token.toLowerCase();
+            if (!keywordsTree.contains(token) &&
+                !dictTree.contains(token)) {
+                taskContentTree.add(token);
+            }
+        }
     }
 
     public void addTaskContentToTree(List<Task> tasks) {
@@ -95,7 +111,8 @@ public class Autocompleter {
     }
 
     /**
-     * Get the last word in a text string
+     * Get the last word in a text string, a space optimized version
+     * where the text is tokenized beforehand
      * @param text
      * @return
      */
@@ -125,7 +142,7 @@ public class Autocompleter {
         }
 
         String[] tokens = text.split("\\s");
-        String lastWord = getLastWord(tokens, text);
+        String lastWord = getLastWord(tokens, text).toLowerCase();
 
         List<String> keywordsList = null;
         List<String> dictWordsList;
@@ -199,7 +216,27 @@ public class Autocompleter {
      * @return the autocompleted string
      */
     public String autocomplete(String text) {
-        return null;
+        List<String> suggestions = getSuggestions(text, 1);
+
+        if (suggestions.size() > 0) {
+            return dropLastWord(text) + suggestions.get(0);
+        }
+
+        return text;
+    }
+
+    private String dropLastWord(String text) {
+        int endIndex = getLastWhitespaceIndex(text);
+
+        if (endIndex == -1) {
+            return "";
+        }
+
+        return text.substring(0, endIndex + 1);
+    }
+
+    private int getLastWhitespaceIndex(String text) {
+        return Math.max(text.lastIndexOf(" "), text.lastIndexOf("\t"));
     }
 
     /**
@@ -227,8 +264,16 @@ public class Autocompleter {
     public static void main(String[] args) {
         Autocompleter completer = new Autocompleter();
 
+        /*
         System.out.println(completer.getSuggestions("/", 5));
         System.out.println(completer.getSuggestions("d "));
         System.out.println(completer.getSuggestions("d"));
+        */
+
+        System.out.println(completer.autocomplete("ad"));
+        System.out.println(completer.autocomplete("sing a song /de"));
+        System.out.println(completer.autocomplete("do homework "));
+        System.out.println(completer.autocomplete("go for meeting /start tomo"));
+        System.out.println(completer.autocomplete("submit report /dl next mont"));
     }
 }
