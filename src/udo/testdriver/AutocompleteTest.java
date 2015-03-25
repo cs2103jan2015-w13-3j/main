@@ -1,11 +1,13 @@
 package udo.testdriver;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
+import udo.logic.Autocompleter;
 import udo.logic.TernarySearchTree;
 
 public class AutocompleteTest {
@@ -57,6 +59,21 @@ public class AutocompleteTest {
         List<String> actual = t.searchPrefix("cat");
 
         assertEquals(expected, actual);
+    }
+
+    @Test
+    public void ternarySearchTreeTestEmpty() {
+        TernarySearchTree t = new TernarySearchTree();
+        setUpTree(t);
+
+        t.add("");
+        assertEquals(0, t.searchPrefix("").size());
+    }
+
+    @Test
+    public void testSuggestionsNonPositive() {
+        Autocompleter autocompleter = new Autocompleter();
+        assert(true);
     }
 
 }

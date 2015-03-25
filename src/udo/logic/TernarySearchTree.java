@@ -29,6 +29,10 @@ public class TernarySearchTree {
      * @return the start of the search tree that contains the added characters
      */
     private Node add(String s, Integer index, Node node) {
+        if (index > s.length()) {
+            return null;
+        }
+
         if (node == null) {
             node = new Node(s.charAt(index), false);
         }
@@ -93,7 +97,7 @@ public class TernarySearchTree {
      * @return
      */
     private Node searchString(String s) {
-        if (s == null) {
+        if (s == null || s.length() == 0) {
             return null;
         }
 
@@ -188,7 +192,7 @@ public class TernarySearchTree {
     private void searchTreeHelper(Node node, Integer numWords,
                                   List<Character> curWord,
                                   List<String> result) {
-        if (numWords != null && result.size() == numWords) {
+        if (numWords != null && result.size() >= numWords) {
             return;
         }
         if (node == null) {
@@ -229,7 +233,7 @@ public class TernarySearchTree {
         t.add("dog"); t.add("dogmatic"); t.add("dogwood");
         t.add("add"); t.add("addition"); t.add("additional");
 
-        List<String> r = t.searchPrefix("ad");
+        List<String> r = t.searchPrefix("");
         for (String s : r) {
             System.out.println(s);
         }

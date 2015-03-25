@@ -85,12 +85,16 @@ public class Autocompleter {
      * @param text
      * @return
      */
-    private String getLastWord(String[] text) {
-        if (text != null && text.length > 0) {
-            return text[text.length - 1];
+    private String getLastWord(String[] tokens, String text) {
+        if (Character.isWhitespace(text.charAt(text.length() - 1))) {
+            return "";
         }
 
-        return null;
+        if (tokens != null && tokens.length > 0) {
+            return tokens[tokens.length - 1];
+        }
+
+        return "";
     }
 
     /**
@@ -101,8 +105,8 @@ public class Autocompleter {
      * @return list of suggested words
      */
     public List<String> getSuggestions(String text, Integer maxWords) {
-        String[] tokenizedString = text.split("\\s");
-        String lastWord = getLastWord(tokenizedString);
+        String[] tokens = text.split("\\s");
+        String lastWord = getLastWord(tokens, text);
 
         List<String> keywordsList = null;
         List<String> dictWordsList;
@@ -110,32 +114,44 @@ public class Autocompleter {
 
         ArrayList<String> result = new ArrayList<>();
 
-        if (lastWord != null) {
-            keywordsList = getKeywordsList(tokenizedString, lastWord);
-            if (keywordsList != null) {
-                result.addAll(keywordsList);
-            }
+        if (lastWord != null && lastWord.length() > 0) {
+            keywordsList = getKeywordsList(tokens, lastWord);
+            result.addAll(keywordsList);
 
-            if (tokenizedString.length == 1 ||
-                keywordsList == null || keywordsList.size() == 0) {
+            contentWordsList = retrieveWords(taskContentTree,
+                                             maxWords, lastWord);
+            result.addAll(contentWordsList);
 
-                contentWordsList = taskContentTree.searchPrefix(lastWord);
-                if (contentWordsList != null) {
-                    result.addAll(contentWordsList);
-                }
+            dictWordsList = retrieveWords(dictTree,
+                                          maxWords, lastWord);
+            result.addAll(dictWordsList);
+        }
 
-                if (maxWords == null) {
-                    dictWordsList = dictTree.searchPrefix(lastWord);
-                } else {
-                    dictWordsList = dictTree.searchPrefix(lastWord, maxWords);
-                }
-                if (dictWordsList != null) {
-                    result.addAll(dictWordsList);
-                }
-            }
+        if (maxWords != null && result.size() > maxWords) {
+            return result.subList(0, maxWords);
         }
 
         return result;
+    }
+
+    /**
+     * Retrieve a maximum of maxWords words from the tree starting with
+     * the specified prefix
+     * @param maxWords
+     * @param lastWord
+     * @return
+     */
+    private List<String> retrieveWords(TernarySearchTree tree,
+                                       Integer maxWords, String prefix) {
+        List<String> wordsList = null;
+
+        if (maxWords == null) {
+            wordsList = tree.searchPrefix(prefix);
+        } else {
+            wordsList = tree.searchPrefix(prefix, maxWords);
+        }
+
+        return wordsList;
     }
 
     /**
@@ -145,11 +161,17 @@ public class Autocompleter {
      */
     private List<String> getKeywordsList(String[] tokenizedString,
                                          String lastWord) {
+        List<String> result = null;
+
         if (tokenizedString.length == 1) {
-            return keywordsTree.searchPrefix(lastWord);
+            result = keywordsTree.searchPrefix(lastWord);
         }
 
-        return null;
+        if (result == null) {
+            return new ArrayList<String>();
+        }
+
+        return result;
     }
 
     /**
@@ -185,6 +207,9 @@ public class Autocompleter {
 
     public static void main(String[] args) {
         Autocompleter completer = new Autocompleter();
+
         System.out.println(completer.getSuggestions("/", 5));
+        System.out.println(completer.getSuggestions("d "));
+        System.out.println(completer.getSuggestions("d"));
     }
 }
