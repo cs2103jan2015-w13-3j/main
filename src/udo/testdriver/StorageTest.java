@@ -266,11 +266,6 @@ public class StorageTest {
 		expected.add(st.query(0));
 		assertEquals(expected, st.search("*home*"));		//case of wildcard search with "*" only
 		
-		assertEquals(expected, st.search("do*"));			//case of wildcard search must start
-															//with specific letters
-		
-		assertEquals(new ArrayList<Task>(), st.search("*ing"));		//case of wildcard search must end
-																	//with specific letters
 	
 		assertEquals(expected, st.search("ho?ework"));		//case of wildcard search with "?" only
 		
@@ -278,5 +273,7 @@ public class StorageTest {
 															//both "*" and "?"
 		
 		assertEquals(expected, st.search("D*W?r*"));		//case of searching ignore case
+	
+		assertEquals(expected, st.search("do         *work")); //case with multiple whitespaces
 	}
 }

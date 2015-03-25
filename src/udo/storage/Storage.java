@@ -25,6 +25,7 @@ public class Storage {
 		Storage st = new Storage();
 		//st.chDir("C:\\Users\\Tue\\Desktop\\Task.json");
 		//st.undoChDir();
+	
 		st.exit();
 	}
 
@@ -115,6 +116,7 @@ public class Storage {
 
 	//change data file's directory
 	public boolean chDir(String path) {
+		prevCmd = "chDir";
 		updateLastPath(path);
 		return writeNewDir(path);
 
@@ -134,7 +136,6 @@ public class Storage {
 
 				return true;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return false;
 			}
@@ -170,8 +171,7 @@ public class Storage {
 	public boolean undoChDir() {
 		lastPath = prevPath;
 		JsonProcessor.writeJson(lastPath, taskList);
-		writeNewDir(lastPath);
-		return true;
+		return writeNewDir(lastPath);	
 	}
 
 	public boolean add(Task newTask) {
@@ -424,14 +424,17 @@ public class Storage {
 	public ArrayList<Task> search(String searchedContent){
 		ArrayList<Task> returnList = new ArrayList<Task>();
 		if (searchedContent != null){
-			returnList = exactSearch(searchedContent);
+
+			String searchedAfter = searchedContent.trim().replaceAll(" +", " ").toLowerCase();
+
+			returnList = exactSearch(searchedAfter);
 			if (returnList.size() > 0){
 				return returnList;
 			}
-			if (isWildCardSearch(searchedContent)){
-				returnList = wildcardSearch(searchedContent);
+			if (isWildCardSearch(searchedAfter)){
+				returnList = wildcardSearch(searchedAfter);
 			} else{
-				returnList = nearMatchSearch(searchedContent);
+				returnList = nearMatchSearch(searchedAfter);
 			}
 		}
 		return returnList;
@@ -443,10 +446,10 @@ public class Storage {
 
 	public ArrayList<Task> exactSearch(String searchedContent){
 		ArrayList<Task> returnList = new ArrayList<Task>();
-		String cmpStr = searchedContent.toLowerCase();
+		
 		for (int i =0; i< taskList.size(); i++){
 			String cmpStr2 = taskList.get(i).getContent().toLowerCase();
-			if (cmpStr2.contains(cmpStr)){
+			if (cmpStr2.contains(searchedContent)){
 				returnList.add(taskList.get(i).copy());
 			}
 		}
@@ -457,7 +460,7 @@ public class Storage {
 		ArrayList<Task> returnList = new ArrayList<Task>();
 		for (int i = 0; i< taskList.size(); i++){
 			if (isWildcardMatched(taskList.get(i).copy().getContent().toLowerCase(), 
-					searchedContent.toLowerCase())){
+					searchedContent)){
 				returnList.add(taskList.get(i).copy());
 			}
 		}
@@ -469,8 +472,8 @@ public class Storage {
 			String[] cards = cardStr.split("\\*");
 			if (cardStr.charAt(0) != '*'){
 				int index = firstIndexOf(tameStr, cards[0]);
-				System.out.println("Yes");
-				if (index != 0){
+
+				if (index == -1){
 					return false;
 				}
 				tameStr = tameStr.substring(cards[0].length());
@@ -478,18 +481,14 @@ public class Storage {
 			for (int i = 1; i < cards.length; i++){
 				String card = cards[i];
 				int index = firstIndexOf(tameStr, card);
-				System.out.println("No");
+
 				if (index == -1){
 					return false;
 				}
 				tameStr = tameStr.substring(index + card.length());
 			}	
 
-			if (cardStr.charAt(cardStr.length() -1) != '*'){
-				if (tameStr.length() > 0){
-					return false;
-				}
-			}
+			
 			return true;
 		} else {
 			int index = firstIndexOf(tameStr, cardStr);
@@ -603,6 +602,9 @@ public class Storage {
 			undoMarkDone();
 			prevCmd = "";
 			break;
+		case "chDir":
+			prevCmd = "";
+			return undoChDir();
 		default: return false;
 		}
 		storeTasks();
