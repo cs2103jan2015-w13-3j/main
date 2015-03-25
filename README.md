@@ -1,5 +1,5 @@
 # JustU
-A text command oriented Task Manger application. This application supports the creating and manipulate different types of tasks such as deadlines, events and floating tasks. There are also other useful features and advanced functionalities. See in-app help guide for more info. 
+A text command oriented Task Manger application. This application supports the creating and manipulating different types of tasks such as deadlines, events and floating tasks. There are also other useful features and advanced functionalities. See in-app help guide for more info. 
 
 ### Requirements
 - Windows/Linux/MacOS 32-bit or 64-bit
