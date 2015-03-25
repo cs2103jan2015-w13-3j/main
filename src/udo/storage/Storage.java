@@ -23,8 +23,8 @@ public class Storage {
 	public static void main(String[] args) throws IOException{
 
 		Storage st = new Storage();
-
-		//System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAA "+st.chDir("sdsdsd"));
+		//st.chDir("C:\\Users\\Tue\\Desktop\\Task.json");
+		//st.undoChDir();
 		st.exit();
 	}
 
@@ -144,6 +144,7 @@ public class Storage {
 
 
 	private boolean updateLastPath(String path) {
+		prevPath = lastPath;
 		if (path.endsWith(".json"))
 			lastPath = path;
 		else { 
@@ -169,18 +170,7 @@ public class Storage {
 	public boolean undoChDir() {
 		lastPath = prevPath;
 		JsonProcessor.writeJson(lastPath, taskList);
-		File settingFile = new File("setting.txt");
-		FileWriter fw;
-		try {
-			fw = new FileWriter(settingFile);
-			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write(lastPath);
-			bw.close();
-			fw.close();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		writeNewDir(lastPath);
 		return true;
 	}
 
