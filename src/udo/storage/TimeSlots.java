@@ -39,9 +39,11 @@ public class TimeSlots {
 	private void mergeSlots(){
 		for (int i = 0; i <occupiedSlots.size() -1; i++){
 			if (occupiedSlots.get(i).getEnd().compareTo(occupiedSlots.get(i+1).getStart()) >= 0){
-				occupiedSlots.get(i).setEnd(occupiedSlots.get(i+1).getEnd());
-				occupiedSlots.remove(occupiedSlots.get(i+1));
-				i--;
+					if(occupiedSlots.get(i).getEnd().compareTo(occupiedSlots.get(i+1).getEnd()) <= 0){
+						occupiedSlots.get(i).setEnd(occupiedSlots.get(i+1).getEnd());
+					}	
+						occupiedSlots.remove(occupiedSlots.get(i+1));
+						i--;
 			}
 		}
 	}
