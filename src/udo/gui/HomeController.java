@@ -20,6 +20,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import udo.storage.Task;
+import udo.util.Config;
 
 /**
  * This is the main controller class for the HomePage of the GUI. It controls
@@ -47,6 +48,7 @@ public class HomeController {
     private static String COLUMN_FIELD_LABEL= "label";
     private static Label statusString;
     private static ObservableList<Task> data;
+    private static CustomTextField customTextField;
     
     @FXML
     private TableView<Task> TaskTable;
@@ -93,7 +95,8 @@ public class HomeController {
 
     private void configureTextField() {
         setFocusInputBox();
-        inputBox.setOnKeyPressed(keyHandlers);
+        customTextField = new CustomTextField(inputBox);
+        customTextField.bindKeys(keyHandlers);
     }
 
     @FXML
@@ -142,65 +145,34 @@ public class HomeController {
         String text = retrieveUserInput();
 
         if (gui.callLogicCommand(text) == true) {
-            inputBox.clear();
+            customTextField.clear();
         }
     }
     
-    //TODO to be refactored to OOP
     EventHandler<KeyEvent> keyHandlers = new EventHandler<KeyEvent>() {
         @Override
         public void handle(KeyEvent event) {
             KeyCode code = event.getCode();
             switch(code) {
                 case TAB:
-                    handleTabKey(event);
+                    customTextField.handleTabKey(event);
                     break;
                 case UP:
-                    handleDirectionKey(event, GuiUtil.KEY_UP);
+                    customTextField.handleDirectionKey(event, GuiUtil.KEY_UP);
                     break;
                 case DOWN:
-                    handleDirectionKey(event, GuiUtil.KEY_DOWN);
+                    customTextField.handleDirectionKey(event, GuiUtil.KEY_DOWN);
+                    break;
+                case F1:
+                    handleF1Key();
                     break;
                 default:
-                    handleOtherKeys(event, code);
+                    customTextField.handleOtherKeys(event, code);
                     break; 
             }          
         }
     };
-    
-    private void handleTabKey(KeyEvent event) {
-        String userInput = retrieveUserInput();
-        String completedStr = gui.callAutocomplete(userInput);
-        displayInput(completedStr);
-        inputBox.end();
-        event.consume();
-        logger.finer(completedStr);
-    }
-
-    private void handleDirectionKey(KeyEvent event, String direction) {
-        String command = gui.callCmdHistory(direction);
-        displayInput(command);
-        inputBox.end();
-        event.consume();
-        gui.displayAlert();
-        logger.finer(command);
-    }
-    
-    /*
-     * Retrieves suggestions for any letter keys
-     */
-    private void handleOtherKeys(KeyEvent event, KeyCode code) {
-        if(code.isLetterKey()) {
-            String userInput = retrieveUserInput();
-            gui.callSuggestions(userInput);
-            //displayStatus();
-            event.consume();
-            //logger.info("Suggestion: ");
-        } else {
-            return;
-        }
-    }
-    
+       
     //TODO null or empty string
     public void displayStatus(String receivedString) {
         if(receivedString == null) {
@@ -216,12 +188,12 @@ public class HomeController {
         logger.finer(receivedString);
     }
     
-    private void displayInput(String str) {
-        inputBox.setText(str);
+    private String retrieveUserInput() {
+        return customTextField.getText();
     }
     
-    private String retrieveUserInput() {
-        return inputBox.getText();
+    private void handleF1Key() {
+        gui.callLogicCommand(Config.CMD_STR_DISPLAY);
     }
     
     /**
@@ -230,7 +202,8 @@ public class HomeController {
      * @param gui
      */
     public void setMainApp(Gui gui) {
-        this.gui = gui;            
+        this.gui = gui;
+        customTextField.setField(gui);
     }
     
     public void setData() {
