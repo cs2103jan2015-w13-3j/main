@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,7 +25,11 @@ public class Autocompleter {
     // Used to store words extracted from tasks' content
     TernarySearchTree taskContentTree;
 
-    List<String> commandHistory;
+    private static final int historyMaxSize = 50;
+    private List<String> cmdHistory;
+    private ListIterator<String> cmdHistoryIter;
+    private static enum HistoryOp {NONE, PREV, NEXT};
+    private HistoryOp prevHistoryOp;
 
     private static final Logger log = Logger.getLogger(
                                           Autocompleter.class.getName());
@@ -37,7 +42,9 @@ public class Autocompleter {
         dictTree = new TernarySearchTree();
         taskContentTree = new TernarySearchTree();
 
-        commandHistory = new LinkedList<String>();
+        cmdHistory = new LinkedList<String>();
+        cmdHistoryIter = cmdHistory.listIterator();
+        prevHistoryOp = HistoryOp.NONE;
 
         addKeywordsToTree();
         addDictWordsToTree();
@@ -121,6 +128,10 @@ public class Autocompleter {
             }
         }
     }
+
+    /********************************
+     * Code for autocompleting words*
+     *******************************/
 
     /**
      * Get a list of suggested words that can possible autocompleted
@@ -231,6 +242,10 @@ public class Autocompleter {
         return text;
     }
 
+    /********************************
+     * Code for autocompleting tasks*
+     *******************************/
+
     /**
      * Fill in the the remaining of text with the serialized content
      * of the the given task
@@ -258,6 +273,8 @@ public class Autocompleter {
      * @return
      */
     private String taskToCmdStr(Task task) {
+        assert(task != null);
+
         switch (task.getTaskType()) {
             case DEADLINE:
                 return deadlineTaskToCmdStr(task);
@@ -276,8 +293,22 @@ public class Autocompleter {
      * @return
      */
     private String todoTaskToCmdStr(Task task) {
-        assert(task != null);
-        return task.getContent();
+        StringBuilder builder = new StringBuilder();
+
+        assert(task.getContent() != null);
+        builder.append(task.getContent());
+        builder.append(SEPARATOR);
+
+        if (task.getReminder() != null) {
+            appendOptionStr(builder, Config.OPT_REMINDER[Config.OPT_LONG],
+                            Utility.calendarToString(task.getReminder()));
+        }
+
+        if (task.getPriority()) {
+            appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
+        }
+
+        return builder.toString();
     }
 
     /**
@@ -346,8 +377,11 @@ public class Autocompleter {
         builder.append(Config.OPTION_MAKER);
         builder.append(option);
         builder.append(SEPARATOR);
-        builder.append(argument);
-        builder.append(SEPARATOR);
+
+        if (!argument.equals("")) {
+            builder.append(argument);
+            builder.append(SEPARATOR);
+        }
     }
 
     /**
@@ -369,26 +403,66 @@ public class Autocompleter {
         return Math.max(text.lastIndexOf(" "), text.lastIndexOf("\t"));
     }
 
+    /*******************************************
+     * Code for autocompleting command history *
+     ******************************************/
+
     /**
      * Add a command text to the commands history
      * @param cmd
      */
     public void addToHistory(String cmd) {
+        if (cmdHistory.size() >= historyMaxSize) {
+            cmdHistory.remove(0);
+        }
 
+        cmdHistory.add(cmd);
+
+        cmdHistoryIter = cmdHistory.listIterator(cmdHistory.size());
+        prevHistoryOp = HistoryOp.NONE;
     }
 
     /**
      * @return the previous command text in history
      */
     public String getPreviousCmd() {
-        return null;
+        log.fine("Getting previous command in history");
+        assert(cmdHistoryIter != null);
+
+        if (prevHistoryOp == HistoryOp.NEXT) {
+            cmdHistoryIter.previous();
+        }
+
+        if (cmdHistoryIter.hasPrevious()) {
+            prevHistoryOp = HistoryOp.PREV;
+            return cmdHistoryIter.previous();
+        } else if (cmdHistory.size() > 0) {
+            prevHistoryOp = HistoryOp.PREV;
+            cmdHistoryIter = cmdHistory.listIterator(cmdHistory.size());
+            return cmdHistoryIter.previous();
+        }
+
+        return "";
     }
 
     /**
      * @return the next command text in history
      */
     public String getNextCmd() {
-        return null;
+        log.fine("Getting next command in history");
+        assert(cmdHistoryIter != null);
+
+        if (prevHistoryOp == HistoryOp.PREV) {
+            cmdHistoryIter.next();
+        }
+
+        if (cmdHistoryIter.hasNext()) {
+            prevHistoryOp = HistoryOp.NEXT;
+            return cmdHistoryIter.next();
+        }
+
+        prevHistoryOp = HistoryOp.NONE;
+        return "";
     }
 
     public static void main(String[] args) {

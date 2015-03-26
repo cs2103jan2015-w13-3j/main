@@ -113,4 +113,35 @@ public class AutocompleteTest {
         assertEquals("submit report /dl next friday",
                      autocompleter.autocomplete("submit report /dl next fr"));
     }
+
+    @Test
+    public void testHistoryAutocompleteEmtpy() {
+        Autocompleter completer = new Autocompleter();
+
+        assertEquals("", completer.getPreviousCmd());
+        assertEquals("", completer.getNextCmd());
+    }
+
+    @Test
+    public void testHistoryAutocomplete1() {
+        Autocompleter completer = new Autocompleter();
+
+        completer.addToHistory("command 1");
+        completer.addToHistory("command 2");
+        completer.addToHistory("command 3");
+        completer.addToHistory("command 4");
+
+        assertEquals("command 4", completer.getPreviousCmd());
+        assertEquals("command 3", completer.getPreviousCmd());
+        assertEquals("command 4", completer.getNextCmd());
+
+        assertEquals("", completer.getNextCmd());
+
+        assertEquals("command 4", completer.getPreviousCmd());
+        assertEquals("command 3", completer.getPreviousCmd());
+        assertEquals("command 2", completer.getPreviousCmd());
+        assertEquals("command 1", completer.getPreviousCmd());
+        assertEquals("command 4", completer.getPreviousCmd());
+        assertEquals("command 3", completer.getPreviousCmd());
+    }
 }
