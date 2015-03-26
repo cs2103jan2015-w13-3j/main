@@ -13,7 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
 import udo.logic.Logic;
 import udo.storage.Task;
 import udo.util.Config;
@@ -164,10 +163,23 @@ public class Gui extends Application {
         return logic.executeCommand(userInput) == true; 
     }
     
-    public boolean callAutocomplete(String userInput) {
-        String str = logic.autocomplete(userInput);
-        logger.info(str);
-        return false;
+    public String callAutocomplete(String userInput) {
+        String completedStr = logic.autocomplete(userInput);
+        logger.info(completedStr);
+        return completedStr;
+    }
+    
+    public String callCmdHistory(String direction) {
+        if(direction.equals(GuiUtil.KEY_UP)) {
+            return logic.getPreviousCmd();
+        } else {
+            return logic.getNextCmd();
+        }
+ 
+    }
+    
+    public List<String> callSuggestions(String userInput) {
+        return null;
     }
     
     /**
@@ -199,7 +211,7 @@ public class Gui extends Application {
     private void processReceivedList(List<Task> displayList) {
         guiFormatter.setData(displayList);
         taskData = guiFormatter.getFormattedData();
-        logger.info(taskData.toString());
+        logger.fine(taskData.toString());
     }
 
     private void setDataToController() {

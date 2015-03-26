@@ -20,6 +20,9 @@ public class GuiUtil {
     public static final String PREFIX_WARNING = "Warning";
     public static final String PREFIX_ERROR = "Error";
     
+    public static final String KEY_UP = "UP";
+    public static final String KEY_DOWN = "DOWN";
+    
     public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     public static SimpleDateFormat dateFormat = 
             new SimpleDateFormat("EEE, dd MMM yyyy");
