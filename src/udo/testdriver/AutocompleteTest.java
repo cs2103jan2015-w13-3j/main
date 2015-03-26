@@ -113,5 +113,4 @@ public class AutocompleteTest {
         assertEquals("submit report /dl next friday",
                      autocompleter.autocomplete("submit report /dl next fr"));
     }
-
 }

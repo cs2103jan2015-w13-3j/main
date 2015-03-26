@@ -201,8 +201,7 @@ public abstract class Command {
      * @return the storage index or null if it's not found
      */
     public Integer getStorageIndex(Integer argIndex) {
-        assert(argIndex != null);
-        return Utility.indexMap.get(argIndex);
+        return Utility.getStorageIndex(argIndex);
     }
 
     /**

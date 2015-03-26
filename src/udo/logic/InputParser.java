@@ -36,7 +36,7 @@ public class InputParser {
                             "search|done|chdir|undo|confirm)");
 
     // Regex strings and pattern used for matching an option
-    public static final String OPTION_MAKER = "/";
+    public static final String OPTION_MAKER = Config.OPTION_MAKER;
     private static final String OPTION_NO_ARG_FORMATER = "(/%s|/%s)";
     private static final String OPTION_WITH_ARG_FORMATER = "((/%s)|(/%s)\\s+)";
     private static final String DATE_DELIMITER = "\\sor\\s";
@@ -79,7 +79,8 @@ public class InputParser {
     public static final String ERR_UNSPECIFIED_INDEX =
             "Task's index is not specified";
 
-    private static final Logger log = Logger.getLogger(InputParser.class.getName());
+    private static final Logger log = Logger.getLogger(
+                                          InputParser.class.getName());
 
     public InputParser() {
         StringBuilder optionPatternBuilder = new StringBuilder();
