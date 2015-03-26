@@ -22,22 +22,22 @@ import udo.util.Utility;
  *
  */
 
-public class GUIFormatter {
+public class GuiFormatter {
     
     public static final String HEADER_TODO = "To-Dos";    
     
-    private static final Logger logger = Logger.getLogger(GUIFormatter.class.getName());
+    private static final Logger logger = Logger.getLogger(GuiFormatter.class.getName());
     
-    private static GUIFormatter guiFormatter;
+    private static GuiFormatter guiFormatter;
     private static ArrayList<Task> rawData;
     
-    private GUIFormatter() {
+    private GuiFormatter() {
         
     }
     
-    public static GUIFormatter getInstance() {
+    public static GuiFormatter getInstance() {
         if(guiFormatter == null) {
-            guiFormatter = new GUIFormatter();
+            guiFormatter = new GuiFormatter();
         }
         return guiFormatter;
     }
@@ -104,7 +104,7 @@ public class GUIFormatter {
      */
     private void formatDateLoop() {
 
-        String prevHeader = GUIUtil.EMPTY_STRING;
+        String prevHeader = GuiUtil.EMPTY_STRING;
 
         for (int i = 0; i < rawData.size(); i++) {
             String header = new String();
@@ -125,11 +125,11 @@ public class GUIFormatter {
             case TODO :
                 return HEADER_TODO;              
             case EVENT :
-                return GUIUtil.guiDateFormat(task.getStart());
+                return GuiUtil.guiDateFormat(task.getStart());
             case DEADLINE :
-                return GUIUtil.guiDateFormat(task.getDeadline());
+                return GuiUtil.guiDateFormat(task.getDeadline());
             default :
-                return GUIUtil.EMPTY_STRING;
+                return GuiUtil.EMPTY_STRING;
         }
     }
 
@@ -145,7 +145,7 @@ public class GUIFormatter {
     private void insertHeader(String header, int i) {       
         Task newHeader = new Task(null, header, null,
                                   null, null, 0, null,
-                                  GUIUtil.EMPTY_STRING, false, false);
+                                  GuiUtil.EMPTY_STRING, false, false);
         rawData.add(i, newHeader);
     }
 
@@ -177,15 +177,15 @@ public class GUIFormatter {
     }
 
     private void setDisplayTimeDeadLine(Task task) {
-        task.setLabel(GUIUtil.guiTimeFormat(task.getDeadline()));
+        task.setLabel(GuiUtil.guiTimeFormat(task.getDeadline()));
     }
 
     private void setDisplayTimeTodo(Task task) {
-        task.setLabel(GUIUtil.EMPTY_STRING);
+        task.setLabel(GuiUtil.EMPTY_STRING);
     }
 
     private void setDisplayTimeEvent(Task task) {
-        String start = GUIUtil.guiTimeFormat(task.getStart());
+        String start = GuiUtil.guiTimeFormat(task.getStart());
         String end = getEnd(task);
         task.setLabel(start + " - " + end);
     }
@@ -194,9 +194,9 @@ public class GUIFormatter {
         GregorianCalendar start = task.getStart();
         GregorianCalendar end = task.getEnd();
         if(Utility.isSameDate(start, end)) {
-            return GUIUtil.guiTimeFormat(end);
+            return GuiUtil.guiTimeFormat(end);
         } else {
-            return GUIUtil.guiEndDateFormat(end);
+            return GuiUtil.guiEndDateFormat(end);
         }        
     }
 }

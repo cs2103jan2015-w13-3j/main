@@ -13,7 +13,7 @@ import udo.storage.Task;
  * @author Sharmine
  *
  */
-public class GUIUtil {
+public class GuiUtil {
     
     public static final String EMPTY_STRING = "";
     
@@ -27,7 +27,7 @@ public class GUIUtil {
             new SimpleDateFormat("dd/MM HH:mm");
     
     public static boolean isHeader(String str) {
-        return (isValidDate(str) || str.equals(GUIFormatter.HEADER_TODO));
+        return (isValidDate(str) || str.equals(GuiFormatter.HEADER_TODO));
     }
     
     public static boolean isValidDate(String dateString) {       

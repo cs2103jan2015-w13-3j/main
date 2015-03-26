@@ -36,13 +36,13 @@ public class HomeController {
     private static final Logger logger = 
             Logger.getLogger(HomeController.class.getName());
       
-    public static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
-    public static final Color COLOR_TEXT_WARNING = Color.ORANGE;
-    public static final Color COLOR_TEXT_ERROR = Color.RED;
-    public static final Color COLOR_TEXT_NORMAL = Color.WHITE;
+    private static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
+    private static final Color COLOR_TEXT_WARNING = Color.ORANGE;
+    private static final Color COLOR_TEXT_ERROR = Color.RED;
+    private static final Color COLOR_TEXT_NORMAL = Color.WHITE;
     
-    public static String STYLE_ITALIC = "italic";
-    public static String STYLE_STRAIGHT = "straight";
+    private static String STYLE_ITALIC = "italic";
+    private static String STYLE_STRAIGHT = "straight";
 
     private static String COLUMN_FIELD_CONTENT = "content";
     private static String COLUMN_FIELD_LABEL= "label";
@@ -61,7 +61,7 @@ public class HomeController {
     private Label status;
 
     // Reference to the Main Application.
-    private GUI gui;
+    private Gui gui;
 
     
     public HomeController() {
@@ -163,10 +163,10 @@ public class HomeController {
     //TODO null or empty string
     public void displayStatus(String receivedString) {
         if(receivedString == null) {
-            receivedString = GUIUtil.EMPTY_STRING;
-        } else if(GUIUtil.isWarning(receivedString)) {
+            receivedString = GuiUtil.EMPTY_STRING;
+        } else if(GuiUtil.isWarning(receivedString)) {
             statusString.setTextFill(COLOR_TEXT_WARNING);
-        } else if(GUIUtil.isError(receivedString)) {
+        } else if(GuiUtil.isError(receivedString)) {
             statusString.setTextFill(COLOR_TEXT_ERROR);
         } else {
             statusString.setTextFill(COLOR_TEXT_NORMAL);
@@ -184,7 +184,7 @@ public class HomeController {
      * 
      * @param gui
      */
-    public void setMainApp(GUI gui) {
+    public void setMainApp(Gui gui) {
         this.gui = gui;            
     }
     
@@ -209,7 +209,7 @@ public class HomeController {
         @Override
         protected void updateItem(String item, boolean empty) {
             super.updateItem(item, empty);
-            this.setText(GUIUtil.EMPTY_STRING);
+            this.setText(GuiUtil.EMPTY_STRING);
             formatCellIfNotEmpty(item, this);
             this.setText(item);
         }
@@ -224,9 +224,9 @@ public class HomeController {
         private void formatCellText(String item, TableCell<Task, String> tableCell)
                 throws ClassCastException {
 
-            if (GUIUtil.isHeader(item)) {
+            if (GuiUtil.isHeader(item)) {
                 setHeaderStyle();
-            } else if (GUIUtil.isImportant(item, data)) { 
+            } else if (GuiUtil.isImportant(item, data)) { 
                 setImportantStyle();
             } else {
                setTextStyle();

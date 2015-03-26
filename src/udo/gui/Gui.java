@@ -27,8 +27,8 @@ import udo.util.Config;
  *
  */
 
-public class GUI extends Application {
-    private static final Logger logger = Logger.getLogger(GUI.class.getName());
+public class Gui extends Application {
+    private static final Logger logger = Logger.getLogger(Gui.class.getName());
     
     private static final String NAME_APP = "JustU";
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
@@ -40,7 +40,7 @@ public class GUI extends Application {
     private static List<Task> displayList;
     private static HomeController controller;
     private static ObservableList<Task> taskData;
-    private static GUIFormatter guiFormatter;
+    private static GuiFormatter guiFormatter;
     
     private Stage primaryStage;
     private BorderPane rootLayout;
@@ -49,10 +49,10 @@ public class GUI extends Application {
     /**
      * Constructor
      */
-    public GUI() {
+    public Gui() {
         logic = Logic.getInstance();
-        logic.setGUI(this);
-        guiFormatter = GUIFormatter.getInstance();
+        logic.setGui(this);
+        guiFormatter = GuiFormatter.getInstance();
         logger.setLevel(Level.INFO);
     }
 
@@ -60,7 +60,7 @@ public class GUI extends Application {
     public void start(Stage primaryStage) {
         setPrimaryStage(primaryStage);
         setSecondaryStage();       
-        logger.fine("GUI Initiation Completed");
+        logger.fine("Gui Initiation Completed");
         
         callLogicCommand(Config.CMD_STR_DISPLAY);
     }
@@ -80,7 +80,7 @@ public class GUI extends Application {
      */
     private void showRootLayout() {
         try {
-            URL url = GUI.class.getResource(PATH_TO_ROOTLAYOUT);
+            URL url = Gui.class.getResource(PATH_TO_ROOTLAYOUT);
             FXMLLoader loader = getLoader(url);
             Scene rootScene = setRootScene(loader);         
             showSceneAtStage(rootScene);
@@ -113,7 +113,7 @@ public class GUI extends Application {
      */
     private void showOverview() {
         try {
-            URL url = GUI.class.getResource(PATH_TO_OVERVIEW);
+            URL url = Gui.class.getResource(PATH_TO_OVERVIEW);
             FXMLLoader loader = getLoader(url);
             setOverview(loader);           
             getControllerAccess(loader);            

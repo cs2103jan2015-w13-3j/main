@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import udo.gui.GUI;
+import udo.gui.Gui;
 import udo.logic.command.Command;
 import udo.storage.Storage;
-import udo.testdriver.GUIStub;
+import udo.testdriver.GuiStub;
 
 public class Logic {
-    private GUI gui;
+    private Gui gui;
     private static Logic logicObj = null;
     private Storage storage;
 
@@ -64,7 +64,7 @@ public class Logic {
         return logicObj;
     }
 
-    public void setGUI(GUI guiObj) {
+    public void setGui(Gui guiObj) {
         gui = guiObj;
     }
 
@@ -88,7 +88,7 @@ public class Logic {
 
         log.log(Level.FINER, parsedCommand.toString(), parsedCommand);
 
-        parsedCommand.setGUI(gui);
+        parsedCommand.setGui(gui);
         parsedCommand.setStorage(storage);
         parsedCommand.setAutocompleter(autocompleter);
 
@@ -160,7 +160,7 @@ public class Logic {
 
     public static void main(String[] argv) {
         Logic logic = new Logic();
-        logic.setGUI(new GUIStub());
+        logic.setGui(new GuiStub());
         logic.executeCommand("go to school /deadline tomorrow");
         logic.executeCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm");
         logic.executeCommand("add AAAI conference /start in 2 days /end tuesday");

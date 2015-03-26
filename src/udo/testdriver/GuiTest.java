@@ -10,12 +10,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import junit.framework.TestCase;
 
-import udo.gui.GUI;
+import udo.gui.Gui;
 import udo.storage.Task;
 import udo.storage.Task.TaskType;
 
 /**
- * This Class only tests the order of tasks, displayed Time and the 
+ * This Class only tests the order of tasks, displayed time and the 
  * appropriate date headers after the list is formatted. It is unable 
  * to check for display properties like colours and styles
  * 
@@ -33,7 +33,7 @@ import udo.storage.Task.TaskType;
  *  
  */
 
-public class GUITest extends TestCase {
+public class GuiTest extends TestCase {
     
     public static final String EMPTY_STRING = "";
     public static final String HEADER_TODO = "To-Dos";
@@ -47,7 +47,7 @@ public class GUITest extends TestCase {
     private static ArrayList<Task> inputList;
     private static ArrayList<Task> expectedArr; 
     private static ObservableList<Task> expectedList;
-    private static GUI gui;
+    private static Gui gui;
     
     private static Task todoHeader;
     private static Task todo1;
@@ -67,7 +67,7 @@ public class GUITest extends TestCase {
     }
 
     private void initVariables() {
-        gui = new GUI();
+        gui = new Gui();
         inputList = new ArrayList<Task>();
         expectedArr = new ArrayList<Task>(); 
         expectedList = FXCollections.observableList(expectedArr);

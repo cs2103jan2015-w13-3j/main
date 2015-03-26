@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import udo.gui.GUI;
+import udo.gui.Gui;
 import udo.logic.Autocompleter;
 import udo.logic.InputParser;
 import udo.logic.Logic;
@@ -45,7 +45,7 @@ public abstract class Command {
 
     protected String status;
 
-    protected GUI gui;
+    protected Gui gui;
     protected Storage storage;
     protected Autocompleter autocompleter;
 
@@ -95,7 +95,7 @@ public abstract class Command {
         this.status = status;
     }
 
-    public void setGUI(GUI gui) {
+    public void setGui(Gui gui) {
         this.gui = gui;
     }
 

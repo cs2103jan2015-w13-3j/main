@@ -28,7 +28,7 @@ public class LogicTest {
         removeExistingTasks();
 
         Logic logic = Logic.getInstance();
-        logic.setGUI(new GUIStub());
+        logic.setGui(new GuiStub());
 
         Storage storage = new Storage();
 
@@ -48,7 +48,7 @@ public class LogicTest {
         removeExistingTasks();
 
         Logic logic = Logic.getInstance();
-        logic.setGUI(new GUIStub());
+        logic.setGui(new GuiStub());
 
         Storage storage = new Storage();
 
@@ -68,7 +68,7 @@ public class LogicTest {
         removeExistingTasks();
 
         Logic logic = Logic.getInstance();
-        logic.setGUI(new GUIStub());
+        logic.setGui(new GuiStub());
 
         Storage storage = new Storage();
 
@@ -88,7 +88,7 @@ public class LogicTest {
         removeExistingTasks();
 
         Logic logic = Logic.getInstance();
-        logic.setGUI(new GUIStub());
+        logic.setGui(new GuiStub());
 
         Storage storage = new Storage();
 
@@ -107,7 +107,7 @@ public class LogicTest {
         removeExistingTasks();
 
         Logic logic = Logic.getInstance();
-        logic.setGUI(new GUIStub());
+        logic.setGui(new GuiStub());
 
         assertEquals(false,
                      logic.executeCommand("go to school /deadline tomrrow"));
