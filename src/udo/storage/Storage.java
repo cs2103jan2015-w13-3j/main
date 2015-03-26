@@ -320,7 +320,7 @@ public class Storage {
 	}
 
 	//query
-	public ArrayList<Task> query(){
+	public ArrayList<Task> queryAll(){
 		return Utility.deepCopy(taskList);
 	}
 
@@ -522,14 +522,60 @@ public class Storage {
 		return -1;
 	}
 
-	//to be completed in V0.3
+	//near match search using edit distance algorithm
 	public ArrayList<Task> nearMatchSearch(String searchedContent){
-		//stub
 		ArrayList<Task> returnList = new ArrayList<Task>();
-
+		int minDist = -1;
+		int[] dist = new int[taskList.size()];
+		for (int i = 0; i < taskList.size(); i++){
+			int currentDist = findDist(taskList.get(i).getContent().toLowerCase(),searchedContent);
+			if (currentDist < minDist || minDist < 0){
+				minDist = currentDist;
+			}
+			dist[i] = currentDist;
+		}
+		for (int i = 0; i <taskList.size(); i++){
+			if (dist[i] < Math.min(taskList.get(i).getContent().length(), searchedContent.length()) && dist[i] == minDist){
+				returnList.add(taskList.get(i).copy());
+			}
+		}
+		
 		return returnList;
 	}
+	
+	
+	private int minimum(int a, int b, int c) {
+		return Math.min(Math.min(a, b), c);
+	}
 
+	private int findDist(String str1, String str2) {
+
+		int[][] distance = new int[str2.length() + 1][str1.length() + 1];
+		
+		for (int i = 0; i <= str2.length(); i++) {
+			distance[i][0] = i;
+		}
+		for (int j = 1; j <= str1.length(); j++) {
+			distance[0][j] = 0;
+		}
+		for (int i = 1; i <= str2.length(); i++) {
+			for (int j = 1; j <= str1.length(); j++) {
+				distance[i][j] = minimum(
+						distance[i - 1][j] + 1,
+						distance[i][j - 1] + 1,
+						distance[i - 1][j - 1]
+								+ ((str1.charAt(j - 1) == str2.charAt(i - 1)) ? 0 : 1));
+			}
+		}
+		int minDist = -1;
+		for (int i = 0; i <= str1.length(); i++){
+			if (distance[str2.length()][i] < minDist || minDist < 0){
+				minDist = distance[str2.length()][i];
+			}
+		}
+		return minDist;
+	}
+	
 	//toggle priority
 	public boolean togglePriority(Integer index){
 		if (!isValidIndex(index)){
@@ -572,7 +618,7 @@ public class Storage {
 		return doneTasks;
 	}
 	
-	public ArrayList<Task> getUndone(){
+	public ArrayList<Task> query(){
 		ArrayList<Task> undoneTasks = new ArrayList<Task>();
 		for (int i = 0;i < taskList.size(); i++){
 			if (!taskList.get(i).isDone()){
