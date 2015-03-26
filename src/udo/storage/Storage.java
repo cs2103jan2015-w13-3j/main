@@ -12,7 +12,6 @@ public class Storage {
 	public static final String EOL = System.getProperty("line.separator");
 
 	private static ArrayList<Task> taskList;
-	private static ArrayList<Task> doneTasks;
 
 	private static Task prevTask;
 	private static String prevCmd;
@@ -35,13 +34,10 @@ public class Storage {
 	public Storage(){
 		initialize();
 		readTaskList();
-		readDoneTasks();
-
 	}
 
 	private void initialize() {
 		taskList = new ArrayList<Task>();
-		doneTasks = new ArrayList<Task>();
 		prevTask = new Task();
 		prevCmd = "";
 	}
@@ -50,16 +46,6 @@ public class Storage {
 	public String getPath(){
 		return new String(lastPath);
 	}
-
-	private void readDoneTasks() {
-		try{
-			doneTasks = JsonProcessor.readJson("done.json");
-		} catch (Exception e){
-			JsonProcessor.writeJson("done.json", doneTasks);
-			System.out.println(e);
-		}
-	}
-
 
 	private void readTaskList() {
 		try {
@@ -561,31 +547,41 @@ public class Storage {
 		if (!isValidIndex(index)){
 			return false;
 		}
-		prevTask = taskList.get(index).copy();
-		prevCmd = "done";
-
+		
 		if (!taskList.get(index).isDone()){
-			moveToDoneTasks(index);
-			swapWithLastTask(index);
+			prevTask = taskList.get(index).copy();
+			prevCmd = "mod";
+			taskList.get(index).setDone();
 		} else {
 			return false;
 		}
-		JsonProcessor.writeJson("done.json", doneTasks);
+
 		storeTasks();
 		return true;
 	}
 
-	private void moveToDoneTasks(Integer index) {
-		taskList.get(index).setDone();
-		doneTasks.add(taskList.get(index));
-		doneTasks.get(doneTasks.size() -1).setIndex(doneTasks.size() -1);
-	}
 
 	//method to retrieve tasks have been done
 	public ArrayList<Task> getDone(){
-		return Utility.deepCopy(doneTasks);
+		ArrayList <Task> doneTasks = new ArrayList<Task>();
+		for (int i = 0;i < taskList.size(); i++){
+			if (taskList.get(i).isDone()){
+				doneTasks.add(taskList.get(i).copy());
+			}
+		}
+		return doneTasks;
 	}
-
+	
+	public ArrayList<Task> getUndone(){
+		ArrayList<Task> undoneTasks = new ArrayList<Task>();
+		for (int i = 0;i < taskList.size(); i++){
+			if (!taskList.get(i).isDone()){
+				undoneTasks.add(taskList.get(i).copy());
+			}
+		}
+		return undoneTasks;
+	}
+	
 	public boolean undo(){
 		switch(prevCmd){
 		case "add":
@@ -598,10 +594,6 @@ public class Storage {
 			undoDelete();
 			prevCmd = "";
 			break;
-		case "done":
-			undoMarkDone();
-			prevCmd = "";
-			break;
 		case "chDir":
 			prevCmd = "";
 			return undoChDir();
@@ -609,12 +601,6 @@ public class Storage {
 		}
 		storeTasks();
 		return true;
-	}
-
-	private void undoMarkDone() {
-		undoDelete();
-		doneTasks.remove(doneTasks.size() -1);
-		JsonProcessor.writeJson("done.json", doneTasks);
 	}
 
 	private void undoModify() {
