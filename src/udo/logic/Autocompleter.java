@@ -11,8 +11,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import udo.storage.Task;
+import udo.util.Config;
+import udo.util.Utility;
 
 public class Autocompleter {
+    private static final String SEPARATOR = " ";
+
     // Used to store command and options keywords
     TernarySearchTree keywordsTree;
     // Used to store words from english dictionary
@@ -22,7 +26,8 @@ public class Autocompleter {
 
     List<String> commandHistory;
 
-    private static final Logger log = Logger.getLogger(Autocompleter.class.getName());
+    private static final Logger log = Logger.getLogger(
+                                          Autocompleter.class.getName());
 
     String dictPath = "res/dict.txt";
     String keywordsPath = "res/keywords.txt";
@@ -38,6 +43,11 @@ public class Autocompleter {
         addDictWordsToTree();
     }
 
+    /**
+     * Add all words in all tasks' content in the task list
+     * which don't appear in the dictionary or keywords
+     * @param tasks
+     */
     public void addTaskContentToTree(List<Task> tasks) {
         for (Task t : tasks) {
             String[] tokens = t.getContent().split("\\s");
@@ -50,6 +60,10 @@ public class Autocompleter {
         }
     }
 
+    /**
+     * Add all words contained in the file in keywordsPath to the
+     * keywords ternary search tree
+     */
     private void addKeywordsToTree() {
         BufferedReader reader = null;
 
@@ -76,6 +90,10 @@ public class Autocompleter {
         }
     }
 
+    /**
+     * Add all words read from the dictionary store in dictPath to the
+     * dictionary ternary search tree
+     */
     private void addDictWordsToTree() {
         BufferedReader reader = null;
 
@@ -213,6 +231,130 @@ public class Autocompleter {
         return text;
     }
 
+    /**
+     * Fill in the the remaining of text with the serialized content
+     * of the the given task
+     * @param text
+     * @param task
+     * @return autocompleted string
+     */
+    public String autocomplete(String text, Task task) {
+        String taskStr = taskToCmdStr(task);
+
+        if (text != null && text.length() > 0) {
+            if (Character.isWhitespace(text.charAt(text.length() - 1))) {
+                return text + taskStr;
+            } else {
+                return text + SEPARATOR + taskStr;
+            }
+        }
+
+        return text;
+    }
+
+    /**
+     * Convert a task data structure to an equivalent command string
+     * @param task
+     * @return
+     */
+    private String taskToCmdStr(Task task) {
+        switch (task.getTaskType()) {
+            case DEADLINE:
+                return deadlineTaskToCmdStr(task);
+            case EVENT:
+                return eventTaskToCmdStr(task);
+            case TODO:
+                return todoTaskToCmdStr(task);
+        }
+
+        return "";
+    }
+
+    /**
+     * Convert a todo task datastructure to its equivalent command string
+     * @param task
+     * @return
+     */
+    private String todoTaskToCmdStr(Task task) {
+        assert(task != null);
+        return task.getContent();
+    }
+
+    /**
+     * Convert an event task data structure to its equivalent command string
+     * @param task
+     * @return
+     */
+    private String eventTaskToCmdStr(Task task) {
+        StringBuilder builder = new StringBuilder();
+
+        assert(task.getContent() != null);
+        builder.append(task.getContent());
+        builder.append(SEPARATOR);
+
+        assert(task.getStart() != null);
+        appendOptionStr(builder, Config.OPT_START[Config.OPT_LONG],
+                        Utility.calendarToString(task.getStart()));
+
+        assert(task.getEnd() != null);
+        appendOptionStr(builder, Config.OPT_END[Config.OPT_LONG],
+                        Utility.calendarToString(task.getEnd()));
+
+        if (task.getReminder() != null) {
+            appendOptionStr(builder, Config.OPT_REMINDER[Config.OPT_LONG],
+                            Utility.calendarToString(task.getReminder()));
+        }
+
+        if (task.getPriority()) {
+            appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Convert a deadline task datastructure to its equivalent command string
+     * @param task
+     * @return
+     */
+    private String deadlineTaskToCmdStr(Task task) {
+        StringBuilder builder = new StringBuilder();
+
+        assert(task.getContent() != null);
+        builder.append(task.getContent());
+        builder.append(SEPARATOR);
+
+        assert(task.getDeadline() != null);
+        appendOptionStr(builder, Config.OPT_DEADLINE[Config.OPT_LONG],
+                        Utility.calendarToString(task.getDeadline()));
+
+        if (task.getReminder() != null) {
+            appendOptionStr(builder, Config.OPT_REMINDER[Config.OPT_LONG],
+                            Utility.calendarToString(task.getReminder()));
+        }
+
+        if (task.getPriority()) {
+            appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
+        }
+
+        return builder.toString();
+    }
+
+    private void appendOptionStr(StringBuilder builder,
+                                 String option,
+                                 String argument) {
+        builder.append(Config.OPTION_MAKER);
+        builder.append(option);
+        builder.append(SEPARATOR);
+        builder.append(argument);
+        builder.append(SEPARATOR);
+    }
+
+    /**
+     * Remove the last word from the given text
+     * @param text
+     * @return
+     */
     private String dropLastWord(String text) {
         int endIndex = getLastWhitespaceIndex(text);
 
@@ -252,11 +394,9 @@ public class Autocompleter {
     public static void main(String[] args) {
         Autocompleter completer = new Autocompleter();
 
-        /*
         System.out.println(completer.getSuggestions("/", 5));
         System.out.println(completer.getSuggestions("d "));
         System.out.println(completer.getSuggestions("d"));
-        */
 
         System.out.println(completer.autocomplete("ad"));
         System.out.println(completer.autocomplete("sing a song /de"));

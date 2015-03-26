@@ -7,7 +7,10 @@ import java.util.logging.Logger;
 import udo.gui.Gui;
 import udo.logic.command.Command;
 import udo.storage.Storage;
+import udo.storage.Task;
 import udo.testdriver.GuiStub;
+import udo.util.Config;
+import udo.util.Utility;
 
 public class Logic {
     private Gui gui;
@@ -117,7 +120,55 @@ public class Logic {
      * Refer to same method in Autocompleter
      */
     public String autocomplete(String text) {
+        if (isStartOfModifyCmd(text)) {
+            Task task = getModifyTask(text);
+
+            if (task != null) {
+                log.finer("Autocompleting task");
+                return autocompleter.autocomplete(text, task);
+            }
+        }
+
+        log.finer("Autocompleting words");
         return autocompleter.autocomplete(text);
+    }
+
+    private Task getModifyTask(String text) {
+        String[] tokens = text.split("\\s");
+        assert(tokens.length == 2);
+
+        try {
+            Integer displayIndex = Integer.parseInt(tokens[1]);
+            Integer storageIndex = Utility.getStorageIndex(displayIndex);
+
+            if (storageIndex != null) {
+                return storage.query(storageIndex);
+            } else {
+                log.fine("Cannot find storage index");
+                return null;
+            }
+        } catch (NumberFormatException e) {
+            log.fine("Invalid modify task's index");
+            return null;
+        }
+    }
+
+    /**
+     * Check if the text contains the beginning of a modify command
+     * which consists of the name 'modify' and an index
+     * @param text
+     * @return
+     */
+    private boolean isStartOfModifyCmd(String text) {
+        String[] tokens = text.split("\\s");
+
+        if (tokens.length == 2) {
+            if (tokens[0].equals(Config.CMD_STR_MODIFY)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -5,14 +5,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 
 import udo.storage.Task;
 
 public class Utility {
 	private static final SimpleDateFormat fmt =
 	        new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
 	public static HashMap<Integer, Integer> indexMap = new HashMap<>();
 
     public static Config.CommandName convertToCommandName(String cmdName) {
@@ -40,6 +41,17 @@ public class Utility {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Get the lower-level task's index in storage from the task's index
+     * as displayed by gui
+     * @param argIndex the displayed index
+     * @return the storage index or null if it's not found
+     */
+    public static Integer getStorageIndex(Integer displayIndex) {
+        assert(displayIndex != null);
+        return indexMap.get(displayIndex);
     }
 
     public static void setToStartOfDay(GregorianCalendar start) {
