@@ -1,5 +1,8 @@
 package udo.gui;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -9,11 +12,15 @@ import javafx.scene.input.KeyEvent;
 
 public class CustomTextField {
     
+    private static final Logger logger = 
+            Logger.getLogger(CustomTextField.class.getName());
+    
     private TextField textField;
     private Gui gui_;
     
     public CustomTextField(TextField field) {
         textField = field;
+        logger.setLevel(Level.INFO);
     }
     
     public void setField(Gui gui) {
@@ -42,10 +49,11 @@ public class CustomTextField {
 
     public void handleDirectionKey(KeyEvent event, String direction) {
         String command = gui_.callCmdHistory(direction);
+        logger.finer(command); //TODO change to finer
         setText(command);
         textField.end();
         event.consume();
-        gui_.displayAlert();
+        //gui_.displayAlert();
     }
     
     /*

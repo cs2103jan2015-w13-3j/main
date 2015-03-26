@@ -173,11 +173,14 @@ public class Gui extends Application {
     }
     
     public String callCmdHistory(String direction) {
+        String command = new String();
         if(direction.equals(GuiUtil.KEY_UP)) {
-            return logic.getPreviousCmd();
+            command = logic.getPreviousCmd();
         } else {
-            return logic.getNextCmd();
+            command = logic.getNextCmd();
         }
+        assert(command != GuiUtil.EMPTY_STRING);
+        return command;
     }
     
     public List<String> callSuggestions(String userInput) {
