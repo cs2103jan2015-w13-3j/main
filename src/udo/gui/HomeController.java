@@ -182,6 +182,7 @@ public class HomeController {
         displayInput(command);
         inputBox.end();
         event.consume();
+        gui.displayAlert();
         logger.finer(command);
     }
     
@@ -194,7 +195,7 @@ public class HomeController {
             gui.callSuggestions(userInput);
             //displayStatus();
             event.consume();
-            logger.info("Suggestion: ");
+            //logger.info("Suggestion: ");
         } else {
             return;
         }

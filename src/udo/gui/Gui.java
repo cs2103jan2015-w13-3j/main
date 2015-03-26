@@ -2,6 +2,8 @@ package udo.gui;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +17,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import udo.logic.Logic;
 import udo.storage.Task;
+import udo.storage.Task.TaskType;
 import udo.util.Config;
 
 /**
@@ -175,11 +178,23 @@ public class Gui extends Application {
         } else {
             return logic.getNextCmd();
         }
- 
     }
     
     public List<String> callSuggestions(String userInput) {
         return null;
+    }
+    
+    public void displayAlert() {
+        //To be called by alerts and receive a list
+        ArrayList<Task> testList = new ArrayList<Task>();
+        Task currDayEvent12pm = new Task(TaskType.EVENT, "meeting", null, 
+                new GregorianCalendar(2015, 02, 20, 12, 0), 
+                new GregorianCalendar(2015, 02, 20, 13, 30),
+                0, null, "", false, false);
+        testList.add(currDayEvent12pm);
+        ReminderDialog reminder = new ReminderDialog(testList);
+        reminder.appear();
+        return;
     }
     
     /**
