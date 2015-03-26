@@ -19,7 +19,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-
 import udo.storage.Task;
 
 /**
@@ -40,7 +39,7 @@ public class HomeController {
     private static final Color COLOR_TEXT_WARNING = Color.ORANGE;
     private static final Color COLOR_TEXT_ERROR = Color.RED;
     private static final Color COLOR_TEXT_NORMAL = Color.WHITE;
-    
+            
     private static String STYLE_ITALIC = "italic";
     private static String STYLE_STRAIGHT = "straight";
 
@@ -65,7 +64,7 @@ public class HomeController {
 
     
     public HomeController() {
-        logger.setLevel(Level.OFF);
+        logger.setLevel(Level.INFO);
     }
 
     /**
@@ -94,7 +93,7 @@ public class HomeController {
 
     private void configureTextField() {
         setFocusInputBox();
-        inputBox.setOnKeyPressed(handleTabKey);
+        inputBox.setOnKeyPressed(keyHandlers);
     }
 
     @FXML
@@ -147,18 +146,59 @@ public class HomeController {
         }
     }
     
-    // Event handler for Tab Key
-    EventHandler<KeyEvent> handleTabKey = new EventHandler<KeyEvent>() {
+    //TODO to be refactored to OOP
+    EventHandler<KeyEvent> keyHandlers = new EventHandler<KeyEvent>() {
         @Override
         public void handle(KeyEvent event) {
-            if(event.getCode() == KeyCode.TAB) {
-                logger.info("Handling event " + event.getEventType());
-                String userInput = retrieveUserInput();
-                gui.callAutocomplete(userInput);
-                event.consume();
-            }
+            KeyCode code = event.getCode();
+            switch(code) {
+                case TAB:
+                    handleTabKey(event);
+                    break;
+                case UP:
+                    handleDirectionKey(event, GuiUtil.KEY_UP);
+                    break;
+                case DOWN:
+                    handleDirectionKey(event, GuiUtil.KEY_DOWN);
+                    break;
+                default:
+                    handleOtherKeys(event, code);
+                    break; 
+            }          
         }
     };
+    
+    private void handleTabKey(KeyEvent event) {
+        String userInput = retrieveUserInput();
+        String completedStr = gui.callAutocomplete(userInput);
+        displayInput(completedStr);
+        inputBox.end();
+        event.consume();
+        logger.finer(completedStr);
+    }
+
+    private void handleDirectionKey(KeyEvent event, String direction) {
+        String command = gui.callCmdHistory(direction);
+        displayInput(command);
+        inputBox.end();
+        event.consume();
+        logger.finer(command);
+    }
+    
+    /*
+     * Retrieves suggestions for any letter keys
+     */
+    private void handleOtherKeys(KeyEvent event, KeyCode code) {
+        if(code.isLetterKey()) {
+            String userInput = retrieveUserInput();
+            gui.callSuggestions(userInput);
+            //displayStatus();
+            event.consume();
+            logger.info("Suggestion: ");
+        } else {
+            return;
+        }
+    }
     
     //TODO null or empty string
     public void displayStatus(String receivedString) {
@@ -173,6 +213,10 @@ public class HomeController {
         }
         statusString.setText(receivedString);
         logger.finer(receivedString);
+    }
+    
+    private void displayInput(String str) {
+        inputBox.setText(str);
     }
     
     private String retrieveUserInput() {
