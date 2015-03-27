@@ -95,7 +95,7 @@ public class HomeController {
 
     private void configureTextField() {
         setFocusInputBox();
-        customTextField = new CustomTextField(inputBox);
+        customTextField = new CustomTextField(inputBox, this);
         customTextField.bindKeys(keyHandlers);
     }
 
@@ -139,31 +139,25 @@ public class HomeController {
             }
        });
     }
-
-    @FXML
-    private void handleReturnKey(ActionEvent event) {
-        String text = retrieveUserInput();
-
-        if (gui.callLogicCommand(text) == true) {
-            customTextField.clear();
-        }
-    }
     
     EventHandler<KeyEvent> keyHandlers = new EventHandler<KeyEvent>() {
         @Override
         public void handle(KeyEvent event) {
             KeyCode code = event.getCode();
             switch(code) {
-                case TAB:
+                case TAB :
                     customTextField.handleTabKey(event);
                     break;
-                case UP:
+                case ENTER :
+                    customTextField.handleReturnKey();
+                    break;
+                case UP :
                     customTextField.handleDirectionKey(event, GuiUtil.KEY_UP);
                     break;
-                case DOWN:
+                case DOWN :
                     customTextField.handleDirectionKey(event, GuiUtil.KEY_DOWN);
                     break;
-                case F1:
+                case F1 :
                     handleF1Key();
                     break;
                 default:
@@ -172,7 +166,30 @@ public class HomeController {
             }          
         }
     };
-       
+    
+    //TODO String or list
+    public String getAutocompleted(String userInput) {
+        return gui.callAutocomplete(userInput);
+    }
+    
+    public String getSuggestions(String userInput) {
+        gui.callSuggestions(userInput);
+        return null;
+    }
+    
+    public boolean getCommand(String userInput) {
+        return gui.callLogicCommand(userInput) == true;
+    }
+    
+    public String getCmdHistory(String direction) {
+        return gui.callCmdHistory(direction);
+    }
+    
+    //TODO To be removed
+    public void testAlert() {
+        gui.displayAlert();
+    }
+    
     //TODO null or empty string
     public void displayStatus(String receivedString) {
         if(receivedString == null) {
@@ -188,10 +205,6 @@ public class HomeController {
         logger.finer(receivedString);
     }
     
-    private String retrieveUserInput() {
-        return customTextField.getText();
-    }
-    
     private void handleF1Key() {
         gui.callLogicCommand(Config.CMD_STR_DISPLAY);
     }
@@ -203,7 +216,6 @@ public class HomeController {
      */
     public void setMainApp(Gui gui) {
         this.gui = gui;
-        customTextField.setField(gui);
     }
     
     public void setData() {

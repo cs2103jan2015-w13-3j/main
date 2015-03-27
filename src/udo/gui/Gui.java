@@ -173,12 +173,15 @@ public class Gui extends Application {
     }
     
     public String callCmdHistory(String direction) {
+        assert(direction != null);
+        
         String command = new String();
         if(direction.equals(GuiUtil.KEY_UP)) {
             command = logic.getPreviousCmd();
         } else {
             command = logic.getNextCmd();
         }
+        
         assert(command != GuiUtil.EMPTY_STRING);
         return command;
     }

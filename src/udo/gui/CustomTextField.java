@@ -16,15 +16,12 @@ public class CustomTextField {
             Logger.getLogger(CustomTextField.class.getName());
     
     private TextField textField;
-    private Gui gui_;
+    private HomeController controller_;
     
-    public CustomTextField(TextField field) {
+    public CustomTextField(TextField field, HomeController controller) {
         textField = field;
+        controller_ = controller;
         logger.setLevel(Level.INFO);
-    }
-    
-    public void setField(Gui gui) {
-        gui_ = gui;
     }
     
     public void setText(String str) {
@@ -39,21 +36,29 @@ public class CustomTextField {
         textField.setOnKeyPressed(keyHandlers);
     }
     
+    public void handleReturnKey() {
+        String text = getText();
+    
+        if (controller_.getCommand(text) == true) {
+            clear();
+        }
+    }
+
     public void handleTabKey(KeyEvent event) {
         String userInput = getText();
-        String completedStr = gui_.callAutocomplete(userInput);
+        String completedStr = controller_.getAutocompleted(userInput);
         setText(completedStr);
         textField.end();
         event.consume();
     }
 
     public void handleDirectionKey(KeyEvent event, String direction) {
-        String command = gui_.callCmdHistory(direction);
+        /*String command = controller_.getCmdHistory(direction);
         logger.finer(command); //TODO change to finer
         setText(command);
-        textField.end();
+        textField.end();*/
         event.consume();
-        //gui_.displayAlert();
+        controller_.testAlert();
     }
     
     /*
@@ -62,7 +67,7 @@ public class CustomTextField {
     public void handleOtherKeys(KeyEvent event, KeyCode code) {
         if(code.isLetterKey()) {
             String userInput = getText();
-            gui_.callSuggestions(userInput);
+            controller_.getSuggestions(userInput);
             //displayStatus();
             event.consume();
             //logger.info("Suggestion: ");
@@ -70,16 +75,7 @@ public class CustomTextField {
             return;
         }
     }
-    
-    @FXML
-    private void handleReturnKey(ActionEvent event) {
-        String text = getText();
 
-        if (gui_.callLogicCommand(text) == true) {
-            clear();
-        }
-    }
-    
     public void clear() {
         textField.clear();
     }
