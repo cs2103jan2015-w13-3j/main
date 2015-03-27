@@ -64,31 +64,39 @@ public class GuiFormatter {
         }
 
         Collections.sort(rawData);
-        processIndex();
+        processData();
         formatDateLoop();
         logger.fine(rawData.toString());
     }
     
-    private void processIndex() {
+    private void processData() {
         Utility.indexMap.clear();
-        formatIndexLoop();
+        formatDataLoop();
     }
     
     /**
      * Maps the displayIndex to the Task's actual index 
-     * and appends serial number
+     * and appends important information like serial number
+     * and '?' marks for unconfirmed tasks
      * 
      * @param rawData
      */
-    private void formatIndexLoop() {
+    private void formatDataLoop() {
         
         for (int i = 0; i < rawData.size(); i++) {
             int displayIndex = i + 1;
             Task task = rawData.get(i);
+            
             mapIndex(displayIndex, task.getIndex());
-            appendSerialNumber(task, displayIndex);
+            appendInformation(displayIndex, task);
+            
             logger.finest(task.getContent());
         }
+    }
+
+    private void appendInformation(int displayIndex, Task task) {
+        appendUnconfirmedMarks(task);
+        appendSerialNumber(task, displayIndex);
     }
     
     private void mapIndex(Integer displayIndex, Integer actualIndex) {
@@ -99,8 +107,15 @@ public class GuiFormatter {
         task.setContent("" + counter + ".  " + task.getContent());
     }
 
+    private void appendUnconfirmedMarks(Task task) {
+        if(GuiUtil.isUnconfirmed(task)) {
+            task.setContent("? " + task.getContent());
+        }
+    }
+
     /**
-     * Formats list into a GUI display format, inserts date headers and time
+     * Formats list into a GUI display format, inserts date headers 
+     * and formats stime
      */
     private void formatDateLoop() {
 

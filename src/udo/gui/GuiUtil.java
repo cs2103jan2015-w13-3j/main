@@ -75,8 +75,7 @@ public class GuiUtil {
         }        
     }
     
-    public static boolean isUnconfirmed(String title, ObservableList<Task> data) {
-        Task task = lookUpTask(title, data);
+    public static boolean isUnconfirmed(Task task) {
         return task.getGroupId() > 0;
     }
 
@@ -136,7 +135,7 @@ public class GuiUtil {
      * Formats a calendar object into a specified date and time format
      * 
      * @param calendar
-     * @return date in EEE, dd MMM yyyy format
+     * @return date in EEE, dd/MM HH:mm format
      */
     public static String guiDateTimeFormat(GregorianCalendar calendar) {
         if (calendar == null) {
