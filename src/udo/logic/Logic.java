@@ -77,6 +77,7 @@ public class Logic {
      */
     public boolean executeCommand(String command) {
         log.log(Level.FINE, "Receive command: " + command);
+        autocompleter.addToHistory(command);
 
         Command parsedCommand = parser.parseCommand(command);
 
