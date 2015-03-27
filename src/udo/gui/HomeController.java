@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -17,10 +16,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
+
 import udo.storage.Task;
-import udo.util.Config;
 
 /**
  * This is the main controller class for the HomePage of the GUI. It controls
@@ -35,11 +33,6 @@ import udo.util.Config;
 public class HomeController {
     private static final Logger logger = 
             Logger.getLogger(HomeController.class.getName());
-      
-    private static final Color COLOR_TABLE_HEADERS = Color.rgb(26, 188, 156);
-    private static final Color COLOR_TEXT_WARNING = Color.ORANGE;
-    private static final Color COLOR_TEXT_ERROR = Color.RED;
-    private static final Color COLOR_TEXT_NORMAL = Color.WHITE;
             
     private static String STYLE_ITALIC = "italic";
     private static String STYLE_STRAIGHT = "straight";
@@ -166,6 +159,9 @@ public class HomeController {
                 case F2:
                     handleF2Key();
                     break;
+                case F3:
+                    handleF3Key();
+                    break;
                 default:
                     customTextField.handleOtherKeys(event, code);
                     break; 
@@ -191,21 +187,16 @@ public class HomeController {
         return gui.callCmdHistory(direction);
     }
     
-    //TODO To be removed
-    public void testAlert() {
-        gui.displayAlert();
-    }
-    
     //TODO null or empty string
     public void displayStatus(String receivedString) {
         if(receivedString == null) {
             receivedString = GuiUtil.EMPTY_STRING;
         } else if(GuiUtil.isWarning(receivedString)) {
-            statusString.setTextFill(COLOR_TEXT_WARNING);
+            statusString.setTextFill(GuiUtil.COLOUR_TEXT_WARNING);
         } else if(GuiUtil.isError(receivedString)) {
-            statusString.setTextFill(COLOR_TEXT_ERROR);
+            statusString.setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
         } else {
-            statusString.setTextFill(COLOR_TEXT_NORMAL);
+            statusString.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
         }
         statusString.setText(receivedString);
         logger.finer(receivedString);
@@ -217,6 +208,10 @@ public class HomeController {
     
     private void handleF2Key() {
         gui.callLogicCommand(HOTKEY_DONE);
+    }
+    //TODO be removed
+    private void handleF3Key() {
+        Gui.displayAlert();
     }
 
     /**
@@ -274,19 +269,19 @@ public class HomeController {
         }
         
         private void setHeaderStyle() {        
-            setTextFill(COLOR_TABLE_HEADERS);
+            setTextFill(GuiUtil.COLOUR_TABLE_HEADERS);
             setAlignment(Pos.CENTER);
             styleItalic();
         }
         
         private void setTextStyle() {
-            setTextFill(Color.WHITE);
+            setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
             setAlignment(Pos.CENTER_LEFT);
             styleStraight();
         }
         
         private void setImportantStyle() {
-            setTextFill(Color.RED);
+            setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
             setAlignment(Pos.CENTER_LEFT);
             styleStraight();
         }
@@ -312,7 +307,7 @@ public class HomeController {
         @Override
         public void updateItem(String item, boolean empty) {
             super.updateItem(item, empty);
-            this.setTextFill(COLOR_TEXT_NORMAL); 
+            this.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL); 
             this.setText(item);
         }
     }

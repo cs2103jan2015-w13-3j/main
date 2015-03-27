@@ -2,14 +2,17 @@ package udo.gui;
 
 import java.util.ArrayList;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
-import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.StageStyle;
 import udo.storage.Task;
 import udo.storage.Task.TaskType;
 
@@ -21,11 +24,7 @@ public class ReminderDialog {
     private static final double POS_Y = 10;
     private static final double POS_WIDTH = 300;
     
-    private static final String STYLE_COLOUR_BACKGROUND = "-fx-background-color: #2b3339; ";
-    private static final String STYLE_COLOUR_WHITE = "-fx-fill: white; ";
-    private static final String STYLE_COLOUR_GREEN = "-fx-fill: #1abc9c; ";
-    private static final String STYLE_SIZE = "-fx-font-size: 12.5px; ";
-    private static final String STYLE_FONT = "-fx-font-family: 'Open Sans', sans-serif; ";
+    private static final String BUTTON_TEXT = "Open";
     
     private static final int ARR_SIZE = 4;
     
@@ -60,6 +59,13 @@ public class ReminderDialog {
         setButton();
     }
 
+    private void removeDefaults(){
+        alert.setGraphic(null);
+        alert.setHeaderText(null);
+        alert.initStyle(StageStyle.UNDECORATED);
+        alert.getButtonTypes().clear();
+    }
+
     private void setDisplay(Task task) {
         alert.setTitle(TITLE);
         setLayout();
@@ -75,7 +81,7 @@ public class ReminderDialog {
 
     private void setContent(String[] taskInfo) {
         textBox = completeMessage(taskInfo);       
-        dialogPane.setStyle(STYLE_COLOUR_BACKGROUND);              
+        dialogPane.setStyle(GuiUtil.COLOUR_BACKGROUND);              
         dialogPane.setContent(textBox);       
     }
     
@@ -92,6 +98,7 @@ public class ReminderDialog {
     
     private TextFlow completeMessageEvent(String[] taskInfo) {
         ArrayList<Text> textArr = new ArrayList<>();
+        
         textArr.add(new Text(MESSAGE_START));
         textArr.add(new Text(taskInfo[INDEX_TITLE]));
         
@@ -107,6 +114,7 @@ public class ReminderDialog {
     
     private TextFlow completeMessageDeadline(String[] taskInfo) {
         ArrayList<Text> textArr = new ArrayList<>();
+        
         textArr.add(new Text(MESSAGE_START));
         textArr.add(new Text(taskInfo[INDEX_TITLE]));
         
@@ -144,12 +152,12 @@ public class ReminderDialog {
     }
 
     private void setNormalStyle(Text title) {
-        title.setStyle(STYLE_FONT + STYLE_SIZE + STYLE_COLOUR_WHITE);
+        title.setStyle(GuiUtil.FONT + GuiUtil.SIZE + GuiUtil.COLOUR_WHITE);
         return;
     }
     
     private void setEmphasisedStyle(Text title) {
-        title.setStyle(STYLE_FONT + STYLE_SIZE + STYLE_COLOUR_GREEN);
+        title.setStyle(GuiUtil.FONT + GuiUtil.SIZE + GuiUtil.COLOUR_GREEN);
         return;
     }
     
@@ -186,15 +194,17 @@ public class ReminderDialog {
         return taskInfo;
     }
 
-    private void removeDefaults(){
-        alert.setGraphic(null);
-        alert.setHeaderText(null);
-        alert.getButtonTypes().clear();
-    }
-    
     private void setButton() {
-        ButtonType openButton = new ButtonType("Open", ButtonData.OK_DONE);
-        alert.getDialogPane().getButtonTypes().addAll(openButton);
+        ButtonType openButton = new ButtonType(BUTTON_TEXT, ButtonData.OK_DONE);
+        alert.getDialogPane().getButtonTypes().addAll(openButton, ButtonType.CLOSE);
+        
+        final Button btn = (Button) dialogPane.lookupButton(openButton); 
+        btn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //TODO Execute program
+            }
+        });
     }
     
     public void appear(){

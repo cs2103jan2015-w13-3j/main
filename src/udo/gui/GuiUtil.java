@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
 import javafx.collections.ObservableList;
+import javafx.scene.paint.Color;
 import udo.storage.Task;
 import udo.util.Utility;
 
@@ -23,6 +24,17 @@ public class GuiUtil {
     
     public static final String KEY_UP = "UP";
     public static final String KEY_DOWN = "DOWN";
+       
+    public static final Color COLOUR_TABLE_HEADERS = Color.rgb(26, 188, 156);
+    public static final Color COLOUR_TEXT_WARNING = Color.ORANGE;
+    public static final Color COLOUR_TEXT_ERROR = Color.RED;
+    public static final Color COLOUR_TEXT_NORMAL = Color.WHITE;
+    public static final String COLOUR_BACKGROUND = "-fx-background-color: #2b3339; ";
+    public static final String COLOUR_WHITE = "-fx-fill: white; ";
+    public static final String COLOUR_GREEN = "-fx-fill: #1abc9c; ";
+
+    public static final String SIZE = "-fx-font-size: 12.5px; ";
+    public static final String FONT = "-fx-font-family: 'Open Sans', sans-serif; ";
     
     public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     public static SimpleDateFormat dateFormat = 

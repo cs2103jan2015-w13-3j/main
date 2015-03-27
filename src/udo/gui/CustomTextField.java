@@ -51,12 +51,11 @@ public class CustomTextField {
     }
 
     public void handleDirectionKey(KeyEvent event, String direction) {
-        /*String command = controller_.getCmdHistory(direction);
-        logger.finer(command); //TODO change to finer
+        String command = controller_.getCmdHistory(direction);
+        logger.finer(command); 
         setText(command);
-        textField.end();*/
+        textField.end();
         event.consume();
-        controller_.testAlert();
     }
     
     /*

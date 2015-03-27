@@ -2,7 +2,6 @@ package udo.gui;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
@@ -15,6 +14,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
 import udo.logic.Logic;
 import udo.storage.Task;
 import udo.storage.Task.TaskType;
@@ -31,7 +31,7 @@ import udo.util.Config;
 
 public class Gui extends Application {
     private static final Logger logger = Logger.getLogger(Gui.class.getName());
-    
+
     private static final String NAME_APP = "JustU";
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
     private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
@@ -193,7 +193,7 @@ public class Gui extends Application {
     /**
      * Called by background process which invokes a dialog
      */
-    public void displayAlert() {
+    public static void displayAlert() {
         Task currDayDeadline5pm = new Task(TaskType.DEADLINE, "hand in work",  
                 new GregorianCalendar(2015, 02, 20, 17, 0),
                 null, null, 0, null, GuiUtil.EMPTY_STRING, false, 
