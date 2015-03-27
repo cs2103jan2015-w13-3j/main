@@ -5,6 +5,7 @@ import java.util.GregorianCalendar;
 
 import javafx.collections.ObservableList;
 import udo.storage.Task;
+import udo.util.Utility;
 
 /**
  * This class is a Utility class catered for GUI package
@@ -26,7 +27,7 @@ public class GuiUtil {
     public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     public static SimpleDateFormat dateFormat = 
             new SimpleDateFormat("EEE, dd MMM yyyy");
-    public static SimpleDateFormat endDateFormat = 
+    public static SimpleDateFormat DateTimeFormat = 
             new SimpleDateFormat("dd/MM HH:mm");
     
     public static boolean isHeader(String str) {
@@ -74,6 +75,11 @@ public class GuiUtil {
         }        
     }
     
+    public static boolean isUnconfirmed(String title, ObservableList<Task> data) {
+        Task task = lookUpTask(title, data);
+        return task.getGroupId() > 0;
+    }
+
     public static boolean isWarning(String receivedString) {
        return receivedString.substring(0, 7).equals(PREFIX_WARNING);
     }
@@ -82,6 +88,30 @@ public class GuiUtil {
         return receivedString.substring(0, 5).equals(PREFIX_ERROR);
     }
     
+    /**
+     * Checks whether the start and end time is on the same day and
+     * returns different formats of end time accordingly
+     * 
+     * @param task
+     * @return endDateTime in HH:mm format if start and end is on the
+     *                     same date or else in dd/MM HH:mm format 
+     */
+    public static String getEnd(Task task) {
+        GregorianCalendar start = task.getStart();
+        GregorianCalendar end = task.getEnd();
+        if(Utility.isSameDate(start, end)) {
+            return GuiUtil.guiTimeFormat(end);
+        } else {
+            return GuiUtil.guiDateTimeFormat(end);
+        }        
+    }
+    
+    /**
+     * Formats a calendar object into a specified time format
+     * 
+     * @param calendar
+     * @return time in HH:mm format
+     */
     public static String guiTimeFormat(GregorianCalendar calendar) {
         if (calendar == null) {
             return EMPTY_STRING;
@@ -89,17 +119,29 @@ public class GuiUtil {
         return timeFormat.format(calendar.getTime());
     }
     
+    /**
+     * Formats a calendar object into a specified date format
+     * 
+     * @param calendar
+     * @return date in EEE, dd MMM yyyy format
+     */
     public static String guiDateFormat(GregorianCalendar calendar) {
         if (calendar == null) {
             return EMPTY_STRING;
         }
         return dateFormat.format(calendar.getTime());
     }
-
-    public static String guiEndDateFormat(GregorianCalendar calendar) {
+    
+    /**
+     * Formats a calendar object into a specified date and time format
+     * 
+     * @param calendar
+     * @return date in EEE, dd MMM yyyy format
+     */
+    public static String guiDateTimeFormat(GregorianCalendar calendar) {
         if (calendar == null) {
             return EMPTY_STRING;
         }
-        return endDateFormat.format(calendar.getTime());
+        return DateTimeFormat.format(calendar.getTime());
     }
 }

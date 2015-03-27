@@ -190,15 +190,15 @@ public class Gui extends Application {
         return null;
     }
     
+    /**
+     * Called by background process which invokes a dialog
+     */
     public void displayAlert() {
-        //To be called by alerts and receive a list
-        ArrayList<Task> testList = new ArrayList<Task>();
-        Task currDayEvent12pm = new Task(TaskType.EVENT, "meeting", null, 
-                new GregorianCalendar(2015, 02, 20, 12, 0), 
-                new GregorianCalendar(2015, 02, 20, 13, 30),
-                0, null, "", false, false);
-        testList.add(currDayEvent12pm);
-        ReminderDialog reminder = new ReminderDialog(testList);
+        Task currDayDeadline5pm = new Task(TaskType.DEADLINE, "hand in work",  
+                new GregorianCalendar(2015, 02, 20, 17, 0),
+                null, null, 0, null, GuiUtil.EMPTY_STRING, false, 
+                false);
+        ReminderDialog reminder = new ReminderDialog(currDayDeadline5pm);
         reminder.appear();
         return;
     }

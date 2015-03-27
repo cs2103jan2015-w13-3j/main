@@ -186,17 +186,7 @@ public class GuiFormatter {
 
     private void setDisplayTimeEvent(Task task) {
         String start = GuiUtil.guiTimeFormat(task.getStart());
-        String end = getEnd(task);
+        String end = GuiUtil.getEnd(task);
         task.setLabel(start + " - " + end);
-    }
-    
-    private String getEnd(Task task) {
-        GregorianCalendar start = task.getStart();
-        GregorianCalendar end = task.getEnd();
-        if(Utility.isSameDate(start, end)) {
-            return GuiUtil.guiTimeFormat(end);
-        } else {
-            return GuiUtil.guiEndDateFormat(end);
-        }        
     }
 }

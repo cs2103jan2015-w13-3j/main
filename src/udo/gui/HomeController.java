@@ -25,7 +25,7 @@ import udo.util.Config;
 /**
  * This is the main controller class for the HomePage of the GUI. It controls
  * the data displayed and its styling. It is also the interface between the java
- * objects and its corresponding FXML objects. All user events are handled by
+ * objects and its corresponding FXML objects. All user events are also handled by
  * this class
  * 
  * @author Sharmine
@@ -43,7 +43,10 @@ public class HomeController {
             
     private static String STYLE_ITALIC = "italic";
     private static String STYLE_STRAIGHT = "straight";
-
+    
+    private static String HOTKEY_DISPLAY = "display";
+    private static String HOTKEY_DONE = "display /done";
+    
     private static String COLUMN_FIELD_CONTENT = "content";
     private static String COLUMN_FIELD_LABEL= "label";
     private static Label statusString;
@@ -160,6 +163,9 @@ public class HomeController {
                 case F1 :
                     handleF1Key();
                     break;
+                case F2:
+                    handleF2Key();
+                    break;
                 default:
                     customTextField.handleOtherKeys(event, code);
                     break; 
@@ -206,9 +212,13 @@ public class HomeController {
     }
     
     private void handleF1Key() {
-        gui.callLogicCommand(Config.CMD_STR_DISPLAY);
+        gui.callLogicCommand(HOTKEY_DISPLAY);
     }
     
+    private void handleF2Key() {
+        gui.callLogicCommand(HOTKEY_DONE);
+    }
+
     /**
      * Called by the main application to give a reference back to itself.
      * 
