@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +18,8 @@ import udo.util.Utility;
 
 public class Autocompleter {
     private static final String SEPARATOR = " ";
+	private static final SimpleDateFormat fmt =
+	        new SimpleDateFormat("MMM d, yyyy HH:mm");
 
     // Used to store command and options keywords
     TernarySearchTree keywordsTree;
@@ -301,7 +304,7 @@ public class Autocompleter {
 
         if (task.getReminder() != null) {
             appendOptionStr(builder, Config.OPT_REMINDER[Config.OPT_LONG],
-                            Utility.calendarToString(task.getReminder()));
+                            Utility.calendarToString(task.getReminder(), fmt));
         }
 
         if (task.getPriority()) {
@@ -325,15 +328,15 @@ public class Autocompleter {
 
         assert(task.getStart() != null);
         appendOptionStr(builder, Config.OPT_START[Config.OPT_LONG],
-                        Utility.calendarToString(task.getStart()));
+                        Utility.calendarToString(task.getStart(), fmt));
 
         assert(task.getEnd() != null);
         appendOptionStr(builder, Config.OPT_END[Config.OPT_LONG],
-                        Utility.calendarToString(task.getEnd()));
+                        Utility.calendarToString(task.getEnd(), fmt));
 
         if (task.getReminder() != null) {
             appendOptionStr(builder, Config.OPT_REMINDER[Config.OPT_LONG],
-                            Utility.calendarToString(task.getReminder()));
+                            Utility.calendarToString(task.getReminder(), fmt));
         }
 
         if (task.getPriority()) {
@@ -357,11 +360,11 @@ public class Autocompleter {
 
         assert(task.getDeadline() != null);
         appendOptionStr(builder, Config.OPT_DEADLINE[Config.OPT_LONG],
-                        Utility.calendarToString(task.getDeadline()));
+                        Utility.calendarToString(task.getDeadline(), fmt));
 
         if (task.getReminder() != null) {
             appendOptionStr(builder, Config.OPT_REMINDER[Config.OPT_LONG],
-                            Utility.calendarToString(task.getReminder()));
+                            Utility.calendarToString(task.getReminder(), fmt));
         }
 
         if (task.getPriority()) {

@@ -62,7 +62,7 @@ public class ModifyCommand extends Command {
             if (!isSuccessful) {
                 setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
             } else {
-                if (clash == null) {
+                if (clash == null || clash.getIndex() == storageIndex) {
                     setStatus(getModifySucessStatus(task));
                 } else {
                     setStatus(getClashWarning(task.getContent(),
