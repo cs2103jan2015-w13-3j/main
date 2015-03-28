@@ -9,7 +9,7 @@ import java.util.PriorityQueue;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import udo.storage.Task.TaskType;
+import udo.gui.ReminderDialog;
 
 public class Reminder extends TimerTask {
 	public static final String EOL = System.getProperty("line.separator");
@@ -17,11 +17,16 @@ public class Reminder extends TimerTask {
 	private static PriorityQueue<Task> taskQueue;
 
 	public static void main(String[] args) throws IOException{
-
-		PriorityQueue<Task> pq = PQ();
-		System.out.println("taskQueue "+pq);
-		remind();
-		System.out.println("HERE "+remindList);
+		PQ();
+		Timer timer = new Timer();
+		Reminder rm = new Reminder();
+		if (!taskQueue.isEmpty()) {
+			System.out.println("SCHEDULE SCHEDULE "+taskQueue.peek());
+			
+			timer.schedule(rm, 0, 10);		
+		}
+		else
+			timer.cancel();
 	}
 
 	//read from json file
@@ -36,47 +41,35 @@ public class Reminder extends TimerTask {
 			lastPath = br.readLine();
 			br.close();
 			taskList = JsonProcessor.readJson(lastPath);
-			taskList.add(new Task(TaskType.DEADLINE, "fighting", new GregorianCalendar(2010,01,03), 
-					new GregorianCalendar(2011,01,02),new GregorianCalendar(2010,01,03), 5,new GregorianCalendar(2010,01,03),
-					"personal", false, false));
-			taskList.add(new Task(TaskType.DEADLINE, "jogging", new GregorianCalendar(2010,01,03), 
-					new GregorianCalendar(2011,01,02),new GregorianCalendar(2010,01,03), 10,new GregorianCalendar(2010,01,02),
-					"personal", false, false));
-			taskList.add(new Task(TaskType.DEADLINE, "sleeping", new GregorianCalendar(2010,01,03), 
-					new GregorianCalendar(2011,01,02),new GregorianCalendar(2010,01,03), 15,new GregorianCalendar(2010,01,05),
-					"personal", false, false));
-			taskList.add(new Task(TaskType.DEADLINE, "crying", new GregorianCalendar(2010,01,03), 
-					new GregorianCalendar(2011,01,02),new GregorianCalendar(2010,01,03), 15,new GregorianCalendar(2010,01,05),
-					"personal", false, true));
 
 			for (int i =0; i<taskList.size(); i++) {
-				GregorianCalendar current = new GregorianCalendar();
 				if (!taskList.get(i).isDone()) {
 					taskQueue.add(taskList.get(i));
-					while (!taskQueue.isEmpty()&&(taskQueue.peek().getReminder().getTime().compareTo(current.getTime())<=0)) {
-						remindList.add(taskQueue.poll());
-					}
 				}
 			}
+			System.out.println("taskQueue ORI"+taskQueue);
+			GregorianCalendar current = new GregorianCalendar();
+			while (!taskQueue.isEmpty()&&(taskQueue.peek().getReminder().compareTo(current)<=0)) {
+				remindList.add(taskQueue.poll());
+			}
+			System.out.println("Reminding!!!!!!! "+remindList);
 		} catch (Exception ex) {
-			PQ();
-		}
+		}	
 		return taskQueue;
 	}
-	public static ArrayList<Task> remind() {
-		Timer timer = new Timer();
-		if (!taskQueue.isEmpty()) {
-			timer.schedule(new Reminder(), taskQueue.peek().getReminder().getTime());
-		}
-		return remindList;
-	}
+	
 	public static ArrayList<Task> remindList = new ArrayList<Task>();
 	public Reminder() {
-		run();
-		remind();
+		System.out.println("I AM RUNNINNGGGGGG");
+	
 	}
 	@Override
-	public void run() {
-		remindList.add(taskQueue.poll());
+	public void run() {		
+		GregorianCalendar current = new GregorianCalendar();
+		if (!taskQueue.isEmpty()&&taskQueue.peek().getReminder().compareTo(current)<=0) {
+			remindList.add(taskQueue.poll());
+			System.out.println("UPDATED UUUUU "+remindList);
+			ReminderDialog rd = new ReminderDialog(remindList.get(remindList.size()-1));
+		}
 	}
 }
