@@ -1,82 +1,118 @@
 package udo.logic;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Logger;
 
-import udo.gui.ReminderDialog;
-import udo.logic.ReminderComparator;
-import udo.storage.Storage;
+import udo.gui.Gui;
 import udo.storage.Task;
 
-public class Reminder  {
-	public static final String EOL = System.getProperty("line.separator");
-	//private static File storageFile;
-	private static PriorityQueue<Task> taskQueue;
+public class Reminder {
+    private static final Logger log = Logger
+            .getLogger(Reminder.class.getName());
 
-	public static void main(String[] args) throws IOException{
-		Reminder rmd = new Reminder();
+    // Reminder object singleton
+    private static Reminder reminderObj;
+
+	private Queue<Task> tasksQueue;
+	private Timer timer;
+
+	private Gui gui;
+
+	private class ReminderSchedule extends TimerTask {
+	    private Task remindedTask;
+
+	    public ReminderSchedule(Task task) {
+	        remindedTask = task;
+        }
+
+		@Override
+		public void run() {
+		    remind(remindedTask);
+		}
 	}
 
-	//read from json file
-	public static PriorityQueue<Task> PQ(){
-		taskQueue = new PriorityQueue<Task>(10, new ReminderComparator());
-		ArrayList<Task> taskList = new ArrayList<Task>();
-		Storage st = new Storage();
-		try {
-			taskList = st.query();
-
-			for (int i =0; i<taskList.size(); i++) {
-				if (!taskList.get(i).isDone()) {
-					taskQueue.add(taskList.get(i));
-				}
-			}
-			System.out.println("taskQueue ORI"+taskQueue);
-			GregorianCalendar current = new GregorianCalendar();
-			while (!taskQueue.isEmpty()&&(taskQueue.peek().getReminder().compareTo(current)<=0)) {
-				remindList.add(taskQueue.poll());
-			}
-			System.out.println("Reminding!!!!!!! "+remindList);
-		} catch (Exception ex) {
-		}	
-		return taskQueue;
+	private Reminder() {
+	    log.info("Reminder initialized");
+		tasksQueue = new PriorityQueue<Task>(11, new ReminderComparator());
+		timer = new Timer();
 	}
 
-	public static ArrayList<Task> remindList = new ArrayList<Task>();
-	public Reminder() {
-		System.out.println("I AM RUNNINNGGGGGG");
-		schedule();
+	public static Reminder getReminder() {
+	    if (reminderObj == null) {
+	        reminderObj = new Reminder();
+	    }
+
+	    return reminderObj;
+	}
+
+	public void updateTasks(List<Task> tasks) {
+	    log.info("Tasks update for reminder");;
+	    assert(tasks != null);
+
+	    synchronized(tasksQueue) {
+	        tasksQueue.addAll(tasks);
+	    }
+
+	    timer.cancel();
+	    schedule();
 	}
 
 	public void schedule() {
-		PQ();
-		Timer timer = new Timer();
+		Task task;
+		Date reminderDate;
+		Date currentDate = new Date();
 
-		Remind rm =  new Remind();
-		if (!taskQueue.isEmpty()) {
-			System.out.println("SCHEDULE SCHEDULE "+taskQueue.peek());
+		synchronized (tasksQueue) {
+    		while (!tasksQueue.isEmpty()) {
+    		    task = tasksQueue.poll();
+    		    reminderDate = task.getReminder().getTime();
 
-			timer.schedule(rm, nextRM());		
+    		    if (!task.isDone() && reminderDate.after(currentDate)) {
+    		        log.info("Scheduling for " + task.getContent());
+
+    		        ReminderSchedule schedule =  new ReminderSchedule(task);
+    		        timer = new Timer();
+    		        timer.schedule(schedule, reminderDate);
+
+    		        break;
+    		    }
+    		}
 		}
 	}
 
-	public Date nextRM() {
-		return taskQueue.peek().getReminder().getTime();
-	}
-	public class Remind extends TimerTask {
-		@Override
-		public void run() {		
-			GregorianCalendar current = new GregorianCalendar();
-			if (!taskQueue.isEmpty()&&taskQueue.peek().getReminder().compareTo(current)<=0) {
-				remindList.add(taskQueue.poll());
-				System.out.println("UPDATED UUUUU "+remindList);	
-				schedule();
-			}
-		}
+	private void remind(Task task) {
+	    // TODO: Call the displayAlert with task's content
+	    log.info("Reminder Alert: " + task.getContent());
+
+	    gui.displayAlert();
+
+	    schedule();
 	}
 
+	public void setGui(Gui gui) {
+	    this.gui = gui;
+	}
+
+	public static void main(String[] args) {
+		Reminder rmd = getReminder();
+
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.add(Calendar.MINUTE, 1);
+
+		Task t = new Task();
+		t.setReminder(cal);
+		t.setContent("poke the moon");
+		List<Task> tasks = new ArrayList<>();
+		tasks.add(t);
+
+		rmd.updateTasks(tasks);
+	}
 }

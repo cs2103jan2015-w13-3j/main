@@ -51,15 +51,12 @@ public class Logic {
         parser = new InputParser();
 
         storage = new Storage();
-        
-        reminder = new Reminder();
 
         autocompleter = new Autocompleter();
         autocompleter.addTaskContentToTree(storage.query());
 
-        /* TODO:
-         * Initialize and start up passive thread for reminder
-         */
+        reminder = Reminder.getReminder();
+        reminder.updateTasks(storage.query());
     }
 
     public static Logic getInstance() {

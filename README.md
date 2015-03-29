@@ -3,7 +3,7 @@ A text command oriented Task Manger application. This application supports the c
 
 ### Requirements
 - Windows/Linux/MacOS 32-bit or 64-bit
-- Java SE Runtime Environment version 7.25 and above
+- Java SE Runtime Environment version 8
 
 
 ### Running the Program
