@@ -58,14 +58,27 @@ public class Reminder {
 	    assert(tasks != null);
 
 	    synchronized(tasksQueue) {
-	        tasksQueue.addAll(tasks);
+	        addTasksToPQ(tasksQueue, tasks);
 	    }
 
 	    timer.cancel();
 	    schedule();
 	}
 
-	public void schedule() {
+	private void addTasksToPQ(Queue<Task> tasksQueue, List<Task> tasks) {
+	    Calendar currentDate = new GregorianCalendar();
+
+	    for (Task t : tasks) {
+	        GregorianCalendar reminder = t.getReminder();
+
+	        if (!t.isDone() &&
+	            reminder != null && reminder.before(currentDate)) {
+	            tasksQueue.add(t);
+	        }
+	    }
+    }
+
+    public void schedule() {
 		Task task;
 		Date reminderDate;
 		Date currentDate = new Date();
