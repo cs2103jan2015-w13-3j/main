@@ -16,6 +16,7 @@ import udo.gui.Gui;
 import udo.logic.Autocompleter;
 import udo.logic.InputParser;
 import udo.logic.Logic;
+import udo.logic.Reminder;
 import udo.storage.Storage;
 import udo.storage.Task;
 import udo.storage.Task.TaskType;
@@ -48,6 +49,7 @@ public abstract class Command {
     protected Gui gui;
     protected Storage storage;
     protected Autocompleter autocompleter;
+    protected Reminder reminder;
 
     private static final Logger log = Logger.getLogger(Command.class.getName());
 
@@ -101,6 +103,10 @@ public abstract class Command {
 
     public void setStorage(Storage storage) {
         this.storage = storage;
+    }
+
+    public void setReminder(Reminder reminder) {
+        this.reminder = reminder;
     }
 
     public void setAutocompleter(Autocompleter completer) {
@@ -529,6 +535,10 @@ public abstract class Command {
 
     public void updateGUIStatus() {
         gui.displayStatus(getStatus());
+    }
+
+    public void updateReminder() {
+        reminder.updateTasks(storage.query());
     }
 
     @Override

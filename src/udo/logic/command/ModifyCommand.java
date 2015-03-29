@@ -69,6 +69,7 @@ public class ModifyCommand extends Command {
                                               clash.getContent()));
                 }
                 gui.display(storage.query());
+                updateReminder();
             }
         }
 

@@ -25,6 +25,7 @@ public class UndoCommand extends Command {
         } else {
             setStatus(STATUS_UNDO_COMPLETED);
             gui.display(storage.query());
+            updateReminder();
         }
 
         updateGUIStatus();

@@ -69,6 +69,7 @@ public class AddCommand extends Command {
                 }
 
                 gui.display(storage.query());
+                updateReminder();
             }
         }
 

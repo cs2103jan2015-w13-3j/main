@@ -36,6 +36,7 @@ public class ConfirmCommand extends Command {
         } else {
             setStatus(getConfirmStatus(confirmedTask));
             gui.display(storage.query());
+            updateReminder();
         }
 
         updateGUIStatus();

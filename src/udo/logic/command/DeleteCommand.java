@@ -7,11 +7,11 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import udo.logic.InputParser;
 import udo.logic.Logic;
 import udo.storage.Task;
 import udo.util.Config;
+import edu.emory.mathcs.backport.java.util.Collections;
 
 public class DeleteCommand extends Command {
     private static final String STATUS_DELETED = "Task: %s deleted sucessfully";
@@ -52,6 +52,7 @@ public class DeleteCommand extends Command {
         if (isSuccessful) {
             setStatus(getDeleteSucessStatus(deletedTask));
             gui.display(storage.query());
+            updateReminder();
         }
 
         updateGUIStatus();
