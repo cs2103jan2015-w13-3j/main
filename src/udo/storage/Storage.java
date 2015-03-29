@@ -9,6 +9,8 @@ import udo.util.Utility;
 
 public class Storage {
 
+	private static final double NEAR_MATCH_RATIO = 5.0;
+	private static final double ROUND_UP = 0.5;
 	public static final String EOL = System.getProperty("line.separator");
 
 	private static ArrayList<Task> taskList;
@@ -535,8 +537,10 @@ public class Storage {
 			dist[i] = currentDist;
 		}
 		for (int i = 0; i <taskList.size(); i++){
-			if (dist[i] < Math.min(taskList.get(i).getContent().length(), searchedContent.length()) && dist[i] == minDist){
-				returnList.add(taskList.get(i).copy());
+			if (dist[i] == minDist){
+				if (dist[i] <= (int) ((Math.min(taskList.get(i).getContent().length(), searchedContent.length()))/NEAR_MATCH_RATIO + ROUND_UP)){
+					returnList.add(taskList.get(i).copy());
+				}
 			}
 		}
 		
