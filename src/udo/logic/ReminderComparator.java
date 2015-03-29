@@ -1,6 +1,8 @@
-package udo.storage;
+package udo.logic;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
+
+import udo.storage.Task;
 public class ReminderComparator implements Comparator<Task> {
 	@Override
 	public int compare(Task task1, Task task2) {

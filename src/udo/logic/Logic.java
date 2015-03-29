@@ -16,6 +16,7 @@ public class Logic {
     private Gui gui;
     private static Logic logicObj = null;
     private Storage storage;
+    private Reminder reminder;
 
     private static final String ERR_FORMAT = "Error: %s";
     public static final String ERR_INVALID_CMD_NAME = "Invalid command name";
@@ -50,6 +51,8 @@ public class Logic {
         parser = new InputParser();
 
         storage = new Storage();
+        
+        reminder = new Reminder();
 
         autocompleter = new Autocompleter();
         autocompleter.addTaskContentToTree(storage.query());
