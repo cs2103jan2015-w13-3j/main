@@ -56,7 +56,6 @@ public class Reminder {
 	public void updateTasks(List<Task> tasks) {
 	    log.info("Tasks update for reminder");;
 	    assert(tasks != null);
-
 	    synchronized(tasksQueue) {
 	        addTasksToPQ(tasksQueue, tasks);
 	    }
@@ -67,9 +66,10 @@ public class Reminder {
 
 	private void addTasksToPQ(Queue<Task> tasksQueue, List<Task> tasks) {
 	    Calendar currentDate = new GregorianCalendar();
-
+	    
 	    for (Task t : tasks) {
 	        GregorianCalendar reminder = t.getReminder();
+		    System.out.println(t);
 
 	        if (!t.isDone() &&
 	            reminder != null && reminder.after(currentDate)) {
@@ -118,7 +118,7 @@ public class Reminder {
 		Reminder rmd = getReminder();
 
 		GregorianCalendar cal = new GregorianCalendar();
-		cal.add(Calendar.SECOND, 30);
+		cal.add(Calendar.SECOND, 60);
 
 		Task t = new Task();
 		t.setReminder(cal);
