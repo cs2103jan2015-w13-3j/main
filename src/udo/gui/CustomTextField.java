@@ -1,5 +1,6 @@
 package udo.gui;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,20 +57,6 @@ public class CustomTextField {
         setText(command);
         textField.end();
         event.consume();
-    }
-    
-    /*
-     * Retrieves suggestions for any letter keys
-     */
-    public void handleOtherKeys(KeyEvent event, KeyCode code) {
-        if(code.isLetterKey()) {
-            String userInput = getText();
-            controller_.getSuggestions(userInput);
-            event.consume();
-            //logger.info("Suggestion: ");
-        } else {
-            return;
-        }
     }
 
     public void clear() {

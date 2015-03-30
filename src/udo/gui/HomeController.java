@@ -1,6 +1,8 @@
 package udo.gui;
 
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -164,7 +166,7 @@ public class HomeController {
                     handleF3Key();
                     break;
                 default:
-                    customTextField.handleOtherKeys(event, code);
+                    handleOtherKeys(event, code);
                     break; 
             }          
         }
@@ -173,11 +175,6 @@ public class HomeController {
     //TODO String or list
     public String getAutocompleted(String userInput) {
         return gui.callAutocomplete(userInput);
-    }
-    
-    public String getSuggestions(String userInput) {
-        gui.callSuggestions(userInput);
-        return null;
     }
     
     public boolean getCommand(String userInput) {
@@ -217,7 +214,26 @@ public class HomeController {
                 null, GuiUtil.EMPTY_STRING, false, false);
         gui.displayAlert(currDayDeadline5pm);
     }
-
+    
+    /*
+     * Retrieves suggestions for any letter keys
+     */
+    public void handleOtherKeys(KeyEvent event, KeyCode code) {
+        if(code.isLetterKey()) {
+            String userInput = customTextField.getText();
+            List<String> suggestedListOfWords = 
+                    gui.callSuggestions(userInput);          
+            String suggestedWords = 
+                    GuiUtil.concatListToString(suggestedListOfWords);
+            statusString.setText(suggestedWords);
+            logger.info("Suggestion: " + suggestedWords.toString());
+            
+            event.consume();
+        } else {
+            return;
+        }
+    }
+    
     /**
      * Called by the main application to give a reference back to itself.
      * 

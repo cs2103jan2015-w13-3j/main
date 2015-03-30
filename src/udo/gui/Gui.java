@@ -184,14 +184,14 @@ public class Gui extends Application {
     }
 
     public List<String> callSuggestions(String userInput) {
-        return null;
+        return logic.getSuggestions(userInput);
     }
 
     /**
      * Called by background process which invokes a dialog
      */
     public void displayAlert(Task task) {
-        System.out.println("hahaha " + task.toString());
+        assert(task != null);
         ReminderDialog reminder = new ReminderDialog(task);
         reminder.appear();
         return;

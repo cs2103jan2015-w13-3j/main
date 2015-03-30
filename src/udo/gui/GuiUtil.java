@@ -2,6 +2,7 @@ package udo.gui;
 
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
@@ -154,5 +155,28 @@ public class GuiUtil {
             return EMPTY_STRING;
         }
         return DateTimeFormat.format(calendar.getTime());
+    }
+    
+    public static String concatListToString(List<String> suggestedList) {
+        String suggestedWords = new String();
+        for(int i =0; i < suggestedList.size(); i++) {
+            String word = suggestedList.get(i);
+            suggestedWords = addWord(suggestedWords, word);
+            if(i == suggestedList.size()-1) {
+                suggestedWords = trimSuggestions(suggestedWords);
+            }
+        }
+        return suggestedWords;
+        
+    }
+
+    private static String addWord(String suggestedWords, String word) {
+        suggestedWords = suggestedWords + word + " | ";
+        return suggestedWords;
+    }
+    
+    private static String trimSuggestions(String suggestedWords) {
+        int index = suggestedWords.lastIndexOf(" | "); 
+        return suggestedWords.substring(0, index);
     }
 }
