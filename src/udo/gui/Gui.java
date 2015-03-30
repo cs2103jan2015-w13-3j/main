@@ -13,7 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
 import udo.logic.Logic;
 import udo.storage.Task;
 import udo.util.Config;
@@ -22,7 +21,7 @@ import udo.util.Config;
  * This class is the entry point for the application JustU. It provides an
  * interface for the user to interact with and displays corresponding feedback.
  * It initiates the Logic object.
- * 
+ *
  * @author Sharmine
  *
  */
@@ -36,16 +35,16 @@ public class Gui extends Application {
     private static final String PATH_TO_FONTS =
             "http://fonts.googleapis.com/css?family=Open+Sans:" +
             "300italic,400italic,600italic,700,600,400";
-    
+
     private static List<Task> displayList;
     private static HomeController controller;
     private static ObservableList<Task> taskData;
     private static GuiFormatter guiFormatter;
-    
+
     private Stage primaryStage;
     private BorderPane rootLayout;
     private Logic logic;
-    
+
     /**
      * Constructor
      */
@@ -59,9 +58,9 @@ public class Gui extends Application {
     @Override
     public void start(Stage primaryStage) {
         setPrimaryStage(primaryStage);
-        setSecondaryStage();       
+        setSecondaryStage();
         logger.fine("Gui Initiation Completed");
-        
+
         callLogicCommand(Config.CMD_STR_DISPLAY);
     }
 
@@ -82,21 +81,21 @@ public class Gui extends Application {
         try {
             URL url = Gui.class.getResource(PATH_TO_ROOTLAYOUT);
             FXMLLoader loader = getLoader(url);
-            Scene rootScene = setRootScene(loader);         
+            Scene rootScene = setRootScene(loader);
             showSceneAtStage(rootScene);
             logger.finer("Root Layout Initiated");
-            
+
         } catch (IOException e) {
             logger.severe(e.toString());
         }
     }
 
     private Scene setRootScene(FXMLLoader loader) throws IOException {
-        rootLayout = (BorderPane) loader.load();    
+        rootLayout = (BorderPane) loader.load();
         Scene scene = castPaneToScene(rootLayout);
         return scene;
     }
-    
+
     private Scene castPaneToScene(BorderPane pane) {
         Scene scene = new Scene(pane);
         scene.getStylesheets().add(PATH_TO_FONTS);
@@ -115,17 +114,17 @@ public class Gui extends Application {
         try {
             URL url = Gui.class.getResource(PATH_TO_OVERVIEW);
             FXMLLoader loader = getLoader(url);
-            setOverview(loader);           
-            getControllerAccess(loader);            
+            setOverview(loader);
+            getControllerAccess(loader);
             logger.finer("Overview Scene Initiated");
-            
+
         } catch (IOException e) {
             logger.severe(e.toString());
         }
     }
 
     private void setOverview(FXMLLoader loader) throws IOException {
-        AnchorPane homeOverview = (AnchorPane) loader.load();      
+        AnchorPane homeOverview = (AnchorPane) loader.load();
         centerOverview(homeOverview);
     }
 
@@ -134,7 +133,7 @@ public class Gui extends Application {
         loader.setLocation(url);
         return loader;
     }
-    
+
     private void centerOverview(AnchorPane homeOverview) {
         rootLayout.setCenter(homeOverview);
     }
@@ -146,7 +145,7 @@ public class Gui extends Application {
 
     /**
      * Returns the main stage.
-     * 
+     *
      * @return primaryStage
      */
     @SuppressWarnings("unused")
@@ -155,71 +154,72 @@ public class Gui extends Application {
     }
 
     /**
-     * Calls the execution command in Logic 
-     *     
+     * Calls the execution command in Logic
+     *
      * @param userInput
      * @return true if userInput is successfully executed
      */
     public boolean callLogicCommand(String userInput) {
-        return logic.executeCommand(userInput) == true; 
+        return logic.executeCommand(userInput) == true;
     }
-    
+
     public String callAutocomplete(String userInput) {
         String completedStr = logic.autocomplete(userInput);
         logger.info(completedStr);
         return completedStr;
     }
-    
+
     public String callCmdHistory(String direction) {
         assert(direction != null);
-        
+
         String command = new String();
         if(direction.equals(GuiUtil.KEY_UP)) {
             command = logic.getPreviousCmd();
         } else {
             command = logic.getNextCmd();
         }
-        
+
         assert(command != GuiUtil.EMPTY_STRING);
         return command;
     }
-    
+
     public List<String> callSuggestions(String userInput) {
         return null;
     }
-    
+
     /**
      * Called by background process which invokes a dialog
      */
     public void displayAlert(Task task) {
+        System.out.println("hahaha " + task.toString());
         ReminderDialog reminder = new ReminderDialog(task);
         reminder.appear();
         return;
     }
-    
+
     /**
      * Called by Logic component to change the status information
-     * 
+     *
      * @param statusString
      */
     public void displayStatus(String statusString) {
-        assert(statusString != null);        
+        assert(statusString != null);
         logger.info(statusString);
-        
+
         controller.displayStatus(statusString);
     }
 
     /**
      * Called by Logic component to display information
-     * 
+     *
      * @param Object that implements List<Task>
      */
     public void display(List<Task> receivedList) {
         assert(receivedList != null);
         logger.info(receivedList.toString());
-        
+
         displayList = receivedList;
-        processReceivedList(displayList);        
+        processReceivedList(displayList);
         setDataToController();
     }
 
@@ -237,7 +237,7 @@ public class Gui extends Application {
 
     /**
      * Returns the data as an ObservableList of Task
-     * 
+     *
      * @return taskData
      */
     public ObservableList<Task> getNewData() {
