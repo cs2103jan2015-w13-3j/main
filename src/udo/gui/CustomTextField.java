@@ -65,7 +65,6 @@ public class CustomTextField {
         if(code.isLetterKey()) {
             String userInput = getText();
             controller_.getSuggestions(userInput);
-            //displayStatus();
             event.consume();
             //logger.info("Suggestion: ");
         } else {

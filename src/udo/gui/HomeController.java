@@ -1,5 +1,6 @@
 package udo.gui;
 
+import java.util.GregorianCalendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,8 +18,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
-
 import udo.storage.Task;
+import udo.storage.Task.TaskType;
 
 /**
  * This is the main controller class for the HomePage of the GUI. It controls
@@ -211,7 +212,10 @@ public class HomeController {
     }
     //TODO be removed
     private void handleF3Key() {
-        Gui.displayAlert();
+        Task currDayDeadline5pm = new Task(TaskType.DEADLINE, "hand in work",
+                new GregorianCalendar(2015, 02, 20, 17, 0), null, null, 0,
+                null, GuiUtil.EMPTY_STRING, false, false);
+        Gui.displayAlert(currDayDeadline5pm);
     }
 
     /**

@@ -2,7 +2,6 @@ package udo.gui;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,7 +16,6 @@ import javafx.stage.Stage;
 
 import udo.logic.Logic;
 import udo.storage.Task;
-import udo.storage.Task.TaskType;
 import udo.util.Config;
 
 /**
@@ -193,12 +191,8 @@ public class Gui extends Application {
     /**
      * Called by background process which invokes a dialog
      */
-    public static void displayAlert() {
-        Task currDayDeadline5pm = new Task(TaskType.DEADLINE, "hand in work",  
-                new GregorianCalendar(2015, 02, 20, 17, 0),
-                null, null, 0, null, GuiUtil.EMPTY_STRING, false, 
-                false);
-        ReminderDialog reminder = new ReminderDialog(currDayDeadline5pm);
+    public static void displayAlert(Task task) {
+        ReminderDialog reminder = new ReminderDialog(task);
         reminder.appear();
         return;
     }
