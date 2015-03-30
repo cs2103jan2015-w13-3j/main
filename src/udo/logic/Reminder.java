@@ -105,7 +105,7 @@ public class Reminder {
 	    // TODO: Call the displayAlert with task's content
 	    log.info("Reminder Alert: " + task.getContent());
 
-	    gui.displayAlert();
+	    gui.displayAlert(task);
 
 	    schedule();
 	}

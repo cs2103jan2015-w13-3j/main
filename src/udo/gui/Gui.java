@@ -191,7 +191,7 @@ public class Gui extends Application {
     /**
      * Called by background process which invokes a dialog
      */
-    public static void displayAlert(Task task) {
+    public void displayAlert(Task task) {
         ReminderDialog reminder = new ReminderDialog(task);
         reminder.appear();
         return;

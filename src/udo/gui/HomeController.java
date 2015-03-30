@@ -215,7 +215,7 @@ public class HomeController {
         Task currDayDeadline5pm = new Task(TaskType.DEADLINE, "hand in work",
                 new GregorianCalendar(2015, 02, 20, 17, 0), null, null, 0,
                 null, GuiUtil.EMPTY_STRING, false, false);
-        Gui.displayAlert(currDayDeadline5pm);
+        gui.displayAlert(currDayDeadline5pm);
     }
 
     /**
