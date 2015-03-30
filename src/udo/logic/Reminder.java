@@ -72,13 +72,14 @@ public class Reminder {
 	        GregorianCalendar reminder = t.getReminder();
 
 	        if (!t.isDone() &&
-	            reminder != null && reminder.before(currentDate)) {
+	            reminder != null && reminder.after(currentDate)) {
 	            tasksQueue.add(t);
 	        }
 	    }
     }
 
     public void schedule() {
+        log.info("Scheduling...");
 		Task task;
 		Date reminderDate;
 		Date currentDate = new Date();
@@ -102,7 +103,6 @@ public class Reminder {
 	}
 
 	private void remind(Task task) {
-	    // TODO: Call the displayAlert with task's content
 	    log.info("Reminder Alert: " + task.getContent());
 
 	    gui.displayAlert(task);
@@ -118,7 +118,7 @@ public class Reminder {
 		Reminder rmd = getReminder();
 
 		GregorianCalendar cal = new GregorianCalendar();
-		cal.add(Calendar.MINUTE, 1);
+		cal.add(Calendar.SECOND, 30);
 
 		Task t = new Task();
 		t.setReminder(cal);
@@ -127,5 +127,10 @@ public class Reminder {
 		tasks.add(t);
 
 		rmd.updateTasks(tasks);
+		try {
+            Thread.sleep(120000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 	}
 }
