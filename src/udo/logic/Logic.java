@@ -56,7 +56,6 @@ public class Logic {
         autocompleter.addTaskContentToTree(storage.query());
 
         reminder = Reminder.getReminder();
-        reminder.setGui(gui);
         reminder.updateTasks(storage.query());
     }
 
@@ -70,6 +69,7 @@ public class Logic {
 
     public void setGui(Gui guiObj) {
         gui = guiObj;
+        reminder.setGui(gui);
     }
 
     /**
