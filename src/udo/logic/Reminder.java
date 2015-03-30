@@ -11,6 +11,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
+import javafx.application.Platform;
 import udo.gui.Gui;
 import udo.storage.Task;
 
@@ -35,7 +36,12 @@ public class Reminder {
 
 		@Override
 		public void run() {
-		    remind(remindedTask);
+		    Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    remind(remindedTask);
+                }
+            });
 		}
 	}
 
