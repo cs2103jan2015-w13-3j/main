@@ -1,6 +1,5 @@
 package udo.gui;
 
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
@@ -172,7 +171,6 @@ public class HomeController {
         }
     };
     
-    //TODO String or list
     public String getAutocompleted(String userInput) {
         return gui.callAutocomplete(userInput);
     }
@@ -185,8 +183,9 @@ public class HomeController {
         return gui.callCmdHistory(direction);
     }
     
-    //TODO null or empty string
     public void displayStatus(String receivedString) {
+        assert(receivedString != null);
+        
         if(receivedString == null) {
             receivedString = GuiUtil.EMPTY_STRING;
         } else if(GuiUtil.isWarning(receivedString)) {
@@ -207,6 +206,7 @@ public class HomeController {
     private void handleF2Key() {
         gui.callLogicCommand(HOTKEY_DONE);
     }
+    
     //TODO be removed
     private void handleF3Key() {
         Task currDayDeadline5pm = new Task(TaskType.DEADLINE, "hand in work",
@@ -219,19 +219,22 @@ public class HomeController {
      * Retrieves suggestions for any letter keys
      */
     public void handleOtherKeys(KeyEvent event, KeyCode code) {
-        if(code.isLetterKey()) {
+        if(isStringModifierKey(code)) {
             String userInput = customTextField.getText();
             List<String> suggestedListOfWords = 
                     gui.callSuggestions(userInput);          
             String suggestedWords = 
                     GuiUtil.concatListToString(suggestedListOfWords);
             statusString.setText(suggestedWords);
-            logger.info("Suggestion: " + suggestedWords.toString());
             
-            event.consume();
+            logger.finer(suggestedWords.toString());
         } else {
             return;
         }
+    }
+
+    private boolean isStringModifierKey(KeyCode code) {
+        return code.isLetterKey() || code.equals(KeyCode.BACK_SPACE);
     }
     
     /**

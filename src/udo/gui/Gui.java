@@ -247,5 +247,9 @@ public class Gui extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+    
+    public double getWidth(){
+        return primaryStage.getWidth();
+    }
 
 }

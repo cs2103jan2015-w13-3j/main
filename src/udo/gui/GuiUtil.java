@@ -20,12 +20,14 @@ public class GuiUtil {
     
     public static final String EMPTY_STRING = "";
     
+    public static final String SPACER_STRING = " | ";
+
     public static final String PREFIX_WARNING = "Warning";
     public static final String PREFIX_ERROR = "Error";
     
     public static final String KEY_UP = "UP";
     public static final String KEY_DOWN = "DOWN";
-       
+        
     public static final Color COLOUR_TABLE_HEADERS = Color.rgb(26, 188, 156);
     public static final Color COLOUR_TEXT_WARNING = Color.ORANGE;
     public static final Color COLOUR_TEXT_ERROR = Color.RED;
@@ -162,7 +164,7 @@ public class GuiUtil {
         for(int i =0; i < suggestedList.size(); i++) {
             String word = suggestedList.get(i);
             suggestedWords = addWord(suggestedWords, word);
-            if(i == suggestedList.size()-1) {
+            if(isLastIndex(suggestedList, i)) {
                 suggestedWords = trimSuggestions(suggestedWords);
             }
         }
@@ -170,13 +172,17 @@ public class GuiUtil {
         
     }
 
+    private static boolean isLastIndex(List<String> suggestedList, int i) {
+        return i == suggestedList.size() - 1;
+    }
+
     private static String addWord(String suggestedWords, String word) {
-        suggestedWords = suggestedWords + word + " | ";
+        suggestedWords = suggestedWords + word + SPACER_STRING;
         return suggestedWords;
     }
     
     private static String trimSuggestions(String suggestedWords) {
-        int index = suggestedWords.lastIndexOf(" | "); 
+        int index = suggestedWords.lastIndexOf(SPACER_STRING); 
         return suggestedWords.substring(0, index);
     }
 }

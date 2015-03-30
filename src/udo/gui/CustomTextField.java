@@ -1,12 +1,10 @@
 package udo.gui;
 
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 public class CustomTextField {
