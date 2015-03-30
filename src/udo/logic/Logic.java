@@ -95,6 +95,7 @@ public class Logic {
 
         parsedCommand.setGui(gui);
         parsedCommand.setStorage(storage);
+        parsedCommand.setReminder(reminder);
         parsedCommand.setAutocompleter(autocompleter);
 
         return parsedCommand.execute();
