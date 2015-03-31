@@ -252,19 +252,26 @@ public class StorageTest {
 				3, null, null, false, false ));
 		st.add(new Task(TaskType.TODO, "eating lunch", null, null, null, 
 				3, null, null, false, false ));
+		st.add(new Task(TaskType.TODO, "eating books", null, null, null, 
+				3, null, null, false, false ));
 		ArrayList<Task> expected = new ArrayList<Task>();
 		
 		expected.add(st.query(0));
-		assertEquals(expected, st.search("home"));			//case of exact search
-	
+		
+		assertEquals(expected, st.search("do homework"));			//case of exact search
+		assertEquals(expected, st.search("DO HOMEwork"));		//case of search ignore case
+		assertEquals(expected, st.search("do homeork"));		//case of near match search missing words
+		assertEquals(expected, st.search("do homezork"));		//case of near match search changing words
 		expected.clear();
+		assertEquals(expected, st.search("workhome"));		//case of near match search can't match any results
+		assertEquals(expected, st.search("eat"));			//case of search without wildcard
 		expected.add(st.query(1));
-		expected.add(st.query(2));
-		assertEquals(expected, st.search("ea"));			//case of exact search 
-															//return multiple outputs
+		expected.add(st.query(3));
+		assertEquals(expected, st.search("eading boos"));			//case of near match search return multiple outputs
+		
 		expected.clear();
 		expected.add(st.query(0));
-		assertEquals(expected, st.search("*home*"));		//case of wildcard search with "*" only
+		assertEquals(expected, st.search("*homework"));		//case of wildcard search with "*" only
 		
 	
 		assertEquals(expected, st.search("ho?ework"));		//case of wildcard search with "?" only
@@ -272,8 +279,15 @@ public class StorageTest {
 		assertEquals(expected, st.search("d*w?r*"));		//case of wildcard search with 
 															//both "*" and "?"
 		
-		assertEquals(expected, st.search("D*W?r*"));		//case of searching ignore case
+		assertEquals(expected, st.search("D*W?r*"));		//case of searching wildcard ignore case
 	
 		assertEquals(expected, st.search("do         *work")); //case with multiple whitespaces
+		
+		expected.clear();
+		expected.add(st.query(1));
+		expected.add(st.query(2));
+		expected.add(st.query(3));
+		assertEquals(expected, st.search("*ea*"));			//case of wildcard search 															//return multiple outputs
+		
 	}
 }
