@@ -219,22 +219,32 @@ public class HomeController {
      * Retrieves suggestions for any letter keys
      */
     public void handleOtherKeys(KeyEvent event, KeyCode code) {
-        if(isStringModifierKey(code)) {
-            String userInput = customTextField.getText();
-            List<String> suggestedListOfWords = 
-                    gui.callSuggestions(userInput);          
-            String suggestedWords = 
-                    GuiUtil.concatListToString(suggestedListOfWords);
-            statusString.setText(suggestedWords);
-            
-            logger.finer(suggestedWords.toString());
+        String userInput = new String(); 
+
+        if(code.isLetterKey()) {
+            userInput = customTextField.getText() + retrieveLetter(code);
+        } else if(code.equals(KeyCode.BACK_SPACE)) {
+            userInput = customTextField.getText();
         } else {
             return;
         }
+        
+        String suggestedWords = getSuggestedWords(userInput);
+        statusString.setText(suggestedWords);
+        
+        logger.finer(suggestedWords.toString());
     }
 
-    private boolean isStringModifierKey(KeyCode code) {
-        return code.isLetterKey() || code.equals(KeyCode.BACK_SPACE);
+    private String getSuggestedWords(String userInput) {
+        List<String> suggestedListOfWords = 
+                gui.callSuggestions(userInput);          
+        String suggestedWords = 
+                GuiUtil.concatListToString(suggestedListOfWords);
+        return suggestedWords;
+    }
+
+    private String retrieveLetter(KeyCode code) {
+        return code.getName().toLowerCase();
     }
     
     /**
