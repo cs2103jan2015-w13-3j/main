@@ -30,6 +30,9 @@ public class Gui extends Application {
     private static final Logger logger = Logger.getLogger(Gui.class.getName());
 
     private static final String NAME_APP = "JustU";
+    
+    private static final int MAX_WORDS = 5;
+    
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
     private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
     private static final String PATH_TO_FONTS =
@@ -184,14 +187,14 @@ public class Gui extends Application {
     }
 
     public List<String> callSuggestions(String userInput) {
-        return null;
+        return logic.getSuggestions(userInput, MAX_WORDS);
     }
 
     /**
      * Called by background process which invokes a dialog
      */
     public void displayAlert(Task task) {
-        System.out.println("hahaha " + task.toString());
+        assert(task != null);
         ReminderDialog reminder = new ReminderDialog(task);
         reminder.appear();
         return;
@@ -247,5 +250,4 @@ public class Gui extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
 }

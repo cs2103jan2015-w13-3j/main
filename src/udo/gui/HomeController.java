@@ -1,6 +1,7 @@
 package udo.gui;
 
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -164,20 +165,14 @@ public class HomeController {
                     handleF3Key();
                     break;
                 default:
-                    customTextField.handleOtherKeys(event, code);
+                    handleOtherKeys(event, code);
                     break; 
             }          
         }
     };
     
-    //TODO String or list
     public String getAutocompleted(String userInput) {
         return gui.callAutocomplete(userInput);
-    }
-    
-    public String getSuggestions(String userInput) {
-        gui.callSuggestions(userInput);
-        return null;
     }
     
     public boolean getCommand(String userInput) {
@@ -188,8 +183,9 @@ public class HomeController {
         return gui.callCmdHistory(direction);
     }
     
-    //TODO null or empty string
     public void displayStatus(String receivedString) {
+        assert(receivedString != null);
+        
         if(receivedString == null) {
             receivedString = GuiUtil.EMPTY_STRING;
         } else if(GuiUtil.isWarning(receivedString)) {
@@ -210,6 +206,7 @@ public class HomeController {
     private void handleF2Key() {
         gui.callLogicCommand(HOTKEY_DONE);
     }
+    
     //TODO be removed
     private void handleF3Key() {
         Task currDayDeadline5pm = new Task(TaskType.DEADLINE, "hand in work",
@@ -217,7 +214,39 @@ public class HomeController {
                 null, GuiUtil.EMPTY_STRING, false, false);
         gui.displayAlert(currDayDeadline5pm);
     }
+    
+    /*
+     * Retrieves suggestions for any letter keys
+     */
+    public void handleOtherKeys(KeyEvent event, KeyCode code) {
+        String userInput = new String(); 
 
+        if(code.isLetterKey()) {
+            userInput = customTextField.getText() + retrieveLetter(code);
+        } else if(code.equals(KeyCode.BACK_SPACE)) {
+            userInput = customTextField.getText();
+        } else {
+            return;
+        }
+        
+        String suggestedWords = getSuggestedWords(userInput);
+        statusString.setText(suggestedWords);
+        
+        logger.finer(suggestedWords.toString());
+    }
+
+    private String getSuggestedWords(String userInput) {
+        List<String> suggestedListOfWords = 
+                gui.callSuggestions(userInput);          
+        String suggestedWords = 
+                GuiUtil.concatListToString(suggestedListOfWords);
+        return suggestedWords;
+    }
+
+    private String retrieveLetter(KeyCode code) {
+        return code.getName().toLowerCase();
+    }
+    
     /**
      * Called by the main application to give a reference back to itself.
      * 
