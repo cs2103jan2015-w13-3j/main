@@ -30,6 +30,9 @@ public class Gui extends Application {
     private static final Logger logger = Logger.getLogger(Gui.class.getName());
 
     private static final String NAME_APP = "JustU";
+    
+    private static final int MAX_WORDS = 5;
+    
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
     private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
     private static final String PATH_TO_FONTS =
@@ -184,7 +187,7 @@ public class Gui extends Application {
     }
 
     public List<String> callSuggestions(String userInput) {
-        return logic.getSuggestions(userInput);
+        return logic.getSuggestions(userInput, MAX_WORDS);
     }
 
     /**
@@ -247,9 +250,4 @@ public class Gui extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
-    public double getWidth(){
-        return primaryStage.getWidth();
-    }
-
 }
