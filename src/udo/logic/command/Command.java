@@ -276,6 +276,9 @@ public abstract class Command {
         if (start != null && end != null) {
             if (start.compareTo(end) >= 0) {
                 setStatus(Logic.formatErrorStr(Logic.ERR_NON_POSITIVE_DUR));
+
+                log.fine("Start: " + Utility.calendarToString(task.getStart()));
+                log.fine("End: " + Utility.calendarToString(task.getEnd()));
                 return false;
             }
         }

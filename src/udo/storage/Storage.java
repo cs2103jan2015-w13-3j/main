@@ -415,10 +415,6 @@ public class Storage {
 
 			String searchedAfter = searchedContent.trim().replaceAll(" +", " ").toLowerCase();
 
-			returnList = exactSearch(searchedAfter);
-			if (returnList.size() > 0){
-				return returnList;
-			}
 			if (isWildCardSearch(searchedAfter)){
 				returnList = wildcardSearch(searchedAfter);
 			} else{
@@ -430,18 +426,6 @@ public class Storage {
 
 	private boolean isWildCardSearch(String searchedContent) {
 		return (searchedContent.contains("*")) || (searchedContent.contains("?"));
-	}
-
-	public ArrayList<Task> exactSearch(String searchedContent){
-		ArrayList<Task> returnList = new ArrayList<Task>();
-		
-		for (int i =0; i< taskList.size(); i++){
-			String cmpStr2 = taskList.get(i).getContent().toLowerCase();
-			if (cmpStr2.contains(searchedContent)){
-				returnList.add(taskList.get(i).copy());
-			}
-		}
-		return returnList;
 	}
 
 	public ArrayList<Task> wildcardSearch(String searchedContent){
@@ -560,7 +544,7 @@ public class Storage {
 			distance[i][0] = i;
 		}
 		for (int j = 1; j <= str1.length(); j++) {
-			distance[0][j] = 0;
+			distance[0][j] = j;
 		}
 		for (int i = 1; i <= str2.length(); i++) {
 			for (int j = 1; j <= str1.length(); j++) {
@@ -571,13 +555,8 @@ public class Storage {
 								+ ((str1.charAt(j - 1) == str2.charAt(i - 1)) ? 0 : 1));
 			}
 		}
-		int minDist = -1;
-		for (int i = 0; i <= str1.length(); i++){
-			if (distance[str2.length()][i] < minDist || minDist < 0){
-				minDist = distance[str2.length()][i];
-			}
-		}
-		return minDist;
+	
+		return distance[str2.length()][str1.length()];
 	}
 	
 	//toggle priority

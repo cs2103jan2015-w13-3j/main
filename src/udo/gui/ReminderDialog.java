@@ -36,7 +36,7 @@ public class ReminderDialog {
     private static final String MESSAGE_START = "You have ";
     private static final String MESSAGE_EVENT_PART_1 = " starting at ";
     private static final String MESSAGE_EVENT_PART_2 = " until ";
-    private static final String MESSAGE_DEADLINE = " due on ";
+    private static final String MESSAGE_DEADLINE = " due ";
     
     /**
      * you have [content] starting at [abc] until [def]
@@ -85,7 +85,6 @@ public class ReminderDialog {
         dialogPane.setContent(textBox);       
     }
     
-    //TODO settle todo
     private TextFlow completeMessage(String[] taskInfo) {
         String taskType = taskInfo[INDEX_TASK_TYPE];
         
@@ -108,7 +107,7 @@ public class ReminderDialog {
         textArr.add(new Text(MESSAGE_EVENT_PART_2));
         textArr.add(new Text(taskInfo[INDEX_END]));  
         
-        createTextStyles(textArr);
+        setTextStyles(textArr);
         return createTextBox(textArr, taskInfo[INDEX_TASK_TYPE]);
     }
     
@@ -121,7 +120,7 @@ public class ReminderDialog {
         textArr.add(new Text(MESSAGE_DEADLINE));
         textArr.add(new Text(taskInfo[INDEX_START]));
         
-        createTextStyles(textArr);
+        setTextStyles(textArr);
         return createTextBox(textArr, taskInfo[INDEX_TASK_TYPE]);       
     }
     
@@ -141,7 +140,7 @@ public class ReminderDialog {
      * 
      * @param textArr
      */
-    private void createTextStyles(ArrayList<Text> textArr) {      
+    private void setTextStyles(ArrayList<Text> textArr) {      
         for(int i = 0; i < textArr.size(); i++) {
             if(i%2 == 0) {
                 setNormalStyle(textArr.get(i));
@@ -161,14 +160,24 @@ public class ReminderDialog {
         return;
     }
     
-    private String[] getInformation(Task task){                
+    /**
+     * The task type should not be of Todo type.
+     * 
+     * @param task
+     * @return An array of string, Array[0] = Task Type
+     *                             Array[1] = Task Content
+     *                             Array[2] = Task Start Time or Deadline
+     *                             Array[3] = Task End Time or empty string
+     */
+    private String[] getInformation(Task task){
+        
         switch(task.getTaskType()) {
             case EVENT :
                 return getEventInformation(task);
             case DEADLINE :
                 return getDeadlineInformation(task);
             case TODO :
-                //Fallthrough //TODO
+                return getTodoInformation(task);
             default:
                 return null;
         }
@@ -194,15 +203,25 @@ public class ReminderDialog {
         return taskInfo;
     }
 
+    private String[] getTodoInformation(Task task) {
+        String[] taskInfo = new String[ARR_SIZE];
+        taskInfo[INDEX_TASK_TYPE] = task.getTaskType().toString();
+        taskInfo[INDEX_TITLE] = task.getContent();
+        taskInfo[INDEX_START] = GuiUtil.EMPTY_STRING;
+        taskInfo[INDEX_END] = GuiUtil.EMPTY_STRING;
+        
+        return taskInfo;
+    }
+    
     private void setButton() {
         ButtonType openButton = new ButtonType(BUTTON_TEXT, ButtonData.OK_DONE);
-        alert.getDialogPane().getButtonTypes().addAll(openButton, ButtonType.CLOSE);
+        alert.getDialogPane().getButtonTypes().addAll(openButton);
         
         final Button btn = (Button) dialogPane.lookupButton(openButton); 
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                //TODO Execute program
+               
             }
         });
     }

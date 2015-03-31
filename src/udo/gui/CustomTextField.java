@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 public class CustomTextField {
@@ -56,20 +55,6 @@ public class CustomTextField {
         setText(command);
         textField.end();
         event.consume();
-    }
-    
-    /*
-     * Retrieves suggestions for any letter keys
-     */
-    public void handleOtherKeys(KeyEvent event, KeyCode code) {
-        if(code.isLetterKey()) {
-            String userInput = getText();
-            controller_.getSuggestions(userInput);
-            event.consume();
-            //logger.info("Suggestion: ");
-        } else {
-            return;
-        }
     }
 
     public void clear() {
