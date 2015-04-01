@@ -40,7 +40,13 @@ public class Autocompleter {
     String dictPath = "res/dict.txt";
     String keywordsPath = "res/keywords.txt";
 
+    private int tabsCount;
+    private List<String> lastSuggestions;
+
     public Autocompleter() {
+        tabsCount = 0;
+        lastSuggestions = new ArrayList<>();
+
         keywordsTree = new TernarySearchTree();
         dictTree = new TernarySearchTree();
         taskContentTree = new TernarySearchTree();
@@ -62,6 +68,8 @@ public class Autocompleter {
         for (Task t : tasks) {
             String[] tokens = t.getContent().split("\\s");
             for (String token : tokens) {
+                token = token.toLowerCase();
+
                 if (!keywordsTree.contains(token) &&
                     !dictTree.contains(token)) {
                     taskContentTree.add(token);
@@ -148,6 +156,52 @@ public class Autocompleter {
     }
 
     /**
+     * Get a list of suggested words that can possible autocompleted
+     * from the input text with the maximum of maxWords words in the list
+     * @param text
+     * @param maxWords
+     * @return list of suggested words
+     */
+    public List<String> getSuggestions(String text, Integer maxWords) {
+        tabsCount = 0;
+
+        if (maxWords != null && maxWords <= 0) {
+            lastSuggestions = new ArrayList<>();
+            return lastSuggestions;
+        }
+
+        String lastWord = getLastWord(text).toLowerCase();
+
+        List<String> keywordsList = null;
+        List<String> dictWordsList;
+        List<String> contentWordsList;
+
+        ArrayList<String> result = new ArrayList<>();
+
+        if (lastWord != null && lastWord.length() > 0) {
+            keywordsList = retrieveWords(keywordsTree,
+                                         maxWords, lastWord);
+            result.addAll(keywordsList);
+
+            contentWordsList = retrieveWords(taskContentTree,
+                                             maxWords, lastWord);
+            result.addAll(contentWordsList);
+
+            dictWordsList = retrieveWords(dictTree,
+                                          maxWords, lastWord);
+            result.addAll(dictWordsList);
+        }
+
+        if (maxWords != null && result.size() > maxWords) {
+            lastSuggestions = result.subList(0, maxWords);
+            return lastSuggestions;
+        }
+
+        lastSuggestions = result;
+        return lastSuggestions;
+    }
+
+    /**
      * Get the last word in a text string, a space optimized version
      * where the text is tokenized beforehand
      * @param text
@@ -166,48 +220,6 @@ public class Autocompleter {
         }
 
         return "";
-    }
-
-    /**
-     * Get a list of suggested words that can possible autocompleted
-     * from the input text with the maximum of maxWords words in the list
-     * @param text
-     * @param maxWords
-     * @return list of suggested words
-     */
-    public List<String> getSuggestions(String text, Integer maxWords) {
-        if (maxWords != null && maxWords <= 0) {
-            return new ArrayList<String>();
-        }
-
-        String lastWord = getLastWord(text);
-        String lastWordLower = lastWord.toLowerCase();
-
-        List<String> keywordsList = null;
-        List<String> dictWordsList;
-        List<String> contentWordsList;
-
-        ArrayList<String> result = new ArrayList<>();
-
-        if (lastWord != null && lastWord.length() > 0) {
-            keywordsList = retrieveWords(keywordsTree,
-                                         maxWords, lastWordLower);
-            result.addAll(keywordsList);
-
-            contentWordsList = retrieveWords(taskContentTree,
-                                             maxWords, lastWord);
-            result.addAll(contentWordsList);
-
-            dictWordsList = retrieveWords(dictTree,
-                                          maxWords, lastWordLower);
-            result.addAll(dictWordsList);
-        }
-
-        if (maxWords != null && result.size() > maxWords) {
-            return result.subList(0, maxWords);
-        }
-
-        return result;
     }
 
     /**
@@ -236,10 +248,19 @@ public class Autocompleter {
      * @return the autocompleted string
      */
     public String autocomplete(String text) {
-        List<String> suggestions = getSuggestions(text, 1);
+        List<String> suggestions;
+
+        if (lastSuggestions.size() == 0) {
+            suggestions = getSuggestions(text, 2);
+        } else {
+            suggestions = lastSuggestions;
+        }
 
         if (suggestions.size() > 0) {
-            return dropLastWord(text) + suggestions.get(0);
+            String autocompletedWord = suggestions.get(tabsCount);
+            tabsCount = (tabsCount + 1) % suggestions.size();
+
+            return dropLastWord(text) + autocompletedWord;
         }
 
         return text;
