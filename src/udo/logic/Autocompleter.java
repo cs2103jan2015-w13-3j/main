@@ -257,6 +257,8 @@ public class Autocompleter {
         }
 
         if (suggestions.size() > 0) {
+            assert(tabsCount < suggestions.size());
+
             String autocompletedWord = suggestions.get(tabsCount);
             tabsCount = (tabsCount + 1) % suggestions.size();
 
