@@ -196,6 +196,24 @@ public class StorageTest {
 	}
 	
 	@Test
+	public void TestQueryDate(){
+		initialize();
+		Task task0 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,0,01), null, null,
+				0, new GregorianCalendar(2005,01,02), "work",true, false);
+		Task task1 = new Task(TaskType.DEADLINE, "fighting", new GregorianCalendar(2005,0,02),null, null,
+				120, new GregorianCalendar(2011,01,02), "personal", false, false);
+		Task task2 = new Task(TaskType.DEADLINE, "reading books", new GregorianCalendar(2005,0,05),null, null,
+				0, null, "leisure", false, false);
+		st.add(task0);
+		st.add(task1);
+		st.add(task2);
+		ArrayList<Task> expected = new ArrayList<Task>();
+		expected.add(st.query(0));
+		expected.add(st.query(1));
+		assertEquals(expected,st.query(new GregorianCalendar(2005,0,01)));		//general case
+		assertEquals(expected, st.query(new GregorianCalendar(2004, 11, 30)));	//case of last year search
+	}
+	@Test
 	public void TestUndo(){
 		initialize();
 		Task task0 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
