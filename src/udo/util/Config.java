@@ -24,7 +24,7 @@ public class Config {
     public static final String CMD_STR_DISPLAY = "display";
     public static final String CMD_STR_SEARCH = "search";
     public static final String CMD_STR_DONE = "done";
-    public static final String CMD_STR_CHDIR = "chdir";
+    public static final String CMD_STR_CHDIR = "cd";
     public static final String CMD_STR_UNDO = "undo";
     public static final String CMD_STR_CONFIRM = "confirm";
 

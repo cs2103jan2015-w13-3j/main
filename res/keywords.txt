@@ -4,7 +4,7 @@ delete
 display
 search
 done
-chdir
+cd
 undo
 confirm
 dd

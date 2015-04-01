@@ -35,7 +35,7 @@ public class InputParser {
     private Pattern commandNamePattern =
             Pattern.compile("(?i)^(?:\\s)*" +
                             "(?<name>add|modify|delete|dd|display|" +
-                            "search|done|chdir|undo|confirm)");
+                            "search|done|cd|undo|confirm)");
 
     // Regex strings and pattern used for matching an option
     public static final String OPTION_MAKER = Config.OPTION_MAKER;
