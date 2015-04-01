@@ -5,6 +5,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.io.*;
 
+import udo.storage.Task.TaskType;
 import udo.util.Utility;
 
 public class Storage {
@@ -19,14 +20,13 @@ public class Storage {
 	private static String prevCmd;
 	private static String lastPath;
 	private static String prevPath;
+	private static ArrayList<Task> copycat;
 	private static Integer maxId;    		//store current maximum group Id
 
 	public static void main(String[] args) throws IOException{
 
 		Storage st = new Storage();
-		//st.chDir("C:\\Users\\Tue\\Desktop\\Task.json");
-		//st.undoChDir();
-	
+
 		st.exit();
 	}
 
@@ -42,6 +42,7 @@ public class Storage {
 		taskList = new ArrayList<Task>();
 		prevTask = new Task();
 		prevCmd = "";
+		copycat = new ArrayList<Task>();
 	}
 
 	//return current path to store json file
@@ -157,6 +158,7 @@ public class Storage {
 
 
 	public boolean undoChDir() {
+		prevCmd = "";
 		lastPath = prevPath;
 		JsonProcessor.writeJson(lastPath, taskList);
 		return writeNewDir(lastPath);	
@@ -272,7 +274,38 @@ public class Storage {
 		storeTasks();
 		return true;
 	}
-
+	
+	public boolean delete(List<Integer> indices){
+		if (indices.size() > taskList.size() || indices.size() == 0){
+			return false;
+		}
+		
+		for (int i = 0; i <indices.size(); i++){
+			if (!isValidIndex(indices.get(i))){
+				return false;
+			}
+		}
+		
+		prevCmd = "mult";
+		copycat = Utility.deepCopy(taskList);
+		
+		for (int i = 0; i < indices.size(); i ++){
+			int index = indices.get(i);
+			taskList.set(index, new Task());			
+		}
+		
+		for (int i = 0; i < taskList.size(); i ++){
+			if (taskList.get(i).getContent() == null){
+				taskList.remove(i);
+				i--;
+			} else {
+				taskList.get(i).setIndex(i);
+			}
+		}
+		storeTasks();
+		return true;
+	}
+	
 	private boolean isValidIndex(Integer index) {
 		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0)		
 			return false; 
@@ -588,8 +621,23 @@ public class Storage {
 		storeTasks();
 		return true;
 	}
-
-
+	
+	public boolean markDone(List<Integer> indices){
+		if (indices.size() > taskList.size() || indices.size() == 0){
+			return false;
+		}
+				
+		for (int i = 0; i < indices.size(); i++){
+			if (!markDone(indices.get(i))){
+				return false;
+			}
+		}
+		
+		prevCmd = "mult";
+		copycat = Utility.deepCopy(taskList);
+		storeTasks();
+		return true;
+	}
 	//method to retrieve tasks have been done
 	public ArrayList<Task> getDone(){
 		ArrayList <Task> doneTasks = new ArrayList<Task>();
@@ -621,15 +669,22 @@ public class Storage {
 			break;
 		case "del":	
 			undoDelete();
-			prevCmd = "";
 			break;
 		case "chDir":
-			prevCmd = "";
 			return undoChDir();
+		case "mult":
+			undoMultipleTasks();
+			break;
 		default: return false;
 		}
 		storeTasks();
 		return true;
+	}
+
+
+	private void undoMultipleTasks() {
+		prevCmd = "";
+		taskList = Utility.deepCopy(copycat);
 	}
 
 	private void undoModify() {
@@ -644,6 +699,7 @@ public class Storage {
 
 
 	private void undoDelete() {
+		prevCmd = "";
 		if(taskList.size() ==0 || prevTask.getIndex() == taskList.size()){
 			taskList.add(prevTask);
 		}
