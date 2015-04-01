@@ -1,7 +1,9 @@
 package udo.logic;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -381,10 +383,68 @@ public class InputParser {
                 return null;
             }
 
-            result[j] = groups.get(0).getDates().get(0);
+            result[j] = inferTime(extractedOptions.get(i), groups.get(0));
         }
 
         return result;
+    }
+
+    /**
+     * Infer the time from the option and the date parsed by Natty
+     * If the option is deadline or end, it is inferred to be 23:59pm
+     * If the option is reminder or start, it is inferred to be 0am
+     * Otherwise there is no change
+     * @param firstGroup
+     * @return
+     */
+    private Date inferTime(String option, DateGroup firstGroup) {
+        Date firstDate = firstGroup.getDates().get(0);
+
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(firstDate);
+
+        if (firstGroup.isTimeInferred()) {
+            if (isDeadlineOption(option) || isEndOption(option)) {
+                Utility.setToEndOfDay(cal);
+            } else if (isReminderOption(option) || isStartOption(option)) {
+                Utility.setToStartOfDay(cal);
+            }
+
+            return cal.getTime();
+        }
+
+        return firstDate;
+    }
+
+    /**
+     * Check if the given option string corresponds to the option in Config
+     * @param optionStr
+     * @param option
+     * @return
+     */
+    private boolean isOption(String optionStr, String[] option) {
+        if (optionStr.equals(option[Config.OPT_LONG]) ||
+            optionStr.equals(option[Config.OPT_SHORT])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isDeadlineOption(String option) {
+        return isOption(option, Config.OPT_DEADLINE);
+    }
+
+    private boolean isStartOption(String option) {
+        return isOption(option, Config.OPT_START);
+    }
+
+    private boolean isEndOption(String option) {
+        return isOption(option, Config.OPT_END);
+    }
+
+    private boolean isReminderOption(String option) {
+        return isOption(option, Config.OPT_REMINDER);
     }
 
     /**
