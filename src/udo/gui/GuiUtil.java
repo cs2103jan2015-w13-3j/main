@@ -60,6 +60,7 @@ public class GuiUtil {
 
     public static boolean isImportant(String title, ObservableList<Task> data) {
         Task task = lookUpTask(title, data);
+        System.out.println(title + task.getPriority());
         return task.getPriority() == true;
     }
 
@@ -84,7 +85,8 @@ public class GuiUtil {
      */
     private static int extractIndex(String title) throws NumberFormatException {
         try {
-            return Integer.parseInt(title.substring(0,1));
+            String index = title.substring(0, title.indexOf("."));
+            return Integer.parseInt(index);
         } catch(Exception e) {
             return -1;
         }
@@ -95,11 +97,13 @@ public class GuiUtil {
     }
 
     public static boolean isWarning(String receivedString) {
-       return receivedString.substring(0, 7).equals(PREFIX_WARNING);
+       return receivedString.length() > 7 && 
+               receivedString.substring(0, 7).equals(PREFIX_WARNING);
     }
 
     public static boolean isError(String receivedString) {
-        return receivedString.substring(0, 5).equals(PREFIX_ERROR);
+        return receivedString.length() > 5 &&
+                receivedString.substring(0, 5).equals(PREFIX_ERROR);
     }
 
     /**

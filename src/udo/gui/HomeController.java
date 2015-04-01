@@ -230,7 +230,7 @@ public class HomeController {
         }
         
         String suggestedWords = getSuggestedWords(userInput);
-        statusString.setText(suggestedWords);
+        displayStatus(suggestedWords);
         
         logger.finer(suggestedWords.toString());
     }
