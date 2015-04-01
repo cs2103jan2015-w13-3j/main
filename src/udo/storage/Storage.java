@@ -26,7 +26,7 @@ public class Storage {
 	public static void main(String[] args) throws IOException{
 
 		Storage st = new Storage();
-
+		
 		st.exit();
 	}
 
@@ -395,7 +395,7 @@ public class Storage {
 		if (date != null){
 			for (int i =0; i < taskList.size(); i++){
 				if (taskList.get(i).getTaskType() == Task.TaskType.DEADLINE &&
-						isSameDate(date,taskList.get(i).getDeadline())){
+						isNearDate(date,taskList.get(i).getDeadline())){
 					returnList.add(taskList.get(i).copy());
 				}
 				else if (taskList.get(i).getTaskType() == Task.TaskType.EVENT &&
@@ -420,11 +420,16 @@ public class Storage {
 		return returnList;
 	}
 
-	private boolean isSameDate(GregorianCalendar date1, GregorianCalendar date2){
-		if (date1.get(Calendar.YEAR) != date2.get(Calendar.YEAR)){
+	private boolean isNearDate(GregorianCalendar date1, GregorianCalendar date2){
+		if (date1.get(Calendar.YEAR) > date2.get(Calendar.YEAR)){
 			return false;
+		} else if (date2.get(Calendar.YEAR) - date1.get(Calendar.YEAR) > 1){
+			return false;
+		} else if (date2.get(Calendar.YEAR) > date1.get(Calendar.YEAR)){
+			return ((365 - date1.get(Calendar.DAY_OF_YEAR) + date2.get(Calendar.DAY_OF_YEAR)) <= 2);
+		} else {
+			return (date2.get(Calendar.DAY_OF_YEAR) - date1.get(Calendar.DAY_OF_YEAR) <= 2);
 		}
-		return date1.get(Calendar.DAY_OF_YEAR) == date2.get(Calendar.DAY_OF_YEAR);
 	}
 
 	private boolean isAfter(GregorianCalendar date1, GregorianCalendar date2){
