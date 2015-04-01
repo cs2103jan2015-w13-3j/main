@@ -631,15 +631,17 @@ public class Storage {
 		if (indices.size() > taskList.size() || indices.size() == 0){
 			return false;
 		}
-				
+		
+		ArrayList<Task> temp = Utility.deepCopy(taskList);
+		
 		for (int i = 0; i < indices.size(); i++){
 			if (!markDone(indices.get(i))){
 				return false;
 			}
 		}
-		
+		copycat = temp;
 		prevCmd = "mult";
-		copycat = Utility.deepCopy(taskList);
+		
 		storeTasks();
 		return true;
 	}
