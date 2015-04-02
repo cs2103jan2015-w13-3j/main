@@ -428,7 +428,8 @@ public class Storage {
 		} else if (date2.get(Calendar.YEAR) > date1.get(Calendar.YEAR)){
 			return ((365 - date1.get(Calendar.DAY_OF_YEAR) + date2.get(Calendar.DAY_OF_YEAR)) <= 2);
 		} else {
-			return (date2.get(Calendar.DAY_OF_YEAR) - date1.get(Calendar.DAY_OF_YEAR) <= 2);
+			return (date2.get(Calendar.DAY_OF_YEAR) - date1.get(Calendar.DAY_OF_YEAR) <= 2 
+					&& date2.get(Calendar.DAY_OF_YEAR) - date1.get(Calendar.DAY_OF_YEAR) >= 0);
 		}
 	}
 
