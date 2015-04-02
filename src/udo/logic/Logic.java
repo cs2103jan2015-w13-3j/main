@@ -70,6 +70,7 @@ public class Logic {
     public void setGui(Gui guiObj) {
         gui = guiObj;
         reminder.setGui(gui);
+        autocompleter.setGui(gui);
     }
 
     /**
@@ -138,7 +139,7 @@ public class Logic {
 
     private Task getModifyTask(String text) {
         String[] tokens = text.split("\\s");
-        assert(tokens.length == 2);
+        assert(tokens.length >= 2);
 
         try {
             Integer displayIndex = Integer.parseInt(tokens[1]);
@@ -165,7 +166,7 @@ public class Logic {
     private boolean isStartOfModifyCmd(String text) {
         String[] tokens = text.split("\\s");
 
-        if (tokens.length == 2) {
+        if (tokens.length >= 2) {
             if (tokens[0].equals(Config.CMD_STR_MODIFY)) {
                 return true;
             }

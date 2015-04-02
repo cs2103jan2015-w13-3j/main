@@ -35,7 +35,8 @@ public class Config {
     }
 
     /** Constants for command options **/
-    public static final String OPTION_MAKER = "/";
+    public static final String OPTION_MARKER = "/";
+    public static final char OPTION_MARKER_CHAR = '/';
     public static final int OPT_LONG = 0;
     public static final int OPT_SHORT = 1;
     public static final int OPT_TYPE = 2;

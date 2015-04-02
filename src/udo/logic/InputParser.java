@@ -38,7 +38,7 @@ public class InputParser {
                             "search|done|cd|undo|confirm)");
 
     // Regex strings and pattern used for matching an option
-    public static final String OPTION_MAKER = Config.OPTION_MAKER;
+    public static final String OPTION_MAKER = Config.OPTION_MARKER;
     private static final String OPTION_NO_ARG_FORMATER = "(/%s|/%s)";
     private static final String OPTION_WITH_ARG_FORMATER = "((/%s)|(/%s)\\s+)";
     private static final String DATE_DELIMITER = "\\sor\\s";
@@ -422,7 +422,7 @@ public class InputParser {
      * @param option
      * @return
      */
-    private boolean isOption(String optionStr, String[] option) {
+    public static boolean isOption(String optionStr, String[] option) {
         if (optionStr.equals(option[Config.OPT_LONG]) ||
             optionStr.equals(option[Config.OPT_SHORT])) {
             return true;
@@ -431,19 +431,19 @@ public class InputParser {
         return false;
     }
 
-    private boolean isDeadlineOption(String option) {
+    public static boolean isDeadlineOption(String option) {
         return isOption(option, Config.OPT_DEADLINE);
     }
 
-    private boolean isStartOption(String option) {
+    public static boolean isStartOption(String option) {
         return isOption(option, Config.OPT_START);
     }
 
-    private boolean isEndOption(String option) {
+    public static boolean isEndOption(String option) {
         return isOption(option, Config.OPT_END);
     }
 
-    private boolean isReminderOption(String option) {
+    public static boolean isReminderOption(String option) {
         return isOption(option, Config.OPT_REMINDER);
     }
 
