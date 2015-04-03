@@ -55,7 +55,7 @@ public class SearchCommand extends Command {
                                              dateSearchTasks);
 
         setStatus(getSearchStatus());
-        gui.display(result);
+        updateGuiTasks(result);
         updateGUIStatus();
 
         log.log(Level.FINER, "Search result: " + result.toString(), result);

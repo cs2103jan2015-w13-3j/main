@@ -24,7 +24,7 @@ public class UndoCommand extends Command {
             setStatus(Logic.formatErrorStr(STATUS_NO_UNDO));
         } else {
             setStatus(STATUS_UNDO_COMPLETED);
-            gui.display(storage.query());
+            updateGuiTasks(storage.query());
             updateReminder();
         }
 

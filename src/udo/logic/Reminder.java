@@ -12,7 +12,6 @@ import java.util.TimerTask;
 import java.util.logging.Logger;
 
 import javafx.application.Platform;
-import udo.gui.Gui;
 import udo.storage.Task;
 
 public class Reminder {
@@ -25,7 +24,7 @@ public class Reminder {
 	private Queue<Task> tasksQueue;
 	private Timer timer;
 
-	private Gui gui;
+	private Logic logic;
 
 	private class ReminderSchedule extends TimerTask {
 	    private Task remindedTask;
@@ -111,13 +110,13 @@ public class Reminder {
 	private void remind(Task task) {
 	    log.info("Reminder Alert: " + task.getContent());
 
-	    gui.displayAlert(task);
+	    logic.callGuiAlert(task);
 
 	    schedule();
 	}
 
-	public void setGui(Gui gui) {
-	    this.gui = gui;
+	public void setLogic(Logic logic) {
+	    this.logic = logic;
 	}
 
 	public static void main(String[] args) {

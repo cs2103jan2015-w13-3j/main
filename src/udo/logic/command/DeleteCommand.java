@@ -43,7 +43,7 @@ public class DeleteCommand extends Command {
 
         if (isSuccessful) {
             setStatus(getDeleteSucessStatus(deletedTask));
-            gui.display(storage.query());
+            updateGuiTasks();
             updateReminder();
         }
 

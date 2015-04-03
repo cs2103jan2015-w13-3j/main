@@ -12,7 +12,6 @@ import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import udo.gui.Gui;
 import udo.storage.Task;
 import udo.util.Config;
 import udo.util.Utility;
@@ -29,7 +28,7 @@ public class Autocompleter {
     // Used to store words extracted from tasks' content
     TernarySearchTree taskContentTree;
 
-    private Gui gui;
+    private Logic logic;
 
     private static final int historyMaxSize = 50;
     private List<String> cmdHistory;
@@ -143,8 +142,8 @@ public class Autocompleter {
         }
     }
 
-    public void setGui(Gui gui) {
-        this.gui = gui;
+    public void setLogic(Logic logic) {
+        this.logic = logic;
     }
 
     /********************************
@@ -326,7 +325,7 @@ public class Autocompleter {
             autocompletedPart = taskToCmdStr(task);
         }
 
-        gui.displayStatus("");
+        logic.updateGuiStatus("");
         tabsCount = 0;
         lastSuggestions.clear();
 

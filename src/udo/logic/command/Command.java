@@ -15,11 +15,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import udo.gui.Gui;
-import udo.logic.Autocompleter;
 import udo.logic.InputParser;
 import udo.logic.Logic;
-import udo.logic.Reminder;
 import udo.storage.Storage;
 import udo.storage.Task;
 import udo.storage.Task.TaskType;
@@ -52,10 +49,8 @@ public abstract class Command {
 
     protected String status;
 
-    protected Gui gui;
+    protected Logic logic;
     protected Storage storage;
-    protected Autocompleter autocompleter;
-    protected Reminder reminder;
 
     private static final Logger log = Logger.getLogger(Command.class.getName());
 
@@ -103,20 +98,12 @@ public abstract class Command {
         this.status = status;
     }
 
-    public void setGui(Gui gui) {
-        this.gui = gui;
+    public void setLogic(Logic logic) {
+        this.logic = logic;
     }
 
     public void setStorage(Storage storage) {
         this.storage = storage;
-    }
-
-    public void setReminder(Reminder reminder) {
-        this.reminder = reminder;
-    }
-
-    public void setAutocompleter(Autocompleter completer) {
-        this.autocompleter = completer;
     }
 
     protected boolean parseArg(String argStr) {
@@ -145,7 +132,7 @@ public abstract class Command {
      * @return true if valid, false otherwise
      */
     public boolean execute() {
-        assert(gui != null);
+        assert(logic != null);
         assert(storage != null);
 
         if (!isValid()) {
@@ -520,12 +507,28 @@ public abstract class Command {
                                                     task, clashedTask));
     }
 
-    public void updateGUIStatus() {
-        gui.displayStatus(getStatus());
+    /********************************************************
+     * Methods for refecting changes on external components *
+     ********************************************************/
+
+    protected void updateGuiTasks() {
+        logic.updateGuiTasks(storage.query());
     }
 
-    public void updateReminder() {
-        reminder.updateTasks(storage.query());
+    protected void updateGuiTasks(List<Task> tasks) {
+        logic.updateGuiTasks(tasks);
+    }
+
+    protected void updateGUIStatus() {
+        logic.updateGuiStatus(getStatus());
+    }
+
+    protected void updateReminder() {
+        logic.updateReminder();
+    }
+
+    protected void updateAutocompleter(List<Task> tasks) {
+        logic.updateAutocompleter(tasks);
     }
 
     /***********************************************

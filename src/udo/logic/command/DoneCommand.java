@@ -44,7 +44,7 @@ public class DoneCommand extends Command {
 
         if (isSuccessful) {
             setStatus(getDoneStatus(doneTask));
-            gui.display(storage.query());
+            updateGuiTasks();
             updateReminder();
         }
 

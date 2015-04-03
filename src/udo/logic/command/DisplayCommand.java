@@ -28,16 +28,16 @@ public class DisplayCommand extends Command {
 
         if (getOption(Config.OPT_PRIO) != null) {
             setStatus(STATUS_DISP_IMP);
-            gui.display(storage.query(true));
+            updateGuiTasks(storage.query(true));
         } else if (getOption(Config.OPT_DONE) != null) {
             setStatus(STATUS_DISP_DONE);
-            gui.display(storage.getDone());
+            updateGuiTasks(storage.getDone());
         } else if (getOption(Config.OPT_FREE) != null) {
             setStatus(STATUS_DISP_FREE);
-            gui.display(storage.findFreeSlots());
+            updateGuiTasks(storage.findFreeSlots());
         } else {
             setStatus(STATUS_DISP_ALL);
-            gui.display(storage.query());
+            updateGuiTasks();
         }
 
         updateGUIStatus();
