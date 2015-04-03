@@ -470,7 +470,7 @@ public class Storage {
 	public ArrayList<Task> wildcardSearch(String searchedContent){
 		ArrayList<Task> returnList = new ArrayList<Task>();
 		for (int i = 0; i< taskList.size(); i++){
-			if (isWildcardMatched(taskList.get(i).copy().getContent().toLowerCase(), 
+			if (isWildcardMatched(taskList.get(i).getContent().toLowerCase(), 
 					searchedContent)){
 				returnList.add(taskList.get(i).copy());
 			}
@@ -478,73 +478,60 @@ public class Storage {
 		return returnList;
 	}
 
-	public boolean isWildcardMatched(String tameStr, String cardStr){
-		if (cardStr.contains("*")){
-			String[] cards = cardStr.split("\\*");
-			if (cardStr.charAt(0) != '*'){
-				int index = firstIndexOf(tameStr, cards[0]);
-
-				if (index == -1){
-					return false;
-				}
-				tameStr = tameStr.substring(cards[0].length());
-			} 
-			for (int i = 1; i < cards.length; i++){
+	public static boolean isWildcardMatched(String tameStr, String cardStr){			
+		
+		String[] cards = cardStr.split("\\*");
+		String[] tame = tameStr.split("\\s+");
+		 int curr = -1;
+			for (int i = 0; i < cards.length; i++){
 				String card = cards[i];
-				int index = firstIndexOf(tameStr, card);
+				if (card.length() > 0){
+					String[] temp = card.trim().split("\\s+");
+					int cardIndex = 0;
+					
+					int tameIndex = curr+1;
+					boolean cont = false;
+					while (cardIndex < temp.length && tameIndex < tame.length){
+						if (compare(temp[cardIndex], tame[tameIndex])){
+							curr = tameIndex;
+							cardIndex++;
+							tameIndex++;
+							
+							cont = true;
 
-				if (index == -1){
-					return false;
-				}
-				tameStr = tameStr.substring(index + card.length());
+						} else {
+							if (cont == true){
+								cont = false;
+								cardIndex = 0;
+							}
+							if (cardIndex == 0){
+								tameIndex++;
+							}
+						}
+					}
+					if (cardIndex < temp.length){
+						return false;
+					}
+				}	
 			}	
-
+			
 			
 			return true;
-		} else {
-			int index = firstIndexOf(tameStr, cardStr);
-			if (index == -1){
-				return false;
-			}
-			return true;
-		}
 	}
-
-	public int firstIndexOf(String str1, String str2){
-		int str1Index =0;
-		int str2Index = 0;
-		int index = -1;
-		while (str1Index < str1.length() && str2Index < str2.length()){
-			if (str2.charAt(str2Index) == '?'){
-				if (index == -1){
-					index = str1Index;
-				}
-				str2Index++;
-				str1Index++;
-			}
-			else {
-				if (str1.charAt(str1Index) == str2.charAt(str2Index)){
-					if (index == -1){
-						index = str1Index;
-					}
-					str2Index++;
-					str1Index++;
-				} else {
-					if (str2Index == 0){
-						str1Index++;
-					}
-					if (index != -1){
-						str1Index = index + 1;
-					}
-					str2Index = 0;
-					index = -1;
+	
+	
+	public static boolean compare(String str1, String str2){
+		if (str1.length() != str2.length()){
+			return false;
+		} else {
+			for (int i = 0; i < str1.length(); i++){
+				
+				if (str1.charAt(i) != '?' && str1.charAt(i) != str2.charAt(i)){
+					return false;
 				}
 			}
 		}
-		if (str2Index == str2.length()){
-			return index;
-		}
-		return -1;
+		return true;
 	}
 
 	//near match search using edit distance algorithm
