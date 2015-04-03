@@ -10,8 +10,10 @@ import udo.util.Utility;
 
 public class Storage {
 
-	private static final double NEAR_MATCH_RATIO = 5.0;
-	private static final double ROUND_UP = 0.5;
+	private static final String REGEX_SPACE = "\\s+";
+	private static final String REGEX_WILDCARD = "\\*";
+	private static final double NEAR_MATCH_RATIO = 4.0;
+	private static final double ROUND_UP = 0.25;
 	public static final String EOL = System.getProperty("line.separator");
 
 	private static ArrayList<Task> taskList;
@@ -26,7 +28,7 @@ public class Storage {
 	public static void main(String[] args) throws IOException{
 
 		Storage st = new Storage();
-		
+
 		st.exit();
 	}
 
@@ -274,26 +276,26 @@ public class Storage {
 		storeTasks();
 		return true;
 	}
-	
+
 	public boolean delete(List<Integer> indices){
 		if (indices.size() > taskList.size() || indices.size() == 0){
 			return false;
 		}
-		
+
 		for (int i = 0; i <indices.size(); i++){
 			if (!isValidIndex(indices.get(i))){
 				return false;
 			}
 		}
-		
+
 		prevCmd = "mult";
 		copycat = Utility.deepCopy(taskList);
-		
+
 		for (int i = 0; i < indices.size(); i ++){
 			int index = indices.get(i);
 			taskList.set(index, new Task());			
 		}
-		
+
 		for (int i = 0; i < taskList.size(); i ++){
 			if (taskList.get(i).getContent() == null){
 				taskList.remove(i);
@@ -305,7 +307,7 @@ public class Storage {
 		storeTasks();
 		return true;
 	}
-	
+
 	private boolean isValidIndex(Integer index) {
 		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0)		
 			return false; 
@@ -470,7 +472,7 @@ public class Storage {
 	public ArrayList<Task> wildcardSearch(String searchedContent){
 		ArrayList<Task> returnList = new ArrayList<Task>();
 		for (int i = 0; i< taskList.size(); i++){
-			if (isWildcardMatched(taskList.get(i).copy().getContent().toLowerCase(), 
+			if (isWildcardMatched(taskList.get(i).getContent().toLowerCase(), 
 					searchedContent)){
 				returnList.add(taskList.get(i).copy());
 			}
@@ -478,107 +480,111 @@ public class Storage {
 		return returnList;
 	}
 
-	public boolean isWildcardMatched(String tameStr, String cardStr){
-		if (cardStr.contains("*")){
-			String[] cards = cardStr.split("\\*");
-			if (cardStr.charAt(0) != '*'){
-				int index = firstIndexOf(tameStr, cards[0]);
+	public boolean isWildcardMatched(String tameStr, String cardStr){			
 
-				if (index == -1){
+		String[] cards = cardStr.split(REGEX_WILDCARD);
+		String[] tame = tameStr.split(REGEX_SPACE);
+		int curr = -1;
+		for (int i = 0; i < cards.length; i++){
+			String card = cards[i];
+			if (card.length() > 0){
+				String[] temp = card.trim().split(REGEX_SPACE);
+				int cardIndex = 0;
+
+				int tameIndex = curr+1;
+				boolean cont = false;
+				while (cardIndex < temp.length && tameIndex < tame.length){
+					if (compare(temp[cardIndex], tame[tameIndex])){
+						curr = tameIndex;
+						cardIndex++;
+						tameIndex++;
+
+						cont = true;
+
+					} else {
+						if (cont == true){
+							cont = false;
+							cardIndex = 0;
+						}
+						if (cardIndex == 0){
+							tameIndex++;
+						}
+					}
+				}
+				if (cardIndex < temp.length){
 					return false;
 				}
-				tameStr = tameStr.substring(cards[0].length());
-			} 
-			for (int i = 1; i < cards.length; i++){
-				String card = cards[i];
-				int index = firstIndexOf(tameStr, card);
-
-				if (index == -1){
-					return false;
-				}
-				tameStr = tameStr.substring(index + card.length());
 			}	
+		}	
 
-			
-			return true;
-		} else {
-			int index = firstIndexOf(tameStr, cardStr);
-			if (index == -1){
-				return false;
-			}
-			return true;
-		}
+
+		return true;
 	}
 
-	public int firstIndexOf(String str1, String str2){
-		int str1Index =0;
-		int str2Index = 0;
-		int index = -1;
-		while (str1Index < str1.length() && str2Index < str2.length()){
-			if (str2.charAt(str2Index) == '?'){
-				if (index == -1){
-					index = str1Index;
-				}
-				str2Index++;
-				str1Index++;
-			}
-			else {
-				if (str1.charAt(str1Index) == str2.charAt(str2Index)){
-					if (index == -1){
-						index = str1Index;
-					}
-					str2Index++;
-					str1Index++;
-				} else {
-					if (str2Index == 0){
-						str1Index++;
-					}
-					if (index != -1){
-						str1Index = index + 1;
-					}
-					str2Index = 0;
-					index = -1;
+
+	public boolean compare(String str1, String str2){
+		if (str1.length() != str2.length()){
+			return false;
+		} else {
+			for (int i = 0; i < str1.length(); i++){
+
+				if (str1.charAt(i) != '?' && str1.charAt(i) != str2.charAt(i)){
+					return false;
 				}
 			}
 		}
-		if (str2Index == str2.length()){
-			return index;
-		}
-		return -1;
+		return true;
 	}
 
 	//near match search using edit distance algorithm
 	public ArrayList<Task> nearMatchSearch(String searchedContent){
 		ArrayList<Task> returnList = new ArrayList<Task>();
-		int minDist = -1;
-		int[] dist = new int[taskList.size()];
 		for (int i = 0; i < taskList.size(); i++){
-			int currentDist = findDist(taskList.get(i).getContent().toLowerCase(),searchedContent);
-			if (currentDist < minDist || minDist < 0){
-				minDist = currentDist;
-			}
-			dist[i] = currentDist;
-		}
-		for (int i = 0; i <taskList.size(); i++){
-			if (dist[i] == minDist){
-				if (dist[i] <= (int) ((Math.min(taskList.get(i).getContent().length(), searchedContent.length()))/NEAR_MATCH_RATIO + ROUND_UP)){
-					returnList.add(taskList.get(i).copy());
-				}
+			if (isNearMatched(taskList.get(i).getContent().toLowerCase(), searchedContent)){
+				returnList.add(taskList.get(i).copy());
 			}
 		}
-		
 		return returnList;
 	}
-	
-	
+
+
 	private int minimum(int a, int b, int c) {
 		return Math.min(Math.min(a, b), c);
 	}
 
-	private int findDist(String str1, String str2) {
+
+	public boolean isNearMatched(String str1, String str2){
+		if (findDist(str1,str2) <=( int) (str1.length()/4.0 + 0.25)){
+			return true;
+		}
+		String[] newStr1 = str1.trim().split(REGEX_SPACE);
+		String[] newStr2 = str2.trim().split(REGEX_SPACE);
+		if (newStr1.length < newStr2.length){
+			return false;
+		}
+		int str2Index = 0;
+		int str1Index = 0;
+		while (str2Index < newStr2.length && str1Index < newStr1.length){
+			int dist = findDist(newStr1[str1Index],newStr2[str2Index]);
+			if (dist <= (int)(newStr1[str1Index].length()/NEAR_MATCH_RATIO + ROUND_UP)){
+				str1Index++;
+				str2Index++;
+			} else {
+				str1Index++;
+			}
+		}
+		if (str2Index == newStr2.length){
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	//Lavenstein's algorithm
+	public int findDist(String str1, String str2) {
 
 		int[][] distance = new int[str2.length() + 1][str1.length() + 1];
-		
+
 		for (int i = 0; i <= str2.length(); i++) {
 			distance[i][0] = i;
 		}
@@ -594,10 +600,9 @@ public class Storage {
 								+ ((str1.charAt(j - 1) == str2.charAt(i - 1)) ? 0 : 1));
 			}
 		}
-	
 		return distance[str2.length()][str1.length()];
 	}
-	
+
 	//toggle priority
 	public boolean togglePriority(Integer index){
 		if (!isValidIndex(index)){
@@ -615,7 +620,7 @@ public class Storage {
 		if (!isValidIndex(index)){
 			return false;
 		}
-		
+
 		if (!taskList.get(index).isDone()){
 			prevTask = taskList.get(index).copy();
 			prevCmd = "mod";
@@ -627,14 +632,14 @@ public class Storage {
 		storeTasks();
 		return true;
 	}
-	
+
 	public boolean markDone(List<Integer> indices){
 		if (indices.size() > taskList.size() || indices.size() == 0){
 			return false;
 		}
-		
+
 		ArrayList<Task> temp = Utility.deepCopy(taskList);
-		
+
 		for (int i = 0; i < indices.size(); i++){
 			if (!markDone(indices.get(i))){
 				return false;
@@ -642,7 +647,7 @@ public class Storage {
 		}
 		copycat = temp;
 		prevCmd = "mult";
-		
+
 		storeTasks();
 		return true;
 	}
@@ -656,7 +661,7 @@ public class Storage {
 		}
 		return doneTasks;
 	}
-	
+
 	public ArrayList<Task> query(){
 		ArrayList<Task> undoneTasks = new ArrayList<Task>();
 		for (int i = 0;i < taskList.size(); i++){
@@ -666,7 +671,7 @@ public class Storage {
 		}
 		return undoneTasks;
 	}
-	
+
 	public boolean undo(){
 		switch(prevCmd){
 		case "add":
