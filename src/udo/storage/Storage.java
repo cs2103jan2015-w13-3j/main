@@ -10,8 +10,10 @@ import udo.util.Utility;
 
 public class Storage {
 
-	private static final double NEAR_MATCH_RATIO = 5.0;
-	private static final double ROUND_UP = 0.5;
+	private static final String REGEX_SPACE = "\\s+";
+	private static final String REGEX_WILDCARD = "\\*";
+	private static final double NEAR_MATCH_RATIO = 4.0;
+	private static final double ROUND_UP = 0.25;
 	public static final String EOL = System.getProperty("line.separator");
 
 	private static ArrayList<Task> taskList;
@@ -480,13 +482,13 @@ public class Storage {
 
 	public boolean isWildcardMatched(String tameStr, String cardStr){			
 
-		String[] cards = cardStr.split("\\*");
-		String[] tame = tameStr.split("\\s+");
+		String[] cards = cardStr.split(REGEX_WILDCARD);
+		String[] tame = tameStr.split(REGEX_SPACE);
 		int curr = -1;
 		for (int i = 0; i < cards.length; i++){
 			String card = cards[i];
 			if (card.length() > 0){
-				String[] temp = card.trim().split("\\s+");
+				String[] temp = card.trim().split(REGEX_SPACE);
 				int cardIndex = 0;
 
 				int tameIndex = curr+1;
@@ -555,8 +557,8 @@ public class Storage {
 		if (findDist(str1,str2) <=( int) (str1.length()/4.0 + 0.25)){
 			return true;
 		}
-		String[] newStr1 = str1.trim().split("\\s+");
-		String[] newStr2 = str2.trim().split("\\s+");
+		String[] newStr1 = str1.trim().split(REGEX_SPACE);
+		String[] newStr2 = str2.trim().split(REGEX_SPACE);
 		if (newStr1.length < newStr2.length){
 			return false;
 		}
@@ -564,7 +566,7 @@ public class Storage {
 		int str1Index = 0;
 		while (str2Index < newStr2.length && str1Index < newStr1.length){
 			int dist = findDist(newStr1[str1Index],newStr2[str2Index]);
-			if (dist <= (int)(newStr1[str1Index].length()/ 4.0 + 0.25)){
+			if (dist <= (int)(newStr1[str1Index].length()/NEAR_MATCH_RATIO + ROUND_UP)){
 				str1Index++;
 				str2Index++;
 			} else {
