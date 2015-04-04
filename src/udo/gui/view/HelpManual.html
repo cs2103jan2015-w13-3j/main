@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+	<meta charset="utf-8">
+	<title>Just U</title>
+	<style>
+		body {
+			background-color:#2b3339;
+			color: white;
+			font-family:Trebuchet MS;
+			font-size: 13px;
+		}
+		.format {
+			color: #1abc9c;
+		}
+
+		.center {
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container">
+		<div class="row">
+			<table style="width:100%">
+				<tr>
+					<td>Command</td>
+					<td class="center">Description</td>
+				</tr>
+				<tr>
+					<td>Add</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>To add a new task, type the “add” command followed by task’s content, the type of task, necessary time and date information for that type of task, label and priority. Each part of the information provided in the command text should be preceded by its corresponding option delimiter.</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td class="format">[add] [task&#x2019;s content] [/start &lt;date and time&gt;] [/end &lt;date and time&gt;][/deadline &lt;date and time&gt;] [/duration &lt;hours and minutes&gt;] [/reminder &lt;date and time&gt;] [/important]</td>
+				</tr>
+
+				<tr>
+					<td>Delete</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>To delete a task, first “display” or “search” with the relevant information to display the tasks. Type “delete” command followed by the index of the task.</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td class="format">delete [task&#x2019;s index]</td>
+				</tr>
+
+				<tr>
+					<td>Undo</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>Simply undo!</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td class="format">undo</td>
+				</tr>
+
+
+				<tr>
+					<td>Modify</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>Each relevant task will be displayed on the GUI preceded by an index. Type in the modify command with the following format:</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td class="format">modify [task&#x2019;s index] [new task&#x2019;s content] [other options which are supported in &#x201c;add&#x201d; command]</td>
+				</tr>
+
+				<tr>
+					<td>Mark As Done</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>Each relevant task will be displayed on the GUI preceded by an index. Type done followed by a valid index to mark a task as done.</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td class="format">done [task&#x2019;s index]</td>
+				</tr>
+
+				<tr>
+					<td>Unconfirmed Tasks</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>Each relevant task will be displayed on the GUI preceded by an index. Type done followed by a valid index to mark a task as done.</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td class="format">[task's content][[/deadline][/start][/end] &lt;date and time&gt; or &lt;date and time&gt; or &lt;date and time&gt;...]<br />confirm [task&#x2019;s index]</td>
+				</tr>
+
+				<tr>
+					<td>Search</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>To search for a task, type “search” followed by the followed by the search content. The 
+
+						program will attempt to infer what the user want to search from the content’s text
+
+						The program will first separate the search content’s text into individual words. All tasks’ 
+
+						content that match any of the word will be included in the search results sorted by the 
+
+						percentage matched. For each word, the program will support wild-card matching and near-
+
+						match. Supported wild-cards are ‘?’ which denotes any single lowercase or uppercase 
+
+						character or digit, ‘*’ which denotes any sequence of characters and digits that do not include 
+
+						space, tab or new line characters. Near-match searching is determined by the degree of 
+
+						differences between the searched word with the content’s word and also the word’s length.
+
+						A list of dates will also be extracted from the search content. Any task that has the deadline, 
+
+						start or end date within period of 1 day before and after any one of the extracted date will 
+
+						also be considered as a match.</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td class="format">search [content]</td>
+					</tr>
+
+					<tr>
+						<td>Autocomplete</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>When a user is typing a command, the status line will automatically display suggested words 
+							and phrases to be autocompleted. The priority of the class of words (command names, 
+							keywords, options, english dictionary words) suggested will be inferred from the current text 
+							being entered.
+							<br /><br />
+							Up/Down arrow key: Change the input text to the previous command and next command in command history
+							<br /><br />
+							Tab key:  Pressing Tab can result in 2 cases. If the current input text consists of only the modify command and an index, the existing task’s information with that index will be autocompleted. Otherwise, the first suggested word will be autocompleted in place of the 
+							last word in the input text.
+							<p class="format">modify [task's index] [/deadline][/start][/end][/reminder]*tab*</p>
+						</td>
+					</tr>
+
+
+					<tr>
+						<td>Reminder</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>Setting a reminder will alert the user at the specified timing</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td class="format">[/reminder &lt;date and time&gt;]</td>
+					</tr>
+					
+				</table>
+			</div>
+
+			<hr>
+			<footer>
+				<p>&copy; w13-3j Section 1 Team 3 JustU</p>
+			</footer>
+
+		</div> <!-- End of container -->
+
+	</body>
+
+	</html>

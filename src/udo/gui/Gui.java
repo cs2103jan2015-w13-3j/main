@@ -10,8 +10,10 @@ import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import udo.logic.Logic;
 import udo.storage.Task;
@@ -32,6 +34,8 @@ public class Gui extends Application {
     private static final String NAME_APP = "JustU";
     
     private static final int MAX_WORDS = 5;
+    
+    private static final int OFFSET_DISPLAY = 250;
     
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
     private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
@@ -69,6 +73,7 @@ public class Gui extends Application {
 
     private void setPrimaryStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        //this.primaryStage.getIcons().add(new Image("/draft3.png"));
         this.primaryStage.setTitle(NAME_APP);
     }
 
@@ -82,10 +87,9 @@ public class Gui extends Application {
      */
     private void showRootLayout() {
         try {
-            URL url = Gui.class.getResource(PATH_TO_ROOTLAYOUT);
-            FXMLLoader loader = getLoader(url);
-            Scene rootScene = setRootScene(loader);
-            showSceneAtStage(rootScene);
+            FXMLLoader loader = getLoader(PATH_TO_ROOTLAYOUT);
+            Scene rootScene = getRootScene(loader);
+            setSceneAtStage(rootScene);
             logger.finer("Root Layout Initiated");
 
         } catch (IOException e) {
@@ -93,19 +97,19 @@ public class Gui extends Application {
         }
     }
 
-    private Scene setRootScene(FXMLLoader loader) throws IOException {
+    private Scene getRootScene(FXMLLoader loader) throws IOException {
         rootLayout = (BorderPane) loader.load();
-        Scene scene = castPaneToScene(rootLayout);
+        Scene scene = new Scene(rootLayout);
+        addFonts(scene);
         return scene;
     }
 
-    private Scene castPaneToScene(BorderPane pane) {
-        Scene scene = new Scene(pane);
+    private Scene addFonts(Scene scene) {
         scene.getStylesheets().add(PATH_TO_FONTS);
         return scene;
     }
 
-    private void showSceneAtStage(Scene scene) {
+    private void setSceneAtStage(Scene scene) {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -115,8 +119,7 @@ public class Gui extends Application {
      */
     private void showOverview() {
         try {
-            URL url = Gui.class.getResource(PATH_TO_OVERVIEW);
-            FXMLLoader loader = getLoader(url);
+            FXMLLoader loader = getLoader(PATH_TO_OVERVIEW);
             setOverview(loader);
             getControllerAccess(loader);
             logger.finer("Overview Scene Initiated");
@@ -131,7 +134,8 @@ public class Gui extends Application {
         centerOverview(homeOverview);
     }
 
-    private FXMLLoader getLoader(URL url) {
+    private FXMLLoader getLoader(String path) {
+        URL url = Gui.class.getResource(path);
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(url);
         return loader;
@@ -168,10 +172,16 @@ public class Gui extends Application {
 
     public String callAutocomplete(String userInput) {
         String completedStr = logic.autocomplete(userInput);
-        logger.info(completedStr);
+        logger.fine(completedStr);
         return completedStr;
     }
 
+    /**
+     * Use the command history in Logic
+     *
+     * @param direction
+     * @return the previous or next command depending on the direction
+     */
     public String callCmdHistory(String direction) {
         assert(direction != null);
 
@@ -190,16 +200,20 @@ public class Gui extends Application {
         return logic.getSuggestions(userInput, MAX_WORDS);
     }
 
-    /**
-     * Called by background process which invokes a dialog
-     */
     public void displayAlert(Task task) {
         assert(task != null);
         ReminderDialog reminder = new ReminderDialog(task);
         reminder.appear();
         return;
     }
-
+    
+    public void displayManual() {
+        HelpManual helpManual = new HelpManual();
+        double pos[] = getLocation();
+        helpManual.setPosition(pos[0] + OFFSET_DISPLAY, pos[1]);
+        helpManual.display();
+    }
+    
     /**
      * Called by Logic component to change the status information
      *
@@ -246,7 +260,14 @@ public class Gui extends Application {
     public ObservableList<Task> getNewData() {
         return taskData;
     }
-
+    
+    private double[] getLocation() {
+        double[] position = new double[2];
+        position[0] = primaryStage.getX();
+        position[1] = primaryStage.getY();
+        return position;
+    }
+    
     public static void main(String[] args) {
         launch(args);
     }

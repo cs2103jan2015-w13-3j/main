@@ -60,7 +60,6 @@ public class GuiUtil {
 
     public static boolean isImportant(String title, ObservableList<Task> data) {
         Task task = lookUpTask(title, data);
-        System.out.println(title + task.getPriority());
         return task.getPriority() == true;
     }
 
