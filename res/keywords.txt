@@ -44,4 +44,3 @@ august
 september
 october
 november
-december
