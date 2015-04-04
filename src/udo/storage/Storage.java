@@ -352,7 +352,7 @@ public class Storage {
 	}
 
 	public ArrayList<Task> findFreeSlots(){
-		TimeSlots timeSlots = new TimeSlots(taskList);
+		TimeSlots timeSlots = new TimeSlots(query());
 		return timeSlots.getFreeSlots();
 	}
 
