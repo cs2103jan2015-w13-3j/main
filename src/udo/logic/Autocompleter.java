@@ -52,6 +52,7 @@ public class Autocompleter {
         keywordsTree = new TernarySearchTree();
         dictTree = new TernarySearchTree();
         taskContentTree = new TernarySearchTree();
+        addPrioritizedWords(taskContentTree);
 
         cmdHistory = new LinkedList<String>();
         cmdHistoryIter = cmdHistory.listIterator();
@@ -480,6 +481,11 @@ public class Autocompleter {
             builder.append(SEPARATOR);
         }
     }
+
+    private void addPrioritizedWords(TernarySearchTree tree) {
+        tree.add("december");
+    }
+
 
     /**
      * Remove the last word from the given text
