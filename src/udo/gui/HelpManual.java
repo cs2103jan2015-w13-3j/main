@@ -29,6 +29,8 @@ public class HelpManual {
 
     private static final String TITLE = "Help Manual";
     private static final String PATH_TO_MANUAL = "view/HelpManual.fxml";
+    private static final String PATH_TO_MANUAL_HTML = "view/HelpManual.html";
+    
     private static double xPos;
     private static double yPos;
 
@@ -36,7 +38,7 @@ public class HelpManual {
     private void initialize() {
         //TODO asset(path != null);
         WebEngine webEngine = web.getEngine();
-        String url = HelpManual.class.getResource("view/HelpManual.html")
+        String url = HelpManual.class.getResource(PATH_TO_MANUAL_HTML)
                                .toExternalForm();
         webEngine.load(url);
 

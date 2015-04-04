@@ -39,15 +39,17 @@ public class Gui extends Application {
     
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
     private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
-    private static final String PATH_TO_LOGO = "view/logo.png";
+    private static final String PATH_TO_LOGO = "view/logo.png";   
     private static final String PATH_TO_FONTS =
             "http://fonts.googleapis.com/css?family=Open+Sans:" +
             "300italic,400italic,600italic,700,600,400";
+
 
     private static List<Task> displayList;
     private static HomeController controller;
     private static ObservableList<Task> taskData;
     private static GuiFormatter guiFormatter;
+    private static HelpManual helpManual;
 
     private Stage primaryStage;
     private BorderPane rootLayout;
@@ -60,6 +62,7 @@ public class Gui extends Application {
         logic = Logic.getInstance();
         logic.setGui(this);
         guiFormatter = GuiFormatter.getInstance();
+        helpManual = new HelpManual();
         logger.setLevel(Level.INFO);
     }
 
@@ -210,7 +213,6 @@ public class Gui extends Application {
     }
     
     public void displayManual() {
-        HelpManual helpManual = new HelpManual();
         double pos[] = getLocation();
         helpManual.setPosition(pos[0] + OFFSET_DISPLAY, pos[1]);
         helpManual.display();
