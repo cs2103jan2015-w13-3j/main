@@ -37,7 +37,7 @@ public class HelpManual {
         //TODO asset(path != null);
         WebEngine webEngine = web.getEngine();
         String url = HelpManual.class.getResource("view/HelpManual.html")
-                .toExternalForm();
+                               .toExternalForm();
         webEngine.load(url);
 
     }

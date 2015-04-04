@@ -39,8 +39,8 @@ public class ReminderDialog {
     private static final String MESSAGE_DEADLINE = " due ";
     
     /**
-     * you have [content] starting at [abc] until [def]
-     * you have [content] due on [abc]
+     * you have [content] starting at [xx:xx] until [xx:xx]
+     * you have [content] due on [xx:xx]
      */
     private Alert alert;
     private TextFlow textBox;

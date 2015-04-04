@@ -39,6 +39,7 @@ public class Gui extends Application {
     
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
     private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
+    private static final String PATH_TO_LOGO = "view/logo.png";
     private static final String PATH_TO_FONTS =
             "http://fonts.googleapis.com/css?family=Open+Sans:" +
             "300italic,400italic,600italic,700,600,400";
@@ -73,7 +74,8 @@ public class Gui extends Application {
 
     private void setPrimaryStage(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        //this.primaryStage.getIcons().add(new Image("/draft3.png"));
+        Image icon = new Image(Gui.class.getResourceAsStream(PATH_TO_LOGO));
+        this.primaryStage.getIcons().add(icon);
         this.primaryStage.setTitle(NAME_APP);
     }
 
