@@ -13,7 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import udo.logic.Logic;
 import udo.storage.Task;
@@ -32,11 +31,11 @@ public class Gui extends Application {
     private static final Logger logger = Logger.getLogger(Gui.class.getName());
 
     private static final String NAME_APP = "JustU";
-    
+
     private static final int MAX_WORDS = 5;
-    
+
     private static final int OFFSET_DISPLAY = 250;
-    
+
     private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
     private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
     private static final String PATH_TO_LOGO = "view/logo.png";
@@ -208,14 +207,14 @@ public class Gui extends Application {
         reminder.appear();
         return;
     }
-    
+
     public void displayManual() {
         HelpManual helpManual = new HelpManual();
         double pos[] = getLocation();
         helpManual.setPosition(pos[0] + OFFSET_DISPLAY, pos[1]);
         helpManual.display();
     }
-    
+
     /**
      * Called by Logic component to change the status information
      *
@@ -262,14 +261,14 @@ public class Gui extends Application {
     public ObservableList<Task> getNewData() {
         return taskData;
     }
-    
+
     private double[] getLocation() {
         double[] position = new double[2];
         position[0] = primaryStage.getX();
         position[1] = primaryStage.getY();
         return position;
     }
-    
+
     public static void main(String[] args) {
         launch(args);
     }

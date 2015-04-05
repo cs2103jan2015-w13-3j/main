@@ -1,11 +1,15 @@
 package udo.storage;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.io.*;
 
-import udo.storage.Task.TaskType;
 import udo.util.Utility;
 
 public class Storage {
@@ -139,7 +143,7 @@ public class Storage {
 		prevPath = lastPath;
 		if (path.endsWith(".json"))
 			lastPath = path;
-		else { 
+		else {
 			if (!lastPath.equals("task.json")) {
 				int nameIndex = lastPath.lastIndexOf("\\") +1;
 				String fileName = lastPath.substring(nameIndex, lastPath.length());
@@ -163,7 +167,7 @@ public class Storage {
 		prevCmd = "";
 		lastPath = prevPath;
 		JsonProcessor.writeJson(lastPath, taskList);
-		return writeNewDir(lastPath);	
+		return writeNewDir(lastPath);
 	}
 
 	public boolean add(Task newTask) {
@@ -251,20 +255,20 @@ public class Storage {
 			if (taskList.get(i).getGroupId() == groupId && taskList.get(i).getIndex() != index){
 				Task lastTask = taskList.get(taskList.size() -1);
 
-				if (lastTask.getGroupId() == groupId && lastTask.getIndex() == index){	
+				if (lastTask.getGroupId() == groupId && lastTask.getIndex() == index){
 					index = i;
 				}
 				taskList.set(i, lastTask);
 				taskList.get(i).setIndex(i);
 				taskList.remove(taskList.size()-1);
-				i--;		
+				i--;
 			}
 		}
 		keptTask.setGroupId(0);
 		maxId = 0;
 	}
 
-	//delete function, swap deleted task with last task on list 
+	//delete function, swap deleted task with last task on list
 	public boolean delete(Integer index){
 
 		if (!isValidIndex(index))
@@ -293,7 +297,7 @@ public class Storage {
 
 		for (int i = 0; i < indices.size(); i ++){
 			int index = indices.get(i);
-			taskList.set(index, new Task());			
+			taskList.set(index, new Task());
 		}
 
 		for (int i = 0; i < taskList.size(); i ++){
@@ -309,8 +313,8 @@ public class Storage {
 	}
 
 	private boolean isValidIndex(Integer index) {
-		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0)		
-			return false; 
+		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0)
+			return false;
 		return true;
 
 	}
@@ -322,7 +326,7 @@ public class Storage {
 			taskList.get(index).setIndex(index);
 			taskList.remove(taskList.size()-1);
 		} else {
-			taskList.clear(); 
+			taskList.clear();
 		}
 	}
 
@@ -430,7 +434,7 @@ public class Storage {
 		} else if (date2.get(Calendar.YEAR) > date1.get(Calendar.YEAR)){
 			return ((365 - date1.get(Calendar.DAY_OF_YEAR) + date2.get(Calendar.DAY_OF_YEAR)) <= 2);
 		} else {
-			return (date2.get(Calendar.DAY_OF_YEAR) - date1.get(Calendar.DAY_OF_YEAR) <= 2 
+			return (date2.get(Calendar.DAY_OF_YEAR) - date1.get(Calendar.DAY_OF_YEAR) <= 2
 					&& date2.get(Calendar.DAY_OF_YEAR) - date1.get(Calendar.DAY_OF_YEAR) >= 0);
 		}
 	}
@@ -472,7 +476,7 @@ public class Storage {
 	public ArrayList<Task> wildcardSearch(String searchedContent){
 		ArrayList<Task> returnList = new ArrayList<Task>();
 		for (int i = 0; i< taskList.size(); i++){
-			if (isWildcardMatched(taskList.get(i).getContent().toLowerCase(), 
+			if (isWildcardMatched(taskList.get(i).getContent().toLowerCase(),
 					searchedContent)){
 				returnList.add(taskList.get(i).copy());
 			}
@@ -480,7 +484,7 @@ public class Storage {
 		return returnList;
 	}
 
-	public boolean isWildcardMatched(String tameStr, String cardStr){			
+	public boolean isWildcardMatched(String tameStr, String cardStr){
 
 		String[] cards = cardStr.split(REGEX_WILDCARD);
 		String[] tame = tameStr.split(REGEX_SPACE);
@@ -514,8 +518,8 @@ public class Storage {
 				if (cardIndex < temp.length){
 					return false;
 				}
-			}	
-		}	
+			}
+		}
 
 
 		return true;
@@ -680,7 +684,7 @@ public class Storage {
 		case "mod":
 			undoModify();
 			break;
-		case "del":	
+		case "del":
 			undoDelete();
 			break;
 		case "chDir":
