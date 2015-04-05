@@ -2,8 +2,9 @@ package udo.logic;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -39,8 +40,8 @@ public class Autocompleter {
     private static final Logger log = Logger.getLogger(
                                           Autocompleter.class.getName());
 
-    String dictPath = "res/dict.txt";
-    String keywordsPath = "res/keywords.txt";
+    String dictPath = "/english.txt";
+    String keywordsPath = "/keywords.txt";
 
     private int tabsCount;
     private List<String> lastSuggestions;
@@ -89,7 +90,10 @@ public class Autocompleter {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new FileReader(keywordsPath));
+            InputStream wordsStream = this.getClass().
+                    getResourceAsStream(keywordsPath);
+            reader = new BufferedReader(new InputStreamReader(wordsStream));
+
             String s = reader.readLine();
 
             while (s != null) {
@@ -119,7 +123,10 @@ public class Autocompleter {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new FileReader(dictPath));
+            InputStream wordsStream = getClass().
+                    getResourceAsStream(dictPath);
+            reader = new BufferedReader(new InputStreamReader(wordsStream));
+
             String s = reader.readLine();
 
             while (s != null) {
