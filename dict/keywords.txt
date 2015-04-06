@@ -26,6 +26,8 @@ dd
 /f
 /done
 /do
+/overdue
+/o
 monday
 tuesday
 wednesday

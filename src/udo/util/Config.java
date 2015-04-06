@@ -13,7 +13,7 @@ public class Config {
      * Add a new string array of 3 entries here:
      *      [option long name, option short name, option arg type]
      * Add the string array name into the OPTIONS_TABLE array
-     * Add the option's strings to res/keywords.txt for autocomplete
+     * Add the option's strings to dict/keywords.txt for autocomplete
      * -> see existing options as examples
      */
 
@@ -57,12 +57,13 @@ public class Config {
     public static final String[] OPT_REMINDER = {"reminder", "r", TYPE_DATETIME};
     public static final String[] OPT_FREE = {"free", "f", TYPE_NONE};
     public static final String[] OPT_DONE = {"done", "do", TYPE_NONE};
+    public static final String[] OPT_OVERDUE = {"overdue", "o", TYPE_NONE};
 
     /**
      * New options can be added to the following table following the same
      * format as existing entry for it to work with the input parser
      **/
     public static final String OPTIONS_TABLE[][] =
-        { OPT_DUR, OPT_LABEL, OPT_PRIO, OPT_DEADLINE,
+        { OPT_DUR, OPT_LABEL, OPT_PRIO, OPT_DEADLINE, OPT_OVERDUE,
           OPT_START, OPT_END, OPT_REMINDER, OPT_FREE, OPT_DONE };
 }
