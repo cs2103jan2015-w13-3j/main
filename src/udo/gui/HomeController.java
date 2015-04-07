@@ -35,28 +35,28 @@ public class HomeController {
     private static final Logger logger = 
             Logger.getLogger(HomeController.class.getName());
             
-    private static String STYLE_ITALIC = "italic";
-    private static String STYLE_STRAIGHT = "straight";
+    private static String _STYLE_ITALIC = "italic";
+    private static String _STYLE_STRAIGHT = "straight";
     
-    private static String HOTKEY_DISPLAY = "display";
-    private static String HOTKEY_DONE = "display /done";
+    private static String _HOTKEY_DISPLAY = "display";
+    private static String _HOTKEY_DONE = "display /done";
     
-    private static String COLUMN_FIELD_CONTENT = "content";
-    private static String COLUMN_FIELD_LABEL= "label";
-    private static Label statusString;
-    private static ObservableList<Task> data;
-    private static CustomTextField customTextField;
+    private static String _COLUMN_FIELD_CONTENT = "content";
+    private static String _COLUMN_FIELD_LABEL= "label";
+    private static Label _statusString;
+    private static ObservableList<Task> _data;
+    private static CustomTextField _customTextField;
     
     @FXML
-    private TableView<Task> TaskTable;
+    private TableView<Task> _TaskTable;
     @FXML
-    private TableColumn<Task, String> taskNameColumn;
+    private TableColumn<Task, String> _taskNameColumn;
     @FXML
-    private TableColumn<Task, String> timeColumn;
+    private TableColumn<Task, String> _timeColumn;
     @FXML
-    private TextField inputBox;
+    private TextField _inputBox;
     @FXML
-    private Label status;
+    private Label _status;
 
     // Reference to the Main Application.
     private Gui gui;
@@ -86,26 +86,26 @@ public class HomeController {
      * Disables the sorting function of TableView
      */
     private void disableDefaults() {
-        taskNameColumn.setSortable(false);
-        timeColumn.setSortable(false);       
+        _taskNameColumn.setSortable(false);
+        _timeColumn.setSortable(false);       
     }
 
     private void configureTextField() {
         setFocusInputBox();
-        customTextField = new CustomTextField(inputBox, this);
-        customTextField.bindKeys(keyHandlers);
+        _customTextField = new CustomTextField(_inputBox, this);
+        _customTextField.bindKeys(keyHandlers);
     }
 
     @FXML
     private void configureStatus() {
-        statusString = status;
+        _statusString = _status;
     }
 
     private void setFocusInputBox() {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                inputBox.requestFocus();
+                _inputBox.requestFocus();
             }
         });
     }
@@ -119,22 +119,41 @@ public class HomeController {
     }
 
     private void initialiseTimeColumn() {
-        timeColumn.setCellValueFactory(new PropertyValueFactory<Task, String>(
-                COLUMN_FIELD_LABEL));
-        timeColumn.setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
-            public TableCell<Task, String> call(TableColumn<Task, String> param) {
-                return new TimeCell();
-            }
-       });
+        PropertyValueFactory<Task, String> labelFactory = 
+                new PropertyValueFactory<Task, String>(_COLUMN_FIELD_LABEL);
+        _timeColumn.setCellValueFactory(labelFactory);
+        
+        //create 'label' column callback
+        Callback<TableColumn<Task, String>, 
+                 TableCell<Task, String>> labelCallBack = 
+                new Callback<TableColumn<Task, String>, 
+                             TableCell<Task, String>>() {
+                    @Override
+                    public TableCell<Task, String> call(TableColumn<Task, 
+                                                        String> param) {
+                        return new TimeCell();
+                    }
+        };
+        _timeColumn.setCellFactory(labelCallBack);
     }
 
     private void initialiseTaskNameColumn() {
-        taskNameColumn.setCellValueFactory(new PropertyValueFactory<Task, String>(COLUMN_FIELD_CONTENT));
-        taskNameColumn.setCellFactory(new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
-            @Override public TableCell<Task, String> call(TableColumn<Task, String> param) {
-                return new TaskCell();
-            }
-       });
+        PropertyValueFactory<Task, String> contentFactory = 
+                new PropertyValueFactory<Task, String>(_COLUMN_FIELD_CONTENT);
+        _taskNameColumn.setCellValueFactory(contentFactory);
+        
+        //create 'content' column callback
+        Callback<TableColumn<Task, String>, 
+                 TableCell<Task, String>> contentCallBack = 
+                new Callback<TableColumn<Task, String>, 
+                             TableCell<Task, String>>() {
+                    @Override 
+                    public TableCell<Task, String> call(TableColumn<Task, 
+                                                        String> param) {
+                        return new TaskCell();
+                    }
+        };
+        _taskNameColumn.setCellFactory(contentCallBack);
     }
     
     EventHandler<KeyEvent> keyHandlers = new EventHandler<KeyEvent>() {
@@ -143,16 +162,18 @@ public class HomeController {
             KeyCode code = event.getCode();
             switch(code) {
                 case TAB :
-                    customTextField.handleTabKey(event);
+                    _customTextField.handleTabKey(event);
                     break;
                 case ENTER :
-                    customTextField.handleReturnKey();
+                    _customTextField.handleReturnKey();
                     break;
                 case UP :
-                    customTextField.handleDirectionKey(event, GuiUtil.KEY_UP);
+                    _customTextField
+                        .handleDirectionKey(event, GuiUtil.KEY_UP);
                     break;
                 case DOWN :
-                    customTextField.handleDirectionKey(event, GuiUtil.KEY_DOWN);
+                    _customTextField
+                        .handleDirectionKey(event, GuiUtil.KEY_DOWN);
                     break;
                 case F1 :
                     handleF1Key();
@@ -191,13 +212,13 @@ public class HomeController {
         if(receivedString == null) {
             receivedString = GuiUtil.EMPTY_STRING;
         } else if(GuiUtil.isWarning(receivedString)) {
-            statusString.setTextFill(GuiUtil.COLOUR_TEXT_WARNING);
+            _statusString.setTextFill(GuiUtil.COLOUR_TEXT_WARNING);
         } else if(GuiUtil.isError(receivedString)) {
-            statusString.setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
+            _statusString.setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
         } else {
-            statusString.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
+            _statusString.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
         }
-        statusString.setText(receivedString);
+        _statusString.setText(receivedString);
         logger.finer(receivedString);
     }
     
@@ -206,11 +227,11 @@ public class HomeController {
     }
 
     private void handleF2Key() {
-        gui.callLogicCommand(HOTKEY_DISPLAY);
+        gui.callLogicCommand(_HOTKEY_DISPLAY);
     }
     
     private void handleF3Key() {
-        gui.callLogicCommand(HOTKEY_DONE);
+        gui.callLogicCommand(_HOTKEY_DONE);
     }
     
     /*
@@ -220,9 +241,9 @@ public class HomeController {
         String userInput = new String(); 
 
         if(code.isLetterKey()) {
-            userInput = customTextField.getText() + retrieveLetter(code);
+            userInput = _customTextField.getText() + retrieveLetter(code);
         } else if(code.equals(KeyCode.BACK_SPACE)) {
-            userInput = customTextField.getText();
+            userInput = _customTextField.getText();
         } else {
             return;
         }
@@ -256,16 +277,20 @@ public class HomeController {
     
     public void setData() {
         refreshTable();
-        data = gui.getNewData();
-        TaskTable.setItems(data);
-        logger.finer(data.toString());
+        _data = gui.getNewData();
+        _TaskTable.setItems(_data);
+        logger.finer(_data.toString());
     }
     
     private void refreshTable() {
-        TaskTable.getColumns().get(0).setVisible(false);
-        TaskTable.getColumns().get(0).setVisible(true);
+        _TaskTable.getColumns().get(0).setVisible(false);
+        _TaskTable.getColumns().get(0).setVisible(true);
     }
     
+    /**
+     * Private nested class for cells under the task
+     * content column
+     */
     private class TaskCell extends TableCell<Task, String> {
 
         public TaskCell() {
@@ -294,7 +319,7 @@ public class HomeController {
 
             if (GuiUtil.isHeader(item)) {
                 setHeaderStyle();
-            } else if (GuiUtil.isImportant(item, data)) { 
+            } else if (GuiUtil.isImportant(item, _data)) { 
                 setImportantStyle();
             } else {
                setTextStyle();
@@ -320,17 +345,21 @@ public class HomeController {
         }
 
         private void styleStraight() {
-            getStyleClass().remove(STYLE_ITALIC);
-            getStyleClass().add(STYLE_STRAIGHT);
+            getStyleClass().remove(_STYLE_ITALIC);
+            getStyleClass().add(_STYLE_STRAIGHT);
         }
         
         private void styleItalic() {
-            getStyleClass().remove(STYLE_STRAIGHT);
-            getStyleClass().add(STYLE_ITALIC);
+            getStyleClass().remove(_STYLE_STRAIGHT);
+            getStyleClass().add(_STYLE_ITALIC);
         }
         
     }
     
+    /**
+     * Private nested class for cells under the date/time
+     * column
+     */
     private class TimeCell extends TableCell<Task,String> {
 
         public TimeCell() {

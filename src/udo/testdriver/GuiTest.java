@@ -8,11 +8,14 @@ import java.util.GregorianCalendar;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
 import junit.framework.TestCase;
 
 import udo.gui.Gui;
 import udo.storage.Task;
 import udo.storage.Task.TaskType;
+
+//@author A0114906J
 
 /**
  * This Class only tests the order of tasks, displayed time and the 
@@ -31,7 +34,6 @@ import udo.storage.Task.TaskType;
  *  
  */
 
-//@author A0114906J
 public class GuiTest extends TestCase {
     
     public static final String EMPTY_STRING = "";

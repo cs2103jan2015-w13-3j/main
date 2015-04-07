@@ -207,6 +207,7 @@ public class Gui extends Application {
 
     /**
      * Gets the a list of suggestions of words
+     * 
      * @param userInput
      * @return a list of words 
      */
@@ -217,6 +218,7 @@ public class Gui extends Application {
 
     /**
      * Displays the reminder dialog associated with the given task
+     * 
      * @param task
      */
     public void displayAlert(Task task) {

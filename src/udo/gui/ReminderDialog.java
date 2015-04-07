@@ -21,35 +21,37 @@ public class ReminderDialog {
     
     private static final String TITLE = "Reminders";
 
-    private static final double POS_X = 1050;
-    private static final double POS_Y = 10;
-    private static final double POS_WIDTH = 300;
+    private static final double _POS_X = 1050;
+    private static final double _POS_Y = 10;
+    private static final double _POS_WIDTH = 300;
+        
+    private static final int _ARR_SIZE = 4;
     
-    private static final String BUTTON_TEXT = "Open";
+    private static final int _INDEX_TASK_TYPE = 0;
+    private static final int _INDEX_TITLE = 1;
+    private static final int _INDEX_START = 2;
+    private static final int _INDEX_END = 3;
     
-    private static final int ARR_SIZE = 4;
+    private static final String _BUTTON_TEXT = "Open";
+
+    private static final String _MESSAGE_START = "You have ";
+    private static final String _MESSAGE_EVENT_PART_1 = " starting at ";
+    private static final String _MESSAGE_EVENT_PART_2 = " until ";
+    private static final String _MESSAGE_DEADLINE = " due ";
     
-    private static final int INDEX_TASK_TYPE = 0;
-    private static final int INDEX_TITLE = 1;
-    private static final int INDEX_START = 2;
-    private static final int INDEX_END = 3;
-    
-    private static final String MESSAGE_START = "You have ";
-    private static final String MESSAGE_EVENT_PART_1 = " starting at ";
-    private static final String MESSAGE_EVENT_PART_2 = " until ";
-    private static final String MESSAGE_DEADLINE = " due ";
+    private Alert _alert;
+    private TextFlow _textBox;
+    private DialogPane _dialogPane;
     
     /**
-     * you have [content] starting at [xx:xx] until [xx:xx]
-     * you have [content] due on [xx:xx]
+     * Message displayed will have the following format
+     * Event - you have [content] starting at [xx:xx] until [xx:xx]
+     * Deadline - you have [content] due on [xx:xx]
      */
-    private Alert alert;
-    private TextFlow textBox;
-    private DialogPane dialogPane;
     
     public ReminderDialog(Task task) {
-        alert = new Alert(AlertType.INFORMATION);
-        dialogPane = alert.getDialogPane();
+        _alert = new Alert(AlertType.INFORMATION);
+        _dialogPane = _alert.getDialogPane();
         
         customizeDialog(task);
     }
@@ -61,33 +63,33 @@ public class ReminderDialog {
     }
 
     private void removeDefaults(){
-        alert.setGraphic(null);
-        alert.setHeaderText(null);
-        alert.initStyle(StageStyle.UNDECORATED);
-        alert.getButtonTypes().clear();
+        _alert.setGraphic(null);
+        _alert.setHeaderText(null);
+        _alert.initStyle(StageStyle.UNDECORATED);
+        _alert.getButtonTypes().clear();
     }
 
     private void setDisplay(Task task) {
-        alert.setTitle(TITLE);
+        _alert.setTitle(TITLE);
         setLayout();
         String[] taskInfo = getInformation(task);
         setContent(taskInfo);
     }
     
     private void setLayout() {
-        alert.setX(POS_X);
-        alert.setY(POS_Y);
-        dialogPane.setMaxWidth(POS_WIDTH);
+        _alert.setX(_POS_X);
+        _alert.setY(_POS_Y);
+        _dialogPane.setMaxWidth(_POS_WIDTH);
     }
 
     private void setContent(String[] taskInfo) {
-        textBox = completeMessage(taskInfo);       
-        dialogPane.setStyle(GuiUtil.COLOUR_BACKGROUND);              
-        dialogPane.setContent(textBox);       
+        _textBox = completeMessage(taskInfo);       
+        _dialogPane.setStyle(GuiUtil.COLOUR_BACKGROUND);              
+        _dialogPane.setContent(_textBox);       
     }
     
     private TextFlow completeMessage(String[] taskInfo) {
-        String taskType = taskInfo[INDEX_TASK_TYPE];
+        String taskType = taskInfo[_INDEX_TASK_TYPE];
         
         if(taskType == TaskType.EVENT.toString()) {
             return completeMessageEvent(taskInfo);
@@ -99,33 +101,34 @@ public class ReminderDialog {
     private TextFlow completeMessageEvent(String[] taskInfo) {
         ArrayList<Text> textArr = new ArrayList<>();
         
-        textArr.add(new Text(MESSAGE_START));
-        textArr.add(new Text(taskInfo[INDEX_TITLE]));
+        textArr.add(new Text(_MESSAGE_START));
+        textArr.add(new Text(taskInfo[_INDEX_TITLE]));
         
-        textArr.add(new Text(MESSAGE_EVENT_PART_1));
-        textArr.add(new Text(taskInfo[INDEX_START]));
+        textArr.add(new Text(_MESSAGE_EVENT_PART_1));
+        textArr.add(new Text(taskInfo[_INDEX_START]));
         
-        textArr.add(new Text(MESSAGE_EVENT_PART_2));
-        textArr.add(new Text(taskInfo[INDEX_END]));  
+        textArr.add(new Text(_MESSAGE_EVENT_PART_2));
+        textArr.add(new Text(taskInfo[_INDEX_END]));  
         
         setTextStyles(textArr);
-        return createTextBox(textArr, taskInfo[INDEX_TASK_TYPE]);
+        return createTextBox(textArr, taskInfo[_INDEX_TASK_TYPE]);
     }
     
     private TextFlow completeMessageDeadline(String[] taskInfo) {
         ArrayList<Text> textArr = new ArrayList<>();
         
-        textArr.add(new Text(MESSAGE_START));
-        textArr.add(new Text(taskInfo[INDEX_TITLE]));
+        textArr.add(new Text(_MESSAGE_START));
+        textArr.add(new Text(taskInfo[_INDEX_TITLE]));
         
-        textArr.add(new Text(MESSAGE_DEADLINE));
-        textArr.add(new Text(taskInfo[INDEX_START]));
+        textArr.add(new Text(_MESSAGE_DEADLINE));
+        textArr.add(new Text(taskInfo[_INDEX_START]));
         
         setTextStyles(textArr);
-        return createTextBox(textArr, taskInfo[INDEX_TASK_TYPE]);       
+        return createTextBox(textArr, taskInfo[_INDEX_TASK_TYPE]);       
     }
     
-    private TextFlow createTextBox(ArrayList<Text> textArr, String taskType) {
+    private TextFlow createTextBox(ArrayList<Text> textArr, 
+                                   String taskType) {
         if(taskType.equals(TaskType.EVENT.toString())) {
             return new TextFlow(textArr.get(0), textArr.get(1),
                                 textArr.get(2), textArr.get(3),
@@ -152,17 +155,18 @@ public class ReminderDialog {
     }
 
     private void setNormalStyle(Text title) {
-        title.setStyle(GuiUtil.FONT + GuiUtil.SIZE + GuiUtil.COLOUR_WHITE);
+        title.setStyle(GuiUtil.STYLE_FONT + GuiUtil.STYLE_SIZE + 
+                       GuiUtil.COLOUR_WHITE);
         return;
     }
     
     private void setEmphasisedStyle(Text title) {
-        title.setStyle(GuiUtil.FONT + GuiUtil.SIZE + GuiUtil.COLOUR_GREEN);
+        title.setStyle(GuiUtil.STYLE_FONT + GuiUtil.STYLE_SIZE + 
+                       GuiUtil.COLOUR_GREEN);
         return;
     }
     
     /**
-     * The task type should not be of Todo type.
      * 
      * @param task
      * @return An array of string, Array[0] = Task Type
@@ -185,41 +189,41 @@ public class ReminderDialog {
     }
     
     private String[] getDeadlineInformation(Task task) {
-        String[] taskInfo = new String[ARR_SIZE];
-        taskInfo[INDEX_TASK_TYPE] = task.getTaskType().toString();
-        taskInfo[INDEX_TITLE] = task.getContent();
-        taskInfo[INDEX_START] = GuiUtil.guiTimeFormat(task.getDeadline());
-        taskInfo[INDEX_END] = GuiUtil.EMPTY_STRING;
+        String[] taskInfo = new String[_ARR_SIZE];
+        taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
+        taskInfo[_INDEX_TITLE] = task.getContent();
+        taskInfo[_INDEX_START] = GuiUtil.guiTimeFormat(task.getDeadline());
+        taskInfo[_INDEX_END] = GuiUtil.EMPTY_STRING;
         
         return taskInfo;
     }
 
     private String[] getEventInformation(Task task) {
-        String[] taskInfo = new String[ARR_SIZE];
-        taskInfo[INDEX_TASK_TYPE] = task.getTaskType().toString();
-        taskInfo[INDEX_TITLE] = task.getContent();
-        taskInfo[INDEX_START] = GuiUtil.guiDateTimeFormat(task.getStart());
-        taskInfo[INDEX_END] = GuiUtil.guiDateTimeFormat(task.getEnd());
+        String[] taskInfo = new String[_ARR_SIZE];
+        taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
+        taskInfo[_INDEX_TITLE] = task.getContent();
+        taskInfo[_INDEX_START] = GuiUtil.guiDateTimeFormat(task.getStart());
+        taskInfo[_INDEX_END] = GuiUtil.guiDateTimeFormat(task.getEnd());
         
         return taskInfo;
     }
 
     private String[] getTodoInformation(Task task) {
-        String[] taskInfo = new String[ARR_SIZE];
-        taskInfo[INDEX_TASK_TYPE] = task.getTaskType().toString();
-        taskInfo[INDEX_TITLE] = task.getContent();
-        taskInfo[INDEX_START] = GuiUtil.EMPTY_STRING;
-        taskInfo[INDEX_END] = GuiUtil.EMPTY_STRING;
+        String[] taskInfo = new String[_ARR_SIZE];
+        taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
+        taskInfo[_INDEX_TITLE] = task.getContent();
+        taskInfo[_INDEX_START] = GuiUtil.EMPTY_STRING;
+        taskInfo[_INDEX_END] = GuiUtil.EMPTY_STRING;
         
         return taskInfo;
     }
     
     private void setButton() {
-        ButtonType openButton = new ButtonType(BUTTON_TEXT, ButtonData.OK_DONE);
-        alert.getDialogPane().getButtonTypes().addAll(openButton);
+        ButtonType openButton = new ButtonType(_BUTTON_TEXT, ButtonData.OK_DONE);
+        _alert.getDialogPane().getButtonTypes().addAll(openButton);
         
-        final Button btn = (Button) dialogPane.lookupButton(openButton); 
-        btn.setOnAction(new EventHandler<ActionEvent>() {
+        final Button button = (Button) _dialogPane.lookupButton(openButton); 
+        button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                
@@ -228,6 +232,6 @@ public class ReminderDialog {
     }
     
     public void appear(){
-        alert.showAndWait();
+        _alert.showAndWait();
     }
 }

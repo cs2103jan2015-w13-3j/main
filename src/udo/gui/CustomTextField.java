@@ -8,57 +8,63 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 
 //@author A0114906J
+
+/**
+ * This class customises the input field of the graphical user interface
+ * It handle events like up, down, tab keys.
+ *
+ */
 public class CustomTextField {
     
     private static final Logger logger = 
             Logger.getLogger(CustomTextField.class.getName());
     
-    private TextField textField;
-    private HomeController controller_;
+    private TextField _textField;
+    private HomeController _controller;
     
     public CustomTextField(TextField field, HomeController controller) {
-        textField = field;
-        controller_ = controller;
+        _textField = field;
+        _controller = controller;
         logger.setLevel(Level.INFO);
     }
     
     public void setText(String str) {
-        textField.setText(str);
+        _textField.setText(str);
     }
     
     public String getText() {
-        return textField.getText();
+        return _textField.getText();
     }
     
     public void bindKeys(EventHandler<KeyEvent> keyHandlers) {
-        textField.setOnKeyPressed(keyHandlers);
+        _textField.setOnKeyPressed(keyHandlers);
     }
     
     public void handleReturnKey() {
         String text = getText();
     
-        if (controller_.getCommand(text) == true) {
+        if (_controller.getCommand(text) == true) {
             clear();
         }
     }
 
     public void handleTabKey(KeyEvent event) {
         String userInput = getText();
-        String completedStr = controller_.getAutocompleted(userInput);
+        String completedStr = _controller.getAutocompleted(userInput);
         setText(completedStr);
-        textField.end();
+        _textField.end();
         event.consume();
     }
 
     public void handleDirectionKey(KeyEvent event, String direction) {
-        String command = controller_.getCmdHistory(direction);
+        String command = _controller.getCmdHistory(direction);
         logger.finer(command); 
         setText(command);
-        textField.end();
+        _textField.end();
         event.consume();
     }
 
     public void clear() {
-        textField.clear();
+        _textField.clear();
     }
 }

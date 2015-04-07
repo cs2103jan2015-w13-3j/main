@@ -6,8 +6,11 @@ import java.util.List;
 
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
+
 import udo.storage.Task;
 import udo.util.Utility;
+
+//@author A0114906J
 
 /**
  * This class is a Utility class catered for GUI package
@@ -15,7 +18,6 @@ import udo.util.Utility;
  *
  */
 
-//@author A0114906J
 public class GuiUtil {
 
     public static final String EMPTY_STRING = "";
@@ -36,8 +38,8 @@ public class GuiUtil {
     public static final String COLOUR_WHITE = "-fx-fill: white; ";
     public static final String COLOUR_GREEN = "-fx-fill: #1abc9c; ";
 
-    public static final String SIZE = "-fx-font-size: 12.5px; ";
-    public static final String FONT = "-fx-font-family: 'Open Sans', sans-serif; ";
+    public static final String STYLE_SIZE = "-fx-font-size: 12.5px; ";
+    public static final String STYLE_FONT = "-fx-font-family: 'Open Sans', sans-serif; ";
 
     public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     public static SimpleDateFormat dateFormat =
@@ -167,12 +169,18 @@ public class GuiUtil {
         for(int i =0; i < suggestedList.size(); i++) {
             String word = suggestedList.get(i);
             suggestedWords = addWord(suggestedWords, word);
-            if(isLastIndex(suggestedList, i)) {
-                suggestedWords = trimSuggestions(suggestedWords);
-            }
+            suggestedWords = trimIfLastIndex(suggestedList, suggestedWords, i);
         }
         return suggestedWords;
 
+    }
+
+    private static String trimIfLastIndex(List<String> suggestedList,
+            String suggestedWords, int i) {
+        if(isLastIndex(suggestedList, i)) {
+            suggestedWords = trimSuggestions(suggestedWords);
+        }
+        return suggestedWords;
     }
 
     private static boolean isLastIndex(List<String> suggestedList, int i) {
