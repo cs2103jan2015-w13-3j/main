@@ -12,15 +12,15 @@ import org.json.simple.parser.JSONParser;
 import com.google.gson.Gson;
 
 /** File to test reading from and writing to between ArrayList and JSON
- * @author A0112115A
  */
+//@author A0112115A
 public class JsonProcessor{
 
 	public static void main(String args[]) {
 
 	}
 	
-	/*
+	/**
 	 * Java Method to read JSON From File
 	 */
 	public static ArrayList<Task> readJson(String file) throws Exception {
@@ -52,7 +52,7 @@ public class JsonProcessor{
 		return rtList;
 	}
 
-	/* Java Method to write JSON String to file
+	/** Java Method to write JSON String to file
 	 */
 	public static boolean writeJson(String path, ArrayList<Task> myArr) {
 		ArrayList<String> gsonArray = new ArrayList<String>();

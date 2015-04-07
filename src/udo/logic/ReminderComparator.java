@@ -4,9 +4,8 @@ import java.util.Comparator;
 import java.util.GregorianCalendar;
 
 import udo.storage.Task;
-/**
- * @author A0112115A
- */
+//@author A0112115A
+
 public class ReminderComparator implements Comparator<Task> {
 	@Override
 	public int compare(Task task1, Task task2) {

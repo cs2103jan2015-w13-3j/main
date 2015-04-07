@@ -67,8 +67,8 @@ public class Storage {
 
 	/**
 	 * Method performs reading task list from Json file
-	 * @author A0112115A
 	 */
+	//@author A0112115A
 	private void readTaskList() {
 		try {
 			FileReader fr = new FileReader("setting.txt");
@@ -93,9 +93,8 @@ public class Storage {
 		}
 	}
 
-	/**
-	 * @author A0112115A
-	 */
+	/**Create default setting.txt and tasks.json*/
+	//@author A0112115A
 	public void writeSettingDefault() {
 		File settingFile = new File("setting.txt");
 		lastPath = "tasks.json";
@@ -124,8 +123,8 @@ public class Storage {
 	 * change data file's directory
 	 * @param path
 	 * @return true if directory is changed, else false
-	 * @author A0112115A
 	 */
+	//@author A0112115A
 	public boolean chDir(String path) {
 		prevCmd = "chDir";
 		updateLastPath(path);
@@ -134,10 +133,10 @@ public class Storage {
 	}
 
 	/**
-	 * @author A0112115A
 	 * @param path
-	 * @return
+	 * @return true if new directory is successfully registered
 	 */
+	//@author A0112115A
 	private boolean writeNewDir(String path) {
 		if (storeTasks()) {
 			try {
@@ -159,10 +158,10 @@ public class Storage {
 	}
 
 	/**
-	 * @author A0112115A
 	 * @param path
-	 * @return
+	 * @return true if path is updated
 	 */
+	//@author A0112115A
 	private boolean updateLastPath(String path) {
 		prevPath = lastPath;
 		if (path.endsWith(".json"))
@@ -185,11 +184,8 @@ public class Storage {
 		}
 		return true;
 	}
-
-	/**
-	 * @author A0112115A
-	 * @return
-	 */
+	/**Undo change directory and return true if successful*/ 
+	//@author A0112115A
 	public boolean undoChDir() {
 		prevCmd = "";
 		lastPath = prevPath;
