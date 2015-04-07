@@ -16,8 +16,8 @@ public class Storage {
 
 	private static final String REGEX_SPACE = "\\s+";
 	private static final String REGEX_WILDCARD = "\\*";
-	private static final double NEAR_MATCH_RATIO = 4.0;
-	private static final double ROUND_UP = 0.25;
+	private static final double NEAR_MATCH_RATIO = 3.0;
+	private static final double ROUND_UP = 0.4;
 	public static final String EOL = System.getProperty("line.separator");
 
 	private static ArrayList<Task> taskList;
@@ -486,9 +486,9 @@ public class Storage {
 
 	public boolean isWildcardMatched(String tameStr, String cardStr){
 
-		String[] cards = cardStr.split(REGEX_WILDCARD);
+		String[] cards = cardStr.split(REGEX_SPACE);
 		String[] tame = tameStr.split(REGEX_SPACE);
-		int curr = -1;
+		/*int curr = -1;
 		for (int i = 0; i < cards.length; i++){
 			String card = cards[i];
 			if (card.length() > 0){
@@ -519,9 +519,50 @@ public class Storage {
 					return false;
 				}
 			}
+		}*/		
+		int j = 0;
+		for (int i = 0; i < cards.length; i++){
+			if (j == tame.length){
+				return false;
+			}
+
+			boolean isMatch = true;
+
+			if (!cards[i].contains("*") && !compare(cards[i],tame[j])){
+				isMatch = false;
+			} else {
+				String removedCard[] = cards[i].split(REGEX_WILDCARD);
+				String temp = tame[j];
+				if (cards[i].charAt(0) != '*'){
+					int index = firstIndexOf(temp, removedCard[0]);
+					if (index != 0){
+						isMatch = false;
+					} else {
+						temp = temp.substring(removedCard[0].length());
+					}
+				} 
+				if (removedCard.length > 1 && cards[i].charAt(cards[i].length() - 1) !='*'){
+					int index = lastIndexOf(temp, removedCard[removedCard.length-1]);
+					if (index != temp.length() - removedCard[removedCard.length -1].length()){
+						isMatch = false;
+					}	
+				}
+				for (int k = 1; k < removedCard.length; k++){
+					if (removedCard[k].length() > 0){
+						int index = firstIndexOf(temp, removedCard[k]);
+						if (index == -1){
+							isMatch = false;
+						} else {
+							temp = temp.substring(index + removedCard[k].length());
+						}
+					}
+				}
+			}
+			if (!isMatch){
+				i--;
+			}
+			j++;
 		}
-
-
 		return true;
 	}
 
@@ -540,6 +581,26 @@ public class Storage {
 		return true;
 	}
 
+	public int firstIndexOf(String str1, String str2){
+		for (int i = 0; i <= str1.length() - str2.length(); i++){
+			if (compare(str2,str1.substring(i, i + str2.length()))){
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public int lastIndexOf(String str1, String str2){
+		if (str1.length() < str2.length()){
+			return -1;
+		}
+		if (compare(str2,str1.substring(str1.length() - str2.length()))){
+			return str1.length() - str2.length();
+		} else {
+			return -1;
+		}
+	}
+	
 	//near match search using edit distance algorithm
 	public ArrayList<Task> nearMatchSearch(String searchedContent){
 		ArrayList<Task> returnList = new ArrayList<Task>();
@@ -558,7 +619,7 @@ public class Storage {
 
 
 	public boolean isNearMatched(String str1, String str2){
-		if (findDist(str1,str2) <=( int) (str1.length()/4.0 + 0.25)){
+		if (findDist(str1,str2) <=( int) (str1.length()/NEAR_MATCH_RATIO + ROUND_UP)){
 			return true;
 		}
 		String[] newStr1 = str1.trim().split(REGEX_SPACE);
@@ -604,6 +665,7 @@ public class Storage {
 								+ ((str1.charAt(j - 1) == str2.charAt(i - 1)) ? 0 : 1));
 			}
 		}
+		System.out.println(str2 + " to " + str1 +" = " +distance[str2.length()][str1.length()]);
 		return distance[str2.length()][str1.length()];
 	}
 
