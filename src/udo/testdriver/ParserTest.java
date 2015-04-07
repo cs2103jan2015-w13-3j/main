@@ -1,6 +1,6 @@
 package udo.testdriver;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,6 +11,7 @@ import org.junit.Test;
 import udo.logic.InputParser;
 import udo.logic.command.Command;
 
+//@author A0093587M
 public class ParserTest {
     private static final String testsDir = "res/tests/parser/";
 

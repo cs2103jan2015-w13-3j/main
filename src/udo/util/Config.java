@@ -1,5 +1,6 @@
 package udo.util;
 
+//@author A0093587M
 public class Config {
     /** Procedure for adding a new command:
      * Add a new command name string here and keywords.txt

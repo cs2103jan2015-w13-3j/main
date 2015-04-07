@@ -12,6 +12,7 @@ import udo.testdriver.GuiStub;
 import udo.util.Config;
 import udo.util.Utility;
 
+//@author A0093587M
 public class Logic {
     private Gui gui;
     private static Logic logicObj = null;

@@ -15,6 +15,7 @@ import udo.util.Config.CommandName;
 
 import com.joestelmach.natty.DateGroup;
 
+//@author A0093587M
 public class SearchCommand extends Command {
     private static final String STATUS_SEARCH = "Search results for: %s";
 

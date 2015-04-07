@@ -10,6 +10,7 @@ import org.junit.Test;
 import udo.logic.Autocompleter;
 import udo.logic.TernarySearchTree;
 
+//@author A0093587M
 public class AutocompleteTest {
 
     private void setUpTree(TernarySearchTree t) {

@@ -8,6 +8,7 @@ import udo.logic.Logic;
 import udo.storage.Task;
 import udo.util.Config;
 
+//@author A0093587M
 public class DeleteCommand extends Command {
     private static final String STATUS_DELETED = "Task: %s deleted sucessfully";
     private static final String STATUS_ALL_DELETED = "All tasks deleted";
