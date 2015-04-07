@@ -156,7 +156,7 @@ public class Storage {
 				if (path.endsWith("\\"))
 					lastPath = path.concat("Task.json");
 				else
-					lastPath = path.concat("\\"+"Task.json");
+					lastPath = path.concat(File.separator+"Task.json");
 			}
 		}
 		return true;
