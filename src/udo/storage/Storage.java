@@ -67,7 +67,7 @@ public class Storage {
 
 	/**
 	 * Method performs reading task list from Json file
-	 * @author Tue
+	 * @author A0112115A
 	 */
 	private void readTaskList() {
 		try {
@@ -94,11 +94,11 @@ public class Storage {
 	}
 
 	/**
-	 * @author Tue
+	 * @author A0112115A
 	 */
 	public void writeSettingDefault() {
 		File settingFile = new File("setting.txt");
-		lastPath = "task.json";
+		lastPath = "tasks.json";
 		try {
 			taskList = JsonProcessor.readJson(lastPath);
 		}
@@ -124,7 +124,7 @@ public class Storage {
 	 * change data file's directory
 	 * @param path
 	 * @return true if directory is changed, else false
-	 * @author Tue
+	 * @author A0112115A
 	 */
 	public boolean chDir(String path) {
 		prevCmd = "chDir";
@@ -134,7 +134,7 @@ public class Storage {
 	}
 
 	/**
-	 * @author Tue
+	 * @author A0112115A
 	 * @param path
 	 * @return
 	 */
@@ -159,7 +159,7 @@ public class Storage {
 	}
 
 	/**
-	 * @author Tue
+	 * @author A0112115A
 	 * @param path
 	 * @return
 	 */
@@ -168,7 +168,7 @@ public class Storage {
 		if (path.endsWith(".json"))
 			lastPath = path;
 		else {
-			if (!lastPath.equals("task.json")) {
+			if (!lastPath.equals("tasks.json")) {
 				int nameIndex = lastPath.lastIndexOf("\\") +1;
 				String fileName = lastPath.substring(nameIndex, lastPath.length());
 				if (path.endsWith("\\"))
@@ -178,16 +178,16 @@ public class Storage {
 			}
 			else {
 				if (path.endsWith("\\"))
-					lastPath = path.concat("Task.json");
+					lastPath = path.concat("tasks.json");
 				else
-					lastPath = path.concat(File.separator+"Task.json");
+					lastPath = path.concat(File.separator+"tasks.json");
 			}
 		}
 		return true;
 	}
 
 	/**
-	 * @author Tue
+	 * @author A0112115A
 	 * @return
 	 */
 	public boolean undoChDir() {

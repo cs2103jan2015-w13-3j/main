@@ -13,7 +13,9 @@ import java.util.logging.Logger;
 
 import javafx.application.Platform;
 import udo.storage.Task;
-
+/**
+ * @author A0112115A
+ */
 public class Reminder {
     private static final Logger log = Logger
             .getLogger(Reminder.class.getName());

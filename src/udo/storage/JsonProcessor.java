@@ -1,3 +1,4 @@
+
 package udo.storage;
 
 import java.io.FileReader;
@@ -11,6 +12,7 @@ import org.json.simple.parser.JSONParser;
 import com.google.gson.Gson;
 
 /** File to test reading from and writing to between ArrayList and JSON
+ * @author A0112115A
  */
 public class JsonProcessor{
 
