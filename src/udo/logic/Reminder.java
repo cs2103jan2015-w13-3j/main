@@ -13,7 +13,10 @@ import java.util.logging.Logger;
 
 import javafx.application.Platform;
 import udo.storage.Task;
-
+/**
+ * This class carries out the background reminding process
+ */
+//@author A0112115A
 public class Reminder {
     private static final Logger log = Logger
             .getLogger(Reminder.class.getName());

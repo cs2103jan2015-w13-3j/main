@@ -74,6 +74,7 @@ public class Utility {
      * @param calendar
      * @return the string representation or empty string if calendar is null
      */
+  //@author A0112115A
 	public static String calendarToString(Calendar calendar){
 	    if (calendar == null) {
 	        return "";
@@ -87,6 +88,7 @@ public class Utility {
      * @param calendar
      * @return the string representation or empty string if calendar is null
      */
+	//@author A0112115A
 	public static String calendarToString(Calendar calendar,
 	                                      SimpleDateFormat format){
 	    if (calendar == null) {
@@ -101,6 +103,7 @@ public class Utility {
 	 * @return a new calendar or null if dateStr is null or
 	 *         the dateStr's format is invalid
 	 */
+	//@author A0112115A
 	public static GregorianCalendar stringToCalendar(String dateStr) {
 	    try {
 	        if (dateStr == null) {
