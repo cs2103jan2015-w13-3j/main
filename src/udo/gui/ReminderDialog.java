@@ -16,6 +16,7 @@ import javafx.stage.StageStyle;
 import udo.storage.Task;
 import udo.storage.Task.TaskType;
 
+//@author A0114906J
 public class ReminderDialog {
     
     private static final String TITLE = "Reminders";

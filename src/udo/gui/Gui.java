@@ -1,7 +1,9 @@
 package udo.gui;
 
 import java.io.IOException;
+
 import java.net.URL;
+
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,60 +16,61 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
 import udo.logic.Logic;
 import udo.storage.Task;
 import udo.util.Config;
+
+//@author A0114906J
 
 /**
  * This class is the entry point for the application JustU. It provides an
  * interface for the user to interact with and displays corresponding feedback.
  * It initiates the Logic object.
  *
- * @author Sharmine
- *
  */
 
 public class Gui extends Application {
     private static final Logger logger = Logger.getLogger(Gui.class.getName());
 
-    private static final String NAME_APP = "JustU";
+    private static final String _NAME_APP = "JustU";
 
-    private static final int MAX_WORDS = 5;
+    private static final int _MAX_WORDS = 5;
 
-    private static final int OFFSET_DISPLAY = 250;
+    private static final int _OFFSET_DISPLAY = 250;
 
-    private static final String PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
-    private static final String PATH_TO_OVERVIEW = "view/Home.fxml";
-    private static final String PATH_TO_LOGO = "view/logo.png";   
-    private static final String PATH_TO_FONTS =
+    private static final int _ARR_INDEX_0 = 0;
+    private static final int _ARR_INDEX_1 = 1;
+    private static final int _ARR_SIZE = 2;
+    
+    private static final String _PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
+    private static final String _PATH_TO_OVERVIEW = "view/Home.fxml";
+    private static final String _PATH_TO_LOGO = "view/logo.png";   
+    private static final String _PATH_TO_FONTS =
             "http://fonts.googleapis.com/css?family=Open+Sans:" +
             "300italic,400italic,600italic,700,600,400";
+    
+    private static List<Task> _displayList;
+    private static HomeController _controller;
+    private static ObservableList<Task> _taskData;
+    private static GuiFormatter _guiFormatter;
+    private static HelpManual _helpManual;
 
+    private Stage _primaryStage;
+    private BorderPane _rootLayout;
+    private Logic _logic;
 
-    private static List<Task> displayList;
-    private static HomeController controller;
-    private static ObservableList<Task> taskData;
-    private static GuiFormatter guiFormatter;
-    private static HelpManual helpManual;
-
-    private Stage primaryStage;
-    private BorderPane rootLayout;
-    private Logic logic;
-
-    /**
-     * Constructor
-     */
     public Gui() {
-        logic = Logic.getInstance();
-        logic.setGui(this);
-        guiFormatter = GuiFormatter.getInstance();
-        helpManual = new HelpManual();
+        _logic = Logic.getInstance();
+        _logic.setGui(this);
+        _guiFormatter = GuiFormatter.getInstance();
+        _helpManual = new HelpManual();
         logger.setLevel(Level.INFO);
     }
 
     @Override
-    public void start(Stage primaryStage) {
-        setPrimaryStage(primaryStage);
+    public void start(Stage _primaryStage) {
+        setPrimaryStage(_primaryStage);
         setSecondaryStage();
         logger.fine("Gui Initiation Completed");
 
@@ -75,10 +78,10 @@ public class Gui extends Application {
     }
 
     private void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-        Image icon = new Image(Gui.class.getResourceAsStream(PATH_TO_LOGO));
-        this.primaryStage.getIcons().add(icon);
-        this.primaryStage.setTitle(NAME_APP);
+        this._primaryStage = primaryStage;
+        Image icon = new Image(Gui.class.getResourceAsStream(_PATH_TO_LOGO));
+        this._primaryStage.getIcons().add(icon);
+        this._primaryStage.setTitle(_NAME_APP);
     }
 
     private void setSecondaryStage() {
@@ -91,7 +94,7 @@ public class Gui extends Application {
      */
     private void showRootLayout() {
         try {
-            FXMLLoader loader = getLoader(PATH_TO_ROOTLAYOUT);
+            FXMLLoader loader = getLoader(_PATH_TO_ROOTLAYOUT);
             Scene rootScene = getRootScene(loader);
             setSceneAtStage(rootScene);
             logger.finer("Root Layout Initiated");
@@ -102,20 +105,20 @@ public class Gui extends Application {
     }
 
     private Scene getRootScene(FXMLLoader loader) throws IOException {
-        rootLayout = (BorderPane) loader.load();
-        Scene scene = new Scene(rootLayout);
+        _rootLayout = (BorderPane) loader.load();
+        Scene scene = new Scene(_rootLayout);
         addFonts(scene);
         return scene;
     }
 
     private Scene addFonts(Scene scene) {
-        scene.getStylesheets().add(PATH_TO_FONTS);
+        scene.getStylesheets().add(_PATH_TO_FONTS);
         return scene;
     }
 
     private void setSceneAtStage(Scene scene) {
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        _primaryStage.setScene(scene);
+        _primaryStage.show();
     }
 
     /**
@@ -123,7 +126,7 @@ public class Gui extends Application {
      */
     private void showOverview() {
         try {
-            FXMLLoader loader = getLoader(PATH_TO_OVERVIEW);
+            FXMLLoader loader = getLoader(_PATH_TO_OVERVIEW);
             setOverview(loader);
             getControllerAccess(loader);
             logger.finer("Overview Scene Initiated");
@@ -146,22 +149,22 @@ public class Gui extends Application {
     }
 
     private void centerOverview(AnchorPane homeOverview) {
-        rootLayout.setCenter(homeOverview);
+        _rootLayout.setCenter(homeOverview);
     }
 
     private void getControllerAccess(FXMLLoader loader) {
-        controller = loader.getController();
-        controller.setMainApp(this);
+        _controller = loader.getController();
+        _controller.setMainApp(this);
     }
 
     /**
      * Returns the main stage.
      *
-     * @return primaryStage
+     * @return _primaryStage
      */
     @SuppressWarnings("unused")
     private Stage getPrimaryStage() {
-        return primaryStage;
+        return _primaryStage;
     }
 
     /**
@@ -171,11 +174,13 @@ public class Gui extends Application {
      * @return true if userInput is successfully executed
      */
     public boolean callLogicCommand(String userInput) {
-        return logic.executeCommand(userInput) == true;
+        assert(userInput != null);
+        return _logic.executeCommand(userInput) == true;
     }
 
     public String callAutocomplete(String userInput) {
-        String completedStr = logic.autocomplete(userInput);
+        assert(userInput != null);
+        String completedStr = _logic.autocomplete(userInput);
         logger.fine(completedStr);
         return completedStr;
     }
@@ -183,7 +188,7 @@ public class Gui extends Application {
     /**
      * Use the command history in Logic
      *
-     * @param direction
+     * @param direction - up or down 
      * @return the previous or next command depending on the direction
      */
     public String callCmdHistory(String direction) {
@@ -191,34 +196,47 @@ public class Gui extends Application {
 
         String command = new String();
         if(direction.equals(GuiUtil.KEY_UP)) {
-            command = logic.getPreviousCmd();
+            command = _logic.getPreviousCmd();
         } else {
-            command = logic.getNextCmd();
+            command = _logic.getNextCmd();
         }
 
         assert(command != GuiUtil.EMPTY_STRING);
         return command;
     }
 
+    /**
+     * Gets the a list of suggestions of words
+     * @param userInput
+     * @return a list of words 
+     */
     public List<String> callSuggestions(String userInput) {
-        return logic.getSuggestions(userInput, MAX_WORDS);
+        assert(userInput != null);
+        return _logic.getSuggestions(userInput, _MAX_WORDS);
     }
 
+    /**
+     * Displays the reminder dialog associated with the given task
+     * @param task
+     */
     public void displayAlert(Task task) {
         assert(task != null);
         ReminderDialog reminder = new ReminderDialog(task);
         reminder.appear();
         return;
     }
-
+    
+    /**
+     * Displays the help manual 
+     */
     public void displayManual() {
         double pos[] = getLocation();
-        helpManual.setPosition(pos[0] + OFFSET_DISPLAY, pos[1]);
-        helpManual.display();
+        _helpManual.setPosition(pos[0] + _OFFSET_DISPLAY, pos[1]);
+        _helpManual.display();
     }
 
     /**
-     * Called by Logic component to change the status information
+     * Changes the status information to statusString
      *
      * @param statusString
      */
@@ -226,11 +244,11 @@ public class Gui extends Application {
         assert(statusString != null);
         logger.info(statusString);
 
-        controller.displayStatus(statusString);
+        _controller.displayStatus(statusString);
     }
 
     /**
-     * Called by Logic component to display information
+     * Displays receivedList in the GUI
      *
      * @param Object that implements List<Task>
      */
@@ -238,36 +256,36 @@ public class Gui extends Application {
         assert(receivedList != null);
         logger.info(receivedList.toString());
 
-        displayList = receivedList;
-        processReceivedList(displayList);
+        _displayList = receivedList;
+        processReceivedList(_displayList);
         setDataToController();
     }
 
     private void processReceivedList(List<Task> displayList) {
-        guiFormatter.setData(displayList);
-        taskData = guiFormatter.getFormattedData();
-        logger.fine(taskData.toString());
+        _guiFormatter.setData(displayList);
+        _taskData = _guiFormatter.getFormattedData();
+        logger.fine(_taskData.toString());
     }
 
     private void setDataToController() {
-        if(controller != null) {
-            controller.setData();
+        if(_controller != null) {
+            _controller.setData();
         }
     }
 
     /**
-     * Returns the data as an ObservableList of Task
+     * Returns the data as an ObservableList of TaskS
      *
-     * @return taskData
+     * @return _taskData
      */
     public ObservableList<Task> getNewData() {
-        return taskData;
+        return _taskData;
     }
 
     private double[] getLocation() {
-        double[] position = new double[2];
-        position[0] = primaryStage.getX();
-        position[1] = primaryStage.getY();
+        double[] position = new double[_ARR_SIZE];
+        position[_ARR_INDEX_0] = _primaryStage.getX();
+        position[_ARR_INDEX_1] = _primaryStage.getY();
         return position;
     }
 

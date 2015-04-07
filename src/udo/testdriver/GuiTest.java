@@ -28,11 +28,10 @@ import udo.storage.Task.TaskType;
  * 7. Insertion of an event with same start time, same end time
  * 8. Insertion of deadline on the same day with a later time
  * 9. Insertion of same deadline with different content
- * 
- *  @author Sharmine
  *  
  */
 
+//@author A0114906J
 public class GuiTest extends TestCase {
     
     public static final String EMPTY_STRING = "";
@@ -120,9 +119,7 @@ public class GuiTest extends TestCase {
                                     0, null, EMPTY_STRING, false, false);
     }
     
-    /**
-     * Code reuse from Thien
-     */
+    //@author A0093587M-reused
     private void removeExistingTasks() {
         try {
             (new RandomAccessFile("task.json", "rws")).setLength(0);
@@ -131,6 +128,7 @@ public class GuiTest extends TestCase {
         }
     }
     
+    //@author A0114906J
     //Insertion of new headers: Todo header
     public void test1() throws Exception {
         initialise();

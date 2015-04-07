@@ -13,9 +13,9 @@ import udo.util.Utility;
  * This class is a Utility class catered for GUI package
  * mainly.
  *
- * @author Sharmine
- *
  */
+
+//@author A0114906J
 public class GuiUtil {
 
     public static final String EMPTY_STRING = "";

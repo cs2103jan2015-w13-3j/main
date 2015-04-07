@@ -1,6 +1,7 @@
 package udo.gui;
 
 import java.io.IOException;
+
 import java.net.URL;
 
 import javafx.fxml.FXML;
@@ -14,43 +15,41 @@ import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+//@author A0114906J
+
 /**
  * This is the controller class for Help Manual dialog
- * 
- * @author Sharmine
- *
  */
+
 public class HelpManual {
 
+    private static final String _TITLE = "Help Manual";
+    private static final String _PATH_TO_MANUAL = "view/HelpManual.fxml";
+    private static final String _PATH_TO_MANUAL_HTML = "view/HelpManual.html";
+    
+    private static double _xPos;
+    private static double _yPos;
+    
+    private static Stage _dialogStage;
+    
     @FXML
     private WebView web;
 
-    private static Stage dialogStage;
-
-    private static final String TITLE = "Help Manual";
-    private static final String PATH_TO_MANUAL = "view/HelpManual.fxml";
-    private static final String PATH_TO_MANUAL_HTML = "view/HelpManual.html";
-    
-    private static double xPos;
-    private static double yPos;
-
     @FXML
     private void initialize() {
-        //TODO asset(path != null);
         WebEngine webEngine = web.getEngine();
-        String url = HelpManual.class.getResource(PATH_TO_MANUAL_HTML)
-                               .toExternalForm();
+        String url = HelpManual.class.getResource(_PATH_TO_MANUAL_HTML)
+                                     .toExternalForm();
         webEngine.load(url);
-
     }
 
     public void display() {
-        Scene scene = setScene(PATH_TO_MANUAL);
+        Scene scene = setScene(_PATH_TO_MANUAL);
 
-        dialogStage = new Stage();
+        _dialogStage = new Stage();
         setStage(scene);
 
-        dialogStage.showAndWait();
+        _dialogStage.showAndWait();
     }
 
     private Scene setScene(String path) {
@@ -80,25 +79,25 @@ public class HelpManual {
     @FXML
     private void handleEnterPressed(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
-            dialogStage.close();
+            _dialogStage.close();
         }
     }
 
     public void setPosition(double xCoord, double yCoord) {
-        xPos = xCoord;
-        yPos = yCoord;
+        _xPos = xCoord;
+        _yPos = yCoord;
     }
 
     private void setStage(Scene scene) {
-        dialogStage.setTitle(TITLE);
-        dialogStage.initModality(Modality.WINDOW_MODAL);
-        dialogStage.setScene(scene);
+        _dialogStage.setTitle(_TITLE);
+        _dialogStage.initModality(Modality.WINDOW_MODAL);
+        _dialogStage.setScene(scene);
         setStageLocation();
     }
 
     private void setStageLocation() {
-        dialogStage.setX(xPos);
-        dialogStage.setY(yPos);
+        _dialogStage.setX(_xPos);
+        _dialogStage.setY(_yPos);
     }
 
     public HelpManual() {

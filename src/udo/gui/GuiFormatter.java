@@ -11,38 +11,44 @@ import javafx.collections.ObservableList;
 import udo.storage.Task;
 import udo.util.Utility;
 
+//@author A0114906J
+
 /**
  * This class is a singleton and it serves as a helper class for the GUI class.
  * It processes the given list of Tasks into a user-friendly format. It first
  * sorts the list, inserts date headers, serial numbers and formats the time
  * displayed.
- * 
- * @author Sharmine
  *
  */
 
 public class GuiFormatter {
+
+    public static final String HEADER_TODO = "To-Dos";
+
+    private static final Logger logger = 
+            Logger.getLogger(GuiFormatter.class.getName());
     
-    public static final String HEADER_TODO = "To-Dos";    
+    private static final String _SEPARATOR_DASH = " - ";
+    private static final String _SEPARATOR_QUESTION_MARK = "? ";
+    private static final String _SEPARATOR_SPACE = " ";
+    private static final String _SEPARATOR_DOT = ".  ";
     
-    private static final Logger logger = Logger.getLogger(GuiFormatter.class.getName());
-    
-    private static GuiFormatter guiFormatter;
-    private static ArrayList<Task> rawData;
-    
+    private static GuiFormatter _guiFormatter;
+    private static ArrayList<Task> _rawData;
+
     private GuiFormatter() {
-        
+
     }
     
     public static GuiFormatter getInstance() {
-        if(guiFormatter == null) {
-            guiFormatter = new GuiFormatter();
+        if(_guiFormatter == null) {
+            _guiFormatter = new GuiFormatter();
         }
-        return guiFormatter;
+        return _guiFormatter;
     }
     
     public void setData(List<Task> receivedList) {
-        rawData = (ArrayList<Task>) receivedList;
+        _rawData = (ArrayList<Task>) receivedList;
     }
 
     public ObservableList<Task> getFormattedData() {
@@ -54,18 +60,18 @@ public class GuiFormatter {
      * Associate an ArrayList of objects with an ObservableArrayList
      */
     private static ObservableList<Task> convertToObservable() {
-        return FXCollections.observableArrayList(rawData);  
+        return FXCollections.observableArrayList(_rawData);  
     }
     
     private void formatDisplayList() {
-        if (rawData == null) {
+        if (_rawData == null) {
             return;
         }
 
-        Collections.sort(rawData);
+        Collections.sort(_rawData);
         processData();
         formatDateLoop();
-        logger.fine(rawData.toString());
+        logger.fine(_rawData.toString());
     }
     
     private void processData() {
@@ -78,13 +84,13 @@ public class GuiFormatter {
      * and appends important information like serial number
      * and '?' marks for unconfirmed tasks
      * 
-     * @param rawData
+     * @param _rawData
      */
     private void formatDataLoop() {
         
-        for (int i = 0; i < rawData.size(); i++) {
+        for (int i = 0; i < _rawData.size(); i++) {
             int displayIndex = i + 1;
-            Task task = rawData.get(i);
+            Task task = _rawData.get(i);
             
             mapIndex(displayIndex, task.getIndex());
             appendInformation(displayIndex, task);
@@ -103,26 +109,28 @@ public class GuiFormatter {
     }
     
     private void appendSerialNumber(Task task, int counter) {    
-        task.setContent("" + counter + ".  " + task.getContent());
+        task.setContent(GuiUtil.EMPTY_STRING + counter + 
+                        _SEPARATOR_DOT + task.getContent());
     }
 
     private void appendUnconfirmedMarks(Task task) {
         if(GuiUtil.isUnconfirmed(task)) {
-            task.setContent("? " + task.getContent());
+            task.setContent(_SEPARATOR_QUESTION_MARK +
+                            task.getContent());
         }
     }
 
     /**
      * Formats list into a GUI display format, inserts date headers 
-     * and formats stime
+     * and formats time
      */
     private void formatDateLoop() {
 
         String prevHeader = GuiUtil.EMPTY_STRING;
 
-        for (int i = 0; i < rawData.size(); i++) {
+        for (int i = 0; i < _rawData.size(); i++) {
             String header = new String();
-            Task task = rawData.get(i);
+            Task task = _rawData.get(i);
             formatDisplayTime(task);
             
             header = getHeader(task);       
@@ -160,12 +168,11 @@ public class GuiFormatter {
         Task newHeader = new Task(null, header, null,
                                   null, null, 0, null,
                                   GuiUtil.EMPTY_STRING, false, false);
-        rawData.add(i, newHeader);
+        _rawData.add(i, newHeader);
     }
 
     /**
-     * Format the start, end, deadline time into a string for display
-     * 
+     * Formats the start, end, deadline time into a string for display 
      * @param task
      */
     private void formatDisplayTime(Task task) {
@@ -187,7 +194,8 @@ public class GuiFormatter {
                 setDisplayTimeTodo(task);
         }
         
-        logger.finest(task.getContent() + " " + task.getLabel());
+        logger.finest(task.getContent() + _SEPARATOR_SPACE + 
+                      task.getLabel());
     }
 
     private void setDisplayTimeDeadLine(Task task) {
@@ -201,6 +209,6 @@ public class GuiFormatter {
     private void setDisplayTimeEvent(Task task) {
         String start = GuiUtil.guiTimeFormat(task.getStart());
         String end = GuiUtil.getEnd(task);
-        task.setLabel(start + " - " + end);
+        task.setLabel(start + _SEPARATOR_DASH + end);
     }
 }

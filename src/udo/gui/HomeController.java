@@ -21,13 +21,13 @@ import javafx.util.Callback;
 
 import udo.storage.Task;
 
+//@author A0114906J
+
 /**
  * This is the main controller class for the HomePage of the GUI. It controls
  * the data displayed and its styling. It is also the interface between the java
  * objects and its corresponding FXML objects. All user events are also handled by
  * this class
- * 
- * @author Sharmine
  *
  */
 
@@ -281,14 +281,16 @@ public class HomeController {
         }
         
 
-        private void formatCellIfNotEmpty(String item, TableCell<Task, String> tableCell) {      
+        private void formatCellIfNotEmpty(String item,
+                                          TableCell<Task, String> tableCell) {
             if (!tableCell.isEmpty()) {
                 formatCellText(item, tableCell);
             }
         }
 
-        private void formatCellText(String item, TableCell<Task, String> tableCell)
-                throws ClassCastException {
+        private void formatCellText(String item,
+                                    TableCell<Task, String> tableCell) 
+                                    throws ClassCastException {
 
             if (GuiUtil.isHeader(item)) {
                 setHeaderStyle();

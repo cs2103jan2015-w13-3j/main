@@ -144,9 +144,7 @@ public class Task implements Comparable<Task> {
 		this.done = !(this.done);
 	}
 	
-	/**
-	 * @author Thien
-	 */
+	//@author A0093587M
 	@Override
 	public String toString() {
 	    String finalString = "";
@@ -182,10 +180,6 @@ public class Task implements Comparable<Task> {
 		return finalString;
 	}
 	
-	/**
-	 * @author Thien
-	 * @return
-	 */
 	public Task copy() {
 	    Task copy = new Task();
 	    
@@ -205,9 +199,6 @@ public class Task implements Comparable<Task> {
 	    return copy;
 	}
 	
-	/**
-	 * @author Thien
-	 */
 	@Override
 	public int hashCode() {
 	    if (getIndex() == null) {
@@ -217,9 +208,6 @@ public class Task implements Comparable<Task> {
 	    return getIndex();
 	}
 	
-	/**
-	 * @author Thien
-	 */
 	@Override
 	public boolean equals(Object taskObj) {
 	    if (taskObj == null) {
@@ -240,10 +228,8 @@ public class Task implements Comparable<Task> {
 
 	    return index.equals(task.index);
 	}
-	
-	/**
-	 * @author Sharmine
-	 */
+
+	//@author A0114906J
 	@Override
 	public int compareTo(Task task2) {
 	    TaskType taskType = this.getTaskType();
