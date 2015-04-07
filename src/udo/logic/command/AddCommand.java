@@ -64,11 +64,8 @@ public class AddCommand extends Command {
                                               clash.getContent()));
                 }
 
-                if (autocompleter != null) {
-                    autocompleter.addTaskContentToTree(tasks);
-                }
-
-                gui.display(storage.query());
+                updateAutocompleter(tasks);
+                updateGuiTasks();
                 updateReminder();
             }
         }

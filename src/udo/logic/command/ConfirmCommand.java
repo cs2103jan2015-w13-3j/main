@@ -35,7 +35,7 @@ public class ConfirmCommand extends Command {
             setStatus(Logic.formatErrorStr(STATUS_NOT_BLOCKED));
         } else {
             setStatus(getConfirmStatus(confirmedTask));
-            gui.display(storage.query());
+            updateGuiTasks();
             updateReminder();
         }
 

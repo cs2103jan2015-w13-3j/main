@@ -2,8 +2,9 @@ package udo.logic;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -28,6 +29,8 @@ public class Autocompleter {
     // Used to store words extracted from tasks' content
     TernarySearchTree taskContentTree;
 
+    private Logic logic;
+
     private static final int historyMaxSize = 50;
     private List<String> cmdHistory;
     private ListIterator<String> cmdHistoryIter;
@@ -37,13 +40,20 @@ public class Autocompleter {
     private static final Logger log = Logger.getLogger(
                                           Autocompleter.class.getName());
 
-    String dictPath = "res/dict.txt";
-    String keywordsPath = "res/keywords.txt";
+    String dictPath = "/english.txt";
+    String keywordsPath = "/keywords.txt";
+
+    private int tabsCount;
+    private List<String> lastSuggestions;
 
     public Autocompleter() {
+        tabsCount = 0;
+        lastSuggestions = new ArrayList<>();
+
         keywordsTree = new TernarySearchTree();
         dictTree = new TernarySearchTree();
         taskContentTree = new TernarySearchTree();
+        addPrioritizedWords(taskContentTree);
 
         cmdHistory = new LinkedList<String>();
         cmdHistoryIter = cmdHistory.listIterator();
@@ -62,6 +72,8 @@ public class Autocompleter {
         for (Task t : tasks) {
             String[] tokens = t.getContent().split("\\s");
             for (String token : tokens) {
+                token = token.toLowerCase();
+
                 if (!keywordsTree.contains(token) &&
                     !dictTree.contains(token)) {
                     taskContentTree.add(token);
@@ -78,7 +90,10 @@ public class Autocompleter {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new FileReader(keywordsPath));
+            InputStream wordsStream = this.getClass().
+                    getResourceAsStream(keywordsPath);
+            reader = new BufferedReader(new InputStreamReader(wordsStream));
+
             String s = reader.readLine();
 
             while (s != null) {
@@ -108,7 +123,10 @@ public class Autocompleter {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new FileReader(dictPath));
+            InputStream wordsStream = getClass().
+                    getResourceAsStream(dictPath);
+            reader = new BufferedReader(new InputStreamReader(wordsStream));
+
             String s = reader.readLine();
 
             while (s != null) {
@@ -132,6 +150,10 @@ public class Autocompleter {
         }
     }
 
+    public void setLogic(Logic logic) {
+        this.logic = logic;
+    }
+
     /********************************
      * Code for autocompleting words*
      *******************************/
@@ -148,27 +170,6 @@ public class Autocompleter {
     }
 
     /**
-     * Get the last word in a text string, a space optimized version
-     * where the text is tokenized beforehand
-     * @param text
-     * @return
-     */
-    private String getLastWord(String text) {
-        String[] tokens = text.split("\\s");
-
-        if (text.length() == 0 ||
-            Character.isWhitespace(text.charAt(text.length() - 1))) {
-            return "";
-        }
-
-        if (tokens != null && tokens.length > 0) {
-            return tokens[tokens.length - 1];
-        }
-
-        return "";
-    }
-
-    /**
      * Get a list of suggested words that can possible autocompleted
      * from the input text with the maximum of maxWords words in the list
      * @param text
@@ -176,12 +177,14 @@ public class Autocompleter {
      * @return list of suggested words
      */
     public List<String> getSuggestions(String text, Integer maxWords) {
+        tabsCount = 0;
+
         if (maxWords != null && maxWords <= 0) {
-            return new ArrayList<String>();
+            lastSuggestions.clear();
+            return lastSuggestions;
         }
 
-        String lastWord = getLastWord(text);
-        String lastWordLower = lastWord.toLowerCase();
+        String lastWord = getLastWord(text).toLowerCase();
 
         List<String> keywordsList = null;
         List<String> dictWordsList;
@@ -191,7 +194,7 @@ public class Autocompleter {
 
         if (lastWord != null && lastWord.length() > 0) {
             keywordsList = retrieveWords(keywordsTree,
-                                         maxWords, lastWordLower);
+                                         maxWords, lastWord);
             result.addAll(keywordsList);
 
             contentWordsList = retrieveWords(taskContentTree,
@@ -199,15 +202,54 @@ public class Autocompleter {
             result.addAll(contentWordsList);
 
             dictWordsList = retrieveWords(dictTree,
-                                          maxWords, lastWordLower);
+                                          maxWords, lastWord);
             result.addAll(dictWordsList);
         }
 
         if (maxWords != null && result.size() > maxWords) {
-            return result.subList(0, maxWords);
+            lastSuggestions = result.subList(0, maxWords);
+            return lastSuggestions;
         }
 
-        return result;
+        lastSuggestions = result;
+        return lastSuggestions;
+    }
+
+    /**
+     * Get the last word in a text string
+     * @param text
+     * @return the last word in the text or empty string if the last
+     *         character is a white space
+     */
+    private String getLastWord(String text) {
+        if (text.length() == 0 ||
+            Character.isWhitespace(text.charAt(text.length() - 1))) {
+            return "";
+        }
+
+        String[] tokens = text.split("\\s");
+
+        if (tokens != null && tokens.length > 0) {
+            return tokens[tokens.length - 1];
+        }
+
+        return "";
+    }
+
+    /**
+     * Get and return the last word in the text string
+     * Trailing white spaces are ignored
+     * @param text
+     * @return
+     */
+    private String getLastWordIgnoreSpace(String text) {
+        String[] tokens = text.split("\\s");
+
+        if (tokens != null && tokens.length > 0) {
+            return tokens[tokens.length - 1];
+        }
+
+        return "";
     }
 
     /**
@@ -236,10 +278,28 @@ public class Autocompleter {
      * @return the autocompleted string
      */
     public String autocomplete(String text) {
-        List<String> suggestions = getSuggestions(text, 1);
+        List<String> suggestions;
+
+        if (lastSuggestions.size() == 0) {
+            suggestions = getSuggestions(text, 2);
+        } else {
+            suggestions = lastSuggestions;
+        }
 
         if (suggestions.size() > 0) {
-            return dropLastWord(text) + suggestions.get(0);
+            assert(tabsCount < suggestions.size());
+
+            String lastWord = getLastWord(text);
+            String autocompletedWord = suggestions.get(tabsCount);
+
+            if (lastWord.equals(autocompletedWord) && suggestions.size() > 1) {
+                tabsCount = (tabsCount + 1) % suggestions.size();
+                autocompletedWord = suggestions.get(tabsCount);
+            }
+
+            tabsCount = (tabsCount + 1) % suggestions.size();
+
+            return dropLastWord(text) + autocompletedWord;
         }
 
         return text;
@@ -257,17 +317,59 @@ public class Autocompleter {
      * @return autocompleted string
      */
     public String autocomplete(String text, Task task) {
-        String taskStr = taskToCmdStr(task);
+        assert(text != null && text.length() > 0);
 
-        if (text != null && text.length() > 0) {
-            if (Character.isWhitespace(text.charAt(text.length() - 1))) {
-                return text + taskStr;
-            } else {
-                return text + SEPARATOR + taskStr;
+        String[] tokens = text.split("\\s");
+        String autocompletedPart;
+
+        if (tokens.length > 2) {
+            String lastWord = getLastWordIgnoreSpace(text);
+            autocompletedPart = autocompleteOption(lastWord, task);
+
+            if (autocompletedPart.equals("")) {
+                return autocomplete(text);
             }
+        } else {
+            autocompletedPart = taskToCmdStr(task);
         }
 
-        return text;
+        logic.updateGuiStatus("");
+        tabsCount = 0;
+        lastSuggestions.clear();
+
+        if (Character.isWhitespace(text.charAt(text.length() - 1))) {
+            return text + autocompletedPart;
+        } else {
+            return text + SEPARATOR + autocompletedPart;
+        }
+    }
+
+    private String autocompleteOption(String lastWord, Task task) {
+        if (lastWord.length() == 0 ||
+            lastWord.charAt(0) != Config.OPTION_MARKER_CHAR) {
+            return "";
+        }
+
+        lastWord = lastWord.substring(1);
+
+        if (InputParser.isDeadlineOption(lastWord) &&
+            task.getDeadline() != null) {
+            return Utility.calendarToString(task.getDeadline(), fmt);
+        }
+        if (InputParser.isStartOption(lastWord) &&
+            task.getStart() != null) {
+            return Utility.calendarToString(task.getStart(), fmt);
+        }
+        if (InputParser.isEndOption(lastWord) &&
+            task.getEnd() != null) {
+            return Utility.calendarToString(task.getEnd());
+        }
+        if (InputParser.isReminderOption(lastWord) &&
+            task.getReminder() != null) {
+            return Utility.calendarToString(task.getReminder());
+        }
+
+        return "";
     }
 
     /**
@@ -377,7 +479,7 @@ public class Autocompleter {
     private void appendOptionStr(StringBuilder builder,
                                  String option,
                                  String argument) {
-        builder.append(Config.OPTION_MAKER);
+        builder.append(Config.OPTION_MARKER);
         builder.append(option);
         builder.append(SEPARATOR);
 
@@ -386,6 +488,11 @@ public class Autocompleter {
             builder.append(SEPARATOR);
         }
     }
+
+    private void addPrioritizedWords(TernarySearchTree tree) {
+        tree.add("december");
+    }
+
 
     /**
      * Remove the last word from the given text

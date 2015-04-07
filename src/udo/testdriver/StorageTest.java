@@ -16,7 +16,6 @@ import udo.storage.Task.TaskType;
 public class StorageTest {
 
 	private static ArrayList<Task> taskList = new ArrayList<Task>();
-	private static ArrayList<Task> doneTasks = new ArrayList<Task>();
 	private static String storageFile = "task.json";
 	private static Storage st;
 	
@@ -24,7 +23,6 @@ public class StorageTest {
 		clearFile(storageFile);
 		st = new Storage();
 		taskList.clear();
-		doneTasks.clear();
 	}
 	
 	public void clearFile(String fileName) {
@@ -100,7 +98,67 @@ public class StorageTest {
 		taskList.add(task1);
 		assertEquals(taskList, st.query());		//check if deleted task is swapped with last task
 	}
+	
+	@Test
+	public void TestDelMult(){
+		initialize();
+		Task task0 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+				0, new GregorianCalendar(2005,01,02), "work",true, false);
+		Task task1 = new Task(TaskType.TODO, "fighting", null,null, null,
+				120, new GregorianCalendar(2011,01,02), "personal", false, false);
+		Task task2 = new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
+				0, null, "leisure", false, false);
+		assertEquals(false, st.delete(new ArrayList<Integer>())); 		//case of empty list
+		assertEquals(false, st.delete(new ArrayList<Integer>(5)));		//case of index out of bound
+		ArrayList<Integer> del = new ArrayList<Integer>();
+		del.add(null);
+		assertEquals(false, st.delete(del)); 			//case of null index
+		st.add(task0);
+		st.add(task1);
+		st.add(task2);
+		del.clear();
+		del.add(1);
+		
+		ArrayList<Task> expected = new ArrayList<Task>();
+		expected.add(st.query(0));
+		expected.add(st.query(2));
+		expected.get(1).setIndex(1);
+		assertEquals(true, st.delete(del));			// list size =1 
+		assertEquals(expected, st.query());			//check list again
+		st.add(task1);
 
+		del.clear();
+		del.add(1);
+		del.add(0);
+		
+		expected.clear();
+		expected.add(st.query(2));
+		expected.get(0).setIndex(0);
+
+		assertEquals(true,st.delete(del));		//list size >1
+		assertEquals(expected, st.query());			//check list again
+		
+		st.add(task0);
+		st.add(task2);
+		del.add(2);
+		assertEquals(true, st.delete(del));
+		assertEquals(new ArrayList<Task>(), st.query()); 		//case of delete everything
+	
+		st.add(task0);
+		st.add(task1);
+		st.add(task2);
+		del.clear();
+		del.add(0);
+		del.add(0);
+		expected.clear();
+		expected.add(st.query(1));
+		expected.add(st.query(2));
+		expected.get(0).setIndex(0);
+		expected.get(1).setIndex(1);
+		assertEquals(true, st.delete(del));		//case of repeated indices
+		assertEquals(expected, st.query());
+	}
+	
 	@Test
 	public void TestModify(){
 		initialize();
@@ -137,6 +195,24 @@ public class StorageTest {
 		assertEquals(task0, st.query(0));		//general case
 	}
 	
+	@Test
+	public void TestQueryDate(){
+		initialize();
+		Task task0 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,0,01), null, null,
+				0, new GregorianCalendar(2005,01,02), "work",true, false);
+		Task task1 = new Task(TaskType.DEADLINE, "fighting", new GregorianCalendar(2005,0,02),null, null,
+				120, new GregorianCalendar(2011,01,02), "personal", false, false);
+		Task task2 = new Task(TaskType.DEADLINE, "reading books", new GregorianCalendar(2005,0,05),null, null,
+				0, null, "leisure", false, false);
+		st.add(task0);
+		st.add(task1);
+		st.add(task2);
+		ArrayList<Task> expected = new ArrayList<Task>();
+		expected.add(st.query(0));
+		expected.add(st.query(1));
+		assertEquals(expected,st.query(new GregorianCalendar(2005,0,01)));		//general case
+		assertEquals(expected, st.query(new GregorianCalendar(2004, 11, 30)));	//case of last year search
+	}
 	@Test
 	public void TestUndo(){
 		initialize();
@@ -288,6 +364,41 @@ public class StorageTest {
 		expected.add(st.query(2));
 		expected.add(st.query(3));
 		assertEquals(expected, st.search("*ea*"));			//case of wildcard search 															//return multiple outputs
+		
+	}
+
+	@Test
+	public void testDoneMult(){
+		initialize();
+		Task task0 = new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+				0, new GregorianCalendar(2005,01,02), "work",true, false);
+		Task task1 = new Task(TaskType.TODO, "fighting", null,null, null,
+				120, new GregorianCalendar(2011,01,02), "personal", false, false);
+		Task task2 = new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
+				0, null, "leisure", false, false);
+		assertEquals(false, st.markDone(new ArrayList<Integer>()));		//case of empty list
+		assertEquals(false, st.markDone(new ArrayList<Integer>(5)));	//case of out of bound index
+		st.add(task0);
+		st.add(task1);
+		st.add(task2);
+		ArrayList<Integer> done = new ArrayList<Integer>();
+		done.add(null);
+		assertEquals(false, st.markDone(done)); 		//case of null index
+		
+		done.clear();
+		done.add(1);
+		assertEquals(true, st.markDone(done));		//list size =1 
+		assertEquals(true, st.query(1).isDone());	//check list
+	
+		assertEquals(false, st.markDone(done));		//mark done already done
+		
+		done.clear();
+		done.add(2);
+		done.add(0);
+		assertEquals(true, st.markDone(done));
+		for (int i = 0; i < st.query().size(); i++){
+			assertEquals(true, st.query(i).isDone());
+		}
 		
 	}
 }

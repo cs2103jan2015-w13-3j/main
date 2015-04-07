@@ -105,11 +105,19 @@ public class AutocompleteTest {
         Autocompleter autocompleter = new Autocompleter();
 
         assertEquals("add", autocompleter.autocomplete("ad"));
+
+        autocompleter.getSuggestions("sing a song /de", 5);
         assertEquals("sing a song /deadline",
                      autocompleter.autocomplete("sing a song /de"));
+
+        autocompleter.getSuggestions("do homework ", 5);
         assertEquals("do homework ", autocompleter.autocomplete("do homework "));
+
+        autocompleter.getSuggestions("go for meeting /start tomo");
         assertEquals("go for meeting /start tomorrow",
                      autocompleter.autocomplete("go for meeting /start tomo"));
+
+        autocompleter.getSuggestions("submit report /dl next fr");
         assertEquals("submit report /dl next friday",
                      autocompleter.autocomplete("submit report /dl next fr"));
     }

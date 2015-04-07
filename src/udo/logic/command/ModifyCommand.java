@@ -68,7 +68,8 @@ public class ModifyCommand extends Command {
                     setStatus(getClashWarning(task.getContent(),
                                               clash.getContent()));
                 }
-                gui.display(storage.query());
+
+                updateGuiTasks();
                 updateReminder();
             }
         }

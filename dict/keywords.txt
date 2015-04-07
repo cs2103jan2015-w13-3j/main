@@ -4,7 +4,7 @@ delete
 display
 search
 done
-chdir
+cd
 undo
 confirm
 dd
@@ -26,6 +26,8 @@ dd
 /f
 /done
 /do
+/overdue
+/o
 monday
 tuesday
 wednesday
@@ -44,4 +46,3 @@ august
 september
 october
 november
-december

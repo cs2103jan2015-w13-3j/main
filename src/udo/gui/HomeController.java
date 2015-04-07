@@ -1,6 +1,5 @@
 package udo.gui;
 
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,8 +18,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
+
 import udo.storage.Task;
-import udo.storage.Task.TaskType;
 
 /**
  * This is the main controller class for the HomePage of the GUI. It controls
@@ -172,14 +171,17 @@ public class HomeController {
     };
     
     public String getAutocompleted(String userInput) {
+        assert(userInput != null);
         return gui.callAutocomplete(userInput);
     }
     
     public boolean getCommand(String userInput) {
+        assert(userInput != null);
         return gui.callLogicCommand(userInput) == true;
     }
     
     public String getCmdHistory(String direction) {
+        assert(direction != null);
         return gui.callCmdHistory(direction);
     }
     
@@ -200,19 +202,15 @@ public class HomeController {
     }
     
     private void handleF1Key() {
+        gui.displayManual();
+    }
+
+    private void handleF2Key() {
         gui.callLogicCommand(HOTKEY_DISPLAY);
     }
     
-    private void handleF2Key() {
-        gui.callLogicCommand(HOTKEY_DONE);
-    }
-    
-    //TODO be removed
     private void handleF3Key() {
-        Task currDayDeadline5pm = new Task(TaskType.DEADLINE, "hand in work",
-                new GregorianCalendar(2015, 02, 20, 17, 0), null, null, 0,
-                null, GuiUtil.EMPTY_STRING, false, false);
-        gui.displayAlert(currDayDeadline5pm);
+        gui.callLogicCommand(HOTKEY_DONE);
     }
     
     /*
@@ -230,7 +228,7 @@ public class HomeController {
         }
         
         String suggestedWords = getSuggestedWords(userInput);
-        statusString.setText(suggestedWords);
+        displayStatus(suggestedWords);
         
         logger.finer(suggestedWords.toString());
     }

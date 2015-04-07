@@ -2,21 +2,21 @@ package udo.logic.command;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import udo.gui.Gui;
-import udo.logic.Autocompleter;
 import udo.logic.InputParser;
 import udo.logic.Logic;
-import udo.logic.Reminder;
 import udo.storage.Storage;
 import udo.storage.Task;
 import udo.storage.Task.TaskType;
@@ -30,6 +30,9 @@ public abstract class Command {
         public Date[] dateArgument;
         public Integer timeArgument;
     }
+
+    public static final String ERR_INVALID_RANGE = "invalid index range";
+    public static final String INDEX_RANGE_MARKER = "-";
 
     protected static final DateFormat DATE_FORMAT =
             new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
@@ -46,10 +49,8 @@ public abstract class Command {
 
     protected String status;
 
-    protected Gui gui;
+    protected Logic logic;
     protected Storage storage;
-    protected Autocompleter autocompleter;
-    protected Reminder reminder;
 
     private static final Logger log = Logger.getLogger(Command.class.getName());
 
@@ -97,66 +98,17 @@ public abstract class Command {
         this.status = status;
     }
 
-    public void setGui(Gui gui) {
-        this.gui = gui;
+    public void setLogic(Logic logic) {
+        this.logic = logic;
     }
 
     public void setStorage(Storage storage) {
         this.storage = storage;
     }
 
-    public void setReminder(Reminder reminder) {
-        this.reminder = reminder;
-    }
-
-    public void setAutocompleter(Autocompleter completer) {
-        this.autocompleter = completer;
-    }
-
     protected boolean parseArg(String argStr) {
         this.argStr = argStr;
         return true;
-    }
-
-    /**
-     * Parse an argument which consists of an index and some string content
-     * @param extractCmdArg
-     * @param resultCommand
-     * @return true if the argument format is valid or false otherwise
-     */
-    protected boolean parseIndexContentPair(String extractCmdArg) {
-        if (extractCmdArg == null) {
-            return false;
-        }
-
-        int idxEnd = extractIndex(extractCmdArg);
-        if (idxEnd < 0) {
-            return false;
-        }
-
-        this.argStr = extractCmdArg.substring(idxEnd).trim();
-        return true;
-    }
-
-    /**
-     * Extract the task's index from the command's argument and store
-     * it in the argIndex component of resultCommand
-     * @param extractCmdArg
-     * @param resultCommand
-     * @return the end position of the index in the argument string
-     *          or -1 if the index cannot be found
-     */
-    private int extractIndex(String extractCmdArg) {
-        Matcher indexMatcher = indexPattern.matcher(extractCmdArg);
-
-        if (indexMatcher.find()) {
-            this.argIndex = Integer.parseInt(indexMatcher.group());
-            return indexMatcher.end();
-        } else {
-            setStatus(InputParser.ERR_UNSPECIFIED_INDEX);
-            this.argIndex = null;
-            return -1;
-        }
     }
 
     /**
@@ -180,7 +132,7 @@ public abstract class Command {
      * @return true if valid, false otherwise
      */
     public boolean execute() {
-        assert(gui != null);
+        assert(logic != null);
         assert(storage != null);
 
         if (!isValid()) {
@@ -208,6 +160,25 @@ public abstract class Command {
      */
     public Integer getStorageIndex(Integer argIndex) {
         return Utility.getStorageIndex(argIndex);
+    }
+
+    /**
+     * Map an array of displayed indices to storage indices
+     * @return
+     */
+    protected List<Integer> mapIndexArray(Integer[] indices) {
+        List<Integer> storageIndices = new ArrayList<>();
+
+        for (int i : indices) {
+            Integer index = getStorageIndex(i);
+            if (index == null) {
+                setStatus(Logic.formatErrorStr(Logic.ERR_INVALID_INDEX));
+                return null;
+            }
+
+            storageIndices.add(index);
+        }
+        return storageIndices;
     }
 
     /**
@@ -360,9 +331,9 @@ public abstract class Command {
         return true;
     }
 
-    /*********************************************************
+    /***************************************************************
      * Helper methods for filling in fields in Task data structure *
-     * ******************************************************/
+     * *************************************************************/
 
     /**
      * Extract data from the parsed command and fill in the task
@@ -536,12 +507,131 @@ public abstract class Command {
                                                     task, clashedTask));
     }
 
-    public void updateGUIStatus() {
-        gui.displayStatus(getStatus());
+    /********************************************************
+     * Methods for refecting changes on external components *
+     ********************************************************/
+
+    protected void updateGuiTasks() {
+        logic.updateGuiTasks(storage.query());
     }
 
-    public void updateReminder() {
-        reminder.updateTasks(storage.query());
+    protected void updateGuiTasks(List<Task> tasks) {
+        logic.updateGuiTasks(tasks);
+    }
+
+    protected void updateGUIStatus() {
+        logic.updateGuiStatus(getStatus());
+    }
+
+    protected void updateReminder() {
+        logic.updateReminder();
+    }
+
+    protected void updateAutocompleter(List<Task> tasks) {
+        logic.updateAutocompleter(tasks);
+    }
+
+    /***********************************************
+     * Helper methods for command specific parsing *
+     ***********************************************/
+
+    /**
+     * Parse an argument which consists of an index and some string content
+     * @param extractCmdArg
+     * @param resultCommand
+     * @return true if the argument format is valid or false otherwise
+     */
+    protected boolean parseIndexContentPair(String extractCmdArg) {
+        if (extractCmdArg == null) {
+            return false;
+        }
+
+        int idxEnd = extractIndex(extractCmdArg);
+        if (idxEnd < 0) {
+            return false;
+        }
+
+        this.argStr = extractCmdArg.substring(idxEnd).trim();
+        return true;
+    }
+
+    /**
+     * Extract the task's index from the command's argument and store
+     * it in the argIndex component of resultCommand
+     * @param extractCmdArg
+     * @param resultCommand
+     * @return the end position of the index in the argument string
+     *          or -1 if the index cannot be found
+     */
+    private int extractIndex(String extractCmdArg) {
+        Matcher indexMatcher = indexPattern.matcher(extractCmdArg);
+
+        if (indexMatcher.find()) {
+            this.argIndex = Integer.parseInt(indexMatcher.group());
+            return indexMatcher.end();
+        } else {
+            setStatus(InputParser.ERR_UNSPECIFIED_INDEX);
+            this.argIndex = null;
+            return -1;
+        }
+    }
+
+    /**
+     * Parse multiple indices or index range from command argument string
+     * @param arg
+     * @return
+     */
+    protected Integer[] parseIndices(String arg) {
+        Set<Integer> indices = new HashSet<>();
+        String[] indicesStr = arg.split("\\s*(\\s|,)\\s*");
+
+        for (String s : indicesStr) {
+            if (s.contains(INDEX_RANGE_MARKER)) {
+                if (!getIndexRange(s, indices)) {
+                    return null;
+                }
+            } else {
+                try {
+                    indices.add(Integer.parseInt(s));
+                } catch (NumberFormatException e){
+                    setStatus(InputParser.ERR_INVALID_INT_FORMAT);
+                    log.log(Level.FINE, getStatus());
+                    return null;
+                }
+            }
+        }
+
+        return indices.toArray(new Integer[indices.size()]);
+    }
+
+    /**
+     * Add all indices specified by the range syntax 'from-to' to the set indices
+     * @param s the range string
+     * @param indices
+     * @return true if the range is valid or false otherwise
+     */
+    protected boolean getIndexRange(String s, Set<Integer> indices) {
+        String[] range = s.split(INDEX_RANGE_MARKER);
+
+        if (range.length != 2) {
+            setStatus(ERR_INVALID_RANGE);
+            return false;
+        }
+
+        try {
+            int from = Integer.parseInt(range[0]);
+            int to = Integer.parseInt(range[1]);
+
+            for (int i = from; i <= to; i++) {
+                indices.add(i);
+            }
+        } catch (NumberFormatException e) {
+            setStatus(InputParser.ERR_INVALID_INT_FORMAT);
+            log.log(Level.FINE, getStatus());
+            return false;
+        }
+
+        return true;
     }
 
     @Override

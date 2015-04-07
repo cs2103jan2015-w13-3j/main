@@ -19,8 +19,8 @@ public class Logic {
     private Reminder reminder;
 
     private static final String ERR_FORMAT = "Error: %s";
-    public static final String ERR_INVALID_CMD_NAME = "Invalid command name";
-    public static final String ERR_UNSUPPORTED_CMD = "Unsupported command";
+    public static final String ERR_INVALID_CMD_NAME = "invalid command name";
+    public static final String ERR_UNSUPPORTED_CMD = "unsupported command";
     public static final String ERR_INVALID_CMD_ARG =
             "invalid command's argument";
     public static final String ERR_UNSPECIFIED_INDEX =
@@ -59,6 +59,10 @@ public class Logic {
         reminder.updateTasks(storage.query());
     }
 
+    /**
+     * For other components to get a single instance of logic
+     * @return
+     */
     public static Logic getInstance() {
         if (logicObj == null) {
             logicObj = new Logic();
@@ -67,9 +71,15 @@ public class Logic {
         return logicObj;
     }
 
+    /**
+     * This method is used to give logic a Gui instance so that
+     * it can reflect changes on the gui after certain execution
+     * @param guiObj
+     */
     public void setGui(Gui guiObj) {
         gui = guiObj;
-        reminder.setGui(gui);
+        reminder.setLogic(this);
+        autocompleter.setLogic(this);
     }
 
     /**
@@ -93,10 +103,8 @@ public class Logic {
 
         log.log(Level.FINER, parsedCommand.toString(), parsedCommand);
 
-        parsedCommand.setGui(gui);
+        parsedCommand.setLogic(this);
         parsedCommand.setStorage(storage);
-        parsedCommand.setReminder(reminder);
-        parsedCommand.setAutocompleter(autocompleter);
 
         return parsedCommand.execute();
     }
@@ -138,7 +146,7 @@ public class Logic {
 
     private Task getModifyTask(String text) {
         String[] tokens = text.split("\\s");
-        assert(tokens.length == 2);
+        assert(tokens.length >= 2);
 
         try {
             Integer displayIndex = Integer.parseInt(tokens[1]);
@@ -165,7 +173,7 @@ public class Logic {
     private boolean isStartOfModifyCmd(String text) {
         String[] tokens = text.split("\\s");
 
-        if (tokens.length == 2) {
+        if (tokens.length >= 2) {
             if (tokens[0].equals(Config.CMD_STR_MODIFY)) {
                 return true;
             }
@@ -186,6 +194,34 @@ public class Logic {
      */
     public String getNextCmd() {
         return autocompleter.getNextCmd();
+    }
+
+    /**********************************************
+     * Methods for logic's internal components to *
+     * communicate with other external components *
+     **********************************************/
+
+    public void updateGuiStatus(String status) {
+        assert(gui != null);
+        gui.displayStatus(status);
+    }
+
+    public void updateGuiTasks(List<Task> tasks) {
+        assert(gui != null);
+        gui.display(tasks);
+    }
+
+    public void callGuiAlert(Task task) {
+        assert(gui != null);
+        gui.displayAlert(task);
+    }
+
+    public void updateReminder() {
+        reminder.updateTasks(storage.query());
+    }
+
+    public void updateAutocompleter(List<Task> tasks) {
+        autocompleter.addTaskContentToTree(tasks);
     }
 
     /**

@@ -54,7 +54,7 @@ public class Utility {
         return indexMap.get(displayIndex);
     }
 
-    public static void setToStartOfDay(GregorianCalendar start) {
+    public static void setToStartOfDay(Calendar start) {
         start.set(GregorianCalendar.HOUR_OF_DAY, 0);
         start.set(GregorianCalendar.MINUTE, 0);
     }
@@ -63,7 +63,7 @@ public class Utility {
      * Set a Gregorian calendar to end of the day i.e 23:59pm
      * @param end
      */
-    public static void setToEndOfDay(GregorianCalendar end) {
+    public static void setToEndOfDay(Calendar end) {
         end.set(GregorianCalendar.HOUR_OF_DAY, 23);
         end.set(GregorianCalendar.MINUTE, 59);
     }
@@ -73,7 +73,7 @@ public class Utility {
      * @param calendar
      * @return the string representation or empty string if calendar is null
      */
-	public static String calendarToString(GregorianCalendar calendar){
+	public static String calendarToString(Calendar calendar){
 	    if (calendar == null) {
 	        return "";
 	    }
@@ -86,7 +86,7 @@ public class Utility {
      * @param calendar
      * @return the string representation or empty string if calendar is null
      */
-	public static String calendarToString(GregorianCalendar calendar,
+	public static String calendarToString(Calendar calendar,
 	                                      SimpleDateFormat format){
 	    if (calendar == null) {
 	        return "";
@@ -127,5 +127,4 @@ public class Utility {
         return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                 cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
-
 }
