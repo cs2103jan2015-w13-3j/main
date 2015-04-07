@@ -488,38 +488,7 @@ public class Storage {
 
 		String[] cards = cardStr.split(REGEX_SPACE);
 		String[] tame = tameStr.split(REGEX_SPACE);
-		/*int curr = -1;
-		for (int i = 0; i < cards.length; i++){
-			String card = cards[i];
-			if (card.length() > 0){
-				String[] temp = card.trim().split(REGEX_SPACE);
-				int cardIndex = 0;
-
-				int tameIndex = curr+1;
-				boolean cont = false;
-				while (cardIndex < temp.length && tameIndex < tame.length){
-					if (compare(temp[cardIndex], tame[tameIndex])){
-						curr = tameIndex;
-						cardIndex++;
-						tameIndex++;
-
-						cont = true;
-
-					} else {
-						if (cont == true){
-							cont = false;
-							cardIndex = 0;
-						}
-						if (cardIndex == 0){
-							tameIndex++;
-						}
-					}
-				}
-				if (cardIndex < temp.length){
-					return false;
-				}
-			}
-		}*/		
+			
 		int j = 0;
 		for (int i = 0; i < cards.length; i++){
 			if (j == tame.length){
