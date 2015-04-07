@@ -38,9 +38,7 @@ public class JsonProcessorTest {
 		}
 	}
 
-	/**code reuse
-	 * @author Thien
-	 */
+	//@author A0093587M-reused
 	public String readFile(String filename) {
 		String result = null;
 
@@ -52,7 +50,8 @@ public class JsonProcessorTest {
 
 		return result;
 	}
-
+	
+	//@author A0112115A
 	@Test
 	public void writeJsonTest() {
 		clearFile(storageFile);

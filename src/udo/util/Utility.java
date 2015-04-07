@@ -118,7 +118,7 @@ public class Utility {
         }
 	}
 
-
+    //@author A0093587M
 	public static ArrayList<Task> deepCopy(List<Task> firstCopy) {
 	    ArrayList<Task> copy = new ArrayList<>();
 	    for(Task element : firstCopy) {
@@ -126,7 +126,8 @@ public class Utility {
 	    }
 	    return copy;
 	}
-
+	
+	//@author A0114906J
 	public static boolean isSameDate(GregorianCalendar cal1,
 	                                 GregorianCalendar cal2) {
         return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&

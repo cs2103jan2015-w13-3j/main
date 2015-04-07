@@ -1,0 +1,2058 @@
+//@author: a0114906j
+
+
+
+	/**
+	 * origin: src\udo\gui\CustomTextField.java
+	 */
+
+
+/**
+ * This class customises the input field of the graphical user interface
+ * It handle events like up, down, tab keys.
+ *
+ */
+public class CustomTextField {
+    
+    private static final Logger logger = 
+            Logger.getLogger(CustomTextField.class.getName());
+    
+    private TextField _textField;
+    private HomeController _controller;
+    
+    public CustomTextField(TextField field, HomeController controller) {
+        _textField = field;
+        _controller = controller;
+        logger.setLevel(Level.INFO);
+    }
+    
+    public void setText(String str) {
+        _textField.setText(str);
+    }
+    
+    public String getText() {
+        return _textField.getText();
+    }
+    
+    public void bindKeys(EventHandler<KeyEvent> keyHandlers) {
+        _textField.setOnKeyPressed(keyHandlers);
+    }
+    
+    public void handleReturnKey() {
+        String text = getText();
+    
+        if (_controller.getCommand(text) == true) {
+            clear();
+        }
+    }
+
+    public void handleTabKey(KeyEvent event) {
+        String userInput = getText();
+        String completedStr = _controller.getAutocompleted(userInput);
+        setText(completedStr);
+        _textField.end();
+        event.consume();
+    }
+
+    public void handleDirectionKey(KeyEvent event, String direction) {
+        String command = _controller.getCmdHistory(direction);
+        logger.finer(command); 
+        setText(command);
+        _textField.end();
+        event.consume();
+    }
+
+    public void clear() {
+        _textField.clear();
+    }
+}
+
+	// End of segment: src\udo\gui\CustomTextField.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\gui\Gui.java
+	 */
+
+
+/**
+ * This class is the entry point for the application JustU. It provides an
+ * interface for the user to interact with and displays corresponding feedback.
+ * It initiates the Logic object.
+ *
+ */
+
+public class Gui extends Application {
+    private static final Logger logger = Logger.getLogger(Gui.class.getName());
+
+    private static final String _NAME_APP = "JustU";
+
+    private static final int _MAX_WORDS = 5;
+
+    private static final int _OFFSET_DISPLAY = 250;
+
+    private static final int _ARR_INDEX_0 = 0;
+    private static final int _ARR_INDEX_1 = 1;
+    private static final int _ARR_SIZE = 2;
+    
+    private static final String _PATH_TO_ROOTLAYOUT = "view/RootLayout.fxml";
+    private static final String _PATH_TO_OVERVIEW = "view/Home.fxml";
+    private static final String _PATH_TO_LOGO = "view/logo.png";   
+    private static final String _PATH_TO_FONTS =
+            "http://fonts.googleapis.com/css?family=Open+Sans:" +
+            "300italic,400italic,600italic,700,600,400";
+    
+    private static List<Task> _displayList;
+    private static HomeController _controller;
+    private static ObservableList<Task> _taskData;
+    private static GuiFormatter _guiFormatter;
+    private static HelpManual _helpManual;
+
+    private Stage _primaryStage;
+    private BorderPane _rootLayout;
+    private Logic _logic;
+
+    public Gui() {
+        _logic = Logic.getInstance();
+        _logic.setGui(this);
+        _guiFormatter = GuiFormatter.getInstance();
+        _helpManual = new HelpManual();
+        logger.setLevel(Level.INFO);
+    }
+
+    @Override
+    public void start(Stage _primaryStage) {
+        setPrimaryStage(_primaryStage);
+        setSecondaryStage();
+        logger.fine("Gui Initiation Completed");
+
+        callLogicCommand(Config.CMD_STR_DISPLAY);
+    }
+
+    private void setPrimaryStage(Stage primaryStage) {
+        this._primaryStage = primaryStage;
+        Image icon = new Image(Gui.class.getResourceAsStream(_PATH_TO_LOGO));
+        this._primaryStage.getIcons().add(icon);
+        this._primaryStage.setTitle(_NAME_APP);
+    }
+
+    private void setSecondaryStage() {
+        showRootLayout();
+        showOverview();
+    }
+
+    /**
+     * Initializes the root layout.
+     */
+    private void showRootLayout() {
+        try {
+            FXMLLoader loader = getLoader(_PATH_TO_ROOTLAYOUT);
+            Scene rootScene = getRootScene(loader);
+            setSceneAtStage(rootScene);
+            logger.finer("Root Layout Initiated");
+
+        } catch (IOException e) {
+            logger.severe(e.toString());
+        }
+    }
+
+    private Scene getRootScene(FXMLLoader loader) throws IOException {
+        _rootLayout = (BorderPane) loader.load();
+        Scene scene = new Scene(_rootLayout);
+        addFonts(scene);
+        return scene;
+    }
+
+    private Scene addFonts(Scene scene) {
+        scene.getStylesheets().add(_PATH_TO_FONTS);
+        return scene;
+    }
+
+    private void setSceneAtStage(Scene scene) {
+        _primaryStage.setScene(scene);
+        _primaryStage.show();
+    }
+
+    /**
+     * Shows overview inside the root layout.
+     */
+    private void showOverview() {
+        try {
+            FXMLLoader loader = getLoader(_PATH_TO_OVERVIEW);
+            setOverview(loader);
+            getControllerAccess(loader);
+            logger.finer("Overview Scene Initiated");
+
+        } catch (IOException e) {
+            logger.severe(e.toString());
+        }
+    }
+
+    private void setOverview(FXMLLoader loader) throws IOException {
+        AnchorPane homeOverview = (AnchorPane) loader.load();
+        centerOverview(homeOverview);
+    }
+
+    private FXMLLoader getLoader(String path) {
+        URL url = Gui.class.getResource(path);
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(url);
+        return loader;
+    }
+
+    private void centerOverview(AnchorPane homeOverview) {
+        _rootLayout.setCenter(homeOverview);
+    }
+
+    private void getControllerAccess(FXMLLoader loader) {
+        _controller = loader.getController();
+        _controller.setMainApp(this);
+    }
+
+    /**
+     * Returns the main stage.
+     *
+     * @return _primaryStage
+     */
+    @SuppressWarnings("unused")
+    private Stage getPrimaryStage() {
+        return _primaryStage;
+    }
+
+    /**
+     * Calls the execution command in Logic
+     *
+     * @param userInput
+     * @return true if userInput is successfully executed
+     */
+    public boolean callLogicCommand(String userInput) {
+        assert(userInput != null);
+        return _logic.executeCommand(userInput) == true;
+    }
+
+    public String callAutocomplete(String userInput) {
+        assert(userInput != null);
+        String completedStr = _logic.autocomplete(userInput);
+        logger.fine(completedStr);
+        return completedStr;
+    }
+
+    /**
+     * Use the command history in Logic
+     *
+     * @param direction - up or down 
+     * @return the previous or next command depending on the direction
+     */
+    public String callCmdHistory(String direction) {
+        assert(direction != null);
+
+        String command = new String();
+        if(direction.equals(GuiUtil.KEY_UP)) {
+            command = _logic.getPreviousCmd();
+        } else {
+            command = _logic.getNextCmd();
+        }
+
+        assert(command != GuiUtil.EMPTY_STRING);
+        return command;
+    }
+
+    /**
+     * Gets the a list of suggestions of words
+     * 
+     * @param userInput
+     * @return a list of words 
+     */
+    public List<String> callSuggestions(String userInput) {
+        assert(userInput != null);
+        return _logic.getSuggestions(userInput, _MAX_WORDS);
+    }
+
+    /**
+     * Displays the reminder dialog associated with the given task
+     * 
+     * @param task
+     */
+    public void displayAlert(Task task) {
+        assert(task != null);
+        ReminderDialog reminder = new ReminderDialog(task);
+        reminder.appear();
+        return;
+    }
+    
+    /**
+     * Displays the help manual 
+     */
+    public void displayManual() {
+        double pos[] = getLocation();
+        _helpManual.setPosition(pos[0] + _OFFSET_DISPLAY, pos[1]);
+        _helpManual.display();
+    }
+
+    /**
+     * Changes the status information to statusString
+     *
+     * @param statusString
+     */
+    public void displayStatus(String statusString) {
+        assert(statusString != null);
+        logger.info(statusString);
+
+        _controller.displayStatus(statusString);
+    }
+
+    /**
+     * Displays receivedList in the GUI
+     *
+     * @param Object that implements List<Task>
+     */
+    public void display(List<Task> receivedList) {
+        assert(receivedList != null);
+        logger.info(receivedList.toString());
+
+        _displayList = receivedList;
+        processReceivedList(_displayList);
+        setDataToController();
+    }
+
+    private void processReceivedList(List<Task> displayList) {
+        _guiFormatter.setData(displayList);
+        _taskData = _guiFormatter.getFormattedData();
+        logger.fine(_taskData.toString());
+    }
+
+    private void setDataToController() {
+        if(_controller != null) {
+            _controller.setData();
+        }
+    }
+
+    /**
+     * Returns the data as an ObservableList of TaskS
+     *
+     * @return _taskData
+     */
+    public ObservableList<Task> getNewData() {
+        return _taskData;
+    }
+
+    private double[] getLocation() {
+        double[] position = new double[_ARR_SIZE];
+        position[_ARR_INDEX_0] = _primaryStage.getX();
+        position[_ARR_INDEX_1] = _primaryStage.getY();
+        return position;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+
+	// End of segment: src\udo\gui\Gui.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\gui\GuiFormatter.java
+	 */
+
+
+/**
+ * This class is a singleton and it serves as a helper class for the GUI class.
+ * It processes the given list of Tasks into a user-friendly format. It first
+ * sorts the list, inserts date headers, serial numbers and formats the time
+ * displayed.
+ *
+ */
+
+public class GuiFormatter {
+
+    public static final String HEADER_TODO = "To-Dos";
+
+    private static final Logger logger = 
+            Logger.getLogger(GuiFormatter.class.getName());
+    
+    private static final String _SEPARATOR_DASH = " - ";
+    private static final String _SEPARATOR_QUESTION_MARK = "? ";
+    private static final String _SEPARATOR_SPACE = " ";
+    private static final String _SEPARATOR_DOT = ".  ";
+    
+    private static GuiFormatter _guiFormatter;
+    private static ArrayList<Task> _rawData;
+
+    private GuiFormatter() {
+
+    }
+    
+    public static GuiFormatter getInstance() {
+        if(_guiFormatter == null) {
+            _guiFormatter = new GuiFormatter();
+        }
+        return _guiFormatter;
+    }
+    
+    public void setData(List<Task> receivedList) {
+        _rawData = (ArrayList<Task>) receivedList;
+    }
+
+    public ObservableList<Task> getFormattedData() {
+        formatDisplayList();
+        return convertToObservable();        
+    }
+    
+    /**
+     * Associate an ArrayList of objects with an ObservableArrayList
+     */
+    private static ObservableList<Task> convertToObservable() {
+        return FXCollections.observableArrayList(_rawData);  
+    }
+    
+    private void formatDisplayList() {
+        if (_rawData == null) {
+            return;
+        }
+
+        Collections.sort(_rawData);
+        processData();
+        formatDateLoop();
+        logger.fine(_rawData.toString());
+    }
+    
+    private void processData() {
+        Utility.indexMap.clear();
+        formatDataLoop();
+    }
+    
+    /**
+     * Maps the displayIndex to the Task's actual index 
+     * and appends important information like serial number
+     * and '?' marks for unconfirmed tasks
+     * 
+     * @param _rawData
+     */
+    private void formatDataLoop() {
+        
+        for (int i = 0; i < _rawData.size(); i++) {
+            int displayIndex = i + 1;
+            Task task = _rawData.get(i);
+            
+            mapIndex(displayIndex, task.getIndex());
+            appendInformation(displayIndex, task);
+            
+            logger.finest(task.getContent());
+        }
+    }
+
+    private void appendInformation(int displayIndex, Task task) {
+        appendUnconfirmedMarks(task);
+        appendSerialNumber(task, displayIndex);
+    }
+    
+    private void mapIndex(Integer displayIndex, Integer actualIndex) {
+        Utility.indexMap.put(displayIndex, actualIndex);
+    }
+    
+    private void appendSerialNumber(Task task, int counter) {    
+        task.setContent(GuiUtil.EMPTY_STRING + counter + 
+                        _SEPARATOR_DOT + task.getContent());
+    }
+
+    private void appendUnconfirmedMarks(Task task) {
+        if(GuiUtil.isUnconfirmed(task)) {
+            task.setContent(_SEPARATOR_QUESTION_MARK +
+                            task.getContent());
+        }
+    }
+
+    /**
+     * Formats list into a GUI display format, inserts date headers 
+     * and formats time
+     */
+    private void formatDateLoop() {
+
+        String prevHeader = GuiUtil.EMPTY_STRING;
+
+        for (int i = 0; i < _rawData.size(); i++) {
+            String header = new String();
+            Task task = _rawData.get(i);
+            formatDisplayTime(task);
+            
+            header = getHeader(task);       
+            i = insertIfNewHeader(prevHeader, i, header);
+            prevHeader = header;
+            
+            logger.finest(header);
+        }
+
+    }
+
+    private String getHeader(Task task) {
+        switch (task.getTaskType()) {
+            case TODO :
+                return HEADER_TODO;              
+            case EVENT :
+                return GuiUtil.guiDateFormat(task.getStart());
+            case DEADLINE :
+                return GuiUtil.guiDateFormat(task.getDeadline());
+            default :
+                return GuiUtil.EMPTY_STRING;
+        }
+    }
+
+    private int insertIfNewHeader(String prevHeader, int i, 
+                                  String header) {
+        if (!header.equals(prevHeader) || prevHeader.isEmpty()) {
+            insertHeader(header, i);
+            i++;
+        }
+        return i;
+    }
+
+    private void insertHeader(String header, int i) {       
+        Task newHeader = new Task(null, header, null,
+                                  null, null, 0, null,
+                                  GuiUtil.EMPTY_STRING, false, false);
+        _rawData.add(i, newHeader);
+    }
+
+    /**
+     * Formats the start, end, deadline time into a string for display 
+     * @param task
+     */
+    private void formatDisplayTime(Task task) {
+        assert (task != null);
+
+        Task.TaskType taskType = task.getTaskType();
+        if (taskType == null) {
+            return;
+        }
+        
+        switch (taskType) {
+            case DEADLINE:
+                setDisplayTimeDeadLine(task);
+                break;
+            case EVENT:
+                setDisplayTimeEvent(task);
+                break;
+            case TODO:
+                setDisplayTimeTodo(task);
+        }
+        
+        logger.finest(task.getContent() + _SEPARATOR_SPACE + 
+                      task.getLabel());
+    }
+
+    private void setDisplayTimeDeadLine(Task task) {
+        task.setLabel(GuiUtil.guiTimeFormat(task.getDeadline()));
+    }
+
+    private void setDisplayTimeTodo(Task task) {
+        task.setLabel(GuiUtil.EMPTY_STRING);
+    }
+
+    private void setDisplayTimeEvent(Task task) {
+        String start = GuiUtil.guiTimeFormat(task.getStart());
+        String end = GuiUtil.getEnd(task);
+        task.setLabel(start + _SEPARATOR_DASH + end);
+    }
+}
+
+	// End of segment: src\udo\gui\GuiFormatter.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\gui\GuiUtil.java
+	 */
+
+
+/**
+ * This class is a Utility class catered for GUI package
+ * mainly.
+ *
+ */
+
+public class GuiUtil {
+
+    public static final String EMPTY_STRING = "";
+
+    public static final String SPACER_STRING = " | ";
+
+    public static final String PREFIX_WARNING = "Warning";
+    public static final String PREFIX_ERROR = "Error";
+
+    public static final String KEY_UP = "UP";
+    public static final String KEY_DOWN = "DOWN";
+
+    public static final Color COLOUR_TABLE_HEADERS = Color.rgb(26, 188, 156);
+    public static final Color COLOUR_TEXT_WARNING = Color.ORANGE;
+    public static final Color COLOUR_TEXT_ERROR = Color.RED;
+    public static final Color COLOUR_TEXT_NORMAL = Color.WHITE;
+    public static final String COLOUR_BACKGROUND = "-fx-background-color: #2b3339; ";
+    public static final String COLOUR_WHITE = "-fx-fill: white; ";
+    public static final String COLOUR_GREEN = "-fx-fill: #1abc9c; ";
+
+    public static final String STYLE_SIZE = "-fx-font-size: 12.5px; ";
+    public static final String STYLE_FONT = "-fx-font-family: 'Open Sans', sans-serif; ";
+
+    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    public static SimpleDateFormat dateFormat =
+            new SimpleDateFormat("EEE, dd MMM yyyy");
+    public static SimpleDateFormat DateTimeFormat =
+            new SimpleDateFormat("dd/MM HH:mm");
+
+    public static boolean isHeader(String str) {
+        return (isValidDate(str) || str.equals(GuiFormatter.HEADER_TODO));
+    }
+
+    public static boolean isValidDate(String dateString) {
+        try {
+           dateFormat.parse(dateString);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean isImportant(String title, ObservableList<Task> data) {
+        Task task = lookUpTask(title, data);
+        return task.getPriority() == true;
+    }
+
+    private static Task lookUpTask(String title, ObservableList<Task> data) {
+        int specifiedIndex = extractIndex(title);
+        for(Task element: data) {
+            int currIndex = extractIndex(element.getContent());
+            if(currIndex == specifiedIndex) {
+                return element;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Extracts the serial number of the task
+     * Returns -1 if serial number is not present
+     *
+     * @param title
+     * @return serial number or -1
+     * @throws NumberFormatException
+     */
+    private static int extractIndex(String title) throws NumberFormatException {
+        try {
+            String index = title.substring(0, title.indexOf("."));
+            return Integer.parseInt(index);
+        } catch(Exception e) {
+            return -1;
+        }
+    }
+
+    public static boolean isUnconfirmed(Task task) {
+        return task.getGroupId() != null && task.getGroupId() > 0;
+    }
+
+    public static boolean isWarning(String receivedString) {
+       return receivedString.length() > 7 && 
+               receivedString.substring(0, 7).equals(PREFIX_WARNING);
+    }
+
+    public static boolean isError(String receivedString) {
+        return receivedString.length() > 5 &&
+                receivedString.substring(0, 5).equals(PREFIX_ERROR);
+    }
+
+    /**
+     * Checks whether the start and end time is on the same day and
+     * returns different formats of end time accordingly
+     *
+     * @param task
+     * @return endDateTime in HH:mm format if start and end is on the
+     *                     same date or else in dd/MM HH:mm format
+     */
+    public static String getEnd(Task task) {
+        GregorianCalendar start = task.getStart();
+        GregorianCalendar end = task.getEnd();
+        if(Utility.isSameDate(start, end)) {
+            return GuiUtil.guiTimeFormat(end);
+        } else {
+            return GuiUtil.guiDateTimeFormat(end);
+        }
+    }
+
+    /**
+     * Formats a calendar object into a specified time format
+     *
+     * @param calendar
+     * @return time in HH:mm format
+     */
+    public static String guiTimeFormat(GregorianCalendar calendar) {
+        if (calendar == null) {
+            return EMPTY_STRING;
+        }
+        return timeFormat.format(calendar.getTime());
+    }
+
+    /**
+     * Formats a calendar object into a specified date format
+     *
+     * @param calendar
+     * @return date in EEE, dd MMM yyyy format
+     */
+    public static String guiDateFormat(GregorianCalendar calendar) {
+        if (calendar == null) {
+            return EMPTY_STRING;
+        }
+        return dateFormat.format(calendar.getTime());
+    }
+
+    /**
+     * Formats a calendar object into a specified date and time format
+     *
+     * @param calendar
+     * @return date in EEE, dd/MM HH:mm format
+     */
+    public static String guiDateTimeFormat(GregorianCalendar calendar) {
+        if (calendar == null) {
+            return EMPTY_STRING;
+        }
+        return DateTimeFormat.format(calendar.getTime());
+    }
+
+    public static String concatListToString(List<String> suggestedList) {
+        String suggestedWords = new String();
+        for(int i =0; i < suggestedList.size(); i++) {
+            String word = suggestedList.get(i);
+            suggestedWords = addWord(suggestedWords, word);
+            suggestedWords = trimIfLastIndex(suggestedList, suggestedWords, i);
+        }
+        return suggestedWords;
+
+    }
+
+    private static String trimIfLastIndex(List<String> suggestedList,
+            String suggestedWords, int i) {
+        if(isLastIndex(suggestedList, i)) {
+            suggestedWords = trimSuggestions(suggestedWords);
+        }
+        return suggestedWords;
+    }
+
+    private static boolean isLastIndex(List<String> suggestedList, int i) {
+        return i == suggestedList.size() - 1;
+    }
+
+    private static String addWord(String suggestedWords, String word) {
+        suggestedWords = suggestedWords + word + SPACER_STRING;
+        return suggestedWords;
+    }
+
+    private static String trimSuggestions(String suggestedWords) {
+        int index = suggestedWords.lastIndexOf(SPACER_STRING);
+        return suggestedWords.substring(0, index);
+    }
+}
+
+	// End of segment: src\udo\gui\GuiUtil.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\gui\HelpManual.java
+	 */
+
+
+/**
+ * This is the controller class for Help Manual dialog
+ */
+
+public class HelpManual {
+
+    private static final String _TITLE = "Help Manual";
+    private static final String _PATH_TO_MANUAL = "view/HelpManual.fxml";
+    private static final String _PATH_TO_MANUAL_HTML = "view/HelpManual.html";
+    
+    private static double _xPos;
+    private static double _yPos;
+    
+    private static Stage _dialogStage;
+    
+    @FXML
+    private WebView _web;
+
+    @FXML
+    private void initialize() {
+        WebEngine webEngine = _web.getEngine();
+        String url = HelpManual.class.getResource(_PATH_TO_MANUAL_HTML)
+                                     .toExternalForm();
+        webEngine.load(url);
+    }
+
+    public void display() {
+        Scene scene = setScene(_PATH_TO_MANUAL);
+
+        _dialogStage = new Stage();
+        setStage(scene);
+
+        _dialogStage.showAndWait();
+    }
+
+    private Scene setScene(String path) {
+        AnchorPane page = new AnchorPane();
+        
+        try {
+            page = (AnchorPane) getPane(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return new Scene(page);
+    }
+
+    private AnchorPane getPane(String path) throws IOException {
+        FXMLLoader loader = getLoader(path);
+        return (AnchorPane) loader.load();
+    }
+
+    private FXMLLoader getLoader(String path) {
+        URL url = HelpManual.class.getResource(path);
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(url);
+        return loader;
+    }
+
+    @FXML
+    private void handleEnterPressed(KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER) {
+            _dialogStage.close();
+        }
+    }
+
+    public void setPosition(double xCoord, double yCoord) {
+        _xPos = xCoord;
+        _yPos = yCoord;
+    }
+
+    private void setStage(Scene scene) {
+        _dialogStage.setTitle(_TITLE);
+        _dialogStage.initModality(Modality.WINDOW_MODAL);
+        _dialogStage.setScene(scene);
+        setStageLocation();
+    }
+
+    private void setStageLocation() {
+        _dialogStage.setX(_xPos);
+        _dialogStage.setY(_yPos);
+    }
+
+    public HelpManual() {
+
+    }
+}
+
+	// End of segment: src\udo\gui\HelpManual.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\gui\HomeController.java
+	 */
+
+
+/**
+ * This is the main controller class for the HomePage of the GUI. It controls
+ * the data displayed and its styling. It is also the interface between the java
+ * objects and its corresponding FXML objects. All user events are also handled by
+ * this class
+ *
+ */
+
+public class HomeController {
+    private static final Logger logger = 
+            Logger.getLogger(HomeController.class.getName());
+            
+    private static String _STYLE_ITALIC = "italic";
+    private static String _STYLE_STRAIGHT = "straight";
+    
+    private static String _HOTKEY_DISPLAY = "display";
+    private static String _HOTKEY_DONE = "display /done";
+    
+    private static String _COLUMN_FIELD_CONTENT = "content";
+    private static String _COLUMN_FIELD_LABEL= "label";
+    
+    private static Label _statusString;
+    private static ObservableList<Task> _data;
+    private static CustomTextField _customTextField;
+    
+    @FXML
+    private TableView<Task> _TaskTable;
+    @FXML
+    private TableColumn<Task, String> _taskNameColumn;
+    @FXML
+    private TableColumn<Task, String> _timeColumn;
+    @FXML
+    private TextField _inputBox;
+    @FXML
+    private Label _status;
+
+    // Reference to the Main Application.
+    private Gui gui;
+
+    
+    public HomeController() {
+        logger.setLevel(Level.INFO);
+    }
+
+    /**
+     * Initializes the controller class. This method is automatically called
+     * after the FXML file has been loaded.
+     */
+    @FXML
+    private void initialize() {
+        configureSettings();
+        initialiseTableColumns();
+    }
+    
+    private void configureSettings() {
+        disableDefaults();
+        configureTextField();
+        configureStatus();  
+    }
+    
+    /**
+     * Disables the sorting function of TableView
+     */
+    private void disableDefaults() {
+        _taskNameColumn.setSortable(false);
+        _timeColumn.setSortable(false);       
+    }
+
+    private void configureTextField() {
+        setFocusInputBox();
+        _customTextField = new CustomTextField(_inputBox, this);
+        _customTextField.bindKeys(keyHandlers);
+    }
+
+    @FXML
+    private void configureStatus() {
+        _statusString = _status;
+    }
+
+    private void setFocusInputBox() {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                _inputBox.requestFocus();
+            }
+        });
+    }
+
+    /**
+     * Initializes the TableView with 2 columns
+     */
+    private void initialiseTableColumns() {
+        initialiseTaskNameColumn();
+        initialiseTimeColumn();
+    }
+
+    private void initialiseTimeColumn() {
+        PropertyValueFactory<Task, String> labelFactory = 
+                new PropertyValueFactory<Task, String>(_COLUMN_FIELD_LABEL);
+        _timeColumn.setCellValueFactory(labelFactory);
+        
+        //create 'label' column callback
+        Callback<TableColumn<Task, String>, 
+                 TableCell<Task, String>> labelCallBack = 
+                new Callback<TableColumn<Task, String>, 
+                             TableCell<Task, String>>() {
+                    @Override
+                    public TableCell<Task, String> call(TableColumn<Task, 
+                                                        String> param) {
+                        return new TimeCell();
+                    }
+        };
+        _timeColumn.setCellFactory(labelCallBack);
+    }
+
+    private void initialiseTaskNameColumn() {
+        PropertyValueFactory<Task, String> contentFactory = 
+                new PropertyValueFactory<Task, String>(_COLUMN_FIELD_CONTENT);
+        _taskNameColumn.setCellValueFactory(contentFactory);
+        
+        //create 'content' column callback
+        Callback<TableColumn<Task, String>, 
+                 TableCell<Task, String>> contentCallBack = 
+                new Callback<TableColumn<Task, String>, 
+                             TableCell<Task, String>>() {
+                    @Override 
+                    public TableCell<Task, String> call(TableColumn<Task, 
+                                                        String> param) {
+                        return new TaskCell();
+                    }
+        };
+        _taskNameColumn.setCellFactory(contentCallBack);
+    }
+    
+    EventHandler<KeyEvent> keyHandlers = new EventHandler<KeyEvent>() {
+        @Override
+        public void handle(KeyEvent event) {
+            KeyCode code = event.getCode();
+            switch(code) {
+                case TAB :
+                    _customTextField.handleTabKey(event);
+                    break;
+                case ENTER :
+                    _customTextField.handleReturnKey();
+                    break;
+                case UP :
+                    _customTextField
+                        .handleDirectionKey(event, GuiUtil.KEY_UP);
+                    break;
+                case DOWN :
+                    _customTextField
+                        .handleDirectionKey(event, GuiUtil.KEY_DOWN);
+                    break;
+                case F1 :
+                    handleF1Key();
+                    break;
+                case F2:
+                    handleF2Key();
+                    break;
+                case F3:
+                    handleF3Key();
+                    break;
+                default:
+                    handleOtherKeys(event, code);
+                    break; 
+            }          
+        }
+    };
+    
+    public String getAutocompleted(String userInput) {
+        assert(userInput != null);
+        return gui.callAutocomplete(userInput);
+    }
+    
+    public boolean getCommand(String userInput) {
+        assert(userInput != null);
+        return gui.callLogicCommand(userInput) == true;
+    }
+    
+    public String getCmdHistory(String direction) {
+        assert(direction != null);
+        return gui.callCmdHistory(direction);
+    }
+    
+    public void displayStatus(String receivedString) {
+        assert(receivedString != null);
+        
+        if(receivedString == null) {
+            receivedString = GuiUtil.EMPTY_STRING;
+        } else if(GuiUtil.isWarning(receivedString)) {
+            _statusString.setTextFill(GuiUtil.COLOUR_TEXT_WARNING);
+        } else if(GuiUtil.isError(receivedString)) {
+            _statusString.setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
+        } else {
+            _statusString.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
+        }
+        _statusString.setText(receivedString);
+        logger.finer(receivedString);
+    }
+    
+    private void handleF1Key() {
+        gui.displayManual();
+    }
+
+    private void handleF2Key() {
+        gui.callLogicCommand(_HOTKEY_DISPLAY);
+    }
+    
+    private void handleF3Key() {
+        gui.callLogicCommand(_HOTKEY_DONE);
+    }
+    
+    /*
+     * Retrieves suggestions for any letter keys
+     */
+    public void handleOtherKeys(KeyEvent event, KeyCode code) {
+        String userInput = new String(); 
+
+        if(code.isLetterKey()) {
+            userInput = _customTextField.getText() + retrieveLetter(code);
+        } else if(code.equals(KeyCode.BACK_SPACE)) {
+            userInput = _customTextField.getText();
+        } else {
+            return;
+        }
+        
+        String suggestedWords = getSuggestedWords(userInput);
+        displayStatus(suggestedWords);
+        
+        logger.finer(suggestedWords.toString());
+    }
+
+    private String getSuggestedWords(String userInput) {
+        List<String> suggestedListOfWords = 
+                gui.callSuggestions(userInput);          
+        String suggestedWords = 
+                GuiUtil.concatListToString(suggestedListOfWords);
+        return suggestedWords;
+    }
+
+    private String retrieveLetter(KeyCode code) {
+        return code.getName().toLowerCase();
+    }
+    
+    /**
+     * Called by the main application to give a reference back to itself.
+     * 
+     * @param gui
+     */
+    public void setMainApp(Gui gui) {
+        this.gui = gui;
+    }
+    
+    public void setData() {
+        refreshTable();
+        _data = gui.getNewData();
+        _TaskTable.setItems(_data);
+        logger.finer(_data.toString());
+    }
+    
+    private void refreshTable() {
+        _TaskTable.getColumns().get(0).setVisible(false);
+        _TaskTable.getColumns().get(0).setVisible(true);
+    }
+    
+    /**
+     * Private nested class for cells under the task
+     * content column
+     */
+    private class TaskCell extends TableCell<Task, String> {
+
+        public TaskCell() {
+
+        }
+
+        @Override
+        protected void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            this.setText(GuiUtil.EMPTY_STRING);
+            formatCellIfNotEmpty(item, this);
+            this.setText(item);
+        }
+        
+
+        private void formatCellIfNotEmpty(String item,
+                                          TableCell<Task, String> tableCell) {
+            if (!tableCell.isEmpty()) {
+                formatCellText(item, tableCell);
+            }
+        }
+
+        private void formatCellText(String item,
+                                    TableCell<Task, String> tableCell) 
+                                    throws ClassCastException {
+
+            if (GuiUtil.isHeader(item)) {
+                setHeaderStyle();
+            } else if (GuiUtil.isImportant(item, _data)) { 
+                setImportantStyle();
+            } else {
+               setTextStyle();
+            }
+        }
+        
+        private void setHeaderStyle() {        
+            setTextFill(GuiUtil.COLOUR_TABLE_HEADERS);
+            setAlignment(Pos.CENTER);
+            styleItalic();
+        }
+        
+        private void setTextStyle() {
+            setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
+            setAlignment(Pos.CENTER_LEFT);
+            styleStraight();
+        }
+        
+        private void setImportantStyle() {
+            setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
+            setAlignment(Pos.CENTER_LEFT);
+            styleStraight();
+        }
+
+        private void styleStraight() {
+            getStyleClass().remove(_STYLE_ITALIC);
+            getStyleClass().add(_STYLE_STRAIGHT);
+        }
+        
+        private void styleItalic() {
+            getStyleClass().remove(_STYLE_STRAIGHT);
+            getStyleClass().add(_STYLE_ITALIC);
+        }
+        
+    }
+    
+    /**
+     * Private nested class for cells under the date/time
+     * column
+     */
+    private class TimeCell extends TableCell<Task,String> {
+
+        public TimeCell() {
+            
+        }
+          
+        @Override
+        public void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            this.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL); 
+            this.setText(item);
+        }
+    }
+}
+
+	// End of segment: src\udo\gui\HomeController.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\gui\ReminderDialog.java
+	 */
+
+public class ReminderDialog {
+    
+    private static final String TITLE = "Reminders";
+
+    private static final double _POS_X = 1050;
+    private static final double _POS_Y = 10;
+    private static final double _POS_WIDTH = 300;
+        
+    private static final int _ARR_SIZE = 4;
+    
+    private static final int _INDEX_TASK_TYPE = 0;
+    private static final int _INDEX_TITLE = 1;
+    private static final int _INDEX_START = 2;
+    private static final int _INDEX_END = 3;
+    
+    private static final String _BUTTON_TEXT = "Open";
+
+    private static final String _MESSAGE_START = "You have ";
+    private static final String _MESSAGE_EVENT_PART_1 = " starting at ";
+    private static final String _MESSAGE_EVENT_PART_2 = " until ";
+    private static final String _MESSAGE_DEADLINE = " due ";
+    
+    private Alert _alert;
+    private TextFlow _textBox;
+    private DialogPane _dialogPane;
+    
+    /**
+     * Message displayed will have the following format
+     * Event - you have [content] starting at [xx:xx] until [xx:xx]
+     * Deadline - you have [content] due on [xx:xx]
+     */
+    
+    public ReminderDialog(Task task) {
+        _alert = new Alert(AlertType.INFORMATION);
+        _dialogPane = _alert.getDialogPane();
+        
+        customizeDialog(task);
+    }
+
+    private void customizeDialog(Task task) {
+        removeDefaults();
+        setDisplay(task);
+        setButton();
+    }
+
+    private void removeDefaults(){
+        _alert.setGraphic(null);
+        _alert.setHeaderText(null);
+        _alert.initStyle(StageStyle.UNDECORATED);
+        _alert.getButtonTypes().clear();
+    }
+
+    private void setDisplay(Task task) {
+        _alert.setTitle(TITLE);
+        setLayout();
+        String[] taskInfo = getInformation(task);
+        setContent(taskInfo);
+    }
+    
+    private void setLayout() {
+        _alert.setX(_POS_X);
+        _alert.setY(_POS_Y);
+        _dialogPane.setMaxWidth(_POS_WIDTH);
+    }
+
+    private void setContent(String[] taskInfo) {
+        _textBox = completeMessage(taskInfo);       
+        _dialogPane.setStyle(GuiUtil.COLOUR_BACKGROUND);              
+        _dialogPane.setContent(_textBox);       
+    }
+    
+    private TextFlow completeMessage(String[] taskInfo) {
+        String taskType = taskInfo[_INDEX_TASK_TYPE];
+        
+        if(taskType == TaskType.EVENT.toString()) {
+            return completeMessageEvent(taskInfo);
+        } else {
+            return completeMessageDeadline(taskInfo);
+        }
+    }
+    
+    private TextFlow completeMessageEvent(String[] taskInfo) {
+        ArrayList<Text> textArr = new ArrayList<>();
+        
+        textArr.add(new Text(_MESSAGE_START));
+        textArr.add(new Text(taskInfo[_INDEX_TITLE]));
+        
+        textArr.add(new Text(_MESSAGE_EVENT_PART_1));
+        textArr.add(new Text(taskInfo[_INDEX_START]));
+        
+        textArr.add(new Text(_MESSAGE_EVENT_PART_2));
+        textArr.add(new Text(taskInfo[_INDEX_END]));  
+        
+        setTextStyles(textArr);
+        return createTextBox(textArr, taskInfo[_INDEX_TASK_TYPE]);
+    }
+    
+    private TextFlow completeMessageDeadline(String[] taskInfo) {
+        ArrayList<Text> textArr = new ArrayList<>();
+        
+        textArr.add(new Text(_MESSAGE_START));
+        textArr.add(new Text(taskInfo[_INDEX_TITLE]));
+        
+        textArr.add(new Text(_MESSAGE_DEADLINE));
+        textArr.add(new Text(taskInfo[_INDEX_START]));
+        
+        setTextStyles(textArr);
+        return createTextBox(textArr, taskInfo[_INDEX_TASK_TYPE]);       
+    }
+    
+    private TextFlow createTextBox(ArrayList<Text> textArr, 
+                                   String taskType) {
+        if(taskType.equals(TaskType.EVENT.toString())) {
+            return new TextFlow(textArr.get(0), textArr.get(1),
+                                textArr.get(2), textArr.get(3),
+                                textArr.get(4), textArr.get(5));
+        } else { 
+            return new TextFlow(textArr.get(0), textArr.get(1),
+                                textArr.get(2), textArr.get(3));
+        }
+    }
+
+    /**
+     * Set styles to individual blocks of text inside the array 
+     * 
+     * @param textArr
+     */
+    private void setTextStyles(ArrayList<Text> textArr) {      
+        for(int i = 0; i < textArr.size(); i++) {
+            if(i%2 == 0) {
+                setNormalStyle(textArr.get(i));
+            } else {
+                setEmphasisedStyle(textArr.get(i));
+            }
+        }
+    }
+
+    private void setNormalStyle(Text title) {
+        title.setStyle(GuiUtil.STYLE_FONT + GuiUtil.STYLE_SIZE + 
+                       GuiUtil.COLOUR_WHITE);
+        return;
+    }
+    
+    private void setEmphasisedStyle(Text title) {
+        title.setStyle(GuiUtil.STYLE_FONT + GuiUtil.STYLE_SIZE + 
+                       GuiUtil.COLOUR_GREEN);
+        return;
+    }
+    
+    /**
+     * 
+     * @param task
+     * @return An array of string, Array[0] = Task Type
+     *                             Array[1] = Task Content
+     *                             Array[2] = Task Start Time or Deadline
+     *                             Array[3] = Task End Time or empty string
+     */
+    private String[] getInformation(Task task){
+        
+        switch(task.getTaskType()) {
+            case EVENT :
+                return getEventInformation(task);
+            case DEADLINE :
+                return getDeadlineInformation(task);
+            case TODO :
+                return getTodoInformation(task);
+            default:
+                return null;
+        }
+    }
+    
+    private String[] getDeadlineInformation(Task task) {
+        String[] taskInfo = new String[_ARR_SIZE];
+        taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
+        taskInfo[_INDEX_TITLE] = task.getContent();
+        taskInfo[_INDEX_START] = GuiUtil.guiTimeFormat(task.getDeadline());
+        taskInfo[_INDEX_END] = GuiUtil.EMPTY_STRING;
+        
+        return taskInfo;
+    }
+
+    private String[] getEventInformation(Task task) {
+        String[] taskInfo = new String[_ARR_SIZE];
+        taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
+        taskInfo[_INDEX_TITLE] = task.getContent();
+        taskInfo[_INDEX_START] = GuiUtil.guiDateTimeFormat(task.getStart());
+        taskInfo[_INDEX_END] = GuiUtil.guiDateTimeFormat(task.getEnd());
+        
+        return taskInfo;
+    }
+
+    private String[] getTodoInformation(Task task) {
+        String[] taskInfo = new String[_ARR_SIZE];
+        taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
+        taskInfo[_INDEX_TITLE] = task.getContent();
+        taskInfo[_INDEX_START] = GuiUtil.EMPTY_STRING;
+        taskInfo[_INDEX_END] = GuiUtil.EMPTY_STRING;
+        
+        return taskInfo;
+    }
+    
+    private void setButton() {
+        ButtonType openButton = new ButtonType(_BUTTON_TEXT, ButtonData.OK_DONE);
+        _alert.getDialogPane().getButtonTypes().addAll(openButton);
+        
+        final Button button = (Button) _dialogPane.lookupButton(openButton); 
+        button.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+               
+            }
+        });
+    }
+    
+    public void appear(){
+        _alert.showAndWait();
+    }
+}
+
+	// End of segment: src\udo\gui\ReminderDialog.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\storage\Task.java
+	 */
+
+	@Override
+	public int compareTo(Task task2) {
+	    TaskType taskType = this.getTaskType();
+	    	    
+	    switch (taskType) {
+	        case EVENT:
+	            return compareWithEvent(task2);
+	        case DEADLINE:
+	            return compareWithDeadline(task2);
+	        case TODO:
+	            return compareWithTodo(task2);	            
+	    }
+	    return 0;
+	}
+	
+    /**
+     * Todo tasks are always displayed at the end
+     */	
+    private int compareWithTodo(Task task) {           
+        TaskType taskType = task.getTaskType();
+        
+        if(!taskType.equals(TaskType.TODO)) {
+            return 1;
+        } else {
+            return compareLex(this, task);
+        }
+    }
+
+    private int compareWithDeadline(Task task) {
+        TaskType taskType = task.getTaskType();
+        GregorianCalendar deadlineTime = this.getDeadline();
+        GregorianCalendar eventStart = task.getStart();
+        
+        switch(taskType) {
+            case EVENT:
+                return compareDeadlineWithEvent(deadlineTime, eventStart, taskType);
+            case DEADLINE:
+                return compareTwoDeadlines(this, task);
+            case TODO: 
+                return -1;
+            default: 
+                return 0;
+        }
+    }
+
+    private int compareWithEvent(Task task) {
+        TaskType taskType = task.getTaskType();
+        assert(taskType != null);
+        GregorianCalendar eventStart = this.getStart();
+        GregorianCalendar deadlineTime = task.getDeadline();
+
+        switch(taskType) {
+            case EVENT:
+                return compareTwoEvents(task);
+            case DEADLINE:
+                return compareDeadlineWithEvent(eventStart, deadlineTime, taskType);
+            case TODO: 
+                return -1;
+            default: 
+                return 0;
+        }
+    }
+    
+    /**
+     * Compares 2 Tasks of event types. Sorts them in order of start time, 
+     * end time and lexicographically
+     * 
+     * @param task
+     * @return
+     */
+    private int compareTwoEvents(Task task) {
+        
+        int comparisonStartValue = this.getStart().compareTo(task.getStart());
+        int comparisonEndValue = this.getEnd().compareTo(task.getEnd());
+        
+        if(comparisonStartValue != 0 ) {
+            return comparisonStartValue;
+        } else if (comparisonEndValue != 0) {
+            return comparisonEndValue;
+        } else {
+            return compareLex(this, task);
+        }
+    }
+    
+    /**
+     * Compares events and deadlines, if they land on the same day, deadlines 
+     * will be placed before events
+     * 
+     * @param cal1 is the caller's calendar to be compared
+     * @param cal2 is the specified calendar to be compared to
+     * @param tasktype refers to TaskType of the specified task
+     * @return 1 if 2 dates are equal or cal1 is after cal2  
+     *         -1 if cal1 is before cal2
+     */
+    private int compareDeadlineWithEvent(GregorianCalendar cal1, 
+                                         GregorianCalendar cal2, 
+                                         TaskType taskType) {        
+        if(Utility.isSameDate(cal1, cal2)) {
+            return (taskType.equals(TaskType.DEADLINE)) ? 1 : -1;
+        } else {
+            return cal1.compareTo(cal2);
+        }
+    }
+    
+    private int compareTwoDeadlines(Task task, 
+                                    Task specifiedTask) {
+        GregorianCalendar time = task.getDeadline();
+        GregorianCalendar specifiedTime = specifiedTask.getDeadline();
+
+        int comparisonValue = time.compareTo(specifiedTime);
+        
+        return (comparisonValue == 0) ? compareLex(task, specifiedTask)
+                                      : comparisonValue;
+    }
+    
+    private int compareLex(Task task, Task specifiedTask) {
+        String title = task.getContent();
+        String specifiedTitle = specifiedTask.getContent();
+        
+        return title.compareTo(specifiedTitle);
+    }
+    
+}
+	// End of segment: src\udo\storage\Task.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\testdriver\GuiTest.java
+	 */
+
+
+/**
+ * This Class only tests the order of tasks, displayed time and the 
+ * appropriate date headers after the list is formatted. It is unable 
+ * to check for display properties like colours and styles
+ * 
+ * 1. Insertion of new headers
+ * 2. Insertion of events, to be sorted before Todo
+ * 3. Multiple events of the same date
+ * 4. Insertion of an event with a later date
+ * 5. Insertion of an event with an earlier date
+ * 6. Insertion of an event with same start time, different end time
+ * 7. Insertion of an event with same start time, same end time
+ * 8. Insertion of deadline on the same day with a later time
+ * 9. Insertion of same deadline with different content
+ *  
+ */
+
+public class GuiTest extends TestCase {
+    
+    public static final String EMPTY_STRING = "";
+    public static final String HEADER_TODO = "To-Dos";
+
+    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    public static SimpleDateFormat dateFormat = 
+            new SimpleDateFormat("EEE, dd MMM yyyy");
+    public static SimpleDateFormat endDateFormat = 
+            new SimpleDateFormat("dd/MM HH:mm");
+    
+    private static ArrayList<Task> inputList;
+    private static ArrayList<Task> expectedArr; 
+    private static ObservableList<Task> expectedList;
+    private static Gui gui;
+    
+    private static Task todoHeader;
+    private static Task todo1;
+    private static Task currDayHeader;
+    private static Task currDayEvent12pm;
+    private static Task currDayEvent2pm;
+    private static Task currDayDeadline5pm;
+    private static Task nextDayHeader;
+    private static Task nextDayEvent11pm;
+    private static Task prevDayHeader;
+    private static Task prevDayEvent11pm;
+
+    private void initialise() {
+        initVariables();
+        initTestTasks();
+        removeExistingTasks();
+    }
+
+    private void initVariables() {
+        gui = new Gui();
+        inputList = new ArrayList<Task>();
+        expectedArr = new ArrayList<Task>(); 
+        expectedList = FXCollections.observableList(expectedArr);
+    }
+    
+    private void initTestTasks() {
+        todoHeader = new Task(null, HEADER_TODO, null,
+                              null, null, 0, null,
+                              EMPTY_STRING, false, false);
+        
+        todo1 = new Task(TaskType.TODO, "Watch Harry Potter",
+                         null, null, null, 0, null, "label", 
+                         false, false);
+
+        currDayHeader = new Task(null, "Fri, 20 Mar 2015", null,
+                                 null, null, 0, null,
+                                 EMPTY_STRING, false, false);
+        
+        currDayEvent12pm = new Task(TaskType.EVENT, "meeting", null, 
+                                    new GregorianCalendar(2015, 02, 20, 12, 0), 
+                                    new GregorianCalendar(2015, 02, 20, 13, 30),
+                                    0, null, EMPTY_STRING, false, false);
+        
+        currDayEvent2pm = new Task(TaskType.EVENT, "second meeting", null, 
+                                   new GregorianCalendar(2015, 02, 20, 14, 0), 
+                                   new GregorianCalendar(2015, 02, 20, 16, 0),
+                                   0, null, EMPTY_STRING, false, false);
+        
+        currDayDeadline5pm = new Task(TaskType.DEADLINE, "hand in work",  
+                                      new GregorianCalendar(2015, 02, 20, 17, 0),
+                                      null, null, 0, null, EMPTY_STRING, false, 
+                                      false);
+        
+        nextDayHeader = new Task(null, "Sat, 21 Mar 2015", null,
+                                 null, null, 0, null,
+                                 EMPTY_STRING, false, false);
+        
+        nextDayEvent11pm = new Task(TaskType.EVENT, "conference", null, 
+                                    new GregorianCalendar(2015, 02, 21, 11, 30), 
+                                    new GregorianCalendar(2015, 02, 21, 12, 0),
+                                    0, null, EMPTY_STRING, false, false);
+        
+        prevDayHeader = new Task(null, "Thu, 19 Mar 2015", null,
+                                 null, null, 0, null,
+                                 EMPTY_STRING, false, false);
+        
+        prevDayEvent11pm = new Task(TaskType.EVENT, "old macs", null, 
+                                    new GregorianCalendar(2015, 02, 19, 11, 30), 
+                                    new GregorianCalendar(2015, 02, 19, 12, 0),
+                                    0, null, EMPTY_STRING, false, false);
+    }
+    
+	// End of segment: src\udo\testdriver\GuiTest.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\testdriver\GuiTest.java
+	 */
+
+    //Insertion of new headers: Todo header
+    public void test1() throws Exception {
+        initialise();
+
+        Task todoAfter1 = new Task(TaskType.TODO, "1.  Watch Harry Potter", null, 
+                                   null, null, 0, null, EMPTY_STRING,
+                                   false, false);
+
+        inputList.add(todo1);
+        expectedList.add(todoHeader);
+        expectedList.add(todoAfter1);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());        
+    }
+    
+    //Insertion of events, to be sorted before Todo
+    public void test2() throws Exception {
+        initialise();
+        
+        Task todoAfter = new Task(TaskType.TODO, "2.  Watch Harry Potter", null, 
+                                   null, null, 0, null, EMPTY_STRING,
+                                   false, false);
+     
+        Task currDayEvent12pmAfter = 
+                new Task(TaskType.EVENT, "1.  meeting",
+                         null, new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
+
+        inputList.add(todo1);
+        inputList.add(currDayEvent12pm);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(currDayEvent12pmAfter);
+        expectedList.add(todoHeader);
+        expectedList.add(todoAfter);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    //Multiple events of the same date, to be sorted by time
+    public void test3() throws Exception {
+        initialise();
+        
+        Task todoAfter = new Task(TaskType.TODO, "3.  Watch Harry Potter", null, 
+                                   null, null, 0, null, EMPTY_STRING,
+                                   false, false);
+     
+        Task currDayEvent12pmAfter = 
+                new Task(TaskType.EVENT, "1.  meeting",
+                         null, new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
+
+        Task currDayEvent2pmAfter = 
+                new Task(TaskType.EVENT, "2.  second meeting", null, 
+                         new GregorianCalendar(2015, 02, 20, 14, 0), 
+                         new GregorianCalendar(2015, 02, 20, 16, 0), 0,
+                         null, EMPTY_STRING, false, false);
+
+        
+        inputList.add(todo1);
+        inputList.add(currDayEvent2pm);
+        inputList.add(currDayEvent12pm);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(currDayEvent12pmAfter);
+        expectedList.add(currDayEvent2pmAfter);
+        expectedList.add(todoHeader);
+        expectedList.add(todoAfter);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    /*
+     * Insertion of an event with a later date 
+     * Separate headers for different dates
+     */
+    public void test4() throws Exception {
+        initialise();
+                        
+        Task todoAfter1 = new Task(TaskType.TODO, "4.  Watch Harry Potter",
+                                   null, null, null, 0, null, EMPTY_STRING, 
+                                   false, false);
+
+        Task currDayEvent12pmAfter = 
+                new Task(TaskType.EVENT, "1.  meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
+
+        Task currDayEvent2pmAfter = 
+                new Task(TaskType.EVENT, "2.  second meeting", null, 
+                         new GregorianCalendar(2015, 02, 20, 14, 0), 
+                         new GregorianCalendar(2015, 02, 20, 16, 0), 0,
+                         null, EMPTY_STRING, false, false);
+
+        Task nextDayEvent11pmAfter = 
+                new Task(TaskType.EVENT, "3.  conference", null,
+                         new GregorianCalendar(2015, 02, 21, 11, 30),
+                         new GregorianCalendar(2015, 02, 21, 12, 0), 0, null,
+                         EMPTY_STRING, false, false);
+        
+        inputList.add(todo1);
+        inputList.add(currDayEvent12pm);
+        inputList.add(currDayEvent2pm);
+        inputList.add(nextDayEvent11pm);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(currDayEvent12pmAfter);
+        expectedList.add(currDayEvent2pmAfter);
+        expectedList.add(nextDayHeader);
+        expectedList.add(nextDayEvent11pmAfter);
+        expectedList.add(todoHeader);
+        expectedList.add(todoAfter1);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    /*
+     * Insertion of an event with an earlier date 
+     * Separate headers to be inserted for different dates
+     */
+    public void test5() throws Exception {
+        initialise();
+
+        Task todoAfter1 = 
+                new Task(TaskType.TODO, "4.  Watch Harry Potter", null, 
+                         null, null, 0, null, EMPTY_STRING, false, false);
+     
+        Task currDayEvent12pmAfter = 
+                new Task(TaskType.EVENT, "2.  meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
+        
+        Task currDayEvent2pmAfter = 
+                new Task(TaskType.EVENT, "3.  second meeting", null, 
+                         new GregorianCalendar(2015, 02, 20, 14, 0), 
+                         new GregorianCalendar(2015, 02, 20, 16, 0),
+                         0, null, EMPTY_STRING, false, false);
+        
+        Task prevDayEvent11pmAfter = 
+                new Task(TaskType.EVENT, "1.  old macs",
+                         null, new GregorianCalendar(2015, 02, 19, 11, 30),
+                         new GregorianCalendar(2015, 02, 19, 12, 0), 0, null,
+                         EMPTY_STRING, false, false);
+
+        inputList.add(todo1);
+        inputList.add(currDayEvent12pm);
+        inputList.add(currDayEvent2pm);
+        inputList.add(prevDayEvent11pm);
+        
+        expectedList.add(prevDayHeader);
+        expectedList.add(prevDayEvent11pmAfter);
+        expectedList.add(currDayHeader);
+        expectedList.add(currDayEvent12pmAfter);
+        expectedList.add(currDayEvent2pmAfter);
+        expectedList.add(todoHeader);
+        expectedList.add(todoAfter1);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    /*
+     * Insertion of an event with same start time, different end time
+     */
+    public void test6() throws Exception {
+        initialise();
+
+        Task currDayEvent12pm4pm = 
+                new Task(TaskType.EVENT, "meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 16, 00), 0, null,
+                         EMPTY_STRING, false, false);
+
+        Task currDayEvent12pm1pmAfter = 
+                new Task(TaskType.EVENT, "1.  meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
+
+        Task currDayEvent12pm4pmAfter = 
+                new Task(TaskType.EVENT, "2.  meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 16, 00), 
+                         0, null, EMPTY_STRING, false, false);
+        
+        inputList.add(currDayEvent12pm4pm);
+        inputList.add(currDayEvent12pm);
+
+        expectedList.add(currDayHeader);
+        expectedList.add(currDayEvent12pm1pmAfter);
+        expectedList.add(currDayEvent12pm4pmAfter);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    /*
+     * Insertion of an event with same start time, same end time
+     * To be sorted lexicographically
+     */
+    public void test7() throws Exception {
+        initialise();
+
+        Task currDayEvent12pm1pm = 
+                new Task(TaskType.EVENT, "second meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
+
+        Task currDayEvent12pm1pmAfter = 
+                new Task(TaskType.EVENT, "1.  meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 0, null,
+                         EMPTY_STRING, false, false);
+
+        Task currDayEvent12pm4pmAfter = 
+                new Task(TaskType.EVENT, "2.  second meeting", null,
+                         new GregorianCalendar(2015, 02, 20, 12, 0),
+                         new GregorianCalendar(2015, 02, 20, 13, 30), 
+                         0, null, EMPTY_STRING, false, false);
+        
+
+        inputList.add(currDayEvent12pm1pm);
+        inputList.add(currDayEvent12pm);
+
+        expectedList.add(currDayHeader);
+        expectedList.add(currDayEvent12pm1pmAfter);
+        expectedList.add(currDayEvent12pm4pmAfter);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    /*
+     * Insertion of deadline on the same day with a later time
+     * Deadline tasks to be displayed at the top
+     */
+    public void test8() throws Exception {
+        initialise();
+     
+        Task currDayEvent12pmAfter = 
+                new Task(TaskType.EVENT, "2.  meeting", null, 
+                         new GregorianCalendar(2015, 02, 20, 12, 0), 
+                         new GregorianCalendar(2015, 02, 20, 13, 30),
+                         0, null, EMPTY_STRING, false, false);
+        
+        Task currDayEvent2pmAfter = 
+                new Task(TaskType.EVENT, "3.  second meeting", null, 
+                         new GregorianCalendar(2015, 02, 20, 14, 0), 
+                         new GregorianCalendar(2015, 02, 20, 16, 0),
+                         0, null, EMPTY_STRING, false, false);
+        
+        Task currDayDeadline5pmAfter = 
+                new Task(TaskType.DEADLINE, "1.  hand in work",  
+                         new GregorianCalendar(2015, 02, 20, 17, 0),
+                         null, null, 0, null, EMPTY_STRING, false, 
+                         false);
+        
+        inputList.add(currDayEvent12pm);
+        inputList.add(currDayEvent2pm);
+        inputList.add(currDayDeadline5pm);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(currDayDeadline5pmAfter);
+        expectedList.add(currDayEvent12pmAfter);
+        expectedList.add(currDayEvent2pmAfter);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    /*
+     * Insertion of same deadlines with different content
+     * They will be sorted lexicographically
+     */
+    public void test9() throws Exception {
+        initialise();
+        
+        Task currDayDeadline5pmDuplicate =
+                new Task(TaskType.DEADLINE, "bonjour",
+                         new GregorianCalendar(2015, 02, 20, 17, 0),
+                         null, null, 0, null, EMPTY_STRING, false, 
+                         false);
+        
+        Task currDayDeadline5pmDuplicateAfter =
+                new Task(TaskType.DEADLINE, "1.  bonjour",
+                         new GregorianCalendar(2015, 02, 20, 17, 0),
+                         null, null, 0, null, EMPTY_STRING, false, 
+                         false);
+        
+        Task currDayDeadline5pmAfter = new Task(TaskType.DEADLINE, "2.  hand in work",  
+                                       new GregorianCalendar(2015, 02, 20, 17, 0),
+                                       null, null, 0, null, EMPTY_STRING, false, 
+                                       false);
+        
+        inputList.add(currDayDeadline5pm);
+        inputList.add(currDayDeadline5pmDuplicate);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(currDayDeadline5pmDuplicateAfter);
+        expectedList.add(currDayDeadline5pmAfter);
+      
+        gui.display(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+}
+
+	// End of segment: src\udo\testdriver\GuiTest.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\util\Utility.java
+	 */
+
+	public static boolean isSameDate(GregorianCalendar cal1,
+	                                 GregorianCalendar cal2) {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+               cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+    }
+}
+
+	// End of segment: src\udo\util\Utility.java
+
+
+
+
+

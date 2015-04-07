@@ -6,9 +6,9 @@ import udo.util.Utility;
 
 /**
  * This class defines, creates and modifies the task object
- * @author A0113038U
- *
  */
+
+//@author A0113038U
 public class Task implements Comparable<Task> {
     public static enum TaskType {DEADLINE, EVENT, TODO};
 

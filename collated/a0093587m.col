@@ -1,0 +1,3803 @@
+//@author: a0093587m
+
+
+
+	/**
+	 * origin: src\udo\logic\Autocompleter.java
+	 */
+
+public class Autocompleter {
+    private static final String SEPARATOR = " ";
+	private static final SimpleDateFormat fmt =
+	        new SimpleDateFormat("MMM d, yyyy HH:mm");
+
+    // Used to store command and options keywords
+    TernarySearchTree keywordsTree;
+    // Used to store words from english dictionary
+    TernarySearchTree dictTree;
+    // Used to store words extracted from tasks' content
+    TernarySearchTree taskContentTree;
+
+    private Logic logic;
+
+    private static final int historyMaxSize = 50;
+    private List<String> cmdHistory;
+    private ListIterator<String> cmdHistoryIter;
+    private static enum HistoryOp {NONE, PREV, NEXT};
+    private HistoryOp prevHistoryOp;
+
+    private static final Logger log = Logger.getLogger(
+                                          Autocompleter.class.getName());
+
+    String dictPath = "/english.txt";
+    String keywordsPath = "/keywords.txt";
+
+    private int tabsCount;
+    private List<String> lastSuggestions;
+
+    public Autocompleter() {
+        tabsCount = 0;
+        lastSuggestions = new ArrayList<>();
+
+        keywordsTree = new TernarySearchTree();
+        dictTree = new TernarySearchTree();
+        taskContentTree = new TernarySearchTree();
+        addPrioritizedWords(taskContentTree);
+
+        cmdHistory = new LinkedList<String>();
+        cmdHistoryIter = cmdHistory.listIterator();
+        prevHistoryOp = HistoryOp.NONE;
+
+        addKeywordsToTree();
+        addDictWordsToTree();
+    }
+
+    /**
+     * Add all words in all tasks' content in the task list
+     * which don't appear in the dictionary or keywords
+     * @param tasks
+     */
+    public void addTaskContentToTree(List<Task> tasks) {
+        for (Task t : tasks) {
+            String[] tokens = t.getContent().split("\\s");
+            for (String token : tokens) {
+                token = token.toLowerCase();
+
+                if (!keywordsTree.contains(token) &&
+                    !dictTree.contains(token)) {
+                    taskContentTree.add(token);
+                }
+            }
+        }
+    }
+
+    /**
+     * Add all words contained in the file in keywordsPath to the
+     * keywords ternary search tree
+     */
+    private void addKeywordsToTree() {
+        BufferedReader reader = null;
+
+        try {
+            InputStream wordsStream = this.getClass().
+                    getResourceAsStream(keywordsPath);
+            reader = new BufferedReader(new InputStreamReader(wordsStream));
+
+            String s = reader.readLine();
+
+            while (s != null) {
+                keywordsTree.add(s);
+                s = reader.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            log.log(Level.SEVERE, e.toString(), e);
+        } catch (IOException e) {
+            log.log(Level.SEVERE, e.toString(), e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                log.log(Level.SEVERE, e.toString(), e);
+            }
+        }
+    }
+
+    /**
+     * Add all words read from the dictionary store in dictPath to the
+     * dictionary ternary search tree
+     */
+    private void addDictWordsToTree() {
+        BufferedReader reader = null;
+
+        try {
+            InputStream wordsStream = getClass().
+                    getResourceAsStream(dictPath);
+            reader = new BufferedReader(new InputStreamReader(wordsStream));
+
+            String s = reader.readLine();
+
+            while (s != null) {
+                if (!keywordsTree.contains(s)) {
+                    dictTree.add(s);
+                }
+                s = reader.readLine();
+            }
+        } catch (FileNotFoundException e) {
+            log.log(Level.SEVERE, e.toString(), e);
+        } catch (IOException e) {
+            log.log(Level.SEVERE, e.toString(), e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                log.log(Level.SEVERE, e.toString(), e);
+            }
+        }
+    }
+
+    public void setLogic(Logic logic) {
+        this.logic = logic;
+    }
+
+    /********************************
+     * Code for autocompleting words*
+     *******************************/
+
+    /**
+     * Get a list of suggested words that can possible autocompleted
+     * from the input text
+     * @param text
+     * @return list of suggested words
+     */
+    public List<String> getSuggestions(String text) {
+        List<String> result = getSuggestions(text, null);
+        return result;
+    }
+
+    /**
+     * Get a list of suggested words that can possible autocompleted
+     * from the input text with the maximum of maxWords words in the list
+     * @param text
+     * @param maxWords
+     * @return list of suggested words
+     */
+    public List<String> getSuggestions(String text, Integer maxWords) {
+        tabsCount = 0;
+
+        if (maxWords != null && maxWords <= 0) {
+            lastSuggestions.clear();
+            return lastSuggestions;
+        }
+
+        String lastWord = getLastWord(text).toLowerCase();
+
+        List<String> keywordsList = null;
+        List<String> dictWordsList;
+        List<String> contentWordsList;
+
+        ArrayList<String> result = new ArrayList<>();
+
+        if (lastWord != null && lastWord.length() > 0) {
+            keywordsList = retrieveWords(keywordsTree,
+                                         maxWords, lastWord);
+            result.addAll(keywordsList);
+
+            contentWordsList = retrieveWords(taskContentTree,
+                                             maxWords, lastWord);
+            result.addAll(contentWordsList);
+
+            dictWordsList = retrieveWords(dictTree,
+                                          maxWords, lastWord);
+            result.addAll(dictWordsList);
+        }
+
+        if (maxWords != null && result.size() > maxWords) {
+            lastSuggestions = result.subList(0, maxWords);
+            return lastSuggestions;
+        }
+
+        lastSuggestions = result;
+        return lastSuggestions;
+    }
+
+    /**
+     * Get the last word in a text string
+     * @param text
+     * @return the last word in the text or empty string if the last
+     *         character is a white space
+     */
+    private String getLastWord(String text) {
+        if (text.length() == 0 ||
+            Character.isWhitespace(text.charAt(text.length() - 1))) {
+            return "";
+        }
+
+        String[] tokens = text.split("\\s");
+
+        if (tokens != null && tokens.length > 0) {
+            return tokens[tokens.length - 1];
+        }
+
+        return "";
+    }
+
+    /**
+     * Get and return the last word in the text string
+     * Trailing white spaces are ignored
+     * @param text
+     * @return
+     */
+    private String getLastWordIgnoreSpace(String text) {
+        String[] tokens = text.split("\\s");
+
+        if (tokens != null && tokens.length > 0) {
+            return tokens[tokens.length - 1];
+        }
+
+        return "";
+    }
+
+    /**
+     * Retrieve a maximum of maxWords words from the tree starting with
+     * the specified prefix
+     * @param maxWords
+     * @param lastWord
+     * @return
+     */
+    private List<String> retrieveWords(TernarySearchTree tree,
+                                       Integer maxWords, String prefix) {
+        List<String> wordsList = null;
+
+        if (maxWords == null) {
+            wordsList = tree.searchPrefix(prefix);
+        } else {
+            wordsList = tree.searchPrefix(prefix, maxWords);
+        }
+
+        return wordsList;
+    }
+
+    /**
+     * Fill in the autocompleted word for the last word in text
+     * @param text
+     * @return the autocompleted string
+     */
+    public String autocomplete(String text) {
+        List<String> suggestions;
+
+        if (lastSuggestions.size() == 0) {
+            suggestions = getSuggestions(text, 2);
+        } else {
+            suggestions = lastSuggestions;
+        }
+
+        if (suggestions.size() > 0) {
+            assert(tabsCount < suggestions.size());
+
+            String lastWord = getLastWord(text);
+            String autocompletedWord = suggestions.get(tabsCount);
+
+            if (lastWord.equals(autocompletedWord) && suggestions.size() > 1) {
+                tabsCount = (tabsCount + 1) % suggestions.size();
+                autocompletedWord = suggestions.get(tabsCount);
+            }
+
+            tabsCount = (tabsCount + 1) % suggestions.size();
+
+            return dropLastWord(text) + autocompletedWord;
+        }
+
+        return text;
+    }
+
+    /********************************
+     * Code for autocompleting tasks*
+     *******************************/
+
+    /**
+     * Fill in the the remaining of text with the serialized content
+     * of the the given task
+     * @param text
+     * @param task
+     * @return autocompleted string
+     */
+    public String autocomplete(String text, Task task) {
+        assert(text != null && text.length() > 0);
+
+        String[] tokens = text.split("\\s");
+        String autocompletedPart;
+
+        if (tokens.length > 2) {
+            String lastWord = getLastWordIgnoreSpace(text);
+            autocompletedPart = autocompleteOption(lastWord, task);
+
+            if (autocompletedPart.equals("")) {
+                return autocomplete(text);
+            }
+        } else {
+            autocompletedPart = taskToCmdStr(task);
+        }
+
+        logic.updateGuiStatus("");
+        tabsCount = 0;
+        lastSuggestions.clear();
+
+        if (Character.isWhitespace(text.charAt(text.length() - 1))) {
+            return text + autocompletedPart;
+        } else {
+            return text + SEPARATOR + autocompletedPart;
+        }
+    }
+
+    private String autocompleteOption(String lastWord, Task task) {
+        if (lastWord.length() == 0 ||
+            lastWord.charAt(0) != Config.OPTION_MARKER_CHAR) {
+            return "";
+        }
+
+        lastWord = lastWord.substring(1);
+
+        if (InputParser.isDeadlineOption(lastWord) &&
+            task.getDeadline() != null) {
+            return Utility.calendarToString(task.getDeadline(), fmt);
+        }
+        if (InputParser.isStartOption(lastWord) &&
+            task.getStart() != null) {
+            return Utility.calendarToString(task.getStart(), fmt);
+        }
+        if (InputParser.isEndOption(lastWord) &&
+            task.getEnd() != null) {
+            return Utility.calendarToString(task.getEnd());
+        }
+        if (InputParser.isReminderOption(lastWord) &&
+            task.getReminder() != null) {
+            return Utility.calendarToString(task.getReminder());
+        }
+
+        return "";
+    }
+
+    /**
+     * Convert a task data structure to an equivalent command string
+     * @param task
+     * @return
+     */
+    private String taskToCmdStr(Task task) {
+        assert(task != null);
+
+        switch (task.getTaskType()) {
+            case DEADLINE:
+                return deadlineTaskToCmdStr(task);
+            case EVENT:
+                return eventTaskToCmdStr(task);
+            case TODO:
+                return todoTaskToCmdStr(task);
+        }
+
+        return "";
+    }
+
+    /**
+     * Convert a todo task datastructure to its equivalent command string
+     * @param task
+     * @return
+     */
+    private String todoTaskToCmdStr(Task task) {
+        StringBuilder builder = new StringBuilder();
+
+        assert(task.getContent() != null);
+        builder.append(task.getContent());
+        builder.append(SEPARATOR);
+
+        if (task.getReminder() != null) {
+            appendOptionStr(builder, Config.OPT_REMINDER[Config.OPT_LONG],
+                            Utility.calendarToString(task.getReminder(), fmt));
+        }
+
+        if (task.getPriority()) {
+            appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Convert an event task data structure to its equivalent command string
+     * @param task
+     * @return
+     */
+    private String eventTaskToCmdStr(Task task) {
+        StringBuilder builder = new StringBuilder();
+
+        assert(task.getContent() != null);
+        builder.append(task.getContent());
+        builder.append(SEPARATOR);
+
+        assert(task.getStart() != null);
+        appendOptionStr(builder, Config.OPT_START[Config.OPT_LONG],
+                        Utility.calendarToString(task.getStart(), fmt));
+
+        assert(task.getEnd() != null);
+        appendOptionStr(builder, Config.OPT_END[Config.OPT_LONG],
+                        Utility.calendarToString(task.getEnd(), fmt));
+
+        if (task.getReminder() != null) {
+            appendOptionStr(builder, Config.OPT_REMINDER[Config.OPT_LONG],
+                            Utility.calendarToString(task.getReminder(), fmt));
+        }
+
+        if (task.getPriority()) {
+            appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Convert a deadline task datastructure to its equivalent command string
+     * @param task
+     * @return
+     */
+    private String deadlineTaskToCmdStr(Task task) {
+        StringBuilder builder = new StringBuilder();
+
+        assert(task.getContent() != null);
+        builder.append(task.getContent());
+        builder.append(SEPARATOR);
+
+        assert(task.getDeadline() != null);
+        appendOptionStr(builder, Config.OPT_DEADLINE[Config.OPT_LONG],
+                        Utility.calendarToString(task.getDeadline(), fmt));
+
+        if (task.getReminder() != null) {
+            appendOptionStr(builder, Config.OPT_REMINDER[Config.OPT_LONG],
+                            Utility.calendarToString(task.getReminder(), fmt));
+        }
+
+        if (task.getPriority()) {
+            appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
+        }
+
+        return builder.toString();
+    }
+
+    private void appendOptionStr(StringBuilder builder,
+                                 String option,
+                                 String argument) {
+        builder.append(Config.OPTION_MARKER);
+        builder.append(option);
+        builder.append(SEPARATOR);
+
+        if (!argument.equals("")) {
+            builder.append(argument);
+            builder.append(SEPARATOR);
+        }
+    }
+
+    private void addPrioritizedWords(TernarySearchTree tree) {
+        tree.add("december");
+    }
+
+
+    /**
+     * Remove the last word from the given text
+     * @param text
+     * @return
+     */
+    private String dropLastWord(String text) {
+        int endIndex = getLastWhitespaceIndex(text);
+
+        if (endIndex == -1) {
+            return "";
+        }
+
+        return text.substring(0, endIndex + 1);
+    }
+
+    private int getLastWhitespaceIndex(String text) {
+        return Math.max(text.lastIndexOf(" "), text.lastIndexOf("\t"));
+    }
+
+    /*******************************************
+     * Code for autocompleting command history *
+     ******************************************/
+
+    /**
+     * Add a command text to the commands history
+     * @param cmd
+     */
+    public void addToHistory(String cmd) {
+        if (cmdHistory.size() >= historyMaxSize) {
+            cmdHistory.remove(0);
+        }
+
+        cmdHistory.add(cmd);
+
+        cmdHistoryIter = cmdHistory.listIterator(cmdHistory.size());
+        prevHistoryOp = HistoryOp.NONE;
+    }
+
+    /**
+     * @return the previous command text in history
+     */
+    public String getPreviousCmd() {
+        log.fine("Getting previous command in history");
+        assert(cmdHistoryIter != null);
+
+        if (prevHistoryOp == HistoryOp.NEXT) {
+            cmdHistoryIter.previous();
+        }
+
+        if (cmdHistoryIter.hasPrevious()) {
+            prevHistoryOp = HistoryOp.PREV;
+            return cmdHistoryIter.previous();
+        } else if (cmdHistory.size() > 0) {
+            prevHistoryOp = HistoryOp.PREV;
+            cmdHistoryIter = cmdHistory.listIterator(cmdHistory.size());
+            return cmdHistoryIter.previous();
+        }
+
+        return "";
+    }
+
+    /**
+     * @return the next command text in history
+     */
+    public String getNextCmd() {
+        log.fine("Getting next command in history");
+        assert(cmdHistoryIter != null);
+
+        if (prevHistoryOp == HistoryOp.PREV) {
+            cmdHistoryIter.next();
+        }
+
+        if (cmdHistoryIter.hasNext()) {
+            prevHistoryOp = HistoryOp.NEXT;
+            return cmdHistoryIter.next();
+        }
+
+        prevHistoryOp = HistoryOp.NONE;
+        return "";
+    }
+
+    public static void main(String[] args) {
+        Autocompleter completer = new Autocompleter();
+
+        System.out.println(completer.getSuggestions("/", 5));
+        System.out.println(completer.getSuggestions("d "));
+        System.out.println(completer.getSuggestions("d"));
+
+        System.out.println(completer.autocomplete("ad"));
+        System.out.println(completer.autocomplete("sing a song /de"));
+        System.out.println(completer.autocomplete("do homework "));
+        System.out.println(completer.autocomplete("go for meeting /start tomo"));
+        System.out.println(completer.autocomplete("submit report /dl next fri"));
+    }
+}
+
+	// End of segment: src\udo\logic\Autocompleter.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\command\AddCommand.java
+	 */
+
+public class AddCommand extends Command {
+    public static final String STATUS_ADDED = "Task: %s added sucessfully";
+
+    private static final Logger log = Logger.
+            getLogger(AddCommand.class.getName());
+
+    public AddCommand() {
+        super();
+        setCommandName(CommandName.ADD);
+    }
+
+    @Override
+    public boolean isValid() {
+        if (argStr == null) {
+            setStatus(Logic.ERR_INVALID_CMD_ARG);
+            return false;
+        }
+
+        return super.isValid() && isContentNonEmpty() && isDurationValid();
+    }
+
+    @Override
+    public boolean execute() {
+        log.log(Level.INFO, "Adding new task...");
+        if (!super.execute()) {
+            return false;
+        }
+
+        boolean isSuccessful = true;
+
+        List<Task> tasks = fillAddedTask();
+
+        isSuccessful = isTaskValid(tasks);
+
+        if (isSuccessful) {
+            Task clash = findClashedTask(tasks, storage.query());
+
+            if (tasks.size() == 1) {
+                isSuccessful = storage.add(tasks.get(0));
+            } else {
+                isSuccessful = storage.add(tasks);
+            }
+
+            if (!isSuccessful) {
+                setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
+            } else {
+                if (clash == null) {
+                    setStatus(getAddSucessStatus());
+                } else {
+                    setStatus(getClashWarning(getArgStr(),
+                                              clash.getContent()));
+                }
+
+                updateAutocompleter(tasks);
+                updateGuiTasks();
+                updateReminder();
+            }
+        }
+
+
+        log.log(Level.FINER, tasks.toString(), tasks);
+        log.log(Level.INFO, "Done adding task!");
+
+        updateGUIStatus();
+        return isSuccessful;
+    }
+
+    /**
+     * @param isSuccessful
+     * @param tasks
+     * @return
+     */
+    private boolean isTaskValid(List<Task> tasks) {
+        for (Task task : tasks) {
+            if (!isTaskDatesValid(task)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Find an event that clashed with an input event
+     * @param task
+     * @return a clashed with the input event argument or null if the input
+     *         Task is not an event, or there is not clashed event
+     */
+    protected Task findClashedTask(List<Task> tasks, List<Task> existingTasks) {
+        assert(tasks != null);
+        assert(existingTasks != null);
+
+        Task clash = null;
+
+        for (Task task : tasks) {
+            clash = findClashedTask(task, existingTasks);
+
+            if (clash != null) {
+                return clash;
+            }
+        }
+
+        return null;
+    }
+
+
+    private String getAddSucessStatus() {
+        String taskContent = Logic.summarizeContent(argStr);
+
+        return String.format(STATUS_ADDED, taskContent);
+    }
+
+
+    /**
+     * Fill a task or a test of tasks (in case the command consists
+     * of multiple unconfirmed deadline or event dates)
+     * @return a list of filled tasks
+     */
+    private List<Task> fillAddedTask() {
+        TaskType taskType = getTaskType();
+        List<Task> tasks = new ArrayList<>();
+
+        int numOfTasks = getNumberOfTasks(taskType);
+
+        for (int i = 0; i < numOfTasks; i++) {
+            Task task = new Task();
+            task.setTaskType(taskType);
+
+            fillTaskFromCommand(task, i);
+
+            fillDefaults(task);
+
+            tasks.add(task);
+        }
+
+        return tasks;
+    }
+
+    private int getNumberOfTasks(TaskType taskType) {
+        switch (taskType) {
+            case DEADLINE:
+                Date[] deadlines = getOption(Config.OPT_DEADLINE).dateArgument;
+                return deadlines.length;
+            case EVENT:
+                int result = 0;
+
+                Option startsOpt = getOption(Config.OPT_START);
+                if (startsOpt != null) {
+                    result = startsOpt.dateArgument.length;
+                }
+
+                Option endsOpt = getOption(Config.OPT_END);
+                if (endsOpt != null) {
+                    result = Math.max(result, endsOpt.dateArgument.length);
+                }
+
+                return result;
+            case TODO:
+                return 1;
+        }
+
+        return 0;
+    }
+}
+
+	// End of segment: src\udo\logic\command\AddCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\command\ChdirCommand.java
+	 */
+
+public class ChdirCommand extends Command {
+    private static final String STATUS_FILE_PATH =
+            "Tasks file is at: %s";
+
+    public ChdirCommand() {
+        super();
+        setCommandName(CommandName.CHDIR);
+    }
+
+    @Override
+    public boolean isValid() {
+        return super.isValid();
+    }
+
+    @Override
+    public boolean execute() {
+        if (!super.execute()) {
+            return false;
+        }
+
+        if (argStr == null || argStr.equals("")) {
+            assert(storage.getPath() != null);
+            setStatus(String.format(STATUS_FILE_PATH, storage.getPath()));
+
+            updateGUIStatus();
+            return true;
+        }
+
+        boolean isSuccessful = storage.chDir(argStr);
+        if (!isSuccessful) {
+            setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
+        }
+
+        updateGUIStatus();
+        return isSuccessful;
+    }
+}
+
+	// End of segment: src\udo\logic\command\ChdirCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\command\Command.java
+	 */
+
+public abstract class Command {
+    public static class Option {
+        public String strArgument;
+        public Integer intArgument;
+        public Date[] dateArgument;
+        public Integer timeArgument;
+    }
+
+    public static final String ERR_INVALID_RANGE = "invalid index range";
+    public static final String INDEX_RANGE_MARKER = "-";
+
+    protected static final DateFormat DATE_FORMAT =
+            new SimpleDateFormat("EEE, d MMM yyyy HH:mm");
+    protected static final Pattern indexPattern =
+            Pattern.compile("^(\\d+)");
+
+    private static final String WARNING_CLASH =
+            "task %s clashes with task %s";
+
+    protected Config.CommandName commandName;
+    protected String argStr;
+    protected Integer argIndex;
+    protected Map<String, Option> options;
+
+    protected String status;
+
+    protected Logic logic;
+    protected Storage storage;
+
+    private static final Logger log = Logger.getLogger(Command.class.getName());
+
+    public Command() {
+        options = new HashMap<>();
+    }
+
+    public Config.CommandName getCommandName() {
+        return commandName;
+    }
+
+    public String getArgStr() {
+        return argStr;
+    }
+
+    public Integer getArgIndex() {
+        return argIndex;
+    }
+
+    public Option getOption(String optionName) {
+        return options.get(optionName);
+    }
+
+    public boolean hasOption(String optionName) {
+        return options.containsKey(optionName);
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setCommandName(Config.CommandName commandName) {
+        this.commandName = commandName;
+    }
+
+    public boolean setArg(String argStr) {
+        return parseArg(argStr);
+    }
+
+    public void setOption(String optionName, Option option) {
+        options.put(optionName, option);
+    }
+
+    protected void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setLogic(Logic logic) {
+        this.logic = logic;
+    }
+
+    public void setStorage(Storage storage) {
+        this.storage = storage;
+    }
+
+    protected boolean parseArg(String argStr) {
+        this.argStr = argStr;
+        return true;
+    }
+
+    /**
+     * Check if this command has valid data values
+     * To be overrided by subclasses
+     * @return true if valid, false otherwise
+     */
+    public boolean isValid() {
+        if (commandName == null) {
+            setStatus(Logic.formatErrorStr(Logic.ERR_INVALID_CMD_NAME));
+            log.log(Level.FINE, getStatus());
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Execute the current command. GUI and storage must be
+     * set fore this method to be called without error
+     * @return true if valid, false otherwise
+     */
+    public boolean execute() {
+        assert(logic != null);
+        assert(storage != null);
+
+        if (!isValid()) {
+            log.log(Level.FINE, getStatus());
+            updateGUIStatus();
+            return false;
+        }
+
+        return true;
+    }
+
+    /******************************************************/
+    /** Helper methods to retrieve various external data **/
+    /******************************************************/
+
+    public Option getOption(String[] option) {
+        return getOption(option[Config.OPT_LONG]);
+    }
+
+    /**
+     * Get the lower-level task's index in storage from the task's index
+     * as displayed by gui
+     * @param argIndex the displayed index
+     * @return the storage index or null if it's not found
+     */
+    public Integer getStorageIndex(Integer argIndex) {
+        return Utility.getStorageIndex(argIndex);
+    }
+
+    /**
+     * Map an array of displayed indices to storage indices
+     * @return
+     */
+    protected List<Integer> mapIndexArray(Integer[] indices) {
+        List<Integer> storageIndices = new ArrayList<>();
+
+        for (int i : indices) {
+            Integer index = getStorageIndex(i);
+            if (index == null) {
+                setStatus(Logic.formatErrorStr(Logic.ERR_INVALID_INDEX));
+                return null;
+            }
+
+            storageIndices.add(index);
+        }
+        return storageIndices;
+    }
+
+    /**
+     * Guess and return a task type from a command
+     * @param task
+     * @param options
+     */
+    protected Task.TaskType getTaskType() {
+        if (hasOption(Config.OPT_DEADLINE[Config.OPT_LONG]) ||
+            hasOption(Config.OPT_DEADLINE[Config.OPT_SHORT])) {
+            return Task.TaskType.DEADLINE;
+        } else if (hasOption(Config.OPT_START[Config.OPT_LONG]) ||
+                   hasOption(Config.OPT_START[Config.OPT_SHORT]) ||
+                   hasOption(Config.OPT_END[Config.OPT_LONG]) ||
+                   hasOption(Config.OPT_END[Config.OPT_SHORT])) {
+            return Task.TaskType.EVENT;
+        } else {
+            return Task.TaskType.TODO;
+        }
+    }
+
+    /*********************************************************
+     * Helper methods for error checking of command sematics *
+     * ******************************************************/
+
+    /**
+     * Check if a given duration in the command is positive
+     * @return
+     */
+    protected boolean isDurationValid() {
+        Option duration = getOption(Config.OPT_DUR);
+
+        if (duration != null) {
+            if (duration.timeArgument <= 0) {
+                setStatus(Logic.formatErrorStr(Logic.ERR_NON_POSITIVE_DUR));
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if dates given in various command's options are valid
+     * @param task
+     * @return
+     */
+    protected boolean isTaskDatesValid(Task task) {
+        return isStartBeforeEnd(task) && isDeadlineValid(task);
+    }
+
+
+    /**
+     * Check if the start date is before the end date
+     * @param task
+     * @return
+     */
+    protected boolean isStartBeforeEnd(Task task) {
+        if (task.getTaskType() != TaskType.EVENT) {
+            return true;
+        }
+
+        GregorianCalendar start = task.getStart();
+        GregorianCalendar end = task.getEnd();
+
+        if (start != null && end != null) {
+            if (start.compareTo(end) >= 0) {
+                setStatus(Logic.formatErrorStr(Logic.ERR_NON_POSITIVE_DUR));
+
+                log.fine("Start: " + Utility.calendarToString(task.getStart()));
+                log.fine("End: " + Utility.calendarToString(task.getEnd()));
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the content give to the command's argument is non-empty
+     * @return
+     */
+    protected boolean isContentNonEmpty() {
+        if (argStr == null || argStr.trim().equals("")) {
+            status = Logic.formatErrorStr(Logic.ERR_EMPTY_CONTENT);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the deadline has not already passed
+     * @param task
+     * @return
+     */
+    protected boolean isDeadlineValid(Task task) {
+        if (task.getTaskType() != TaskType.DEADLINE) {
+            return true;
+        }
+
+        GregorianCalendar deadline = task.getDeadline();
+
+        if (deadline != null) {
+            if (deadline.getTime().compareTo(new Date()) < 0) {
+                setStatus(Logic.formatErrorStr(Logic.ERR_LATE_DEADLINE));
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Find an event that clashed with an input event
+     * @param task
+     * @return a clashed with the input event argument or null if the input
+     *         Task is not an event, or there is not clashed event
+     */
+    protected Task findClashedTask(Task task, List<Task> existingTasks) {
+        assert(task != null);
+        assert(existingTasks != null);
+
+        if (task.getTaskType() != TaskType.EVENT) {
+            return null;
+        }
+
+        for (Task t : existingTasks) {
+            if (t.getTaskType() == TaskType.EVENT) {
+                if (!(task.getStart().compareTo(t.getEnd()) >= 0 ||
+                      task.getEnd().compareTo(t.getStart()) <= 0)) {
+                    return t;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if the specified index corresponds to a valid storage index
+     * @param parsedCommand
+     */
+    protected boolean isIndexValid() {
+        if (getStorageIndex(argIndex) == null) {
+            setStatus(Logic.formatErrorStr(Logic.ERR_INVALID_INDEX));
+            return false;
+        }
+
+        return true;
+    }
+
+    /***************************************************************
+     * Helper methods for filling in fields in Task data structure *
+     * *************************************************************/
+
+    /**
+     * Extract data from the parsed command and fill in the task
+     * data structure with retrieved information
+     * @param parsedCommand
+     * @param task
+     */
+    protected void fillTaskFromCommand(Task task, int dateIndex) {
+        fillContent(task);
+        fillDeadline(task, dateIndex);
+        fillStartDate(task, dateIndex);
+        fillEndDate(task, dateIndex);
+        fillDuration(task);
+        fillReminder(task);
+        fillLabel(task);
+        fillPriority(task);
+    }
+
+    private void fillContent(Task task) {
+        if (argStr != null && !argStr.trim().equals("")) {
+            task.setContent(argStr);
+        }
+    }
+
+    /**
+     * Fill in the missing fields in a Task datastructure with default values
+     * @param task
+     */
+    protected void fillDefaults(Task task) {
+        assert(task != null);
+
+        fillStartEndDefaults(task);
+
+        fillReminderDefault(task);
+    }
+
+    /**
+     * Fill in the default reminder for the deadline or event task
+     * Note that an event task must have a valid start date
+     * @param task
+     */
+    private void fillReminderDefault(Task task) {
+        assert(task != null);
+
+        Task.TaskType taskType = task.getTaskType();
+
+        if (task.getReminder() == null) {
+            if (taskType == Task.TaskType.DEADLINE) {
+                assert(task.getDeadline() != null);
+
+                GregorianCalendar reminder = new GregorianCalendar();
+                reminder.setTime(task.getDeadline().getTime());
+                reminder.add(GregorianCalendar.DAY_OF_MONTH, -1);
+
+                task.setReminder(reminder);
+            } else if (taskType == Task.TaskType.EVENT) {
+                assert(task.getStart() != null);
+
+                GregorianCalendar reminder = new GregorianCalendar();
+                reminder.setTime(task.getStart().getTime());
+                reminder.add(GregorianCalendar.DAY_OF_MONTH, -1);
+
+                task.setReminder(reminder);
+            }
+        }
+    }
+
+    /**
+     * Fill in the start or end of an event if one of the fields is missing
+     * @param task
+     * @param taskType
+     */
+    private void fillStartEndDefaults(Task task) {
+        assert(task != null);
+
+        if (task.getTaskType() == Task.TaskType.EVENT) {
+            if (task.getEnd() == null) {
+                GregorianCalendar end = new GregorianCalendar();
+                end.setTime(task.getStart().getTime());
+
+                if (task.getDuration() != null) {
+                    end.add(GregorianCalendar.MINUTE, task.getDuration());
+                } else {
+                    Utility.setToEndOfDay(end);
+                }
+
+                task.setEnd(end);
+            } else if (task.getStart() == null) {
+                GregorianCalendar start = new GregorianCalendar();
+                start.setTime(task.getEnd().getTime());
+
+                if (task.getDuration() != null) {
+                    start.add(GregorianCalendar.MINUTE, -task.getDuration());
+                } else {
+                    Utility.setToStartOfDay(start);
+                }
+
+                task.setStart(start);
+            }
+        }
+    }
+
+    private void fillPriority(Task task) {
+        Option priority = getOption(Config.OPT_PRIO);
+
+        if (priority != null) {
+            task.setPriority(true);
+        } else {
+            task.setPriority(false);
+        }
+    }
+
+    private void fillLabel(Task task) {
+        Option label = getOption(Config.OPT_LABEL);
+
+        if (label != null) {
+            task.setLabel(label.strArgument);
+        }
+    }
+
+    private void fillReminder(Task task) {
+        Option reminder = getOption(Config.OPT_REMINDER);
+
+        if (reminder != null) {
+            GregorianCalendar reminderCalendar = new GregorianCalendar();
+            reminderCalendar.setTime(reminder.dateArgument[0]);
+            task.setReminder(reminderCalendar);
+        }
+    }
+
+    private void fillDuration(Task task) {
+        Option duration = getOption(Config.OPT_DUR);
+
+        if (duration != null) {
+            task.setDuration(duration.timeArgument);
+        }
+    }
+
+    private void fillEndDate(Task task, int dateIndex) {
+        Option end = getOption(Config.OPT_END);
+
+        if (end != null && dateIndex < end.dateArgument.length) {
+            GregorianCalendar endCalendar = new GregorianCalendar();
+            endCalendar.setTime(end.dateArgument[dateIndex]);
+            task.setEnd(endCalendar);
+        }
+    }
+
+    private void fillStartDate(Task task, int dateIndex) {
+        Option start = getOption(Config.OPT_START);
+
+        if (start != null && dateIndex < start.dateArgument.length) {
+            GregorianCalendar startCalendar = new GregorianCalendar();
+            startCalendar.setTime(start.dateArgument[dateIndex]);
+            task.setStart(startCalendar);
+        }
+    }
+
+    private void fillDeadline(Task task, int dateIndex) {
+        Option deadline = getOption(Config.OPT_DEADLINE);
+
+        if (deadline != null && dateIndex < deadline.dateArgument.length) {
+            GregorianCalendar deadlineCalendar = new GregorianCalendar();
+            deadlineCalendar.setTime(deadline.dateArgument[dateIndex]);
+            task.setDeadline(deadlineCalendar);
+        }
+    }
+
+    protected String getClashWarning(String task, String clashedTask) {
+        return Logic.formatWarningStr(String.format(WARNING_CLASH,
+                                                    task, clashedTask));
+    }
+
+    /********************************************************
+     * Methods for refecting changes on external components *
+     ********************************************************/
+
+    protected void updateGuiTasks() {
+        logic.updateGuiTasks(storage.query());
+    }
+
+    protected void updateGuiTasks(List<Task> tasks) {
+        logic.updateGuiTasks(tasks);
+    }
+
+    protected void updateGUIStatus() {
+        logic.updateGuiStatus(getStatus());
+    }
+
+    protected void updateReminder() {
+        logic.updateReminder();
+    }
+
+    protected void updateAutocompleter(List<Task> tasks) {
+        logic.updateAutocompleter(tasks);
+    }
+
+    /***********************************************
+     * Helper methods for command specific parsing *
+     ***********************************************/
+
+    /**
+     * Parse an argument which consists of an index and some string content
+     * @param extractCmdArg
+     * @param resultCommand
+     * @return true if the argument format is valid or false otherwise
+     */
+    protected boolean parseIndexContentPair(String extractCmdArg) {
+        if (extractCmdArg == null) {
+            return false;
+        }
+
+        int idxEnd = extractIndex(extractCmdArg);
+        if (idxEnd < 0) {
+            return false;
+        }
+
+        this.argStr = extractCmdArg.substring(idxEnd).trim();
+        return true;
+    }
+
+    /**
+     * Extract the task's index from the command's argument and store
+     * it in the argIndex component of resultCommand
+     * @param extractCmdArg
+     * @param resultCommand
+     * @return the end position of the index in the argument string
+     *          or -1 if the index cannot be found
+     */
+    private int extractIndex(String extractCmdArg) {
+        Matcher indexMatcher = indexPattern.matcher(extractCmdArg);
+
+        if (indexMatcher.find()) {
+            this.argIndex = Integer.parseInt(indexMatcher.group());
+            return indexMatcher.end();
+        } else {
+            setStatus(InputParser.ERR_UNSPECIFIED_INDEX);
+            this.argIndex = null;
+            return -1;
+        }
+    }
+
+    /**
+     * Parse multiple indices or index range from command argument string
+     * @param arg
+     * @return
+     */
+    protected Integer[] parseIndices(String arg) {
+        Set<Integer> indices = new HashSet<>();
+        String[] indicesStr = arg.split("\\s*(\\s|,)\\s*");
+
+        for (String s : indicesStr) {
+            if (s.contains(INDEX_RANGE_MARKER)) {
+                if (!getIndexRange(s, indices)) {
+                    return null;
+                }
+            } else {
+                try {
+                    indices.add(Integer.parseInt(s));
+                } catch (NumberFormatException e){
+                    setStatus(InputParser.ERR_INVALID_INT_FORMAT);
+                    log.log(Level.FINE, getStatus());
+                    return null;
+                }
+            }
+        }
+
+        return indices.toArray(new Integer[indices.size()]);
+    }
+
+    /**
+     * Add all indices specified by the range syntax 'from-to' to the set indices
+     * @param s the range string
+     * @param indices
+     * @return true if the range is valid or false otherwise
+     */
+    protected boolean getIndexRange(String s, Set<Integer> indices) {
+        String[] range = s.split(INDEX_RANGE_MARKER);
+
+        if (range.length != 2) {
+            setStatus(ERR_INVALID_RANGE);
+            return false;
+        }
+
+        try {
+            int from = Integer.parseInt(range[0]);
+            int to = Integer.parseInt(range[1]);
+
+            for (int i = from; i <= to; i++) {
+                indices.add(i);
+            }
+        } catch (NumberFormatException e) {
+            setStatus(InputParser.ERR_INVALID_INT_FORMAT);
+            log.log(Level.FINE, getStatus());
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        String str = "Command: " + commandName + "\n";
+        if (argIndex != null) {
+            str += "Index: " + argIndex + "\n";
+        }
+        if (argStr != null && !argStr.equalsIgnoreCase("")) {
+            str += "Argument: " + argStr + "\n";
+        }
+        str += "Options:\n";
+
+        for (Map.Entry<String, Option> opEntry : options.entrySet()) {
+            String opName = opEntry.getKey();
+            Option op = opEntry.getValue();
+
+            str += "  " + opName + ": ";
+            if (op.dateArgument != null && op.dateArgument.length > 0) {
+                for (int i = 0; i < op.dateArgument.length - 1; i++) {
+                    str += DATE_FORMAT.format(op.dateArgument[i]) + " or ";
+                }
+                str += DATE_FORMAT.format(
+                            op.dateArgument[op.dateArgument.length - 1]);
+            } else if (op.strArgument != null) {
+                str += op.strArgument;
+            } else if (op.intArgument != null) {
+                str += op.intArgument.toString();
+            } else if (op.timeArgument != null) {
+                str += op.timeArgument / 60 + "h" +
+                       op.timeArgument % 60 + "m";
+            }
+
+            str += "\n";
+        }
+
+        return str;
+    }
+}
+
+	// End of segment: src\udo\logic\command\Command.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\command\ConfirmCommand.java
+	 */
+
+public class ConfirmCommand extends Command {
+    private static final String STATUS_CONFIRM = "Task %s confirmed";
+    private static final String STATUS_NOT_BLOCKED =
+            "selected task is not an unconfirmed task";
+
+    public ConfirmCommand() {
+        setCommandName(CommandName.CONFIRM);
+    }
+
+    @Override
+    public boolean isValid() {
+        return super.isValid();
+    }
+
+    @Override
+    public boolean execute() {
+        if (!super.execute()) {
+            return false;
+        }
+
+        assert(argIndex != null);
+        Integer storageIndex = getStorageIndex(argIndex);
+        assert(storageIndex != null);
+
+        Task confirmedTask = storage.query(storageIndex);
+
+        boolean isSuccessful = storage.confirm(storageIndex);
+        if (!isSuccessful) {
+            setStatus(Logic.formatErrorStr(STATUS_NOT_BLOCKED));
+        } else {
+            setStatus(getConfirmStatus(confirmedTask));
+            updateGuiTasks();
+            updateReminder();
+        }
+
+        updateGUIStatus();
+        return isSuccessful;
+    }
+
+    @Override
+    protected boolean parseArg(String arg) {
+        return parseIndexContentPair(arg);
+    }
+
+    private String getConfirmStatus(Task task) {
+        return String.format(STATUS_CONFIRM, task.getContent());
+    }
+}
+
+	// End of segment: src\udo\logic\command\ConfirmCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\command\DeleteCommand.java
+	 */
+
+public class DeleteCommand extends Command {
+    private static final String STATUS_DELETED = "Task: %s deleted sucessfully";
+    private static final String STATUS_ALL_DELETED = "All tasks deleted";
+
+    private Integer[] indices;
+
+    private static final Logger log = Logger.getLogger(DeleteCommand.class.getName());
+
+    public DeleteCommand() {
+        super();
+        setCommandName(Config.CommandName.DELETE);
+    }
+
+    @Override
+    public boolean isValid() {
+        return super.isValid();
+    }
+
+    @Override
+    public boolean execute() {
+        if (!super.execute()) {
+            return false;
+        }
+
+        assert(indices != null && indices.length > 0);
+
+        Task deletedTask = null;
+        if (indices.length == 1) {
+            deletedTask = storage.query(getStorageIndex(indices[0]));
+        }
+
+        boolean isSuccessful = deleteTasks();
+
+        if (isSuccessful) {
+            setStatus(getDeleteSucessStatus(deletedTask));
+            updateGuiTasks();
+            updateReminder();
+        }
+
+        updateGUIStatus();
+        return isSuccessful;
+    }
+
+    /**
+     * Delete all tasks with index in the array indices
+     * @param isSuccessful
+     * @return
+     */
+    private boolean deleteTasks() {
+        List<Integer> storageIndices = mapIndexArray(indices);
+
+        if (storageIndices == null) {
+            return false;
+        }
+
+        log.log(Level.INFO, "Deleting task " + storageIndices.toString(),
+                storageIndices);
+
+        if (!storage.delete(storageIndices)) {
+            setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
+            return false;
+        }
+
+        return true;
+    }
+
+    private String getDeleteSucessStatus(Task task) {
+        if (task != null) {
+            return String.format(STATUS_DELETED,
+                                 Logic.summarizeContent(task.getContent()));
+        } else {
+            return STATUS_ALL_DELETED;
+        }
+    }
+
+    @Override
+    protected boolean parseArg(String arg) {
+        indices = parseIndices(arg);
+
+        if (indices == null) {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+	// End of segment: src\udo\logic\command\DeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\command\DisplayCommand.java
+	 */
+
+public class DisplayCommand extends Command {
+    private static final String STATUS_DISP_ALL = "Displaying all tasks";
+    private static final String STATUS_DISP_FREE = "Displaying free slots";
+    private static final String STATUS_DISP_IMP =
+            "Displaying important tasks";
+    private static final String STATUS_DISP_DONE = "Displaying done tasks";
+    private static final String STATUS_DISP_OVERDUE =
+            "Displaying overdue tasks";
+
+    public DisplayCommand() {
+        super();
+        setCommandName(CommandName.DISPLAY);
+    }
+
+    @Override
+    public boolean isValid() {
+        return super.isValid();
+    }
+
+    @Override
+    public boolean execute() {
+        if (!super.execute()) {
+            return false;
+        }
+
+        if (getOption(Config.OPT_PRIO) != null) {
+            setStatus(STATUS_DISP_IMP);
+            updateGuiTasks(storage.query(true));
+        } else if (getOption(Config.OPT_DONE) != null) {
+            setStatus(STATUS_DISP_DONE);
+            updateGuiTasks(storage.getDone());
+        } else if (getOption(Config.OPT_FREE) != null) {
+            setStatus(STATUS_DISP_FREE);
+            updateGuiTasks(storage.findFreeSlots());
+        } else if (getOption(Config.OPT_OVERDUE) != null) {
+            setStatus(STATUS_DISP_OVERDUE);
+            updateGuiTasks(getOverdueTasks());
+        } else {
+            setStatus(STATUS_DISP_ALL);
+            updateGuiTasks();
+        }
+
+        updateGUIStatus();
+        return true;
+    }
+
+    private List<Task> getOverdueTasks() {
+        List<Task> tasks = storage.query();
+        List<Task> result = new ArrayList<>();
+
+        Calendar now = new GregorianCalendar();
+
+        for (Task t : tasks) {
+            if (t.getTaskType() == Task.TaskType.DEADLINE) {
+                Calendar deadline = t.getDeadline();
+
+                if (deadline != null && deadline.before(now)) {
+                    result.add(t);
+                }
+            }
+        }
+
+        return result;
+    }
+}
+
+	// End of segment: src\udo\logic\command\DisplayCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\command\DoneCommand.java
+	 */
+
+public class DoneCommand extends Command {
+    private static final String STATUS_DONE = "Task %s is done";
+    private static final String STATUS_ALL_DONE = "All tasks done";
+
+    private Integer[] indices;
+
+    private static final Logger log = Logger.
+            getLogger(DoneCommand.class.getName());
+
+    public DoneCommand() {
+        super();
+        setCommandName(CommandName.DONE);
+    }
+
+    @Override
+    public boolean isValid() {
+        return super.isValid();
+    }
+
+    @Override
+    public boolean execute() {
+        if (!super.execute()) {
+            return false;
+        }
+
+        assert(indices != null && indices.length > 0);
+
+        Task doneTask = null;
+        if (indices.length == 1) {
+            doneTask = storage.query(getStorageIndex(indices[0]));
+        }
+
+        boolean isSuccessful = markTasksDone();
+
+        if (isSuccessful) {
+            setStatus(getDoneStatus(doneTask));
+            updateGuiTasks();
+            updateReminder();
+        }
+
+        updateGUIStatus();
+        return isSuccessful;
+    }
+
+    @Override
+    protected boolean parseArg(String arg) {
+        indices = parseIndices(arg);
+
+        if (indices == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Delete all tasks with index in the array indices
+     * @param isSuccessful
+     * @return
+     */
+    private boolean markTasksDone() {
+        List<Integer> storageIndices = mapIndexArray(indices);
+
+        if (storageIndices == null) {
+            return false;
+        }
+
+        log.log(Level.INFO, "Done task " + storageIndices.toString(),
+                storageIndices);
+
+        if (!storage.markDone(storageIndices)) {
+            setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
+            return false;
+        }
+
+        return true;
+    }
+
+    private String getDoneStatus(Task task) {
+        if (task != null) {
+            return String.format(STATUS_DONE,
+                                 Logic.summarizeContent(task.getContent()));
+        } else {
+            return STATUS_ALL_DONE;
+        }
+    }
+}
+
+	// End of segment: src\udo\logic\command\DoneCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\command\ModifyCommand.java
+	 */
+
+public class ModifyCommand extends Command {
+    public static final String STATUS_MODIFIED =
+            "Task: %s modified sucessfully";
+    private static final Logger log = Logger.getLogger(ModifyCommand.class.getName());
+
+    public ModifyCommand() {
+        super();
+        setCommandName(CommandName.MODIFY);
+    }
+
+    @Override
+    public boolean isValid() {
+        if (argIndex == null) {
+            setStatus(Logic.formatErrorStr(Logic.ERR_UNSPECIFIED_INDEX));
+            return false;
+        }
+
+        return super.isValid() && isIndexValid() && isDurationValid();
+    }
+
+    @Override
+    public boolean execute() {
+        log.log(Level.INFO, "Modifying task...");
+        if (!super.execute()) {
+            return false;
+        }
+
+        assert(argIndex != null);
+
+        Integer storageIndex = getStorageIndex(argIndex);
+        assert(storageIndex != null);
+
+        Task task = storage.query(storageIndex);
+
+        Task.TaskType newTaskType = getTaskType();
+        if (task.getTaskType() == newTaskType) {
+            fillTaskFromCommand(task, 0);
+        } else {
+            task.setTaskType(newTaskType);
+            fillTaskFromCommand(task, 0);
+            fillDefaults(task);
+        }
+
+        log.log(Level.INFO, "Modified task: ");
+        log.log(Level.INFO, task.toString(), task);
+
+        boolean isSuccessful = false;
+
+        if (isTaskDatesValid(task)) {
+            Task clash = findClashedTask(task, storage.query());
+            isSuccessful = storage.modify(storageIndex, task);
+
+            if (!isSuccessful) {
+                setStatus(Logic.formatErrorStr(Logic.ERR_STORAGE));
+            } else {
+                if (clash == null || clash.getIndex() == storageIndex) {
+                    setStatus(getModifySucessStatus(task));
+                } else {
+                    setStatus(getClashWarning(task.getContent(),
+                                              clash.getContent()));
+                }
+
+                updateGuiTasks();
+                updateReminder();
+            }
+        }
+
+        updateGUIStatus();
+        return isSuccessful;
+    }
+
+    private String getModifySucessStatus(Task task) {
+        return String.format(STATUS_MODIFIED,
+                             Logic.summarizeContent(task.getContent()));
+    }
+
+    @Override
+    protected boolean parseArg(String arg) {
+        return parseIndexContentPair(arg);
+    }
+}
+
+	// End of segment: src\udo\logic\command\ModifyCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\command\SearchCommand.java
+	 */
+
+public class SearchCommand extends Command {
+    private static final String STATUS_SEARCH = "Search results for: %s";
+
+    private static final Logger log = Logger.getLogger(SearchCommand.class.getName());
+
+    public SearchCommand() {
+        super();
+        setCommandName(CommandName.SEARCH);
+    }
+
+    @Override
+    public boolean isValid() {
+        return super.isValid() && isContentNonEmpty();
+    }
+
+    @Override
+    public boolean execute() {
+        if (!super.execute()) {
+            return false;
+        }
+
+        log.log(Level.FINE, "Searching for " + argStr);
+
+        List<Task> strSearchTasks = storage.search(argStr);
+
+        List<DateGroup> dateGroups = InputParser.dateParser.parse(argStr);
+        List<Task> dateSearchTasks = new ArrayList<>();
+        GregorianCalendar cal = new GregorianCalendar();
+
+        for (DateGroup group : dateGroups) {
+            for (Date date : group.getDates()) {
+                cal.setTime(date);
+                dateSearchTasks.addAll(storage.query(cal));
+            }
+        }
+
+        List<Task> result = removeDuplicates(strSearchTasks,
+                                             dateSearchTasks);
+
+        setStatus(getSearchStatus());
+        updateGuiTasks(result);
+        updateGUIStatus();
+
+        log.log(Level.FINER, "Search result: " + result.toString(), result);
+
+        return true;
+    }
+
+    private String getSearchStatus() {
+        return String.format(STATUS_SEARCH, Logic.summarizeContent(argStr));
+    }
+
+    private List<Task> removeDuplicates(List<Task> taskList1,
+                                        List<Task> taskList2) {
+        List<Task> result = new ArrayList<>();
+
+        HashSet<Task> set = new HashSet<>();
+        set.addAll(taskList1);
+        set.addAll(taskList2);
+        result.addAll(set);
+
+        return result;
+    }
+}
+
+	// End of segment: src\udo\logic\command\SearchCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\command\UndoCommand.java
+	 */
+
+public class UndoCommand extends Command {
+    private static final String STATUS_UNDO_COMPLETED = "Undo completed";
+    private static final String STATUS_NO_UNDO = "no more operation to undo";
+
+    public UndoCommand() {
+        super();
+        setCommandName(CommandName.UNDO);
+    }
+
+    @Override
+    public boolean execute() {
+        if (!super.execute()) {
+            return false;
+        }
+
+        boolean isSuccessful = storage.undo();
+
+        if (!isSuccessful) {
+            setStatus(Logic.formatErrorStr(STATUS_NO_UNDO));
+        } else {
+            setStatus(STATUS_UNDO_COMPLETED);
+            updateGuiTasks(storage.query());
+            updateReminder();
+        }
+
+        updateGUIStatus();
+        return isSuccessful;
+    }
+
+    @Override
+    public boolean isValid() {
+        return super.isValid();
+    }
+
+}
+
+	// End of segment: src\udo\logic\command\UndoCommand.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\InputParser.java
+	 */
+
+public class InputParser {
+    // Regex string used to match command name (case insensitive)
+    private static final String GROUP_NAME = "name";
+    private Pattern commandNamePattern =
+            Pattern.compile("(?i)^(?:\\s)*" +
+                            "(?<name>add|modify|delete|dd|display|" +
+                            "search|done|cd|undo|confirm)");
+
+    // Regex strings and pattern used for matching an option
+    public static final String OPTION_MAKER = Config.OPTION_MARKER;
+    private static final String OPTION_NO_ARG_FORMATER = "(/%s|/%s)";
+    private static final String OPTION_WITH_ARG_FORMATER = "((/%s)|(/%s)\\s+)";
+    private static final String DATE_DELIMITER = "\\sor\\s";
+    private Pattern optionsPattern;
+    // Map option names to their corresponding types
+    private Map<String, String> optionTypeMap = new HashMap<>();
+    private Map<String, String> shortToLongMap = new HashMap<>();
+
+    // Used to store the option strings and their positions within the command
+    private ArrayList<String> extractedOptions = new ArrayList<>();
+    private ArrayList<Integer> optionStarts = new ArrayList<>();
+    private ArrayList<Integer> optionEnds = new ArrayList<>();
+
+    // Used to parse date in natural language using Natty library
+    public static final Parser dateParser = new Parser();
+
+    // Patterns used to parse time
+    private static final String GROUP_HOUR = "h";
+    private static final String GROUP_MINUTE1 = "m1";
+    private static final String GROUP_MINUTE2 = "m2";
+
+    private static final String hourPatStr =
+            "(?i)(?<h>\\d{1,2})\\s*([:.,-]|hours?|h)+";
+    private static final String minutePatStr =
+            "(([:.,-]|hours?|h)+\\s*(?<m1>\\d{1,2}))|" +
+            "((?<m2>\\d{1,2})\\s*(minutes?|min|m))";
+    private static final Pattern hourPat = Pattern.compile(hourPatStr);
+    private static final Pattern minPat = Pattern.compile(minutePatStr);
+
+    private static final int MINUTES_IN_HOUR = 60;
+
+    private String errorStatus;
+    /** Syntax errors messages */
+    private static final String ERR_INVALID_TIME_FORMAT =
+            "Hours and minutes are not integers";
+    private static final String ERR_INVALID_DATE_FORMAT =
+            "Date time format is invalid";
+    public static final String ERR_INVALID_INT_FORMAT =
+           "Argument contains invalid integers";
+    public static final String ERR_UNSPECIFIED_INDEX =
+            "Task's index is not specified";
+
+    private static final Logger log = Logger.getLogger(
+                                          InputParser.class.getName());
+
+    public InputParser() {
+        StringBuilder optionPatternBuilder = new StringBuilder();
+        String optionPattern;
+
+        for (int i = 0; i < Config.OPTIONS_TABLE.length; i++) {
+            String[] option = Config.OPTIONS_TABLE[i];
+
+            fillOptionTypeMap(option);
+
+            optionPattern = createOptionPattern(option);
+
+            if (i == Config.OPTIONS_TABLE.length - 1) {
+                optionPatternBuilder.append(optionPattern);
+            } else {
+                optionPatternBuilder.append(optionPattern + "|");
+            }
+        }
+
+        optionsPattern = Pattern.compile(optionPatternBuilder.toString());
+    }
+
+    /**
+     * Create a regex pattern for a single option depending on the option type
+     * @param option
+     * @return the string representation of the regex pattern
+     */
+    private String createOptionPattern(String[] option) {
+        String optionPattern;
+        if (option[Config.OPT_TYPE] != Config.TYPE_NONE) {
+            optionPattern = String.format(OPTION_WITH_ARG_FORMATER,
+                                          option[Config.OPT_LONG],
+                                          option[Config.OPT_SHORT]);
+
+        } else {
+            optionPattern = String.format(OPTION_NO_ARG_FORMATER,
+                                          option[Config.OPT_LONG],
+                                          option[Config.OPT_SHORT]);
+        }
+        return optionPattern;
+    }
+
+    /**
+     * Fill pairs of option name and option type into the map data structure
+     * Both long option and short option names are considered
+     * @param option
+     */
+    private void fillOptionTypeMap(String[] option) {
+        optionTypeMap.put(option[Config.OPT_LONG],
+                          option[Config.OPT_TYPE]);
+        optionTypeMap.put(option[Config.OPT_SHORT],
+                          option[Config.OPT_TYPE]);
+        shortToLongMap.put(option[Config.OPT_SHORT],
+                           option[Config.OPT_LONG]);
+    }
+
+    public Command parseCommand(String command) {
+        log.log(Level.FINE, "Parsing: " + command);
+        clearPreviousOptions();
+        clearErrorStatus();
+
+        if (command == null) {
+            return null;
+        }
+
+        Config.CommandName cmdName = extractCommandName(command);
+        Command resultCommand = createCommandFromName(cmdName);
+
+        if (resultCommand == null || errorStatus != null) {
+            return resultCommand;
+        }
+
+        extractOptions(command);
+
+        log.log(Level.FINE, "Parsing argument");
+        if (!resultCommand.setArg(extractCmdArg(command, resultCommand))) {
+            errorStatus = resultCommand.getStatus();
+        }
+
+        log.log(Level.FINE, "Parsing options");
+        parseAllOptions(command, resultCommand);
+
+        return resultCommand;
+    }
+
+    /**
+     * Create a new Command instance from the given command name
+     * @param cmdName
+     * @return an instance of a subclass of Command
+     *         corresponding to the command name. Returns null if
+     *         command name is invalid
+     */
+    public Command createCommandFromName(CommandName cmdName) {
+        switch (cmdName) {
+            case ADD:
+                return new AddCommand();
+            case MODIFY:
+                return new ModifyCommand();
+            case DELETE:
+                return new DeleteCommand();
+            case DISPLAY:
+                return new DisplayCommand();
+            case DONE:
+                return new DoneCommand();
+            case CHDIR:
+                return new ChdirCommand();
+            case SEARCH:
+                return new SearchCommand();
+            case UNDO:
+                return new UndoCommand();
+            case CONFIRM:
+                return new ConfirmCommand();
+            default:
+                 errorStatus = Logic.ERR_UNSUPPORTED_CMD;
+                return null;
+        }
+    }
+
+
+    /**
+     * Extract the argument part of the command string that is not
+     * attached to any option
+     * @param command the command string
+     * @param cmdEndIndex the end index of the cmd name in the cmd string
+     * @return the string containing the command's argumument
+     */
+    private String extractCmdArg(String command, Command resultCommand) {
+        int cmdNameEndIndex = getCmdNameEndIndex(command);
+        assert(cmdNameEndIndex >= 0);
+
+        int argEndIndex = command.length();
+
+        if (resultCommand.getCommandName() != Config.CommandName.CHDIR &&
+            extractedOptions.size() > 0) {
+            argEndIndex = optionStarts.get(0);
+        }
+
+        return command.substring(cmdNameEndIndex, argEndIndex).trim();
+    }
+
+    /**
+     * Return the end index of the command name in the command string
+     * @param command
+     * @return
+     */
+    private int getCmdNameEndIndex(String command) {
+        Matcher cmdNameMatcher = commandNamePattern.matcher(command);
+
+        if (cmdNameMatcher.find()) {
+            return cmdNameMatcher.end(GROUP_NAME);
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Extract the command name from the command string and store it
+     * If there is no command name detected, it is assumed to be
+     * the 'add' command
+     * @param command
+     * @param resultCommand
+     * @return the end index of command name in the command string
+     */
+    private Config.CommandName extractCommandName(String command) {
+        Matcher cmdNameMatcher = commandNamePattern.matcher(command);
+
+        if (cmdNameMatcher.find()) {
+            return Utility.convertToCommandName(
+                                    cmdNameMatcher.group(GROUP_NAME));
+        } else {
+            return Config.CommandName.ADD;
+        }
+    }
+
+    /**
+     * Extract all options' strings from the command strings and
+     * store it in the extractedOptions array and mark its beginning
+     * and ending in the string in optionStarts and optionEnds
+     * @param command
+     */
+    private void extractOptions(String command) {
+        Matcher optionsMatcher = optionsPattern.matcher(command);
+
+        while (optionsMatcher.find()) {
+            String option = removeOptionMarker(optionsMatcher.group());
+            String longOpt = shortToLongMap.get(option);
+            if (longOpt != null) {
+                option = longOpt;
+            }
+
+            extractedOptions.add(option);
+
+            optionStarts.add(optionsMatcher.start());
+            optionEnds.add(optionsMatcher.end());
+        }
+    }
+
+    private String removeOptionMarker(String group) {
+        return group.substring(1).trim();
+    }
+
+    /**
+     * Parse all arguments of options in extractedOptions and store
+     * the result in resultCommand
+     * @param command
+     * @param resultCommand
+     */
+    private void parseAllOptions(String command, Command resultCommand) {
+        for (int i = 0; i < extractedOptions.size(); i++) {
+            parseOption(i, command, resultCommand);
+        }
+    }
+
+    /**
+     * Parse and single option at index i in extractedOptions and store
+     * the result in the options component of the Command datastructure
+     * @param i
+     * @param command
+     * @param resultCommand
+     */
+    private void parseOption(int i, String command, Command resultCommand) {
+        Command.Option option = new Command.Option();
+
+        String optionName = extractedOptions.get(i);
+        String optionArgType = optionTypeMap.get(optionName);
+
+        if (optionArgType.equals(Config.TYPE_STR)) {
+            option.strArgument = parseStringArg(i, command);
+        } else if (optionArgType.equals(Config.TYPE_INT)) {
+            option.intArgument = parseIntArg(i, command);
+        } else if (optionArgType.equals(Config.TYPE_DATETIME)) {
+            option.dateArgument = parseDateTimeArg(i, command);
+        } else if (optionArgType.equals(Config.TYPE_TIME)) {
+            option.timeArgument = parseTimeArg(i, command);
+        }
+
+        resultCommand.setOption(optionName, option);
+    }
+
+    /**
+     * Parse the time specified in hours and minutes for the option
+     * at index 'i' in extractedOptions
+     * @param i
+     * @param command
+     * @return the integer represented by the argument string
+     */
+    private Integer parseTimeArg(int i, String command) {
+        String argStr = getArgStr(i, command);
+
+        Matcher hourMatcher = hourPat.matcher(argStr);
+        Matcher minMatcher = minPat.matcher(argStr);
+        int h = 0;
+        int m = 0;
+
+        if (hourMatcher.find()) {
+            try {
+                h = Integer.parseInt(hourMatcher.group(GROUP_HOUR));
+            } catch (NumberFormatException e) {
+                errorStatus = ERR_INVALID_TIME_FORMAT;
+                return null;
+            }
+        }
+
+        if (minMatcher.find()) {
+            try {
+                if (minMatcher.group(GROUP_MINUTE1) != null) {
+                    m = Integer.parseInt(minMatcher.group(GROUP_MINUTE1));
+                } else if (minMatcher.group(GROUP_MINUTE2) != null) {
+                    m = Integer.parseInt(minMatcher.group(GROUP_MINUTE2));
+                }
+            } catch (NumberFormatException e) {
+                errorStatus = ERR_INVALID_TIME_FORMAT;
+                return null;
+            }
+        }
+
+        return h * MINUTES_IN_HOUR + m;
+    }
+
+    /**
+     * Parse the string argument of an option
+     * containing date/time data in natural language
+     * @param i the index of the option in extractedOptions
+     * @param command the full command string
+     * @return the Date that the date/time string represents
+     */
+    private Date[] parseDateTimeArg(int i, String command) {
+        String[] dateStrs = getArgStr(i, command).split(DATE_DELIMITER);
+        Date[] result = new Date[dateStrs.length];
+
+        for (int j = 0; j < dateStrs.length; j++) {
+            List<DateGroup> groups = dateParser.parse(dateStrs[j]);
+
+            if (groups == null || groups.size() == 0 ||
+                groups.get(0).getDates() == null ||
+                groups.get(0).getDates().size() == 0) {
+                errorStatus = ERR_INVALID_DATE_FORMAT;
+                return null;
+            }
+
+            result[j] = inferTime(extractedOptions.get(i), groups.get(0));
+        }
+
+        return result;
+    }
+
+    /**
+     * Infer the time from the option and the date parsed by Natty
+     * If the option is deadline or end, it is inferred to be 23:59pm
+     * If the option is reminder or start, it is inferred to be 0am
+     * Otherwise there is no change
+     * @param firstGroup
+     * @return
+     */
+    private Date inferTime(String option, DateGroup firstGroup) {
+        Date firstDate = firstGroup.getDates().get(0);
+
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(firstDate);
+
+        if (firstGroup.isTimeInferred()) {
+            if (isDeadlineOption(option) || isEndOption(option)) {
+                Utility.setToEndOfDay(cal);
+            } else if (isReminderOption(option) || isStartOption(option)) {
+                Utility.setToStartOfDay(cal);
+            }
+
+            return cal.getTime();
+        }
+
+        return firstDate;
+    }
+
+    /**
+     * Check if the given option string corresponds to the option in Config
+     * @param optionStr
+     * @param option
+     * @return
+     */
+    public static boolean isOption(String optionStr, String[] option) {
+        if (optionStr.equals(option[Config.OPT_LONG]) ||
+            optionStr.equals(option[Config.OPT_SHORT])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isDeadlineOption(String option) {
+        return isOption(option, Config.OPT_DEADLINE);
+    }
+
+    public static boolean isStartOption(String option) {
+        return isOption(option, Config.OPT_START);
+    }
+
+    public static boolean isEndOption(String option) {
+        return isOption(option, Config.OPT_END);
+    }
+
+    public static boolean isReminderOption(String option) {
+        return isOption(option, Config.OPT_REMINDER);
+    }
+
+    /**
+     * Extract the string containing an argument to an option
+     * @param i the index of the option in the extractedOptions
+     * @param command the full command string
+     * @return a string containing the argument to the ith option
+     */
+    private String getArgStr(int i, String command) {
+        int argStart = optionEnds.get(i);
+        int argEnd = command.length();
+
+        if (i < extractedOptions.size() - 1) {
+           argEnd =  optionStarts.get(i + 1);
+        }
+
+        return command.substring(argStart, argEnd).trim();
+    }
+
+    /**
+     * Extract the integer argument to an option
+     * @param i the index of the option in the extractedOptions
+     * @param command the full command string
+     * @return an integer represented by the argument string
+     */
+    private Integer parseIntArg(int i, String command) {
+        String argStr = getArgStr(i, command);
+
+        Integer result = null;
+
+        try {
+            result = Integer.parseInt(argStr);
+        } catch (NumberFormatException e) {
+            errorStatus = ERR_INVALID_INT_FORMAT;
+            return null;
+        }
+
+        return result;
+    }
+
+    /**
+     * Extract the string argument to an option
+     * @param i the index of the option in the extractedOptions
+     * @param command the full command string
+     * @return the argument string or empty string if it is null
+     */
+    private String parseStringArg(int i, String command) {
+        String argStr = getArgStr(i, command);
+
+        if (argStr == null) {
+            return "";
+        }
+
+        return argStr;
+    }
+
+    /**
+     * Reset all data structure containing data for options
+     * to initial state
+     */
+    private void clearPreviousOptions() {
+        extractedOptions.clear();
+        optionStarts.clear();
+        optionEnds.clear();
+    }
+
+    public String getErrorStatus() {
+        return errorStatus;
+    }
+
+    private void clearErrorStatus() {
+        errorStatus = null;
+    }
+
+    /**
+     * Test driver for this class
+     * @param args
+     */
+    public static void main(String[] args) {
+        InputParser inputParser = new InputParser();
+
+        System.out.println(inputParser.parseCommand("modify 10 modify reflection /deadline 1/3/2015 /reminder today"));
+        System.out.println(inputParser.parseCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm"));
+        System.out.println(inputParser.parseCommand("add AAAI conference /start in 2 days /end tuesday"));
+        System.out.println(inputParser.parseCommand("add match midterm /start next friday /end 11/02/15"));
+        System.out.println(inputParser.parseCommand("add watch a movie /duration 2 hours 30 minutes"));
+        System.out.println(inputParser.parseCommand("submit the report /dl next friday /reminder next thursday"));
+        System.out.println(inputParser.parseCommand("undo"));
+        System.out.println(inputParser.parseCommand("delete 1"));
+        System.out.println(inputParser.parseCommand("display"));
+        System.out.println(inputParser.parseCommand("chdir /deadline"));
+        System.out.println(inputParser.parseCommand("search school tomorrow"));
+        System.out.println(inputParser.parseCommand("done 2"));
+
+        /* Testing multiple dates */
+        System.out.println(inputParser.parseCommand("add match midterm /start next friday or next thursday /end 11/02/15 or 20/02/2015"));
+        System.out.println(inputParser.parseCommand("submit the report /dl tomorrow or the day after tomorrow /reminder next thursday"));
+    }
+}
+
+	// End of segment: src\udo\logic\InputParser.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\Logic.java
+	 */
+
+public class Logic {
+    private Gui gui;
+    private static Logic logicObj = null;
+    private Storage storage;
+    private Reminder reminder;
+
+    private static final String ERR_FORMAT = "Error: %s";
+    public static final String ERR_INVALID_CMD_NAME = "invalid command name";
+    public static final String ERR_UNSUPPORTED_CMD = "unsupported command";
+    public static final String ERR_INVALID_CMD_ARG =
+            "invalid command's argument";
+    public static final String ERR_UNSPECIFIED_INDEX =
+            "a valid task's index is required";
+    public static final String ERR_LATE_DEADLINE =
+            "deadline has already passed";
+    public static final String ERR_NON_POSITIVE_DUR =
+            "task's duration must be positive";
+    public static final String ERR_STORAGE =
+            "tasks' storage input/output error";
+    public static final String ERR_INVALID_INDEX =
+            "specified task's index is not valid";
+    public static final String ERR_EMPTY_CONTENT =
+            "task's content cannot be empty";
+
+    public static final String WARN_FORMAT = "Warning: %s";
+
+    public static final Integer MAX_STATUS_LENGTH = 40;
+
+    private InputParser parser;
+    private Autocompleter autocompleter;
+
+    private static String status;
+
+    private static final Logger log = Logger.getLogger(Logic.class.getName());
+
+    private Logic() {
+        parser = new InputParser();
+
+        storage = new Storage();
+
+        autocompleter = new Autocompleter();
+        autocompleter.addTaskContentToTree(storage.query());
+
+        reminder = Reminder.getReminder();
+        reminder.updateTasks(storage.query());
+    }
+
+    /**
+     * For other components to get a single instance of logic
+     * @return
+     */
+    public static Logic getInstance() {
+        if (logicObj == null) {
+            logicObj = new Logic();
+        }
+
+        return logicObj;
+    }
+
+    /**
+     * This method is used to give logic a Gui instance so that
+     * it can reflect changes on the gui after certain execution
+     * @param guiObj
+     */
+    public void setGui(Gui guiObj) {
+        gui = guiObj;
+        reminder.setLogic(this);
+        autocompleter.setLogic(this);
+    }
+
+    /**
+     * Execute the command given in the command string
+     * @param command the command string
+     */
+    public boolean executeCommand(String command) {
+        log.log(Level.FINE, "Receive command: " + command);
+        autocompleter.addToHistory(command);
+
+        Command parsedCommand = parser.parseCommand(command);
+
+        if (parser.getErrorStatus() != null) {
+            log.log(Level.FINE,
+                    "Command syntax error: " + parser.getErrorStatus());
+
+            status = formatErrorStr(parser.getErrorStatus());
+            gui.displayStatus(status);
+            return false;
+        }
+
+        log.log(Level.FINER, parsedCommand.toString(), parsedCommand);
+
+        parsedCommand.setLogic(this);
+        parsedCommand.setStorage(storage);
+
+        return parsedCommand.execute();
+    }
+
+    /******************************
+     * Interface for autocomplete *
+     ******************************/
+
+    /**
+     * Refer to same method in Autocompleter
+     */
+    public List<String> getSuggestions(String text) {
+        return autocompleter.getSuggestions(text);
+    }
+
+    /**
+     * Refer to same method in Autocompleter
+     */
+    public List<String> getSuggestions(String text, Integer maxWords) {
+        return autocompleter.getSuggestions(text, maxWords);
+    }
+
+    /**
+     * Refer to same method in Autocompleter
+     */
+    public String autocomplete(String text) {
+        if (isStartOfModifyCmd(text)) {
+            Task task = getModifyTask(text);
+
+            if (task != null) {
+                log.finer("Autocompleting task");
+                return autocompleter.autocomplete(text, task);
+            }
+        }
+
+        log.finer("Autocompleting words");
+        return autocompleter.autocomplete(text);
+    }
+
+    private Task getModifyTask(String text) {
+        String[] tokens = text.split("\\s");
+        assert(tokens.length >= 2);
+
+        try {
+            Integer displayIndex = Integer.parseInt(tokens[1]);
+            Integer storageIndex = Utility.getStorageIndex(displayIndex);
+
+            if (storageIndex != null) {
+                return storage.query(storageIndex);
+            } else {
+                log.fine("Cannot find storage index");
+                return null;
+            }
+        } catch (NumberFormatException e) {
+            log.fine("Invalid modify task's index");
+            return null;
+        }
+    }
+
+    /**
+     * Check if the text contains the beginning of a modify command
+     * which consists of the name 'modify' and an index
+     * @param text
+     * @return
+     */
+    private boolean isStartOfModifyCmd(String text) {
+        String[] tokens = text.split("\\s");
+
+        if (tokens.length >= 2) {
+            if (tokens[0].equals(Config.CMD_STR_MODIFY)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Refer to same method in Autocompleter
+     */
+    public String getPreviousCmd() {
+        return autocompleter.getPreviousCmd();
+    }
+
+    /**
+     * Refer to same method in Autocompleter
+     */
+    public String getNextCmd() {
+        return autocompleter.getNextCmd();
+    }
+
+    /**********************************************
+     * Methods for logic's internal components to *
+     * communicate with other external components *
+     **********************************************/
+
+    public void updateGuiStatus(String status) {
+        assert(gui != null);
+        gui.displayStatus(status);
+    }
+
+    public void updateGuiTasks(List<Task> tasks) {
+        assert(gui != null);
+        gui.display(tasks);
+    }
+
+    public void callGuiAlert(Task task) {
+        assert(gui != null);
+        gui.displayAlert(task);
+    }
+
+    public void updateReminder() {
+        reminder.updateTasks(storage.query());
+    }
+
+    public void updateAutocompleter(List<Task> tasks) {
+        autocompleter.addTaskContentToTree(tasks);
+    }
+
+    /**
+     * @param parsedCommand
+     * @return
+     */
+    public static String summarizeContent(String taskContent) {
+        if (taskContent == null) {
+            return "";
+        }
+
+        if (taskContent.length() > MAX_STATUS_LENGTH) {
+            taskContent = taskContent.substring(0, MAX_STATUS_LENGTH);
+            taskContent += "...";
+        }
+        return taskContent;
+    }
+
+    public static String formatErrorStr(String error) {
+        return String.format(ERR_FORMAT, error);
+    }
+
+    public static String formatWarningStr(String warning) {
+        return String.format(WARN_FORMAT, warning);
+    }
+
+    public static void main(String[] argv) {
+        Logic logic = new Logic();
+        logic.setGui(new GuiStub());
+        logic.executeCommand("go to school /deadline tomorrow");
+        logic.executeCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm");
+        logic.executeCommand("add AAAI conference /start in 2 days /end tuesday");
+        logic.executeCommand("add match midterm /start next friday /end 11/02/15");
+        logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
+        logic.executeCommand("submit the report /dl next friday /reminder next thursday");
+    }
+}
+
+	// End of segment: src\udo\logic\Logic.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\TernarySearchTree.java
+	 */
+
+public class TernarySearchTree {
+    protected static class Node {
+        private char myChar;
+        private Node left, right, center;
+        protected Boolean isWordEnd;
+
+        public Node(char myChar, Boolean isWordEnd) {
+            this.myChar = myChar;
+            this.isWordEnd = isWordEnd;
+        }
+    }
+
+    private Node root = null;
+
+    private static final Logger log = Logger.getLogger(TernarySearchTree.class.getName());
+
+    /**
+     * Add the string s into the search tree
+     * @param s the string from which characters are added into the tree
+     * @param index the index of the first character to be added
+     * @param node the start node of the search tree
+     * @return the start of the search tree that contains the added characters
+     */
+    private Node add(String s, Integer index, Node node) {
+        if (index > s.length()) {
+            return null;
+        }
+
+        if (node == null) {
+            node = new Node(s.charAt(index), false);
+        }
+
+        if (s.charAt(index) < node.myChar) {
+            node.left = add(s, index, node.left);
+        } else if (s.charAt(index) > node.myChar) {
+            node.right = add(s, index, node.right);
+        } else {
+            if (index + 1 == s.length()) {
+                node.isWordEnd = true;
+            } else {
+                node.center = add(s, index + 1, node.center);
+            }
+        }
+
+        return node;
+    }
+
+    /**
+     * Add the string s into the search tree
+     * @param s
+     */
+    public void add(String s) {
+        log.log(Level.FINEST, "Adding " + s);
+
+        if (s == null) {
+            return;
+        }
+
+        s = s.trim();
+        if (s.equalsIgnoreCase("")) {
+            return;
+        }
+
+        root = add(s, 0, root);
+    }
+
+    /**
+     * Search if the tree contains the word s
+     * @param s
+     * @return
+     */
+    public boolean contains(String s) {
+        if (s == null) {
+            return false;
+        }
+
+        Node n = searchString(s);
+
+        if (n != null && n.isWordEnd) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Search for a sequence of characters in the tree that matches
+     * s. The sequence does not have to form a full word
+     * @param s
+     * @return
+     */
+    private Node searchString(String s) {
+        if (s == null || s.length() == 0) {
+            return null;
+        }
+
+        int index = 0;
+        Node curNode = root;
+
+        while (curNode != null) {
+            if (s.charAt(index) < curNode.myChar) {
+                curNode = curNode.left;
+            } else if (s.charAt(index) > curNode.myChar) {
+                curNode = curNode.right;
+            } else {
+                index++;
+                if (index == s.length()) {
+                    return curNode;
+                }
+                curNode = curNode.center;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Search a return a list of words with the specified prefix
+     * @param prefix
+     * @param numWords upperbound for number of words to return in the list
+     *                 if this is null, there will be no upperbound
+     * @return a list of words with specified prefix
+     */
+    public List<String> searchPrefix(String prefix, Integer numWords) {
+        if (prefix == null) {
+            return new ArrayList<String>();
+        }
+
+        Node n = searchString(prefix);
+
+        if (n != null) {
+            if (n.isWordEnd) {
+                return searchTree(prefix, true, n.center, numWords);
+            } else {
+                return searchTree(prefix, false, n.center, numWords);
+            }
+        }
+
+        return new ArrayList<String>();
+    }
+
+    /**
+     * Search a return a list of words with the specified prefix
+     * @param prefix
+     * @return
+     */
+    public List<String> searchPrefix(String prefix) {
+        return searchPrefix(prefix, null);
+    }
+
+    /**
+     * Find words in the tree rooted at some node appended by prefix
+     * @param prefix the prefix from the root to this tree
+     * @param prefixIncluded indicate whether the prefix is a valid word
+     * @param node the root of the tree for the search
+     * @param numWords maximum number of words to search for or
+     *                 search for all words if this is null
+     * @return list of found words
+     */
+    private List<String> searchTree(String prefix, Boolean prefixIncluded,
+                                    Node node, Integer numWords) {
+        List<Character> curWord = stringToCharList(prefix);
+        List<String> result = new ArrayList<>();
+
+        if (prefixIncluded) {
+            result.add(prefix);
+        }
+        searchTreeHelper(node, numWords, curWord, result);
+
+        return result;
+    }
+
+    private List<Character> stringToCharList(String prefix) {
+        List<Character> result = new ArrayList<>();
+
+        if (prefix != null) {
+            for (int i = 0; i < prefix.length(); i++) {
+                result.add(prefix.charAt(i));
+            }
+        }
+
+        return result;
+    }
+
+    private void searchTreeHelper(Node node, Integer numWords,
+                                  List<Character> curWord,
+                                  List<String> result) {
+        if (numWords != null && result.size() >= numWords) {
+            return;
+        }
+        if (node == null) {
+            return;
+        }
+
+        searchTreeHelper(node.left, numWords, curWord, result);
+        if (numWords != null && result.size() == numWords) {
+            return;
+        }
+
+        curWord.add(node.myChar);
+
+        if (node.isWordEnd) {
+            result.add(charListToString(curWord));
+        }
+        searchTreeHelper(node.center, numWords, curWord, result);
+
+        curWord.remove(curWord.size() - 1);
+
+        searchTreeHelper(node.right, numWords, curWord, result);
+    }
+
+    private String charListToString(List<Character> curWord) {
+        StringBuilder builder = new StringBuilder(curWord.size());
+
+        for (char c : curWord) {
+            builder.append(c);
+        }
+
+        return builder.toString();
+    }
+
+    public static void main(String[] args) {
+        TernarySearchTree t = new TernarySearchTree();
+
+        t.add("cat"); t.add("category"); t.add("catalyzt");
+        t.add("dog"); t.add("dogmatic"); t.add("dogwood");
+        t.add("add"); t.add("addition"); t.add("additional");
+
+        List<String> r = t.searchPrefix("");
+        for (String s : r) {
+            System.out.println(s);
+        }
+
+        System.out.println(t.contains("dogwood"));
+        System.out.println(t.contains("catalyst"));
+    }
+
+}
+
+	// End of segment: src\udo\logic\TernarySearchTree.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\storage\Task.java
+	 */
+
+	@Override
+	public String toString() {
+	    String finalString = "";
+	    if (groupId != null){
+	    	finalString += "Group: " + groupId + "\n"; 
+	    }
+	    
+	    if (index != null){
+	    	finalString += index + ". ";
+	    }
+	    
+	    if (!priority) {
+	        finalString += taskType + ": ";
+	    } else {
+	        finalString += "Important " + taskType + ": ";
+	    }
+
+		finalString += content + "\n";
+
+		if (deadline != null) {
+		    finalString += "  deadline: " + deadline + "\n";
+		}
+		if (start != null) {
+			finalString += "  start: " + start + "\n";
+		}
+		if (end != null) {
+			finalString += "  end: " + end + "\n";
+		}
+		if (reminder != null) {
+			finalString += "  reminder: " + reminder + "\n";
+		}
+		finalString += "  done: " + done;
+		return finalString;
+	}
+	
+	public Task copy() {
+	    Task copy = new Task();
+	    
+	    copy.setGroupId(this.getGroupId());
+	    copy.setIndex(this.getIndex());
+	    copy.setTaskType(taskType);
+	    copy.setContent(content);
+	    copy.setDeadline(this.getDeadline());
+	    copy.setStart(this.getStart());
+	    copy.setEnd(this.getEnd());
+	    copy.setDuration(this.getDuration());
+	    copy.setReminder(this.getReminder());
+	    copy.setLabel(this.getLabel());
+	    copy.setPriority(this.priority);
+	    if (this.isDone()) copy.setDone();
+
+	    return copy;
+	}
+	
+	@Override
+	public int hashCode() {
+	    if (getIndex() == null) {
+	        return super.hashCode();
+	    }
+	    
+	    return getIndex();
+	}
+	
+	@Override
+	public boolean equals(Object taskObj) {
+	    if (taskObj == null) {
+	        return false;
+	    }
+	    if (taskObj == this) {
+	        return true;
+	    }
+	    if (!(taskObj instanceof Task)) {
+	        return false;
+	    }
+
+	    Task task = (Task) taskObj;
+	    
+	    if (index == null || task.index == null) {
+	        return false;
+	    }
+
+	    return index.equals(task.index);
+	}
+
+	// End of segment: src\udo\storage\Task.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\testdriver\AutocompleteTest.java
+	 */
+
+public class AutocompleteTest {
+
+    private void setUpTree(TernarySearchTree t) {
+        t.add("cat"); t.add("category"); t.add("catalyzt");
+        t.add("dog"); t.add("dogmatic"); t.add("dogwood");
+        t.add("add"); t.add("addition"); t.add("additional");
+    }
+
+    @Test
+    public void ternarySearchTreeTest1() {
+        TernarySearchTree t = new TernarySearchTree();
+        setUpTree(t);
+
+        List<String> expected = new ArrayList<>();
+        expected.add("add");
+        expected.add("addition");
+        expected.add("additional");
+
+        List<String> actual = t.searchPrefix("ad");
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void ternarySearchTreeTest2() {
+        TernarySearchTree t = new TernarySearchTree();
+        setUpTree(t);
+
+        List<String> expected = new ArrayList<>();
+        List<String> actual1 = t.searchPrefix("abc");
+        List<String> actual2 = t.searchPrefix("cad");
+
+        assertEquals(expected, actual1);
+        assertEquals(expected, actual2);
+    }
+
+    @Test
+    public void ternarySearchTreeTest3() {
+        TernarySearchTree t = new TernarySearchTree();
+        setUpTree(t);
+
+        List<String> expected = new ArrayList<>();
+        expected.add("cat");
+        expected.add("catalyzt");
+        expected.add("category");
+
+        List<String> actual = t.searchPrefix("cat");
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void ternarySearchTreeTestEmpty() {
+        TernarySearchTree t = new TernarySearchTree();
+        setUpTree(t);
+
+        t.add("");
+        assertEquals(0, t.searchPrefix("").size());
+    }
+
+    @Test
+    public void testSuggestionsNonPositive() {
+        Autocompleter autocompleter = new Autocompleter();
+
+        assertEquals(0, autocompleter.getSuggestions("ad", 0).size());
+        assertEquals(0, autocompleter.getSuggestions("ad", -1).size());
+    }
+
+    @Test
+    public void testSuggestionsEmpty() {
+        Autocompleter autocompleter = new Autocompleter();
+
+        assertEquals(0, autocompleter.getSuggestions("").size());
+        assertEquals(0, autocompleter.getSuggestions("modify ").size());
+    }
+
+    @Test
+    public void testSuggetionOptions() {
+        Autocompleter autocompleter = new Autocompleter();
+
+        List<String> expected = new ArrayList<String>();
+        expected.add("/d");
+        expected.add("/deadline");
+        expected.add("/dl");
+        expected.add("/do");
+        expected.add("/done");
+
+        assertEquals(expected, autocompleter.getSuggestions("/", 5));
+    }
+
+    @Test
+    public void testDictAutocomplete1() {
+        Autocompleter autocompleter = new Autocompleter();
+
+        assertEquals("add", autocompleter.autocomplete("ad"));
+
+        autocompleter.getSuggestions("sing a song /de", 5);
+        assertEquals("sing a song /deadline",
+                     autocompleter.autocomplete("sing a song /de"));
+
+        autocompleter.getSuggestions("do homework ", 5);
+        assertEquals("do homework ", autocompleter.autocomplete("do homework "));
+
+        autocompleter.getSuggestions("go for meeting /start tomo");
+        assertEquals("go for meeting /start tomorrow",
+                     autocompleter.autocomplete("go for meeting /start tomo"));
+
+        autocompleter.getSuggestions("submit report /dl next fr");
+        assertEquals("submit report /dl next friday",
+                     autocompleter.autocomplete("submit report /dl next fr"));
+    }
+
+    @Test
+    public void testHistoryAutocompleteEmtpy() {
+        Autocompleter completer = new Autocompleter();
+
+        assertEquals("", completer.getPreviousCmd());
+        assertEquals("", completer.getNextCmd());
+    }
+
+    @Test
+    public void testHistoryAutocomplete1() {
+        Autocompleter completer = new Autocompleter();
+
+        completer.addToHistory("command 1");
+        completer.addToHistory("command 2");
+        completer.addToHistory("command 3");
+        completer.addToHistory("command 4");
+
+        assertEquals("command 4", completer.getPreviousCmd());
+        assertEquals("command 3", completer.getPreviousCmd());
+        assertEquals("command 4", completer.getNextCmd());
+
+        assertEquals("", completer.getNextCmd());
+
+        assertEquals("command 4", completer.getPreviousCmd());
+        assertEquals("command 3", completer.getPreviousCmd());
+        assertEquals("command 2", completer.getPreviousCmd());
+        assertEquals("command 1", completer.getPreviousCmd());
+        assertEquals("command 4", completer.getPreviousCmd());
+        assertEquals("command 3", completer.getPreviousCmd());
+    }
+}
+
+	// End of segment: src\udo\testdriver\AutocompleteTest.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\testdriver\IntegrationTest.java
+	 */
+
+public class IntegrationTest {
+    public static final String REPORT_LINE_DIFF =
+            "line %d:\nexpected: %s\nactual: %s";
+    public static final String REPORT_EMPTY_LINE = "<<empty>>";
+    public static final String TESTS_PATH = "res/tests/integration/";
+
+    public static boolean isContentSimilar(String expectedFile,
+                                           String actualFile) {
+        BufferedReader expectedReader = null;
+        BufferedReader actualReader = null;
+
+        try {
+            expectedReader = new BufferedReader(
+                                 new FileReader(expectedFile));
+            actualReader = new BufferedReader(
+                                 new FileReader(actualFile));
+
+            String expectedStr = expectedReader.readLine();
+            String actualStr = actualReader.readLine();
+
+            boolean isSimilar = true;
+            int currentLine = 1;
+
+            while (expectedStr != null || actualStr != null) {
+                if (expectedStr == null) {
+                    System.out.println(String.format(REPORT_LINE_DIFF,
+                                                     currentLine,
+                                                     REPORT_EMPTY_LINE,
+                                                     actualStr));
+                    isSimilar = false;
+                } else if (actualStr == null) {
+                    System.out.println(String.format(REPORT_LINE_DIFF,
+                                                     currentLine,
+                                                     expectedStr,
+                                                     REPORT_EMPTY_LINE));
+                    isSimilar = false;
+                } else if (!expectedStr.equals(actualStr)) {
+                    System.out.println(String.format(REPORT_LINE_DIFF,
+                                                     currentLine,
+                                                     expectedStr,
+                                                     actualStr));
+                    isSimilar = false;
+                }
+
+                currentLine++;
+                expectedStr = expectedReader.readLine();
+                actualStr = actualReader.readLine();
+            }
+
+            expectedReader.close();
+            actualReader.close();
+
+            return isSimilar;
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found!");
+            return false;
+        } catch (IOException e) {
+            System.out.println("IO Error");
+            return false;
+        }
+    }
+
+    private static void removeExistingTasks() {
+        try {
+            (new RandomAccessFile("task.json", "rws")).setLength(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void printTestTitle(int testIndex) {
+        System.out.println("Integration test " + testIndex);
+        System.out.println("==================");
+    }
+
+    public static void test1() {
+        removeExistingTasks();
+
+        Logic logic = Logic.getInstance();
+        logic.setGui(new GuiStub());
+
+        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
+
+        printTestTitle(1);
+        if (isContentSimilar(TESTS_PATH + "expected1.txt", "task.json")) {
+            System.out.println("TEST1 PASSED");
+        } else {
+            System.out.println("TEST1 FAILED");
+        }
+    }
+
+    public static void test2() {
+        removeExistingTasks();
+
+        Logic logic = Logic.getInstance();
+        logic.setGui(new GuiStub());
+
+        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
+        logic.executeCommand("add group meeting /start April 1, 2015 2pm or April 2, 2015 3pm or April 3, 2015 5pm");
+
+        printTestTitle(2);
+        if (isContentSimilar(TESTS_PATH + "expected2.txt", "task.json")) {
+            System.out.println("TEST2 PASSED");
+        } else {
+            System.out.println("TEST2 FAILED");
+        }
+    }
+
+    public static void test3() {
+        removeExistingTasks();
+
+        Logic logic = Logic.getInstance();
+        logic.setGui(new GuiStub());
+
+        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
+        logic.executeCommand("add group meeting /start April 1, 2015 2pm or April 2, 2015 3pm or April 3, 2015 5pm");
+        logic.executeCommand("submit project report /deadline April 18, 2015 23:59pm /reminder April 13, 2015 1pm /important");
+        logic.executeCommand("display");
+
+        printTestTitle(3);
+        if (isContentSimilar(TESTS_PATH + "expected3.txt", "task.json")) {
+            System.out.println("TEST3 PASSED");
+        } else {
+            System.out.println("TEST3 FAILED");
+        }
+    }
+
+    public static void test4() {
+        removeExistingTasks();
+
+        Logic logic = Logic.getInstance();
+        logic.setGui(new GuiStub());
+
+        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
+        logic.executeCommand("add group meeting /start April 1, 2015 2pm or April 2, 2015 3pm or April 3, 2015 5pm");
+        logic.executeCommand("submit project report /deadline April 18, 2015 23:59pm /reminder April 13, 2015 1pm /important");
+        logic.executeCommand("undo");
+        logic.executeCommand("go to school /deadline April 10, 2015 2pm");
+        logic.executeCommand("undo");
+
+        printTestTitle(4);
+        if (isContentSimilar(TESTS_PATH + "expected4.txt", "task.json")) {
+            System.out.println("TEST4 PASSED");
+        } else {
+            System.out.println("TEST4 FAILED");
+        }
+    }
+
+    public static void main(String[] args) {
+        test1();
+        test2();
+        test3();
+        test4();
+    }
+}
+
+	// End of segment: src\udo\testdriver\IntegrationTest.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\testdriver\LogicTest.java
+	 */
+
+public class LogicTest {
+    private void removeExistingTasks() {
+        try {
+            (new RandomAccessFile("task.json", "rws")).setLength(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /* A valid case when a new deadline is added */
+    @Test
+    public void testAdd1() {
+        removeExistingTasks();
+
+        Logic logic = Logic.getInstance();
+        logic.setGui(new GuiStub());
+
+        Storage storage = new Storage();
+
+        assertEquals(true,
+                     logic.executeCommand("go to school /deadline tomorrow"));
+
+        List<Task> tasks = storage.query();
+
+        assertEquals(1, tasks.size());
+        assertEquals(TaskType.DEADLINE, tasks.get(0).getTaskType());
+        assertEquals("go to school", tasks.get(0).getContent());
+    }
+
+    /* A valid case when a new event is added */
+    @Test
+    public void testAdd2() {
+        removeExistingTasks();
+
+        Logic logic = Logic.getInstance();
+        logic.setGui(new GuiStub());
+
+        Storage storage = new Storage();
+
+        assertEquals(true,
+                     logic.executeCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm"));
+
+        List<Task> tasks = storage.query();
+
+        assertEquals(1, tasks.size());
+        assertEquals(TaskType.EVENT, tasks.get(0).getTaskType());
+        assertEquals("go to school", tasks.get(0).getContent());
+    }
+
+    /* A valid case in which a floating task is added */
+    @Test
+    public void testAdd3() {
+        removeExistingTasks();
+
+        Logic logic = Logic.getInstance();
+        logic.setGui(new GuiStub());
+
+        Storage storage = new Storage();
+
+        assertEquals(true,
+                     logic.executeCommand("add watch a movie /duration 2 hours 30 minutes"));
+
+        List<Task> tasks = storage.query();
+
+        assertEquals(1, tasks.size());
+        assertEquals(TaskType.TODO, tasks.get(0).getTaskType());
+        assertEquals("watch a movie", tasks.get(0).getContent());
+    }
+
+    /* A valid case where multiple tasks are added */
+    @Test
+    public void testAdd4() {
+        removeExistingTasks();
+
+        Logic logic = Logic.getInstance();
+        logic.setGui(new GuiStub());
+
+        Storage storage = new Storage();
+
+        logic.executeCommand("go to school /deadline tomorrow");
+        logic.executeCommand("add go to school /start tomorrow 2pm /end tomorrow 4pm");
+        logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
+
+        List<Task> tasks = storage.query();
+
+        assertEquals(3, tasks.size());
+    }
+
+    /* This is an invalid case in which the input dates is misspelled */
+    @Test
+    public void testInvalidDate() {
+        removeExistingTasks();
+
+        Logic logic = Logic.getInstance();
+        logic.setGui(new GuiStub());
+
+        assertEquals(false,
+                     logic.executeCommand("go to school /deadline tomrrow"));
+    }
+}
+
+	// End of segment: src\udo\testdriver\LogicTest.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\testdriver\ParserTest.java
+	 */
+
+public class ParserTest {
+    private static final String testsDir = "res/tests/parser/";
+
+    public String readFile(String filename) {
+        String result = null;
+
+        try {
+            result = new String(Files.readAllBytes(Paths.get(filename)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    @Test
+    public void test1() {
+        String[] inputs = readFile(testsDir + "input1.txt").
+                              split(System.lineSeparator());
+        String[] expected = readFile(testsDir + "expected1.txt").split("#");
+
+        InputParser parser = new InputParser();
+
+        assert(inputs.length == expected.length);
+
+        for (int i = 0; i < inputs.length; i++) {
+            assertEquals(expected[i].trim(),
+                         ignoreOptions(parser.parseCommand(inputs[i])));
+        }
+    }
+
+    private String ignoreOptions(Command cmd) {
+        String result = "Command: " + cmd.getCommandName().toString() + "\n";
+
+        if (cmd.getArgIndex() != null) {
+            result += "Index: " + cmd.getArgIndex() + "\n";
+        }
+        if (cmd.getArgStr() != null && !cmd.getArgStr().trim().equals("")) {
+            result += "Argument: " + cmd.getArgStr() + "\n";
+        }
+
+        return result.trim();
+    }
+
+}
+
+	// End of segment: src\udo\testdriver\ParserTest.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\util\Config.java
+	 */
+
+public class Config {
+    /** Procedure for adding a new command:
+     * Add a new command name string here and keywords.txt
+     * Add the corresponding entry in the CommandName enum here
+     * Add the command name into the regex pattern in InputParser
+     * Add a new branch for string to enum conversion in Utility class
+     * Implement a subclass of Command with an 'execute' method and
+     * Add a branch to createCommandFromName method in InputParser
+     *
+     * Procedure for adding a new option:
+     * Add a new string array of 3 entries here:
+     *      [option long name, option short name, option arg type]
+     * Add the string array name into the OPTIONS_TABLE array
+     * Add the option's strings to dict/keywords.txt for autocomplete
+     * -> see existing options as examples
+     */
+
+    /** Constants for command names **/
+    public static final String CMD_STR_ADD = "add";
+    public static final String CMD_STR_MODIFY = "modify";
+    public static final String CMD_STR_DELETE = "delete";
+    public static final String CMD_STR_DISPLAY = "display";
+    public static final String CMD_STR_SEARCH = "search";
+    public static final String CMD_STR_DONE = "done";
+    public static final String CMD_STR_CHDIR = "cd";
+    public static final String CMD_STR_UNDO = "undo";
+    public static final String CMD_STR_CONFIRM = "confirm";
+
+    public static final String CMD_STR_DELETE_SHORT = "dd";
+
+    public static enum CommandName {
+        ADD, MODIFY, DELETE, DISPLAY, SEARCH, DONE, CHDIR, UNDO, CONFIRM
+    }
+
+    /** Constants for command options **/
+    public static final String OPTION_MARKER = "/";
+    public static final char OPTION_MARKER_CHAR = '/';
+    public static final int OPT_LONG = 0;
+    public static final int OPT_SHORT = 1;
+    public static final int OPT_TYPE = 2;
+
+    // Types that arguments to an option can take
+    public static final String TYPE_STR = "str_t";
+    public static final String TYPE_DATETIME = "datetime_t";
+    public static final String TYPE_TIME = "time_t";
+    public static final String TYPE_INT = "int_t";
+    public static final String TYPE_NONE = "notype_t";
+
+    public static final String[] OPT_DUR = {"duration", "du", TYPE_TIME};
+    public static final String[] OPT_LABEL = {"label", "l", TYPE_STR};
+    public static final String[] OPT_PRIO = {"important", "im", TYPE_NONE};
+    public static final String[] OPT_DEADLINE = {"deadline", "dl", TYPE_DATETIME};
+    public static final String[] OPT_START = {"start", "s", TYPE_DATETIME};
+    public static final String[] OPT_END = {"end", "e", TYPE_DATETIME};
+    public static final String[] OPT_REMINDER = {"reminder", "r", TYPE_DATETIME};
+    public static final String[] OPT_FREE = {"free", "f", TYPE_NONE};
+    public static final String[] OPT_DONE = {"done", "do", TYPE_NONE};
+    public static final String[] OPT_OVERDUE = {"overdue", "o", TYPE_NONE};
+
+    /**
+     * New options can be added to the following table following the same
+     * format as existing entry for it to work with the input parser
+     **/
+    public static final String OPTIONS_TABLE[][] =
+        { OPT_DUR, OPT_LABEL, OPT_PRIO, OPT_DEADLINE, OPT_OVERDUE,
+          OPT_START, OPT_END, OPT_REMINDER, OPT_FREE, OPT_DONE };
+}
+
+	// End of segment: src\udo\util\Config.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\util\Utility.java
+	 */
+
+public class Utility {
+	private static final SimpleDateFormat fmt =
+	        new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+	public static HashMap<Integer, Integer> indexMap = new HashMap<>();
+
+    public static Config.CommandName convertToCommandName(String cmdName) {
+        cmdName = cmdName.toLowerCase();
+
+        if (cmdName.equals(Config.CMD_STR_ADD)) {
+            return Config.CommandName.ADD;
+        } else if (cmdName.equals(Config.CMD_STR_DELETE) ||
+                   cmdName.equals(Config.CMD_STR_DELETE_SHORT)) {
+            return Config.CommandName.DELETE;
+        } else if (cmdName.equals(Config.CMD_STR_MODIFY)) {
+            return Config.CommandName.MODIFY;
+        } else if (cmdName.equals(Config.CMD_STR_DISPLAY)) {
+            return Config.CommandName.DISPLAY;
+        } else if (cmdName.equals(Config.CMD_STR_DONE)){
+            return Config.CommandName.DONE;
+        } else if (cmdName.equals(Config.CMD_STR_CHDIR)) {
+            return Config.CommandName.CHDIR;
+        } else if (cmdName.equals(Config.CMD_STR_SEARCH)) {
+            return Config.CommandName.SEARCH;
+        } else if (cmdName.equals(Config.CMD_STR_UNDO)) {
+            return Config.CommandName.UNDO;
+        } else if (cmdName.equals(Config.CMD_STR_CONFIRM)) {
+            return Config.CommandName.CONFIRM;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the lower-level task's index in storage from the task's index
+     * as displayed by gui
+     * @param argIndex the displayed index
+     * @return the storage index or null if it's not found
+     */
+    public static Integer getStorageIndex(Integer displayIndex) {
+        assert(displayIndex != null);
+        return indexMap.get(displayIndex);
+    }
+
+    public static void setToStartOfDay(Calendar start) {
+        start.set(GregorianCalendar.HOUR_OF_DAY, 0);
+        start.set(GregorianCalendar.MINUTE, 0);
+    }
+
+    /**
+     * Set a Gregorian calendar to end of the day i.e 23:59pm
+     * @param end
+     */
+    public static void setToEndOfDay(Calendar end) {
+        end.set(GregorianCalendar.HOUR_OF_DAY, 23);
+        end.set(GregorianCalendar.MINUTE, 59);
+    }
+
+    /**
+     * Convert a Gregorian calendar object to string representation
+     * @param calendar
+     * @return the string representation or empty string if calendar is null
+     */
+	// End of segment: src\udo\util\Utility.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\util\Utility.java
+	 */
+
+	public static ArrayList<Task> deepCopy(List<Task> firstCopy) {
+	    ArrayList<Task> copy = new ArrayList<>();
+	    for(Task element : firstCopy) {
+	        copy.add(element.copy());
+	    }
+	    return copy;
+	}
+	
+	// End of segment: src\udo\util\Utility.java
+
+
+
+
+

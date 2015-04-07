@@ -1,0 +1,565 @@
+//@author: a0112115a
+
+
+
+	/**
+	 * origin: src\udo\logic\Reminder.java
+	 */
+
+public class Reminder {
+    private static final Logger log = Logger
+            .getLogger(Reminder.class.getName());
+
+    // Reminder object singleton
+    private static Reminder reminderObj;
+
+	private Queue<Task> tasksQueue;
+	private Timer timer;
+
+	private Logic logic;
+
+	private class ReminderSchedule extends TimerTask {
+	    private Task remindedTask;
+
+	    public ReminderSchedule(Task task) {
+	        remindedTask = task;
+        }
+
+		@Override
+		public void run() {
+		    Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    remind(remindedTask);
+                }
+            });
+		}
+	}
+
+	private Reminder() {
+	    log.info("Reminder initialized");
+		tasksQueue = new PriorityQueue<Task>(11, new ReminderComparator());
+		timer = new Timer();
+	}
+
+	public static Reminder getReminder() {
+	    if (reminderObj == null) {
+	        reminderObj = new Reminder();
+	    }
+
+	    return reminderObj;
+	}
+
+	public void updateTasks(List<Task> tasks) {
+	    log.info("Tasks update for reminder");;
+	    assert(tasks != null);
+	    synchronized(tasksQueue) {
+	        addTasksToPQ(tasksQueue, tasks);
+	    }
+
+	    timer.cancel();
+	    schedule();
+	}
+
+	private void addTasksToPQ(Queue<Task> tasksQueue, List<Task> tasks) {
+	    Calendar currentDate = new GregorianCalendar();
+	    
+	    for (Task t : tasks) {
+	        GregorianCalendar reminder = t.getReminder();
+		    System.out.println(t);
+
+	        if (!t.isDone() &&
+	            reminder != null && reminder.after(currentDate)) {
+	            tasksQueue.add(t);
+	        }
+	    }
+    }
+
+    public void schedule() {
+        log.info("Scheduling...");
+		Task task;
+		Date reminderDate;
+		Date currentDate = new Date();
+
+		synchronized (tasksQueue) {
+    		while (!tasksQueue.isEmpty()) {
+    		    task = tasksQueue.poll();
+    		    reminderDate = task.getReminder().getTime();
+
+    		    if (!task.isDone() && reminderDate.after(currentDate)) {
+    		        log.info("Scheduling for " + task.getContent());
+
+    		        ReminderSchedule schedule =  new ReminderSchedule(task);
+    		        timer = new Timer();
+    		        timer.schedule(schedule, reminderDate);
+
+    		        break;
+    		    }
+    		}
+		}
+	}
+
+	private void remind(Task task) {
+	    log.info("Reminder Alert: " + task.getContent());
+
+	    logic.callGuiAlert(task);
+
+	    schedule();
+	}
+
+	public void setLogic(Logic logic) {
+	    this.logic = logic;
+	}
+
+	public static void main(String[] args) {
+		Reminder rmd = getReminder();
+
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.add(Calendar.SECOND, 60);
+
+		Task t = new Task();
+		t.setReminder(cal);
+		t.setContent("poke the moon");
+		List<Task> tasks = new ArrayList<>();
+		tasks.add(t);
+
+		rmd.updateTasks(tasks);
+		try {
+            Thread.sleep(120000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+	}
+}
+	// End of segment: src\udo\logic\Reminder.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\logic\ReminderComparator.java
+	 */
+
+
+public class ReminderComparator implements Comparator<Task> {
+	@Override
+	public int compare(Task task1, Task task2) {
+		GregorianCalendar reminder1 = task1.getReminder();
+		GregorianCalendar reminder2 = task2.getReminder();
+		return reminder1.compareTo(reminder2);
+	}
+}
+
+	// End of segment: src\udo\logic\ReminderComparator.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\storage\JsonProcessor.java
+	 */
+
+public class JsonProcessor{
+
+	public static void main(String args[]) {
+
+	}
+	
+	/**
+	 * Java Method to read JSON From File
+	 */
+	public static ArrayList<Task> readJson(String file) throws Exception {
+		JSONParser parser = new JSONParser();
+		ArrayList<Task> rtList = new ArrayList<Task>();
+		try {
+			int countError = 0;
+			System.out.println("Reading JSON file from Java program");
+			FileReader fileReader = new FileReader(file);
+			JSONArray json = (JSONArray) parser.parse(fileReader);
+			for (int i=0; i<json.size(); i++) {
+				Gson gson = new Gson();
+				Task temp = gson.fromJson(json.get(i).toString(), Task.class);
+				if (temp.getIndex()==i) {
+					rtList.add(temp);
+				}
+				else {
+					temp.setIndex(i);
+					rtList.add(temp);
+					countError++;
+				}
+				if (countError>0)
+						writeJson(file, rtList);
+			}
+
+		} catch (Exception ex) {
+			throw ex;
+		}
+		return rtList;
+	}
+
+	/** Java Method to write JSON String to file
+	 */
+	public static boolean writeJson(String path, ArrayList<Task> myArr) {
+		ArrayList<String> gsonArray = new ArrayList<String>();
+		for (int i=0; i<myArr.size(); i++) {
+			Gson gson = new Gson();
+			gsonArray.add(gson.toJson(myArr.get(i)));
+		}
+
+
+		try {
+			System.out.println("Writting JSON into file ...");
+			System.out.println(gsonArray);
+			FileWriter jsonFileWriter = new FileWriter(path);
+			jsonFileWriter.write(gsonArray.toString());
+			jsonFileWriter.flush();
+			jsonFileWriter.close();
+			System.out.println("Done");
+			return true;
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+}
+
+	// End of segment: src\udo\storage\JsonProcessor.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\storage\Storage.java
+	 */
+
+	private void readTaskList() {
+		try {
+			FileReader fr = new FileReader("setting.txt");
+			BufferedReader br = new BufferedReader(fr);
+			lastPath = br.readLine();
+			br.close();
+			if (lastPath!=null) {
+				try {
+					taskList = JsonProcessor.readJson(lastPath);
+				}
+				catch (Exception e) {
+					System.out.println(e);
+					if (!storeTasks())
+						writeSettingDefault();
+				}
+			}
+			else {
+				writeSettingDefault();
+			}
+		} catch (Exception ex) {
+			writeSettingDefault();
+		}
+	}
+
+	/**Create default setting.txt and tasks.json*/
+	// End of segment: src\udo\storage\Storage.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\storage\Storage.java
+	 */
+
+	public void writeSettingDefault() {
+		File settingFile = new File("setting.txt");
+		lastPath = "tasks.json";
+		try {
+			taskList = JsonProcessor.readJson(lastPath);
+		}
+		catch (Exception ex) {
+
+			ex.printStackTrace();;
+			storeTasks();
+		}
+
+		try {
+			FileWriter fw = new FileWriter(settingFile);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(lastPath);
+			bw.close();
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	/**
+	 * change data file's directory
+	 * @param path
+	 * @return true if directory is changed, else false
+	 */
+	// End of segment: src\udo\storage\Storage.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\storage\Storage.java
+	 */
+
+	public boolean chDir(String path) {
+		prevCmd = "chDir";
+		updateLastPath(path);
+		return writeNewDir(path);
+
+	}
+
+	/**
+	 * @param path
+	 * @return true if new directory is successfully registered
+	 */
+	// End of segment: src\udo\storage\Storage.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\storage\Storage.java
+	 */
+
+	private boolean writeNewDir(String path) {
+		if (storeTasks()) {
+			try {
+				File settingFile = new File("setting.txt");
+				FileWriter fw;
+				fw = new FileWriter(settingFile);
+				BufferedWriter bw = new BufferedWriter(fw);
+				bw.write(lastPath);
+				bw.close();
+				fw.close();
+
+				return true;
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param path
+	 * @return true if path is updated
+	 */
+	// End of segment: src\udo\storage\Storage.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\storage\Storage.java
+	 */
+
+	private boolean updateLastPath(String path) {
+		prevPath = lastPath;
+		if (path.endsWith(".json"))
+			lastPath = path;
+		else {
+			if (!lastPath.equals("tasks.json")) {
+				int nameIndex = lastPath.lastIndexOf("\\") +1;
+				String fileName = lastPath.substring(nameIndex, lastPath.length());
+				if (path.endsWith("\\"))
+					lastPath = path.concat(fileName);
+				else
+					lastPath = path.concat("\\"+fileName);
+			}
+			else {
+				if (path.endsWith("\\"))
+					lastPath = path.concat("tasks.json");
+				else
+					lastPath = path.concat(File.separator+"tasks.json");
+			}
+		}
+		return true;
+	}
+	
+	// End of segment: src\udo\storage\Storage.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\storage\Storage.java
+	 */
+
+	/**Undo change directory and return true if successful*/ 
+	public boolean undoChDir() {
+		prevCmd = "";
+		lastPath = prevPath;
+		JsonProcessor.writeJson(lastPath, taskList);
+		return writeNewDir(lastPath);
+	}
+	
+	// End of segment: src\udo\storage\Storage.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\testdriver\JsonProcessorTest.java
+	 */
+
+public class JsonProcessorTest {
+
+	public static final String storageFile = "res/tests/storage/tasks.json";
+	public static final String expectedFile = "res/tests/storage/expected.txt";
+	public static final String inputFile = "res/tests/storage/input.txt";
+	private static ArrayList<Task> taskList = new ArrayList<Task>();
+
+	public void clearFile(String fileName) {
+		try {
+			FileWriter fw = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write("");
+			fw.close();
+			bw.close();
+		} catch (IOException ex){
+			ex.printStackTrace();
+		}
+	}
+
+	// End of segment: src\udo\testdriver\JsonProcessorTest.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\testdriver\JsonProcessorTest.java
+	 */
+
+	@Test
+	public void writeJsonTest() {
+		clearFile(storageFile);
+		taskList.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+				0, new GregorianCalendar(2005,01,02), "work",true, false));
+		taskList.add(new Task(TaskType.TODO, "fighting", null,null, null,
+				120, new GregorianCalendar(2011,01,02), "personal", false, false));
+		taskList.add(new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
+				0, null, "leisure", false, false));
+		JsonProcessor.writeJson(storageFile,taskList);
+		String expected = readFile(expectedFile);
+		assertEquals(expected.trim(), readFile(storageFile).trim());		//general case
+	}
+
+	@Test
+	public void readJsonTest() {
+		ArrayList<Task> testList;
+		try {
+			testList = JsonProcessor.readJson(inputFile);
+		} catch (Exception e) {
+			testList = new ArrayList<Task>();
+			e.printStackTrace();
+		}
+		taskList.clear();
+		taskList.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+				0, new GregorianCalendar(2005,01,02), "work",true, false));
+		taskList.add(new Task(TaskType.TODO, "fighting", null,null, null,
+				120, new GregorianCalendar(2011,01,02), "personal", false, false));
+		taskList.add(new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
+				0, null, "leisure", false, false));
+
+		for (int i = 0; i <taskList.size(); i++){
+			taskList.get(i).setIndex(i);
+			taskList.get(i).setGroupId(0);
+		}
+
+		assert testList.size() == taskList.size();		//case when jsonFile has been manually modified
+	
+		assertEquals(taskList, testList);			//general case
+	}
+}
+	// End of segment: src\udo\testdriver\JsonProcessorTest.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\util\Utility.java
+	 */
+
+	public static String calendarToString(Calendar calendar){
+	    if (calendar == null) {
+	        return "";
+	    }
+		return fmt.format(calendar.getTime());
+	}
+
+    /**
+     * Convert a Gregorian calendar object to string representation
+     * with a given format
+     * @param calendar
+     * @return the string representation or empty string if calendar is null
+     */
+	// End of segment: src\udo\util\Utility.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\util\Utility.java
+	 */
+
+	public static String calendarToString(Calendar calendar,
+	                                      SimpleDateFormat format){
+	    if (calendar == null) {
+	        return "";
+	    }
+		return format.format(calendar.getTime());
+	}
+
+	/**
+	 * Convert a formatted date string into a calendar object
+	 * @param dateStr the formatted string representation of a date
+	 * @return a new calendar or null if dateStr is null or
+	 *         the dateStr's format is invalid
+	 */
+	// End of segment: src\udo\util\Utility.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\util\Utility.java
+	 */
+
+	public static GregorianCalendar stringToCalendar(String dateStr) {
+	    try {
+	        if (dateStr == null) {
+	            return null;
+	        }
+	        GregorianCalendar calendar = new GregorianCalendar();
+	        calendar.setTime(fmt.parse(dateStr));
+            return calendar;
+        } catch (ParseException e) {
+            System.err.println("Invalid date format");
+            return null;
+        }
+	}
+
+	// End of segment: src\udo\util\Utility.java
+
+
+
+
+

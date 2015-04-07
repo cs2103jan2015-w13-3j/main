@@ -1,0 +1,44 @@
+//@author: a0093587m-reused
+
+
+
+	/**
+	 * origin: src\udo\testdriver\GuiTest.java
+	 */
+
+    private void removeExistingTasks() {
+        try {
+            (new RandomAccessFile("task.json", "rws")).setLength(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+	// End of segment: src\udo\testdriver\GuiTest.java
+
+
+
+
+
+	/**
+	 * origin: src\udo\testdriver\JsonProcessorTest.java
+	 */
+
+	public String readFile(String filename) {
+		String result = null;
+
+		try {
+			result = new String(Files.readAllBytes(Paths.get(filename)));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return result;
+	}
+	
+	// End of segment: src\udo\testdriver\JsonProcessorTest.java
+
+
+
+
+
