@@ -4,6 +4,11 @@ import java.util.GregorianCalendar;
 
 import udo.util.Utility;
 
+/**
+ * This class defines, creates and modifies the task object
+ * @author A0113038U
+ *
+ */
 public class Task implements Comparable<Task> {
     public static enum TaskType {DEADLINE, EVENT, TODO};
 
@@ -139,6 +144,9 @@ public class Task implements Comparable<Task> {
 		this.done = !(this.done);
 	}
 	
+	/**
+	 * @author Thien
+	 */
 	@Override
 	public String toString() {
 	    String finalString = "";
@@ -174,6 +182,10 @@ public class Task implements Comparable<Task> {
 		return finalString;
 	}
 	
+	/**
+	 * @author Thien
+	 * @return
+	 */
 	public Task copy() {
 	    Task copy = new Task();
 	    
@@ -193,6 +205,9 @@ public class Task implements Comparable<Task> {
 	    return copy;
 	}
 	
+	/**
+	 * @author Thien
+	 */
 	@Override
 	public int hashCode() {
 	    if (getIndex() == null) {
@@ -202,6 +217,9 @@ public class Task implements Comparable<Task> {
 	    return getIndex();
 	}
 	
+	/**
+	 * @author Thien
+	 */
 	@Override
 	public boolean equals(Object taskObj) {
 	    if (taskObj == null) {

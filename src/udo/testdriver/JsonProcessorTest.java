@@ -15,7 +15,10 @@ import org.junit.Test;
 import udo.storage.JsonProcessor;
 import udo.storage.Task;
 import udo.storage.Task.TaskType;
-
+/**
+ * This class performs unit testing on methods in JsonProcessor class
+ * @author Tue
+ */
 public class JsonProcessorTest {
 
 	public static final String storageFile = "res/tests/storage/tasks.json";
@@ -35,7 +38,9 @@ public class JsonProcessorTest {
 		}
 	}
 
-	//code reuse from Thien
+	/**code reuse
+	 * @author Thien
+	 */
 	public String readFile(String filename) {
 		String result = null;
 

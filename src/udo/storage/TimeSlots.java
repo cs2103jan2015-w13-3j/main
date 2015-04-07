@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import edu.emory.mathcs.backport.java.util.Collections;
 import udo.storage.Task.TaskType;
 
+/**
+ * This class processes the task list to determine
+ * the occupied time slots and free time slots
+ * @author A0113038U
+ */
 public class TimeSlots {
     private static final String CONTENT_FREE_SLOT = "Free slot";
 

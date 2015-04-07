@@ -13,6 +13,11 @@ import org.junit.Test;
 import udo.storage.Storage;
 import udo.storage.Task;
 import udo.storage.Task.TaskType;
+
+/**
+ * This class performs unit tests to methods in Storage class
+ * @author A0113038U
+ */
 public class StorageTest {
 
 	private static ArrayList<Task> taskList = new ArrayList<Task>();
