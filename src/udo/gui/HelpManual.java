@@ -33,11 +33,11 @@ public class HelpManual {
     private static Stage _dialogStage;
     
     @FXML
-    private WebView web;
+    private WebView _web;
 
     @FXML
     private void initialize() {
-        WebEngine webEngine = web.getEngine();
+        WebEngine webEngine = _web.getEngine();
         String url = HelpManual.class.getResource(_PATH_TO_MANUAL_HTML)
                                      .toExternalForm();
         webEngine.load(url);

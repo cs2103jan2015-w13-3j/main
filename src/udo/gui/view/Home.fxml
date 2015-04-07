@@ -8,16 +8,16 @@
 
 <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="450.0" styleClass="background" stylesheets="@main.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="udo.gui.HomeController">
    <children>
-      <TableView fx:id="TaskTable" layoutX="14.0" layoutY="97.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="389.0" prefWidth="419.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="17.0" AnchorPane.topAnchor="97.0">
+      <TableView fx:id="_TaskTable" layoutX="14.0" layoutY="97.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="389.0" prefWidth="419.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="17.0" AnchorPane.topAnchor="97.0">
         <columns>
-          <TableColumn fx:id="taskNameColumn" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="212.0" text="Task" />
-            <TableColumn fx:id="timeColumn" maxWidth="-1.0" minWidth="125.0" prefWidth="-1.0" text="Time" />
+          <TableColumn fx:id="_taskNameColumn" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="212.0" text="Task" />
+            <TableColumn fx:id="_timeColumn" maxWidth="-1.0" minWidth="125.0" prefWidth="-1.0" text="Time" />
         </columns>
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
          </columnResizePolicy>
       </TableView>
-      <TextField fx:id="inputBox" layoutX="21.0" layoutY="31.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="0.0" prefHeight="27.0" prefWidth="405.0" promptText="Enter your command" stylesheets="@main.css" AnchorPane.leftAnchor="21.0" AnchorPane.rightAnchor="24.0" AnchorPane.topAnchor="31.0" />
-      <Label fx:id="status" layoutX="21.0" layoutY="63.0" prefHeight="19.0" prefWidth="405.0" text="Current Status" textFill="WHITE" />
+      <TextField fx:id="_inputBox" layoutX="21.0" layoutY="31.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="0.0" prefHeight="27.0" prefWidth="405.0" promptText="Enter your command" stylesheets="@main.css" AnchorPane.leftAnchor="21.0" AnchorPane.rightAnchor="24.0" AnchorPane.topAnchor="31.0" />
+      <Label fx:id="_status" layoutX="21.0" layoutY="63.0" prefHeight="19.0" prefWidth="405.0" text="Current Status" textFill="WHITE" />
    </children>
 </AnchorPane>

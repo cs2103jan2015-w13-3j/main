@@ -43,6 +43,7 @@ public class HomeController {
     
     private static String _COLUMN_FIELD_CONTENT = "content";
     private static String _COLUMN_FIELD_LABEL= "label";
+    
     private static Label _statusString;
     private static ObservableList<Task> _data;
     private static CustomTextField _customTextField;

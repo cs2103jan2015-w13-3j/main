@@ -5,13 +5,13 @@
 	-fx-font-family: 'Open Sans', sans-serif;
 }
 
-#inputBox {
+#_inputBox {
 	-fx-background-color: #8f9396;
 	-fx-text-fill: black;
 	-fx-font-size: 13px;
 }
 
-#status {
+#_status {
 	-fx-text-fill: -fx-text-color;
 	-fx-font-size: 12.5px;
 	-fx-font-family:  'Open Sans', sans-serif;
