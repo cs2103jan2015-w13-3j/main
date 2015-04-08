@@ -363,11 +363,11 @@ public class Autocompleter {
         }
         if (InputParser.isEndOption(lastWord) &&
             task.getEnd() != null) {
-            return Utility.calendarToString(task.getEnd());
+            return Utility.calendarToString(task.getEnd(), fmt);
         }
         if (InputParser.isReminderOption(lastWord) &&
             task.getReminder() != null) {
-            return Utility.calendarToString(task.getReminder());
+            return Utility.calendarToString(task.getReminder(), fmt);
         }
 
         return "";
