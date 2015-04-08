@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import udo.logic.Logic;
 import udo.storage.Task;
+import udo.storage.Task.TaskType;
 import udo.util.Config;
 import udo.util.Config.CommandName;
 
@@ -45,9 +46,10 @@ public class ModifyCommand extends Command {
 
         Task task = storage.query(storageIndex);
 
-        Task.TaskType newTaskType = getTaskType();
+        TaskType newTaskType = getTaskType();
 
-        if (task.getTaskType() == newTaskType) {
+        if (task.getTaskType() == newTaskType ||
+            isOnlyDurationModified(task.getTaskType(), newTaskType)) {
             fillTaskFromCommand(task, 0);
             fixStartEnd(task);
         } else {
@@ -98,6 +100,13 @@ public class ModifyCommand extends Command {
         task.setReminder(null);
     }
 
+    private boolean isOnlyDurationModified(TaskType taskType,
+                                           TaskType newTaskType) {
+        return taskType == TaskType.EVENT &&
+               newTaskType == TaskType.TODO &&
+               getOption(Config.OPT_DUR) != null;
+    }
+
     /**
      * If the start or end time of an event is not specified by the information
      * given to the modify command, this method will attempt to fix it using
@@ -105,28 +114,22 @@ public class ModifyCommand extends Command {
      * @param task
      */
     private void fixStartEnd(Task task) {
-        if (task.getTaskType() == Task.TaskType.EVENT) {
+        if (task.getTaskType() == TaskType.EVENT) {
             Integer duration = task.getDuration();
 
             if (duration != null) {
-                if (getOption(Config.OPT_START) == null) {
-                    assert(task.getEnd() != null);
-
-                    GregorianCalendar cal = new GregorianCalendar();
-                    cal.setTime(task.getEnd().getTime());
-                    cal.add(-Calendar.MINUTE, duration);
-
-                    task.setStart(cal);
-                }
-
                 if (getOption(Config.OPT_END) == null) {
-                    assert(task.getStart() != null);
-
                     GregorianCalendar cal = new GregorianCalendar();
                     cal.setTime(task.getStart().getTime());
                     cal.add(Calendar.MINUTE, duration);
 
                     task.setEnd(cal);
+                } else if (getOption(Config.OPT_START) == null) {
+                    GregorianCalendar cal = new GregorianCalendar();
+                    cal.setTime(task.getEnd().getTime());
+                    cal.add(-Calendar.MINUTE, duration);
+
+                    task.setStart(cal);
                 }
             }
         }

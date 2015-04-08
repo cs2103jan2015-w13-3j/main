@@ -344,11 +344,19 @@ public abstract class Command {
      */
     protected void fillTaskFromCommand(Task task, int dateIndex) {
         fillContent(task);
+
         fillDeadline(task, dateIndex);
+
         fillStartDate(task, dateIndex);
         fillEndDate(task, dateIndex);
-        fillDuration(task);
+
+        if (getOption(Config.OPT_START) == null ||
+            getOption(Config.OPT_END) == null) {
+            fillDuration(task);
+        }
+
         fillReminder(task);
+
         fillLabel(task);
         fillPriority(task);
     }
