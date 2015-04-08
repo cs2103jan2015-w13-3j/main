@@ -9,6 +9,7 @@ undo
 confirm
 dd
 /duration
+/du
 /d
 /label
 /l

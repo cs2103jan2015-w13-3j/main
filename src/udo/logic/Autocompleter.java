@@ -369,6 +369,10 @@ public class Autocompleter {
             task.getReminder() != null) {
             return Utility.calendarToString(task.getReminder(), fmt);
         }
+        if (InputParser.isDurationOption(lastWord) &&
+            task.getDuration() != null) {
+            return Utility.minutesToString(task.getDuration());
+        }
 
         return "";
     }
@@ -436,6 +440,11 @@ public class Autocompleter {
         assert(task.getEnd() != null);
         appendOptionStr(builder, Config.OPT_END[Config.OPT_LONG],
                         Utility.calendarToString(task.getEnd(), fmt));
+
+        if (task.getDuration() != null) {
+            appendOptionStr(builder, Config.OPT_DUR[Config.OPT_LONG],
+                            Utility.minutesToString(task.getDuration()));
+        }
 
         if (task.getReminder() != null) {
             appendOptionStr(builder, Config.OPT_REMINDER[Config.OPT_LONG],

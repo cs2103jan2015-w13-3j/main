@@ -448,6 +448,10 @@ public class InputParser {
         return isOption(option, Config.OPT_REMINDER);
     }
 
+    public static boolean isDurationOption(String option) {
+        return isOption(option, Config.OPT_DUR);
+    }
+
     /**
      * Extract the string containing an argument to an option
      * @param i the index of the option in the extractedOptions

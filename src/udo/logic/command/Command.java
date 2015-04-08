@@ -353,6 +353,8 @@ public abstract class Command {
         if (getOption(Config.OPT_START) == null ||
             getOption(Config.OPT_END) == null) {
             fillDuration(task);
+        } else {
+            task.setDuration(null);
         }
 
         fillReminder(task);

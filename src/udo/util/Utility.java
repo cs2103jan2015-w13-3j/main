@@ -14,6 +14,7 @@ import udo.storage.Task;
 public class Utility {
 	private static final SimpleDateFormat fmt =
 	        new SimpleDateFormat("dd/MM/yyyy HH:mm");
+	private static final String timeFormat = "%sh%sm";
 
 	public static HashMap<Integer, Integer> indexMap = new HashMap<>();
 
@@ -67,6 +68,15 @@ public class Utility {
     public static void setToEndOfDay(Calendar end) {
         end.set(GregorianCalendar.HOUR_OF_DAY, 23);
         end.set(GregorianCalendar.MINUTE, 59);
+    }
+
+    public static String minutesToString(Integer minutes) {
+        assert(minutes != null);
+
+        int hours = minutes / 60;
+        minutes = minutes % 60;
+
+        return String.format(timeFormat, hours, minutes);
     }
 
     /**
@@ -126,7 +136,7 @@ public class Utility {
 	    }
 	    return copy;
 	}
-	
+
 	//@author A0114906J
 	public static boolean isSameDate(GregorianCalendar cal1,
 	                                 GregorianCalendar cal2) {
