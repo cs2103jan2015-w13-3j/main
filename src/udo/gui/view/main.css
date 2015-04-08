@@ -13,7 +13,7 @@
 
 #_status {
 	-fx-text-fill: -fx-text-color;
-	-fx-font-size: 12.5px;
+	-fx-font-size: 14px;
 	-fx-font-family:  'Open Sans', sans-serif;
 }
 
@@ -32,7 +32,7 @@
     -fx-border-color: transparent; /*remove the side border */
     -fx-border-width: 0.083333em; 
     -fx-cell-size: 2.0em; 
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     
 }
 
