@@ -68,9 +68,12 @@ public class SearchCommand extends Command {
 
             addFirstSlot(results, start, end, allTasks, duration);
 
-            setStatus(STATUS_DISP_FREE);
+            // TODO: Call Gui's api to display free slots
             //updateGuiTasks(results);
 
+            addLastSlot(results, start, end, allTasks, duration);
+
+            setStatus(STATUS_DISP_FREE);
             updateGUIStatus();
             return true;
         }
@@ -120,9 +123,40 @@ public class SearchCommand extends Command {
      * @param end
      * @param allTasks
      */
-    private void addLastSlot(List<Task> results, GregorianCalendar end,
+    private void addLastSlot(List<Task> results,
+                             GregorianCalendar start, GregorianCalendar end,
                              List<Task> allTasks, Integer duration) {
+        assert(allTasks != null);
 
+        Task t = new Task();
+
+        GregorianCalendar last = findLastEvent(allTasks);
+
+        if (last == null) {
+           if (end != null) {
+               t.setEnd(end);
+           }
+        } else {
+            if (end == null) {
+                if (start != null && last.after(start)) {
+                    t.setStart(last);
+                }
+            } else {
+                if (last.before(end) &&
+                    (duration == null ||
+                     Utility.findDiffMinutes(last, end) > duration)) {
+                    t.setStart(last);
+                }
+            }
+        }
+
+        if (t.getStart() != null || t.getEnd() != null) {
+            log.info(String.format("Padding first free slots: %s to %s",
+                                   Utility.calendarToString(t.getStart()),
+                                   Utility.calendarToString(t.getEnd())));
+
+            results.add(t);
+        }
     }
 
     /**
