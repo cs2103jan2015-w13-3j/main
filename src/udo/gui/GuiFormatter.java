@@ -33,7 +33,7 @@ public class GuiFormatter {
     private static final String _SEPARATOR_SPACE = " ";
     private static final String _SEPARATOR_DOT = ".  ";
     
-    private static final String _MESSAGE_FREE_DAY = "Free for entire day";
+    private static final String _MESSAGE_FREE_DAY = "Free for the entire day";
     private static final String _MESSAGE_FREE_BEFORE = "Free before %s";
     private static final String _MESSAGE_FREE_AFTER = "Free after %s";
     private static final String _MESSAGE_FREE_BETWEEN = "Free from %s to %s";
