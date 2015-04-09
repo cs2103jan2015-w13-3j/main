@@ -11,15 +11,18 @@ import java.util.logging.Logger;
 import udo.logic.InputParser;
 import udo.logic.Logic;
 import udo.storage.Task;
+import udo.storage.Task.TaskType;
 import udo.util.Config;
 import udo.util.Config.CommandName;
+import udo.util.Utility;
 
 import com.joestelmach.natty.DateGroup;
 
 //@author A0093587M
 public class SearchCommand extends Command {
     private static final String STATUS_SEARCH = "Search results for: %s";
-    private static final String STATUS_DISP_FREE = "Displaying free slots";
+    private static final String STATUS_DISP_FREE =
+            "Search results for free slots";
 
     private static final Logger log = Logger.getLogger(SearchCommand.class.getName());
 
@@ -41,8 +44,33 @@ public class SearchCommand extends Command {
         }
 
         if (getOption(Config.OPT_FREE) != null) {
+            GregorianCalendar start = getDateOpt(Config.OPT_START);
+            GregorianCalendar end = getDateOpt(Config.OPT_END);
+            Integer duration = null;
+
+            if (getOption(Config.OPT_DUR) != null) {
+                duration = getOption(Config.OPT_DUR).timeArgument;
+            }
+
+            if (!isStartBeforeEnd(start, end)) {
+                updateGUIStatus();
+                return false;
+            }
+            if (duration != null && duration <= 0) {
+                setStatus(Logic.ERR_NON_POSITIVE_DUR);
+                updateGUIStatus();
+                return false;
+            }
+
+            List<Task> results = new ArrayList<>();
+            List<Task> freeSlots = storage.findFreeSlots();
+            List<Task> allTasks = storage.query();
+
+            addFirstSlot(results, start, end, allTasks, duration);
+
             setStatus(STATUS_DISP_FREE);
-            updateGuiTasks(storage.findFreeSlots());
+            //updateGuiTasks(results);
+
             updateGUIStatus();
             return true;
         }
@@ -72,6 +100,118 @@ public class SearchCommand extends Command {
         log.log(Level.FINER, "Search result: " + result.toString(), result);
 
         return true;
+    }
+
+    private boolean isStartBeforeEnd(GregorianCalendar start,
+                                     GregorianCalendar end) {
+        if (start != null && end != null) {
+            if (start.after(end)) {
+                setStatus(Logic.ERR_NON_POSITIVE_DUR);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     * @param results
+     * @param end
+     * @param allTasks
+     */
+    private void addLastSlot(List<Task> results, GregorianCalendar end,
+                             List<Task> allTasks, Integer duration) {
+
+    }
+
+    /**
+     * Prepend the first free slot to the results which is before the earliest
+     * event date unless the specified start time to the earliest event task
+     * is less than the specified duration. If
+     * @param results
+     * @param start
+     * @param allTasks
+     */
+    private void addFirstSlot(List<Task> results,
+                              GregorianCalendar start, GregorianCalendar end,
+                              List<Task> allTasks, Integer duration) {
+        assert(allTasks != null);
+
+        Task t = new Task();
+
+        GregorianCalendar first = findFirstEvent(allTasks);
+
+        if (first == null) {
+           if (start != null) {
+               t.setStart(start);
+           }
+        } else {
+            if (start == null) {
+                if (end != null && first.before(end)) {
+                    t.setEnd(first);
+                }
+            } else {
+                if (first.after(start) &&
+                    (duration == null ||
+                     Utility.findDiffMinutes(start, first) > duration)) {
+                    t.setEnd(first);
+                }
+            }
+        }
+
+        if (t.getStart() != null || t.getEnd() != null) {
+            log.info(String.format("Padding first free slots: %s to %s",
+                                   Utility.calendarToString(t.getStart()),
+                                   Utility.calendarToString(t.getEnd())));
+
+            results.add(t);
+        }
+    }
+
+    private GregorianCalendar findFirstEvent(List<Task> allTasks) {
+        GregorianCalendar first = null;
+
+        for (Task t : allTasks) {
+            if (t.getTaskType() == TaskType.EVENT) {
+                if (first == null || t.getStart().before(first)) {
+                    first = t.getStart();
+                }
+            }
+        }
+
+        return first;
+    }
+
+    private GregorianCalendar findLastEvent(List<Task> allTasks) {
+        GregorianCalendar last = null;
+
+        for (Task t : allTasks) {
+            if (t.getTaskType() == TaskType.EVENT) {
+                if (last == null || t.getEnd().after(last)) {
+                    last = t.getEnd();
+                }
+            }
+        }
+
+        return last;
+    }
+
+    private GregorianCalendar getDateOpt(String[] option) {
+        Option opt = getOption(option);
+
+        if (opt != null) {
+            Date[] date = opt.dateArgument;
+
+            if (date != null && date.length > 0) {
+                GregorianCalendar cal = new GregorianCalendar();
+                cal.setTime(date[0]);
+
+                return cal;
+            }
+        }
+
+        return null;
     }
 
     private String getSearchStatus() {

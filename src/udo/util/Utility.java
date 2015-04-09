@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,15 @@ public class Utility {
         minutes = minutes % 60;
 
         return String.format(timeFormat, hours, minutes);
+    }
+
+    public static long findDiffMinutes(Calendar cal1, Calendar cal2) {
+        Date d1 = cal1.getTime();
+        Date d2 = cal2.getTime();
+
+        long diff = Math.abs(d1.getTime() - d2.getTime());
+
+        return diff / (60 * 1000);
     }
 
     /**
