@@ -215,6 +215,7 @@ public class Logic {
     public void updateGuiFreeSlots(List<Task> slots) {
         assert(gui != null);
         //TODO: call gui to display free slots
+        gui.displayFreeSlots(slots);
     }
 
     public void callGuiAlert(Task task) {

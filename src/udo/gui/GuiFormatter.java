@@ -97,6 +97,7 @@ public class GuiFormatter {
         for (int i = 0; i < _rawData.size(); i++) {
             int displayIndex = i + 1;
             Task task = _rawData.get(i);
+            assert(task != null);
             
             mapIndex(displayIndex, task.getIndex());
             appendInformation(displayIndex, task);
@@ -152,6 +153,8 @@ public class GuiFormatter {
      * @return a date in a string format
      */
     private String getHeader(Task task) {
+        assert(task != null);
+        
         switch (task.getTaskType()) {
             case TODO :
                 return HEADER_TODO;              
