@@ -1,6 +1,7 @@
 package udo.logic.command;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -24,7 +25,8 @@ public class SearchCommand extends Command {
     private static final String STATUS_DISP_FREE =
             "Search results for free slots";
 
-    private static final Logger log = Logger.getLogger(SearchCommand.class.getName());
+    private static final Logger log = Logger.
+            getLogger(SearchCommand.class.getName());
 
     public SearchCommand() {
         super();
@@ -39,46 +41,15 @@ public class SearchCommand extends Command {
 
     @Override
     public boolean execute() {
+        log.log(Level.FINE, "Searching for " + argStr);
+
         if (!super.execute()) {
             return false;
         }
 
         if (getOption(Config.OPT_FREE) != null) {
-            GregorianCalendar start = getDateOpt(Config.OPT_START);
-            GregorianCalendar end = getDateOpt(Config.OPT_END);
-            Integer duration = null;
-
-            if (getOption(Config.OPT_DUR) != null) {
-                duration = getOption(Config.OPT_DUR).timeArgument;
-            }
-
-            if (!isStartBeforeEnd(start, end)) {
-                updateGUIStatus();
-                return false;
-            }
-            if (duration != null && duration <= 0) {
-                setStatus(Logic.ERR_NON_POSITIVE_DUR);
-                updateGUIStatus();
-                return false;
-            }
-
-            List<Task> results = new ArrayList<>();
-            List<Task> freeSlots = storage.findFreeSlots();
-            List<Task> allTasks = storage.query();
-
-            addFirstSlot(results, start, end, allTasks, duration);
-
-            // TODO: Call Gui's api to display free slots
-            //updateGuiTasks(results);
-
-            addLastSlot(results, start, end, allTasks, duration);
-
-            setStatus(STATUS_DISP_FREE);
-            updateGUIStatus();
-            return true;
+            return searchFreeSlots();
         }
-
-        log.log(Level.FINE, "Searching for " + argStr);
 
         List<Task> strSearchTasks = storage.search(argStr);
 
@@ -103,6 +74,111 @@ public class SearchCommand extends Command {
         log.log(Level.FINER, "Search result: " + result.toString(), result);
 
         return true;
+    }
+
+    /**
+     * Search and display free slots given start, end period and duration
+     * @return
+     */
+    private boolean searchFreeSlots() {
+        log.fine("Searching for free slots...");
+
+        GregorianCalendar start = getDateOpt(Config.OPT_START);
+        GregorianCalendar end = getDateOpt(Config.OPT_END);
+        Integer duration = null;
+
+        if (getOption(Config.OPT_DUR) != null) {
+            duration = getOption(Config.OPT_DUR).timeArgument;
+        }
+
+        if (!isStartBeforeEnd(start, end)) {
+            updateGUIStatus();
+            return false;
+        }
+        if (duration != null && duration <= 0) {
+            setStatus(Logic.ERR_NON_POSITIVE_DUR);
+            updateGUIStatus();
+            return false;
+        }
+
+        List<Task> results = new ArrayList<>();
+        List<Task> freeSlots = storage.findFreeSlots();
+        List<Task> allTasks = storage.query();
+
+        addFirstSlot(results, start, end, allTasks, duration);
+
+        generateViewableSlots(results, freeSlots, start, end, duration);
+        // TODO: Call Gui's api to display free slots
+        //updateGuiTasks(results);
+
+        addLastSlot(results, start, end, allTasks, duration);
+
+        System.out.println(results);
+
+        setStatus(STATUS_DISP_FREE);
+        updateGUIStatus();
+        return true;
+    }
+
+    /**
+     * Shrink the initial free time slots obtained from lower level storage
+     * to fit into the start, end and duration option by finding the
+     * overlapping period between the slot and (start to end) and check with
+     * duration. If the shrunken slot extend over more than 1 day,
+     * it's divided into 2 separate slots
+     * @param results
+     * @param freeSlots
+     * @param start
+     * @param end
+     * @param duration
+     */
+    private void generateViewableSlots(List<Task> results,
+                                       List<Task> freeSlots,
+                                       GregorianCalendar start,
+                                       GregorianCalendar end, Integer duration) {
+        for (Task slot : freeSlots) {
+            GregorianCalendar slotStart = slot.getStart();
+            GregorianCalendar slotEnd = slot.getEnd();
+
+            if (start != null && slotStart.before(start)) {
+                slotStart = start;
+            }
+            if (end != null && slotEnd.after(end)) {
+                slotEnd = end;
+            }
+
+            if (slotStart.before(slotEnd) &&
+                (duration == null ||
+                 Utility.findDiffMinutes(slotStart, slotEnd) > duration)) {
+                if (onSameDay(slotStart, slotEnd)) {
+                    Task t = new Task();
+
+                    t.setStart(slotStart);
+                    t.setEnd(slotEnd);
+
+                    results.add(t);
+                } else {
+                    Task t1 = new Task();
+                    Task t2 = new Task();
+
+                    t1.setStart(slotStart);
+                    t2.setEnd(slotEnd);
+
+                    results.add(t1);
+                    results.add(t2);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param cal1
+     * @param cal2
+     * @return
+     */
+    private boolean onSameDay(GregorianCalendar cal1, GregorianCalendar cal2) {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+               cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 
     private boolean isStartBeforeEnd(GregorianCalendar start,
@@ -138,7 +214,7 @@ public class SearchCommand extends Command {
            }
         } else {
             if (end == null) {
-                if (start != null && last.after(start)) {
+                if (start == null || last.after(start)) {
                     t.setStart(last);
                 }
             } else {
@@ -151,10 +227,6 @@ public class SearchCommand extends Command {
         }
 
         if (t.getStart() != null || t.getEnd() != null) {
-            log.info(String.format("Padding first free slots: %s to %s",
-                                   Utility.calendarToString(t.getStart()),
-                                   Utility.calendarToString(t.getEnd())));
-
             results.add(t);
         }
     }
@@ -182,7 +254,7 @@ public class SearchCommand extends Command {
            }
         } else {
             if (start == null) {
-                if (end != null && first.before(end)) {
+                if (end == null || first.before(end)) {
                     t.setEnd(first);
                 }
             } else {
@@ -195,10 +267,6 @@ public class SearchCommand extends Command {
         }
 
         if (t.getStart() != null || t.getEnd() != null) {
-            log.info(String.format("Padding first free slots: %s to %s",
-                                   Utility.calendarToString(t.getStart()),
-                                   Utility.calendarToString(t.getEnd())));
-
             results.add(t);
         }
     }

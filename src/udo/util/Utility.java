@@ -17,8 +17,15 @@ public class Utility {
 	        new SimpleDateFormat("dd/MM/yyyy HH:mm");
 	private static final String timeFormat = "%sh%sm";
 
+	public static final long MILISECONDS_IN_MINUTE = 60 * 1000;
+
 	public static HashMap<Integer, Integer> indexMap = new HashMap<>();
 
+	/**
+	 * Convert a name of a command in string form to corresponding enum form
+	 * @param cmdName
+	 * @return corresponding CommandName enum for cmdName
+	 */
     public static Config.CommandName convertToCommandName(String cmdName) {
         cmdName = cmdName.toLowerCase();
 
@@ -86,7 +93,7 @@ public class Utility {
 
         long diff = Math.abs(d1.getTime() - d2.getTime());
 
-        return diff / (60 * 1000);
+        return diff / MILISECONDS_IN_MINUTE;
     }
 
     /**
