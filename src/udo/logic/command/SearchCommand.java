@@ -151,26 +151,59 @@ public class SearchCommand extends Command {
                  Utility.findDiffMinutes(slotStart, slotEnd) > duration)) {
                 if (onSameDay(slotStart, slotEnd)) {
                     Task t = new Task();
-                    t.setTaskType(TaskType.EVENT);
-
-                    t.setStart(slotStart);
-                    t.setEnd(slotEnd);
+                    setFreeFromTo(t, slotStart, slotEnd);
 
                     results.add(t);
                 } else {
                     Task t1 = new Task();
-                    t1.setTaskType(TaskType.EVENT);
-                    Task t2 = new Task();
-                    t2.setTaskType(TaskType.EVENT);
+                    setFreeAfter(t1, slotStart);
 
-                    t1.setStart(slotStart);
-                    t2.setEnd(slotEnd);
+                    Task t2 = new Task();
+                    setFreeBefore(t2, slotEnd);
 
                     results.add(t1);
                     results.add(t2);
                 }
             }
         }
+    }
+
+    /**
+     * Set a free slot as a free before [date/time] slot
+     * @param task the free slot
+     * @param date free-before date
+     */
+    private void setFreeBefore(Task task, GregorianCalendar date) {
+        task.setTaskType(TaskType.EVENT);
+
+        GregorianCalendar cal = new GregorianCalendar();
+        Utility.setToStartOfDay(cal);
+
+        task.setStart(cal);
+        task.setEnd(date);
+    }
+
+    /**
+     * Set a free slot as a free after [date/time] slot
+     * @param task the free slot
+     * @param date free-before date
+     */
+    private void setFreeAfter(Task task, GregorianCalendar date) {
+        task.setTaskType(TaskType.EVENT);
+
+        GregorianCalendar cal = new GregorianCalendar();
+        Utility.setToEndOfDay(cal);
+
+        task.setStart(date);
+        task.setEnd(cal);
+    }
+
+    private void setFreeFromTo(Task task, GregorianCalendar from,
+                               GregorianCalendar to) {
+        task.setTaskType(TaskType.EVENT);
+
+        task.setStart(from);
+        task.setEnd(to);
     }
 
     /**
@@ -207,24 +240,23 @@ public class SearchCommand extends Command {
         assert(allTasks != null);
 
         Task t = new Task();
-        t.setTaskType(TaskType.EVENT);
 
         GregorianCalendar last = findLastEvent(allTasks);
 
         if (last == null) {
            if (end != null) {
-               t.setEnd(end);
+               setFreeBefore(t, end);
            }
         } else {
             if (end == null) {
                 if (start == null || last.after(start)) {
-                    t.setStart(last);
+                    setFreeAfter(t, last);
                 }
             } else {
                 if (last.before(end) &&
                     (duration == null ||
                      Utility.findDiffMinutes(last, end) > duration)) {
-                    t.setStart(last);
+                    setFreeAfter(t, last);
                 }
             }
         }
@@ -254,18 +286,18 @@ public class SearchCommand extends Command {
 
         if (first == null) {
            if (start != null) {
-               t.setStart(start);
+               setFreeAfter(t, start);
            }
         } else {
             if (start == null) {
                 if (end == null || first.before(end)) {
-                    t.setEnd(first);
+                    setFreeBefore(t, first);
                 }
             } else {
                 if (first.after(start) &&
                     (duration == null ||
                      Utility.findDiffMinutes(start, first) > duration)) {
-                    t.setEnd(first);
+                    setFreeBefore(t, first);
                 }
             }
         }
