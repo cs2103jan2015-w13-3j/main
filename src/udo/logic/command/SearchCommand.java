@@ -108,8 +108,7 @@ public class SearchCommand extends Command {
         addFirstSlot(results, start, end, allTasks, duration);
 
         generateViewableSlots(results, freeSlots, start, end, duration);
-        // TODO: Call Gui's api to display free slots
-        //updateGuiTasks(results);
+        logic.updateGuiFreeSlots(results);
 
         addLastSlot(results, start, end, allTasks, duration);
 
