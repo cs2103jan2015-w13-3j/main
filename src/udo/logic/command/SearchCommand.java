@@ -151,6 +151,7 @@ public class SearchCommand extends Command {
                  Utility.findDiffMinutes(slotStart, slotEnd) > duration)) {
                 if (onSameDay(slotStart, slotEnd)) {
                     Task t = new Task();
+                    t.setTaskType(TaskType.EVENT);
 
                     t.setStart(slotStart);
                     t.setEnd(slotEnd);
@@ -158,7 +159,9 @@ public class SearchCommand extends Command {
                     results.add(t);
                 } else {
                     Task t1 = new Task();
+                    t1.setTaskType(TaskType.EVENT);
                     Task t2 = new Task();
+                    t2.setTaskType(TaskType.EVENT);
 
                     t1.setStart(slotStart);
                     t2.setEnd(slotEnd);
@@ -204,6 +207,7 @@ public class SearchCommand extends Command {
         assert(allTasks != null);
 
         Task t = new Task();
+        t.setTaskType(TaskType.EVENT);
 
         GregorianCalendar last = findLastEvent(allTasks);
 
@@ -244,6 +248,7 @@ public class SearchCommand extends Command {
         assert(allTasks != null);
 
         Task t = new Task();
+        t.setTaskType(TaskType.EVENT);
 
         GregorianCalendar first = findFirstEvent(allTasks);
 
