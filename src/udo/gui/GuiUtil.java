@@ -36,6 +36,7 @@ public class GuiUtil {
     public static final Color COLOUR_TEXT_WARNING = Color.ORANGE;
     public static final Color COLOUR_TEXT_ERROR = Color.RED;
     public static final Color COLOUR_TEXT_NORMAL = Color.WHITE;
+    
     public static final String COLOUR_BACKGROUND = "-fx-background-color: #2b3339; ";
     public static final String COLOUR_WHITE = "-fx-fill: white; ";
     public static final String COLOUR_GREEN = "-fx-fill: #1abc9c; ";
@@ -50,6 +51,9 @@ public class GuiUtil {
             new SimpleDateFormat("dd/MM HH:mm");
 
     public static boolean isHeader(String str) {
+        if(str == null) {
+            return false;
+        }
         return (isValidDate(str) || str.equals(GuiFormatter.HEADER_TODO));
     }
 
