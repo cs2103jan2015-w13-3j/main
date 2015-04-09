@@ -453,4 +453,82 @@ public class GuiTest extends TestCase {
 
         assertEquals(expectedList.toString(), gui.getNewData().toString());
     }
+    
+    //free for a fixed period of time 
+    public void test10() throws Exception {
+        initialise();
+        
+        Task fixedFreeSlot = 
+                new Task(TaskType.EVENT, "Free Slot", null, 
+                        new GregorianCalendar(2015, 02, 20, 12, 0), 
+                        new GregorianCalendar(2015, 02, 20, 13, 30),
+                        0, null, EMPTY_STRING, false, false);
+        
+        Task expectedFixedFreeSlot = 
+                new Task(TaskType.EVENT, "Free from 12:00 to 13:30", null, 
+                         new GregorianCalendar(2015, 02, 20, 12, 0), 
+                         new GregorianCalendar(2015, 02, 20, 13, 30),
+                         0, null, EMPTY_STRING, false, false);
+        
+        inputList.add(fixedFreeSlot);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(expectedFixedFreeSlot);
+      
+        gui.displayFreeSlots(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    //free after a time 
+    public void test11() throws Exception {
+        initialise();
+        
+        Task afterFreeSlot = 
+                new Task(TaskType.EVENT, "Free Slot", null, 
+                        new GregorianCalendar(2015, 02, 20, 12, 0), 
+                        new GregorianCalendar(2015, 02, 20, 23, 59),
+                        0, null, EMPTY_STRING, false, false);
+        
+        Task expectedafterFreeSlot = 
+                new Task(TaskType.EVENT, "Free after 12:00", null, 
+                         new GregorianCalendar(2015, 02, 20, 12, 0), 
+                         new GregorianCalendar(2015, 02, 20, 23, 59),
+                         0, null, EMPTY_STRING, false, false);
+        
+        inputList.add(afterFreeSlot);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(expectedafterFreeSlot);
+      
+        gui.displayFreeSlots(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    //free before a time 
+    public void test12() throws Exception {
+        initialise();
+        
+        Task afterFreeSlot = 
+                new Task(TaskType.EVENT, "Free Slot", null, 
+                        new GregorianCalendar(2015, 02, 20, 0, 0),
+                        new GregorianCalendar(2015, 02, 20, 12, 0), 
+                        0, null, EMPTY_STRING, false, false);
+        
+        Task expectedafterFreeSlot = 
+                new Task(TaskType.EVENT, "Free before 12:00", null,
+                         new GregorianCalendar(2015, 02, 20, 0, 0), 
+                         new GregorianCalendar(2015, 02, 20, 12, 0), 
+                         0, null, EMPTY_STRING, false, false);
+        
+        inputList.add(afterFreeSlot);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(expectedafterFreeSlot);
+      
+        gui.displayFreeSlots(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
 }

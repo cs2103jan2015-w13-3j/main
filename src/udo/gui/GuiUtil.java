@@ -6,7 +6,6 @@ import java.util.List;
 
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
-
 import udo.storage.Task;
 import udo.util.Utility;
 
@@ -30,6 +29,9 @@ public class GuiUtil {
     public static final String KEY_UP = "UP";
     public static final String KEY_DOWN = "DOWN";
 
+    public static final String START_OF_DAY = "00:00";
+    public static final String END_OF_DAY = "23:59";
+    
     public static final Color COLOUR_TABLE_HEADERS = Color.rgb(26, 188, 156);
     public static final Color COLOUR_TEXT_WARNING = Color.ORANGE;
     public static final Color COLOUR_TEXT_ERROR = Color.RED;
@@ -53,7 +55,7 @@ public class GuiUtil {
 
     public static boolean isValidDate(String dateString) {
         try {
-           dateFormat.parse(dateString);
+            dateFormat.parse(dateString);
             return true;
         } catch (Exception e) {
             return false;
@@ -195,5 +197,13 @@ public class GuiUtil {
     private static String trimSuggestions(String suggestedWords) {
         int index = suggestedWords.lastIndexOf(SPACER_STRING);
         return suggestedWords.substring(0, index);
+    }
+    
+    public static boolean isStartOfDay(GregorianCalendar cal1) {
+        return guiTimeFormat(cal1).equals(START_OF_DAY);
+    }
+
+    public static boolean isEndOfDay(GregorianCalendar cal1) {
+        return guiTimeFormat(cal1).equals(END_OF_DAY);
     }
 }

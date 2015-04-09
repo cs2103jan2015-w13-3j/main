@@ -250,9 +250,29 @@ public class Gui extends Application {
     }
 
     /**
+     * Displays free slots in the GUI
+     *
+     * @param list of free slots
+     */
+    public void displayFreeSlots(List<Task> receivedList) {
+        assert(receivedList != null);
+        logger.info(receivedList.toString());
+
+        _displayList = receivedList;
+        processFreeSlots(_displayList);
+        setDataToController();
+    }
+    
+    private void processFreeSlots(List<Task> displayList) {
+        _guiFormatter.setData(displayList);
+        _taskData = _guiFormatter.getFormattedFreeSlotsData();
+        logger.fine(_taskData.toString());
+    }
+    
+    /**
      * Displays receivedList in the GUI
      *
-     * @param Object that implements List<Task>
+     * @param list of tasks
      */
     public void display(List<Task> receivedList) {
         assert(receivedList != null);

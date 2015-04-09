@@ -2,12 +2,12 @@ package udo.gui;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import udo.storage.Task;
 import udo.util.Utility;
 
@@ -56,6 +56,11 @@ public class GuiFormatter {
         return convertToObservable();        
     }
     
+    public ObservableList<Task> getFormattedFreeSlotsData() {
+        formatFreeSlotsList();
+        return convertToObservable(); 
+    }
+
     /**
      * Associate an ArrayList of objects with an ObservableArrayList
      */
@@ -70,6 +75,7 @@ public class GuiFormatter {
 
         Collections.sort(_rawData);
         processData();
+        insertHeaderLoop();
         formatDateLoop();
         logger.fine(_rawData.toString());
     }
@@ -82,7 +88,7 @@ public class GuiFormatter {
     /**
      * Maps the displayIndex to the Task's actual index 
      * and appends important information like serial number
-     * and '?' marks for unconfirmed tasks
+     * or '?' marks for unconfirmed tasks
      * 
      * @param _rawData
      */
@@ -122,16 +128,14 @@ public class GuiFormatter {
 
     /**
      * Formats list into a GUI display format, inserts date headers 
-     * and formats time
      */
-    private void formatDateLoop() {
+    private void insertHeaderLoop() {
 
         String prevHeader = GuiUtil.EMPTY_STRING;
 
         for (int i = 0; i < _rawData.size(); i++) {
             String header = new String();
             Task task = _rawData.get(i);
-            formatDisplayTime(task);
             
             header = getHeader(task);       
             i = insertIfNewHeader(prevHeader, i, header);
@@ -139,9 +143,14 @@ public class GuiFormatter {
             
             logger.finest(header);
         }
-
     }
-
+    
+    /**
+     * Returns the corresponding date header for that task
+     * 
+     * @param task
+     * @return a date in a string format
+     */
     private String getHeader(Task task) {
         switch (task.getTaskType()) {
             case TODO :
@@ -172,7 +181,19 @@ public class GuiFormatter {
     }
 
     /**
+     * Formats the task's time into a readable format
+     */
+    private void formatDateLoop() {
+    
+        for (int i = 0; i < _rawData.size(); i++) {
+            Task task = _rawData.get(i);
+            formatDisplayTime(task);
+        }
+    }
+
+    /**
      * Formats the start, end, deadline time into a string for display 
+     * 
      * @param task
      */
     private void formatDisplayTime(Task task) {
@@ -196,6 +217,53 @@ public class GuiFormatter {
         
         logger.finest(task.getContent() + _SEPARATOR_SPACE + 
                       task.getLabel());
+    }
+
+    
+    private void formatFreeSlotsList() {
+        if (_rawData == null) {
+            return;
+        }
+        
+        insertHeaderLoop();
+        formatFreeSlotLoop();
+
+        logger.fine(_rawData.toString());   
+    }
+    
+    private void formatFreeSlotLoop() {
+        for(int i = 0; i < _rawData.size(); i++) {
+            Task task = _rawData.get(i);
+            logger.info(task.toString());
+            setFreeSlotTitle(task);
+        }               
+    }
+
+    private void setFreeSlotTitle(Task task) {
+        assert(task != null);
+        
+        GregorianCalendar start = task.getStart();
+        GregorianCalendar end = task.getEnd();
+        String title = task.getContent();
+        if(GuiUtil.isHeader(title)) {
+            return;
+        }
+
+        if(GuiUtil.isStartOfDay(start) && GuiUtil.isEndOfDay(end)) {
+            task.setContent("Free for entire day");
+        } else if (GuiUtil.isEndOfDay(end)) {
+            task.setContent("Free after " + GuiUtil.guiTimeFormat(start));
+        } else if (GuiUtil.isStartOfDay(start)){
+            task.setContent("Free before " + GuiUtil.guiTimeFormat(end));
+        } else {
+            task.setContent("Free from " + GuiUtil.guiTimeFormat(start) +
+                            " to " + GuiUtil.guiTimeFormat(end)); 
+        }   
+        removeDateField(task);
+    }
+    
+    private void removeDateField(Task task) {
+        task.setLabel(GuiUtil.EMPTY_STRING);
     }
 
     private void setDisplayTimeDeadLine(Task task) {
