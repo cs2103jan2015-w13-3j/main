@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import udo.logic.InputParser;
 import udo.logic.Logic;
 import udo.storage.Task;
+import udo.util.Config;
 import udo.util.Config.CommandName;
 
 import com.joestelmach.natty.DateGroup;
@@ -18,6 +19,7 @@ import com.joestelmach.natty.DateGroup;
 //@author A0093587M
 public class SearchCommand extends Command {
     private static final String STATUS_SEARCH = "Search results for: %s";
+    private static final String STATUS_DISP_FREE = "Displaying free slots";
 
     private static final Logger log = Logger.getLogger(SearchCommand.class.getName());
 
@@ -28,13 +30,21 @@ public class SearchCommand extends Command {
 
     @Override
     public boolean isValid() {
-        return super.isValid() && isContentNonEmpty();
+        return super.isValid() &&
+               (isContentNonEmpty() || getOption(Config.OPT_FREE) != null);
     }
 
     @Override
     public boolean execute() {
         if (!super.execute()) {
             return false;
+        }
+
+        if (getOption(Config.OPT_FREE) != null) {
+            setStatus(STATUS_DISP_FREE);
+            updateGuiTasks(storage.findFreeSlots());
+            updateGUIStatus();
+            return true;
         }
 
         log.log(Level.FINE, "Searching for " + argStr);

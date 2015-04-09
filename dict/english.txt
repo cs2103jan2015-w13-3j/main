@@ -2579,7 +2579,6 @@ never
 nevertheless
 new
 news
-next
 nice
 nicer
 nicest
@@ -3983,7 +3982,6 @@ think
 thinking
 thinks
 third
-this
 thoroughly
 those
 though

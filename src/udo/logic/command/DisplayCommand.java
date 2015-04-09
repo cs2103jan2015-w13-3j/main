@@ -12,7 +12,6 @@ import udo.util.Config.CommandName;
 //@author A0093587M
 public class DisplayCommand extends Command {
     private static final String STATUS_DISP_ALL = "Displaying all tasks";
-    private static final String STATUS_DISP_FREE = "Displaying free slots";
     private static final String STATUS_DISP_IMP =
             "Displaying important tasks";
     private static final String STATUS_DISP_DONE = "Displaying done tasks";
@@ -41,9 +40,6 @@ public class DisplayCommand extends Command {
         } else if (getOption(Config.OPT_DONE) != null) {
             setStatus(STATUS_DISP_DONE);
             updateGuiTasks(storage.getDone());
-        } else if (getOption(Config.OPT_FREE) != null) {
-            setStatus(STATUS_DISP_FREE);
-            updateGuiTasks(storage.findFreeSlots());
         } else if (getOption(Config.OPT_OVERDUE) != null) {
             setStatus(STATUS_DISP_OVERDUE);
             updateGuiTasks(getOverdueTasks());

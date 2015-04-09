@@ -501,6 +501,8 @@ public class Autocompleter {
 
     private void addPrioritizedWords(TernarySearchTree tree) {
         tree.add("december");
+        tree.add("next");
+        tree.add("this");
     }
 
 
