@@ -212,6 +212,11 @@ public class Logic {
         gui.display(tasks);
     }
 
+    public void updateGuiFreeSlots(List<Task> slots) {
+        assert(gui != null);
+        //TODO: call gui to display free slots
+    }
+
     public void callGuiAlert(Task task) {
         assert(gui != null);
         gui.displayAlert(task);
