@@ -33,6 +33,11 @@ public class GuiFormatter {
     private static final String _SEPARATOR_SPACE = " ";
     private static final String _SEPARATOR_DOT = ".  ";
     
+    private static final String _MESSAGE_FREE_DAY = "Free for entire day";
+    private static final String _MESSAGE_FREE_BEFORE = "Free before %s";
+    private static final String _MESSAGE_FREE_AFTER = "Free after %s";
+    private static final String _MESSAGE_FREE_BETWEEN = "Free from %s to %s";
+
     private static GuiFormatter _guiFormatter;
     private static ArrayList<Task> _rawData;
 
@@ -51,11 +56,17 @@ public class GuiFormatter {
         _rawData = (ArrayList<Task>) receivedList;
     }
 
+    /**
+     * Formats a list of given list of tasks
+     */
     public ObservableList<Task> getFormattedData() {
         formatDisplayList();
         return convertToObservable();        
     }
     
+    /**
+     * Formats a list of given list of free slots
+     */
     public ObservableList<Task> getFormattedFreeSlotsData() {
         formatFreeSlotsList();
         return convertToObservable(); 
@@ -248,21 +259,44 @@ public class GuiFormatter {
         GregorianCalendar start = task.getStart();
         GregorianCalendar end = task.getEnd();
         String title = task.getContent();
+        
         if(GuiUtil.isHeader(title)) {
             return;
         }
 
         if(GuiUtil.isStartOfDay(start) && GuiUtil.isEndOfDay(end)) {
-            task.setContent("Free for entire day");
+            setFreeEntireDay(task);
         } else if (GuiUtil.isEndOfDay(end)) {
-            task.setContent("Free after " + GuiUtil.guiTimeFormat(start));
+            setFreeAfter(task, start);
         } else if (GuiUtil.isStartOfDay(start)){
-            task.setContent("Free before " + GuiUtil.guiTimeFormat(end));
+            setFreeBefore(task, end);
         } else {
-            task.setContent("Free from " + GuiUtil.guiTimeFormat(start) +
-                            " to " + GuiUtil.guiTimeFormat(end)); 
+            setFreeBetween(task, start, end); 
         }   
         removeDateField(task);
+    }
+    
+    private void setFreeEntireDay(Task task) {
+        task.setContent(String.format(_MESSAGE_FREE_DAY));
+    }
+    
+    private void setFreeBefore(Task task, GregorianCalendar end) {
+        String time = GuiUtil.guiTimeFormat(end);
+        task.setContent(String.format(_MESSAGE_FREE_BEFORE, time));
+    }
+    
+    private void setFreeAfter(Task task, GregorianCalendar start) {
+        String time = GuiUtil.guiTimeFormat(start);
+        task.setContent(String.format(_MESSAGE_FREE_AFTER, time));
+    }
+    
+    private void setFreeBetween(Task task, GregorianCalendar start,
+                                GregorianCalendar end) {
+        String timeStart = GuiUtil.guiTimeFormat(start);
+        String timeEnd = GuiUtil.guiTimeFormat(end);
+
+        task.setContent(String.format(_MESSAGE_FREE_BETWEEN, timeStart, 
+                                      timeEnd));
     }
     
     private void removeDateField(Task task) {
