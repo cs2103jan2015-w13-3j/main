@@ -177,6 +177,7 @@ public class SearchCommand extends Command {
         task.setTaskType(TaskType.EVENT);
 
         GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(date.getTime());
         Utility.setToStartOfDay(cal);
 
         task.setStart(cal);
@@ -192,6 +193,7 @@ public class SearchCommand extends Command {
         task.setTaskType(TaskType.EVENT);
 
         GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(date.getTime());
         Utility.setToEndOfDay(cal);
 
         task.setStart(date);
