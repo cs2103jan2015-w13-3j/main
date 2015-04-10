@@ -589,7 +589,10 @@ public class Storage {
 		if (searchedContent != null){
 
 			String searchedAfter = searchedContent.trim().replaceAll(" +", " ").toLowerCase();
-
+			returnList = exactSearch(searchedAfter);
+			if (returnList.size() > 0){
+				return returnList;
+			}
 			if (isWildCardSearch(searchedAfter)){
 				returnList = wildcardSearch(searchedAfter);
 			} else{
@@ -598,7 +601,47 @@ public class Storage {
 		}
 		return returnList;
 	}
-
+	
+	/**
+	 * @param searchedContent
+	 * @return the tasks which match exactly to the searched content
+	 */
+	private ArrayList<Task> exactSearch(String searchedContent){
+		ArrayList<Task> returnList = new ArrayList<Task>();
+		for (int i = 0; i < taskList.size(); i++){
+			if (isExactMatched(taskList.get(i).getContent().toLowerCase(), searchedContent)){
+				returnList.add(taskList.get(i).copy());
+			}
+		}
+		return returnList;
+	}
+	
+	/**
+	 * @param str1
+	 * @param str2
+	 * @return true if str2 is matched exactly to str1
+	 */
+	private boolean isExactMatched(String str1, String str2){
+		if (str1.equals(str2)){
+			return true;
+		}
+		String[] str1Split = str1.split(REGEX_SPACE);
+		String[] str2Split = str2.split(REGEX_SPACE);
+		int str1Index = 0;
+		int str2Index = 0;
+		while(str1Index < str1Split.length && str2Index < str2Split.length){
+			if (str2Split[str2Index].equals(str1Split[str1Index])){
+				str2Index++;
+			}
+			str1Index++;
+		}
+		if (str2Index < str2Split.length){
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
 	/**
 	 * @param searchedContent
 	 * @return true if searchedContent indicates wildcard search, else false
