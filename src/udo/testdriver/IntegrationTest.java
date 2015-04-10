@@ -11,7 +11,7 @@ import udo.logic.Logic;
 //@author A0093587M
 public class IntegrationTest {
     public static final String REPORT_LINE_DIFF =
-            "line %d:\nexpected: %s\nactual: %s";
+            "line %d:\nexpected: %s\nactual  : %s";
     public static final String REPORT_EMPTY_LINE = "<<empty>>";
     public static final String TESTS_PATH = "res/tests/integration/";
 
@@ -45,7 +45,7 @@ public class IntegrationTest {
                                                      expectedStr,
                                                      REPORT_EMPTY_LINE));
                     isSimilar = false;
-                } else if (!expectedStr.equals(actualStr)) {
+                } else if (!expectedStr.equals(actualStr.trim())) {
                     System.out.println(String.format(REPORT_LINE_DIFF,
                                                      currentLine,
                                                      expectedStr,
@@ -73,7 +73,7 @@ public class IntegrationTest {
 
     private static void removeExistingTasks() {
         try {
-            (new RandomAccessFile("task.json", "rws")).setLength(0);
+            (new RandomAccessFile("tasks.json", "rws")).setLength(0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,12 +90,12 @@ public class IntegrationTest {
         Logic logic = Logic.getInstance();
         logic.setGui(new GuiStub());
 
-        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("go to school /deadline April 1, 3015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm /end April 1, 3015 4pm");
         logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
 
         printTestTitle(1);
-        if (isContentSimilar(TESTS_PATH + "expected1.txt", "task.json")) {
+        if (isContentSimilar(TESTS_PATH + "expected1.txt", "tasks.json")) {
             System.out.println("TEST1 PASSED");
         } else {
             System.out.println("TEST1 FAILED");
@@ -108,13 +108,13 @@ public class IntegrationTest {
         Logic logic = Logic.getInstance();
         logic.setGui(new GuiStub());
 
-        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("go to school /deadline April 1, 3015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm /end April 1, 3015 4pm");
         logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm or April 2, 2015 3pm or April 3, 2015 5pm");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm or April 2, 3015 3pm or April 3, 3015 5pm");
 
         printTestTitle(2);
-        if (isContentSimilar(TESTS_PATH + "expected2.txt", "task.json")) {
+        if (isContentSimilar(TESTS_PATH + "expected2.txt", "tasks.json")) {
             System.out.println("TEST2 PASSED");
         } else {
             System.out.println("TEST2 FAILED");
@@ -127,15 +127,15 @@ public class IntegrationTest {
         Logic logic = Logic.getInstance();
         logic.setGui(new GuiStub());
 
-        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("go to school /deadline April 1, 3015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm /end April 1, 3015 4pm");
         logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm or April 2, 2015 3pm or April 3, 2015 5pm");
-        logic.executeCommand("submit project report /deadline April 18, 2015 23:59pm /reminder April 13, 2015 1pm /important");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm or April 2, 3015 3pm or April 3, 3015 5pm");
+        logic.executeCommand("submit project report /deadline April 18, 3015 23:59pm /reminder April 13, 3015 1pm /important");
         logic.executeCommand("display");
 
         printTestTitle(3);
-        if (isContentSimilar(TESTS_PATH + "expected3.txt", "task.json")) {
+        if (isContentSimilar(TESTS_PATH + "expected3.txt", "tasks.json")) {
             System.out.println("TEST3 PASSED");
         } else {
             System.out.println("TEST3 FAILED");
@@ -148,17 +148,17 @@ public class IntegrationTest {
         Logic logic = Logic.getInstance();
         logic.setGui(new GuiStub());
 
-        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("go to school /deadline April 1, 3015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm /end April 1, 3015 4pm");
         logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm or April 2, 2015 3pm or April 3, 2015 5pm");
-        logic.executeCommand("submit project report /deadline April 18, 2015 23:59pm /reminder April 13, 2015 1pm /important");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm or April 2, 3015 3pm or April 3, 3015 5pm");
+        logic.executeCommand("submit project report /deadline April 18, 3015 23:59pm /reminder April 13, 3015 1pm /important");
         logic.executeCommand("undo");
-        logic.executeCommand("go to school /deadline April 10, 2015 2pm");
+        logic.executeCommand("go to school /deadline April 10, 3015 2pm");
         logic.executeCommand("undo");
 
         printTestTitle(4);
-        if (isContentSimilar(TESTS_PATH + "expected4.txt", "task.json")) {
+        if (isContentSimilar(TESTS_PATH + "expected4.txt", "tasks.json")) {
             System.out.println("TEST4 PASSED");
         } else {
             System.out.println("TEST4 FAILED");
