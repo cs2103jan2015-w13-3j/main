@@ -106,13 +106,12 @@ public class SearchCommand extends Command {
         List<Task> allTasks = storage.query();
 
         addFirstSlot(results, start, end, allTasks, duration);
-
         generateViewableSlots(results, freeSlots, start, end, duration);
-        logic.updateGuiFreeSlots(results);
-
         addLastSlot(results, start, end, allTasks, duration);
 
-        System.out.println(results);
+        logic.updateGuiFreeSlots(results);
+
+        //System.out.println(results);
 
         setStatus(STATUS_DISP_FREE);
         updateGUIStatus();
