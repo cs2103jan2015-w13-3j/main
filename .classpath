@@ -13,8 +13,11 @@
 	<classpathentry kind="lib" path="libs/ical4j-1.0.2.jar"/>
 	<classpathentry kind="lib" path="libs/natty-0.10.1.jar"/>
 	<classpathentry kind="lib" path="libs/stringtemplate-3.2.1.jar"/>
+	<classpathentry kind="lib" path="libs/java-json.jar"/>
 	<classpathentry kind="lib" path="libs/gson-2.3.1.jar"/>
 	<classpathentry kind="lib" path="libs/json-simple-1.1.1.jar"/>
-	<classpathentry kind="lib" path="libs/java-json.jar"/>
+	<classpathentry kind="lib" path="libs/testFx-3.1.2.jar"/>
+	<classpathentry kind="lib" path="libs/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="libs/guava-18.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
