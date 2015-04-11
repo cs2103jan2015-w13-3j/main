@@ -248,6 +248,7 @@ public class Gui extends Application {
 
         _controller.displayStatus(statusString);
     }
+    
     /**
      * Displays free slots in the GUI
      *
@@ -267,6 +268,7 @@ public class Gui extends Application {
         _taskData = _guiFormatter.getFormattedFreeSlotsData();
         logger.fine(_taskData.toString());
     }
+
     /**
      * Displays receivedList in the GUI
      *

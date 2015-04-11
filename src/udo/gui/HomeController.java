@@ -25,353 +25,336 @@ import udo.storage.Task;
 /**
  * This is the main controller class for the HomePage of the GUI. It controls
  * the data displayed and its styling. It is also the interface between the java
- * objects and its corresponding FXML objects. All user events are also handled by
- * this class
+ * objects and its corresponding FXML objects. All user events are also handled
+ * by this class
  *
  */
 
 public class HomeController {
-	private static final Logger logger = 
-			Logger.getLogger(HomeController.class.getName());
+    private static final Logger logger = Logger.getLogger(HomeController.class
+            .getName());
 
-	private static String _STYLE_ITALIC = "italic";
-	private static String _STYLE_STRAIGHT = "straight";
+    private static String _STYLE_ITALIC = "italic";
+    private static String _STYLE_STRAIGHT = "straight";
 
-	private static String _HOTKEY_DISPLAY = "display";
-	private static String _HOTKEY_DONE = "display /done";
+    private static String _HOTKEY_DISPLAY = "display";
+    private static String _HOTKEY_DONE = "display /done";
 
-	private static String _COLUMN_FIELD_CONTENT = "content";
-	private static String _COLUMN_FIELD_LABEL= "label";
-	private static Label _statusString;
-	private static ObservableList<Task> _data;
-	private static CustomTextField _customTextField;
+    private static String _COLUMN_FIELD_CONTENT = "content";
+    private static String _COLUMN_FIELD_LABEL = "label";
+    private static Label _statusString;
+    private static ObservableList<Task> _data;
+    private static CustomTextField _customTextField;
 
+    @FXML
+    private TableView<Task> _TaskTable;
+    @FXML
+    private TableColumn<Task, String> _taskNameColumn;
+    @FXML
+    private TableColumn<Task, String> _timeColumn;
+    @FXML
+    private TextField _inputBox;
+    @FXML
+    private Label _status;
 
+    // Reference to the Main Application.
+    private Gui gui;
 
-	@FXML
-	private TableView<Task> _TaskTable;
-	@FXML
-	private TableColumn<Task, String> _taskNameColumn;
-	@FXML
-	private TableColumn<Task, String> _timeColumn;
-	@FXML
-	private TextField _inputBox;
-	@FXML
-	private Label _status;
+    public HomeController() {
+        logger.setLevel(Level.INFO);
+    }
 
-	// Reference to the Main Application.
-	private Gui gui;
+    /**
+     * Initializes the controller class. This method is automatically called
+     * after the FXML file has been loaded.
+     */
+    @FXML
+    private void initialize() {
+        configureSettings();
+        initialiseTableColumns();
+    }
 
+    private void configureSettings() {
+        disableDefaults();
+        configureTextField();
+        configureStatus();
+    }
 
-	public HomeController() {
-		logger.setLevel(Level.INFO);
-	}
+    /**
+     * Disables the sorting function of TableView
+     */
+    private void disableDefaults() {
+        _taskNameColumn.setSortable(false);
+        _timeColumn.setSortable(false);
+    }
 
-	/**
-	 * Initializes the controller class. This method is automatically called
-	 * after the FXML file has been loaded.
-	 */
-	@FXML
-	private void initialize() {
-		configureSettings();
-		initialiseTableColumns();
-	}
+    private void configureTextField() {
+        setFocusInputBox();
+        _customTextField = new CustomTextField(_inputBox, this);
+        _customTextField.bindKeys(keyHandlers);
+    }
 
-	private void configureSettings() {
-		disableDefaults();
-		configureTextField();
-		configureStatus();  
-	}
+    @FXML
+    private void configureStatus() {
+        _statusString = _status;
+    }
 
-	/**
-	 * Disables the sorting function of TableView
-	 */
-	private void disableDefaults() {
-		_taskNameColumn.setSortable(false);
-		_timeColumn.setSortable(false);       
-	}
+    private void setFocusInputBox() {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                _inputBox.requestFocus();
+            }
+        });
+    }
 
-	private void configureTextField() {
-		setFocusInputBox();
-		_customTextField = new CustomTextField(_inputBox, this);
-		_customTextField.bindKeys(keyHandlers);
-	}
+    /**
+     * Initializes the TableView with 2 columns
+     */
+    private void initialiseTableColumns() {
+        initialiseTaskNameColumn();
+        initialiseTimeColumn();
+    }
 
-	@FXML
-	private void configureStatus() {
-		_statusString = _status;
-	}
+    private void initialiseTimeColumn() {
+        PropertyValueFactory<Task, String> labelFactory = new PropertyValueFactory<Task, String>(
+                _COLUMN_FIELD_LABEL);
+        _timeColumn.setCellValueFactory(labelFactory);
 
-	private void setFocusInputBox() {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				_inputBox.requestFocus();
-			}
-		});
-	}
+        // create 'label' column callback
+        Callback<TableColumn<Task, String>, TableCell<Task, String>> labelCallBack = new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
+            @Override
+            public TableCell<Task, String> call(TableColumn<Task, String> param) {
+                return new TimeCell();
+            }
+        };
+        _timeColumn.setCellFactory(labelCallBack);
+    }
 
-	/**
-	 * Initializes the TableView with 2 columns
-	 */
-	 private void initialiseTableColumns() {
-		 initialiseTaskNameColumn();
-		 initialiseTimeColumn();
-	 }
+    private void initialiseTaskNameColumn() {
+        PropertyValueFactory<Task, String> contentFactory = new PropertyValueFactory<Task, String>(
+                _COLUMN_FIELD_CONTENT);
+        _taskNameColumn.setCellValueFactory(contentFactory);
 
-	 private void initialiseTimeColumn() {
-		 PropertyValueFactory<Task, String> labelFactory = 
-				 new PropertyValueFactory<Task, String>(_COLUMN_FIELD_LABEL);
-		 _timeColumn.setCellValueFactory(labelFactory);
+        // create 'content' column callback
+        Callback<TableColumn<Task, String>, TableCell<Task, String>> contentCallBack = new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
+            @Override
+            public TableCell<Task, String> call(TableColumn<Task, String> param) {
+                return new TaskCell();
+            }
+        };
+        _taskNameColumn.setCellFactory(contentCallBack);
+    }
 
-		 //create 'label' column callback
-		 Callback<TableColumn<Task, String>, 
-		 TableCell<Task, String>> labelCallBack = 
-		 new Callback<TableColumn<Task, String>, 
-		 TableCell<Task, String>>() {
-			 @Override
-			 public TableCell<Task, String> call(TableColumn<Task, 
-					 String> param) {
-				 return new TimeCell();
-			 }
-		 };
-		 _timeColumn.setCellFactory(labelCallBack);
-	 }
+    EventHandler<KeyEvent> keyHandlers = new EventHandler<KeyEvent>() {
+        @Override
+        public void handle(KeyEvent event) {
+            KeyCode code = event.getCode();
+            switch (code) {
+                case TAB:
+                    _customTextField.handleTabKey(event);
+                    break;
+                case ENTER:
+                    _customTextField.handleReturnKey();
+                    break;
+                case UP:
+                    _customTextField.handleDirectionKey(event, GuiUtil.KEY_UP);
+                    break;
+                case DOWN:
+                    _customTextField
+                            .handleDirectionKey(event, GuiUtil.KEY_DOWN);
+                    break;
+                case F1:
+                    handleF1Key();
+                    break;
+                case F2:
+                    handleF2Key();
+                    break;
+                case F3:
+                    handleF3Key();
+                    break;
+                default:
+                    handleOtherKeys(event, code);
+                    break;
+            }
+        }
+    };
 
-	 private void initialiseTaskNameColumn() {
-		 PropertyValueFactory<Task, String> contentFactory = 
-				 new PropertyValueFactory<Task, String>(_COLUMN_FIELD_CONTENT);
-		 _taskNameColumn.setCellValueFactory(contentFactory);
+    public String getAutocompleted(String userInput) {
+        assert (userInput != null);
+        return gui.callAutocomplete(userInput);
+    }
 
-		 //create 'content' column callback
-		 Callback<TableColumn<Task, String>, 
-		 TableCell<Task, String>> contentCallBack = 
-		 new Callback<TableColumn<Task, String>, 
-		 TableCell<Task, String>>() {
-			 @Override 
-			 public TableCell<Task, String> call(TableColumn<Task, 
-					 String> param) {
-				 return new TaskCell();
-			 }
-		 };
-		 _taskNameColumn.setCellFactory(contentCallBack);
-	 }
+    public boolean getCommand(String userInput) {
+        assert (userInput != null);
+        return gui.callLogicCommand(userInput) == true;
+    }
 
-	 EventHandler<KeyEvent> keyHandlers = new EventHandler<KeyEvent>() {
-		 @Override
-		 public void handle(KeyEvent event) {
-			 KeyCode code = event.getCode();
-			 switch(code) {
-			 case TAB :
-				 _customTextField.handleTabKey(event);
-				 break;
-			 case ENTER :
-				 _customTextField.handleReturnKey();
-				 break;
-			 case UP :
-				 _customTextField
-				 .handleDirectionKey(event, GuiUtil.KEY_UP);
-				 break;
-			 case DOWN :
-				 _customTextField
-				 .handleDirectionKey(event, GuiUtil.KEY_DOWN);
-				 break;
-			 case F1 :
-				 handleF1Key();
-				 break;
-			 case F2:
-				 handleF2Key();
-				 break;
-			 case F3:
-				 handleF3Key();
-				 break;
-			 default:
-				 handleOtherKeys(event, code);
-				 break; 
-			 }          
-		 }
-	 };
+    public String getCmdHistory(String direction) {
+        assert (direction != null);
+        return gui.callCmdHistory(direction);
+    }
 
-	 public String getAutocompleted(String userInput) {
-		 assert(userInput != null);
-		 return gui.callAutocomplete(userInput);
-	 }
+    public void displayStatus(String receivedString) {
+        assert (receivedString != null);
 
-	 public boolean getCommand(String userInput) {
-		 assert(userInput != null);
-		 return gui.callLogicCommand(userInput) == true;
-	 }
+        if (receivedString == null) {
+            receivedString = GuiUtil.EMPTY_STRING;
+        } else if (GuiUtil.isWarning(receivedString)) {
+            _statusString.setTextFill(GuiUtil.COLOUR_TEXT_WARNING);
+        } else if (GuiUtil.isError(receivedString)) {
+            _statusString.setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
+        } else {
+            _statusString.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
+        }
+        _statusString.setText(receivedString);
+        logger.finer(receivedString);
+    }
 
-	 public String getCmdHistory(String direction) {
-		 assert(direction != null);
-		 return gui.callCmdHistory(direction);
-	 }
+    private void handleF1Key() {
+        gui.displayManual();
+    }
 
-	 public void displayStatus(String receivedString) {
-		 assert(receivedString != null);
+    private void handleF2Key() {
+        gui.callLogicCommand(_HOTKEY_DISPLAY);
+    }
 
-		 if(receivedString == null) {
-			 receivedString = GuiUtil.EMPTY_STRING;
-		 } else if(GuiUtil.isWarning(receivedString)) {
-			 _statusString.setTextFill(GuiUtil.COLOUR_TEXT_WARNING);
-		 } else if(GuiUtil.isError(receivedString)) {
-			 _statusString.setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
-		 } else {
-			 _statusString.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
-		 }
-		 _statusString.setText(receivedString);
-		 logger.finer(receivedString);
-	 }
+    private void handleF3Key() {
+        gui.callLogicCommand(_HOTKEY_DONE);
+    }
 
-	 private void handleF1Key() {
-		 gui.displayManual();
-	 }
+    /*
+     * Retrieves suggestions for any letter keys
+     */
+    public void handleOtherKeys(KeyEvent event, KeyCode code) {
+        String userInput = new String();
 
-	 private void handleF2Key() {
-		 gui.callLogicCommand(_HOTKEY_DISPLAY);
-	 }
+        if (code.isLetterKey()) {
+            userInput = _customTextField.getText() + retrieveLetter(code);
+        } else if (code.equals(KeyCode.BACK_SPACE)) {
+            userInput = _customTextField.getText();
+        } else {
+            return;
+        }
 
-	 private void handleF3Key() {
-		 gui.callLogicCommand(_HOTKEY_DONE);
-	 }
+        String suggestedWords = getSuggestedWords(userInput);
+        displayStatus(suggestedWords);
 
-	 /*
-	  * Retrieves suggestions for any letter keys
-	  */
-	  public void handleOtherKeys(KeyEvent event, KeyCode code) {
-		  String userInput = new String(); 
+        logger.finer(suggestedWords.toString());
+    }
 
-		  if(code.isLetterKey()) {
-			  userInput = _customTextField.getText() + retrieveLetter(code);
-		  } else if(code.equals(KeyCode.BACK_SPACE)) {
-			  userInput = _customTextField.getText();
-		  } else {
-			  return;
-		  }
+    private String getSuggestedWords(String userInput) {
+        List<String> suggestedListOfWords = gui.callSuggestions(userInput);
+        String suggestedWords = GuiUtil
+                .concatListToString(suggestedListOfWords);
+        return suggestedWords;
+    }
 
-		  String suggestedWords = getSuggestedWords(userInput);
-		  displayStatus(suggestedWords);
+    private String retrieveLetter(KeyCode code) {
+        return code.getName().toLowerCase();
+    }
 
-		  logger.finer(suggestedWords.toString());
-	  }
+    /**
+     * Called by the main application to give a reference back to itself.
+     * 
+     * @param gui
+     */
+    public void setMainApp(Gui gui) {
+        this.gui = gui;
+    }
 
-	  private String getSuggestedWords(String userInput) {
-		  List<String> suggestedListOfWords = 
-				  gui.callSuggestions(userInput);          
-		  String suggestedWords = 
-				  GuiUtil.concatListToString(suggestedListOfWords);
-		  return suggestedWords;
-	  }
+    public void setData() {
+        refreshTable();
+        _data = gui.getNewData();
+        _TaskTable.setItems(_data);
+        logger.finer(_data.toString());
+    }
 
-	  private String retrieveLetter(KeyCode code) {
-		  return code.getName().toLowerCase();
-	  }
+    private void refreshTable() {
+        _TaskTable.getColumns().get(0).setVisible(false);
+        _TaskTable.getColumns().get(0).setVisible(true);
+    }
 
-	  /**
-	   * Called by the main application to give a reference back to itself.
-	   * 
-	   * @param gui
-	   */
-	  public void setMainApp(Gui gui) {
-		  this.gui = gui;
-	  }
+    /**
+     * Private nested class for cells under the task content column
+     */
+    private class TaskCell extends TableCell<Task, String> {
 
-	  public void setData() {
-		  refreshTable();
-		  _data = gui.getNewData();
-		  _TaskTable.setItems(_data);
-		  logger.finer(_data.toString());
-	  }
+        public TaskCell() {
 
-	  private void refreshTable() {
-		  _TaskTable.getColumns().get(0).setVisible(false);
-		  _TaskTable.getColumns().get(0).setVisible(true);
-	  }
+        }
 
-	  /**
-	   * Private nested class for cells under the task
-	   * content column
-	   */
-	  private class TaskCell extends TableCell<Task, String> {
+        @Override
+        protected void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            this.setText(GuiUtil.EMPTY_STRING);
+            formatCellIfNotEmpty(item, this);
+            this.setText(item);
+        }
 
-		  public TaskCell() {
+        private void formatCellIfNotEmpty(String item,
+                TableCell<Task, String> tableCell) {
+            if (!tableCell.isEmpty()) {
+                formatCellText(item, tableCell);
+            }
+        }
 
-		  }
+        private void formatCellText(String item,
+                TableCell<Task, String> tableCell) throws ClassCastException {
 
-		  @Override
-		  protected void updateItem(String item, boolean empty) {
-			  super.updateItem(item, empty);
-			  this.setText(GuiUtil.EMPTY_STRING);
-			  formatCellIfNotEmpty(item, this);
-			  this.setText(item);
-		  }
+            if (GuiUtil.isHeader(item)) {
+                setHeaderStyle();
+            } else if (GuiUtil.isImportant(item, _data)) {
+                setImportantStyle();
+            } else {
+                setTextStyle();
+            }
+        }
 
+        private void setHeaderStyle() {
+            setTextFill(GuiUtil.COLOUR_TABLE_HEADERS);
+            setAlignment(Pos.CENTER);
+            styleItalic();
+        }
 
-		  private void formatCellIfNotEmpty(String item,
-				  TableCell<Task, String> tableCell) {
-			  if (!tableCell.isEmpty()) {
-				  formatCellText(item, tableCell);
-			  }
-		  }
+        private void setTextStyle() {
+            setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
+            setAlignment(Pos.CENTER_LEFT);
+            styleStraight();
+        }
 
-		  private void formatCellText(String item,
-				  TableCell<Task, String> tableCell) 
-						  throws ClassCastException {
+        private void setImportantStyle() {
+            setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
+            setAlignment(Pos.CENTER_LEFT);
+            styleStraight();
+        }
 
-			  if (GuiUtil.isHeader(item)) {
-				  setHeaderStyle();
-			  } else if (GuiUtil.isImportant(item, _data)) { 
-				  setImportantStyle();
-			  } else {
-				  setTextStyle();
-			  }
-		  }
+        private void styleStraight() {
+            getStyleClass().remove(_STYLE_ITALIC);
+            getStyleClass().add(_STYLE_STRAIGHT);
+        }
 
-		  private void setHeaderStyle() {        
-			  setTextFill(GuiUtil.COLOUR_TABLE_HEADERS);
-			  setAlignment(Pos.CENTER);
-			  styleItalic();
-		  }
+        private void styleItalic() {
+            getStyleClass().remove(_STYLE_STRAIGHT);
+            getStyleClass().add(_STYLE_ITALIC);
+        }
 
-		  private void setTextStyle() {
-			  setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
-			  setAlignment(Pos.CENTER_LEFT);
-			  styleStraight();
-		  }
+    }
 
-		  private void setImportantStyle() {
-			  setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
-			  setAlignment(Pos.CENTER_LEFT);
-			  styleStraight();
-		  }
+    /**
+     * Private nested class for cells under the date/time column
+     */
+    private class TimeCell extends TableCell<Task, String> {
 
-		  private void styleStraight() {
-			  getStyleClass().remove(_STYLE_ITALIC);
-			  getStyleClass().add(_STYLE_STRAIGHT);
-		  }
+        public TimeCell() {
 
-		  private void styleItalic() {
-			  getStyleClass().remove(_STYLE_STRAIGHT);
-			  getStyleClass().add(_STYLE_ITALIC);
-		  }
+        }
 
-	  }
-
-	  /**
-	   * Private nested class for cells under the date/time
-	   * column
-	   */
-	  private class TimeCell extends TableCell<Task,String> {
-
-		  public TimeCell() {
-
-		  }
-
-		  @Override
-		  public void updateItem(String item, boolean empty) {
-			  super.updateItem(item, empty);
-			  this.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL); 
-			  this.setText(item);
-		  }
-	  }
+        @Override
+        public void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            this.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
+            this.setText(item);
+        }
+    }
 }
