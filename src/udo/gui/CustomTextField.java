@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 //@author A0114906J
@@ -29,6 +30,7 @@ public class CustomTextField {
     }
     
     public void setText(String str) {
+        assert(str != null);
         _textField.setText(str);
     }
     
@@ -36,6 +38,36 @@ public class CustomTextField {
         return _textField.getText();
     }
     
+    public String getChangedText(KeyCode code) {        
+        String input = getText();
+        
+        if (code.isLetterKey()) {
+            return concatLetter(input, code);
+        } else if (code.equals(KeyCode.BACK_SPACE)) {
+            return removeLetter(input);
+        } else {
+            return GuiUtil.EMPTY_STRING;
+        }
+    }
+    
+    private String concatLetter(String input, KeyCode code) {
+        return input + retrieveLetter(code);
+    }
+
+    private String retrieveLetter(KeyCode code) {
+        return code.getName().toLowerCase();
+    }
+
+    private String removeLetter(String input) {
+        assert(input != null);
+        
+        if(input.length() > 0) {
+            return input.substring(0, input.length() - 1 );
+        } else {
+            return GuiUtil.EMPTY_STRING;
+        }
+    }
+
     public void bindKeys(EventHandler<KeyEvent> keyHandlers) {
         _textField.setOnKeyPressed(keyHandlers);
     }

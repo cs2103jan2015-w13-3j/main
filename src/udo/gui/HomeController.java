@@ -187,7 +187,7 @@ public class HomeController {
                     handleF3Key();
                     break;
                 default:
-                    handleOtherKeys(event, code);
+                    handleOtherKeys(code);
                     break;
             }
         }
@@ -239,16 +239,9 @@ public class HomeController {
     /*
      * Retrieves suggestions for any letter keys
      */
-    public void handleOtherKeys(KeyEvent event, KeyCode code) {
-        String userInput = new String();
-
-        if (code.isLetterKey()) {
-            userInput = _customTextField.getText() + retrieveLetter(code);
-        } else if (code.equals(KeyCode.BACK_SPACE)) {
-            userInput = _customTextField.getText();
-        } else {
-            return;
-        }
+    public void handleOtherKeys(KeyCode code) {
+        String userInput = _customTextField.getChangedText(code); 
+        logger.finer(userInput);
 
         String suggestedWords = getSuggestedWords(userInput);
         displayStatus(suggestedWords);
@@ -258,13 +251,9 @@ public class HomeController {
 
     private String getSuggestedWords(String userInput) {
         List<String> suggestedListOfWords = gui.callSuggestions(userInput);
-        String suggestedWords = GuiUtil
-                .concatListToString(suggestedListOfWords);
+        String suggestedWords = 
+                GuiUtil.concatListToString(suggestedListOfWords);
         return suggestedWords;
-    }
-
-    private String retrieveLetter(KeyCode code) {
-        return code.getName().toLowerCase();
     }
 
     /**
