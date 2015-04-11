@@ -14,7 +14,7 @@ import udo.util.Config.CommandName;
 
 //@author A0093587M
 public class AddCommand extends Command {
-    public static final String STATUS_ADDED = "Task: %s added sucessfully";
+    public static final String STATUS_ADDED = "Task: %s added successfully";
 
     private static final Logger log = Logger.
             getLogger(AddCommand.class.getName());
