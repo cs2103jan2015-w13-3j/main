@@ -25,7 +25,7 @@ public class TestFx {
 		removeExistingTasks();
 		FXTestUtils.launchApp(Gui.class);
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -54,7 +54,7 @@ public class TestFx {
 	@Test
 	public void test1() {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -68,12 +68,12 @@ public class TestFx {
 			e.printStackTrace();
 		}
 		verifyThat("#_status",
-				hasText("Task: New task added sucessfully"));
+				hasText("Task: New task added successfully"));
 	}
 	@Test
 	public void test2() {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -92,7 +92,7 @@ public class TestFx {
 	@Test
 	public void test3() {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -107,12 +107,12 @@ public class TestFx {
 			e.printStackTrace();
 		}
 		verifyThat("#_status",
-				hasText("Error: specified task's index is not valid"));
+				hasText("Task: New task deleted successfully"));
 	}
 	@Test
 	public void test4() {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -131,7 +131,7 @@ public class TestFx {
 	@Test
 	public void test5() {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -145,12 +145,12 @@ public class TestFx {
 			e.printStackTrace();
 		}
 		verifyThat("#_status",
-				hasText("No more operation to undo"));
+				hasText("Error: no more operation to undo"));
 	}
 	@Test
 	public void test6() {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -167,13 +167,13 @@ public class TestFx {
 			e.printStackTrace();
 		}
 		verifyThat("#_status",
-				hasText("Nah Nah"));
+				hasText("Task: Date with Emma Watson modified successfully"));
 
 	}
 	@Test
 	public void test7() {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -182,7 +182,7 @@ public class TestFx {
 		for(int i=0; i<7; i++) {
 			controller.push(KeyCode.BACK_SPACE);
 		}
-		controller.type("Date with Emma Watson modified sucessfully");
+		controller.type("and talk with Bill Gates /s 5pm /e 9pm");
 		controller.push(KeyCode.ENTER);	
 		try {
 			Thread.sleep(500);
@@ -191,13 +191,13 @@ public class TestFx {
 			e.printStackTrace();
 		}
 		verifyThat("#_status",
-				hasText("Search results for free slots"));
+				hasText("Task: Date with Emma Watson and talk with Bill... modified successfully"));
 
 	}
 	@Test
 	public void test8() {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -209,7 +209,7 @@ public class TestFx {
 		controller.push(KeyCode.TAB);	
 		controller.push(KeyCode.ENTER);	
 		try {
-			Thread.sleep(5000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
