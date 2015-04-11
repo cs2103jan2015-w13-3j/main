@@ -32,7 +32,7 @@ import udo.storage.Task;
 
 public class HomeController {
     private static final Logger logger = Logger.getLogger(HomeController.class
-            .getName());
+                                               .getName());
 
     private static String _STYLE_ITALIC = "italic";
     private static String _STYLE_STRAIGHT = "straight";
@@ -117,14 +117,20 @@ public class HomeController {
     }
 
     private void initialiseTimeColumn() {
-        PropertyValueFactory<Task, String> labelFactory = new PropertyValueFactory<Task, String>(
-                _COLUMN_FIELD_LABEL);
+        PropertyValueFactory<Task, String> labelFactory = 
+                new PropertyValueFactory<Task, String>(_COLUMN_FIELD_LABEL);
+        
         _timeColumn.setCellValueFactory(labelFactory);
 
         // create 'label' column callback
-        Callback<TableColumn<Task, String>, TableCell<Task, String>> labelCallBack = new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
+        Callback<TableColumn<Task, String>, 
+                 TableCell<Task, String>> labelCallBack = 
+                 new Callback<TableColumn<Task, String>, 
+                              TableCell<Task, String>>() {
+            
             @Override
-            public TableCell<Task, String> call(TableColumn<Task, String> param) {
+            public TableCell<Task, String> call(TableColumn<Task, 
+                                                            String> param) {
                 return new TimeCell();
             }
         };
@@ -132,14 +138,20 @@ public class HomeController {
     }
 
     private void initialiseTaskNameColumn() {
-        PropertyValueFactory<Task, String> contentFactory = new PropertyValueFactory<Task, String>(
-                _COLUMN_FIELD_CONTENT);
+        PropertyValueFactory<Task, String> contentFactory = 
+                new PropertyValueFactory<Task, String>(_COLUMN_FIELD_CONTENT);
+        
         _taskNameColumn.setCellValueFactory(contentFactory);
 
         // create 'content' column callback
-        Callback<TableColumn<Task, String>, TableCell<Task, String>> contentCallBack = new Callback<TableColumn<Task, String>, TableCell<Task, String>>() {
+        Callback<TableColumn<Task, String>, 
+                             TableCell<Task, String>> contentCallBack = 
+                             new Callback<TableColumn<Task, String>, 
+                             TableCell<Task, String>>() {
+            
             @Override
-            public TableCell<Task, String> call(TableColumn<Task, String> param) {
+            public TableCell<Task, String> call(TableColumn<Task, 
+                                                            String> param) {
                 return new TaskCell();
             }
         };
@@ -158,11 +170,12 @@ public class HomeController {
                     _customTextField.handleReturnKey();
                     break;
                 case UP:
-                    _customTextField.handleDirectionKey(event, GuiUtil.KEY_UP);
+                    _customTextField
+                        .handleDirectionKey(event, GuiUtil.KEY_UP);
                     break;
                 case DOWN:
                     _customTextField
-                            .handleDirectionKey(event, GuiUtil.KEY_DOWN);
+                        .handleDirectionKey(event, GuiUtil.KEY_DOWN);
                     break;
                 case F1:
                     handleF1Key();
@@ -292,15 +305,16 @@ public class HomeController {
             this.setText(item);
         }
 
-        private void formatCellIfNotEmpty(String item,
-                TableCell<Task, String> tableCell) {
+        private void formatCellIfNotEmpty(String item, 
+                                          TableCell<Task, String> tableCell) {
             if (!tableCell.isEmpty()) {
                 formatCellText(item, tableCell);
             }
         }
 
         private void formatCellText(String item,
-                TableCell<Task, String> tableCell) throws ClassCastException {
+                                    TableCell<Task, String> tableCell) 
+                                    throws ClassCastException {
 
             if (GuiUtil.isHeader(item)) {
                 setHeaderStyle();
