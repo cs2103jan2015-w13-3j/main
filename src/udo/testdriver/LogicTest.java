@@ -17,7 +17,7 @@ import udo.storage.Task.TaskType;
 public class LogicTest {
     private void removeExistingTasks() {
         try {
-            (new RandomAccessFile("task.json", "rws")).setLength(0);
+            (new RandomAccessFile("tasks.json", "rws")).setLength(0);
         } catch (IOException e) {
             e.printStackTrace();
         }

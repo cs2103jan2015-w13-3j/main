@@ -7,7 +7,7 @@ submit the report /dl next friday /reminder next thursday
 undo
 delete 1
 display
-chdir /deadline
+cd /deadline
 search school tomorrow
 done 2
 add match midterm /start next friday or next thursday /end 11/02/15 or 20/02/2015

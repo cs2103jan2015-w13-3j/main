@@ -30,7 +30,6 @@ Command: SEARCH
 Argument: school tomorrow
 #
 Command: DONE
-Index: 2
 #
 Command: ADD
 Argument: match midterm
