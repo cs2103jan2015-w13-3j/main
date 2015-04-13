@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.collections.FXCollections;
@@ -24,10 +25,10 @@ import udo.util.Utility;
 
 public class GuiFormatter {
 
-    public static final String HEADER_TODO = "To-Dos";
-
     private static final Logger logger = 
             Logger.getLogger(GuiFormatter.class.getName());
+    
+    public static final String HEADER_TODO = "To-Dos";
     
     private static final String _SEPARATOR_DASH = " - ";
     private static final String _SEPARATOR_QUESTION_MARK = "? ";
@@ -43,7 +44,7 @@ public class GuiFormatter {
     private static ArrayList<Task> _rawData;
 
     private GuiFormatter() {
-
+        logger.setLevel(Level.INFO);
     }
     
     public static GuiFormatter getInstance() {
@@ -128,7 +129,7 @@ public class GuiFormatter {
     }
     
     private void appendSerialNumber(Task task, int counter) {    
-        task.setContent(GuiUtil.EMPTY_STRING + counter + 
+        task.setContent(GuiUtil.STRING_EMPTY + counter + 
                         _SEPARATOR_DOT + task.getContent());
     }
 
@@ -144,7 +145,7 @@ public class GuiFormatter {
      */
     private void insertHeaderLoop() {
 
-        String prevHeader = GuiUtil.EMPTY_STRING;
+        String prevHeader = GuiUtil.STRING_EMPTY;
 
         for (int i = 0; i < _rawData.size(); i++) {
             String header = new String();
@@ -175,7 +176,7 @@ public class GuiFormatter {
             case DEADLINE :
                 return GuiUtil.guiDateFormat(task.getDeadline());
             default :
-                return GuiUtil.EMPTY_STRING;
+                return GuiUtil.STRING_EMPTY;
         }
     }
 
@@ -191,7 +192,7 @@ public class GuiFormatter {
     private void insertHeader(String header, int i) {       
         Task newHeader = new Task(null, header, null,
                                   null, null, 0, null,
-                                  GuiUtil.EMPTY_STRING, false, false);
+                                  GuiUtil.STRING_EMPTY, false, false);
         _rawData.add(i, newHeader);
     }
 
@@ -243,14 +244,15 @@ public class GuiFormatter {
         insertHeaderLoop();
         formatFreeSlotLoop();
 
-        logger.fine(_rawData.toString());   
+        logger.finer(_rawData.toString());   
     }
     
     private void formatFreeSlotLoop() {
         for(int i = 0; i < _rawData.size(); i++) {
             Task task = _rawData.get(i);
-            logger.info(task.toString());
             setFreeSlotTitle(task);
+            
+            logger.fine(task.toString());
         }               
     }
 
@@ -301,7 +303,7 @@ public class GuiFormatter {
     }
     
     private void removeDateField(Task task) {
-        task.setLabel(GuiUtil.EMPTY_STRING);
+        task.setLabel(GuiUtil.STRING_EMPTY);
     }
 
     private void setDisplayTimeDeadLine(Task task) {
@@ -309,7 +311,7 @@ public class GuiFormatter {
     }
 
     private void setDisplayTimeTodo(Task task) {
-        task.setLabel(GuiUtil.EMPTY_STRING);
+        task.setLabel(GuiUtil.STRING_EMPTY);
     }
 
     private void setDisplayTimeEvent(Task task) {

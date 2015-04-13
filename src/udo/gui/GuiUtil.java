@@ -1,12 +1,13 @@
 package udo.gui;
 
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.paint.Color;
-
 import udo.storage.Task;
 import udo.util.Utility;
 
@@ -19,10 +20,11 @@ import udo.util.Utility;
  */
 
 public class GuiUtil {
-
-    public static final String EMPTY_STRING = "";
-
-    public static final String SPACER_STRING = " | ";
+    
+    public static final String LOG_INITIATE = "%s is initiated";
+    
+    public static final String STRING_EMPTY = "";
+    public static final String STRING_SPACER = " | ";
 
     public static final String PREFIX_WARNING = "Warning";
     public static final String PREFIX_ERROR = "Error";
@@ -37,20 +39,29 @@ public class GuiUtil {
     public static final Color COLOUR_TEXT_WARNING = Color.ORANGE;
     public static final Color COLOUR_TEXT_ERROR = Color.RED;
     public static final Color COLOUR_TEXT_NORMAL = Color.WHITE;
-    
-    public static final String COLOUR_BACKGROUND = "-fx-background-color: #2b3339; ";
+
+    public static final String COLOUR_BACKGROUND = "-fx-background-color: " +
+                                                   "#2b3339; ";
     public static final String COLOUR_WHITE = "-fx-fill: white; ";
     public static final String COLOUR_GREEN = "-fx-fill: #1abc9c; ";
 
     public static final String STYLE_SIZE = "-fx-font-size: 12.5px; ";
-    public static final String STYLE_FONT = "-fx-font-family: 'Open Sans', sans-serif; ";
+    public static final String STYLE_FONT = "-fx-font-family: 'Open Sans'," +
+                                            "sans-serif; ";
 
-    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    public static SimpleDateFormat timeFormat = 
+            new SimpleDateFormat("HH:mm");
     public static SimpleDateFormat dateFormat =
             new SimpleDateFormat("EEE, dd MMM yyyy");
     public static SimpleDateFormat DateTimeFormat =
             new SimpleDateFormat("dd/MM HH:mm");
-
+    
+    public static FXMLLoader getLoader(URL url) {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(url);
+        return loader;
+    }
+    
     public static boolean isHeader(String str) {
         if(str == null) {
             return false;
@@ -69,7 +80,7 @@ public class GuiUtil {
 
     public static boolean isImportant(String title, ObservableList<Task> data) {
         Task task = lookUpTask(title, data);
-        return task.getPriority() == true;
+        return task.isPriority() == true;
     }
 
     private static Task lookUpTask(String title, ObservableList<Task> data) {
@@ -140,7 +151,7 @@ public class GuiUtil {
      */
     public static String guiTimeFormat(GregorianCalendar calendar) {
         if (calendar == null) {
-            return EMPTY_STRING;
+            return STRING_EMPTY;
         }
         return timeFormat.format(calendar.getTime());
     }
@@ -153,7 +164,7 @@ public class GuiUtil {
      */
     public static String guiDateFormat(GregorianCalendar calendar) {
         if (calendar == null) {
-            return EMPTY_STRING;
+            return STRING_EMPTY;
         }
         return dateFormat.format(calendar.getTime());
     }
@@ -166,7 +177,7 @@ public class GuiUtil {
      */
     public static String guiDateTimeFormat(GregorianCalendar calendar) {
         if (calendar == null) {
-            return EMPTY_STRING;
+            return STRING_EMPTY;
         }
         return DateTimeFormat.format(calendar.getTime());
     }
@@ -195,12 +206,12 @@ public class GuiUtil {
     }
 
     private static String addWord(String suggestedWords, String word) {
-        suggestedWords = suggestedWords + word + SPACER_STRING;
+        suggestedWords = suggestedWords + word + STRING_SPACER;
         return suggestedWords;
     }
 
     private static String trimSuggestions(String suggestedWords) {
-        int index = suggestedWords.lastIndexOf(SPACER_STRING);
+        int index = suggestedWords.lastIndexOf(STRING_SPACER);
         return suggestedWords.substring(0, index);
     }
     

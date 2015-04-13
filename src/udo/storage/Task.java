@@ -88,7 +88,7 @@ public class Task implements Comparable<Task> {
 		return label;
 	}
 
-	public boolean getPriority() {
+	public boolean isPriority() {
 		return priority;
 	}
 	

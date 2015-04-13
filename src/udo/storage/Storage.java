@@ -1,5 +1,5 @@
-
 package udo.storage;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,13 +24,16 @@ import udo.util.Utility;
 //@author A0113038U
 public class Storage {
 
+	private static final int WINDOW = 2;
+	private static final int TOTAL_DAYS = 365;
+	private static final String SEPARATOR = File.separator;
 	private static final String REGEX_SPACE = "\\s+";
 	private static final String REGEX_WILDCARD = "\\*";
 	private static final double NEAR_MATCH_RATIO = 3.0;
 	private static final double ROUND_UP = 0.4;
 	public static final String EOL = System.getProperty("line.separator");
 
-	private static ArrayList<Task> taskList;
+	private static ArrayList<Task> taskList;		//store the list of tasks
 
 	private static Task prevTask;		//store the previous task that was added/modified/deleted
 	private static String prevCmd;		//store the previous command excluding display/searching
@@ -46,7 +49,7 @@ public class Storage {
 		initialize();
 		readTaskList();
 	}
-	
+
 	/**
 	 * This method provides initialization of some objects
 	 */
@@ -57,7 +60,7 @@ public class Storage {
 		copycat = new ArrayList<Task>();
 	}
 
-	
+
 	/**
 	 * @return current path to store json file
 	 */
@@ -179,21 +182,22 @@ public class Storage {
 				if (path.endsWith("\\"))
 					lastPath = path.concat("tasks.json");
 				else
-					lastPath = path.concat(File.separator+"tasks.json");
+					lastPath = path.concat(SEPARATOR+"tasks.json");
 			}
 		}
 		return true;
 	}
-	
+
 	//@author A0112115A
-	/**Undo change directory and return true if successful*/ 
-	public boolean undoChDir() {
-		prevCmd = "";
-		lastPath = prevPath;
-		JsonProcessor.writeJson(lastPath, taskList);
-		return writeNewDir(lastPath);
+	/**
+	 * Method to store taskList to Json file
+	 * @return true if taskList is successfully saved, else false
+	 */
+	private boolean storeTasks() {
+		return JsonProcessor.writeJson(lastPath, taskList);
 	}
-	
+
+
 	//@author A0113038U
 	/** 
 	 * Method used to add new task to taskList
@@ -206,13 +210,17 @@ public class Storage {
 		}
 		prevTask = newTask;
 		prevCmd = "add";
-		doAddTask(newTask);
+		addTaskToList(newTask);
 		storeTasks();
 
 		return true;
 	}
 
-	private void doAddTask(Task newTask) {
+	/**
+	 * Add new Task to the end of taskList
+	 * @param newTask
+	 */
+	private void addTaskToList(Task newTask) {
 		newTask.setIndex(taskList.size());
 		newTask.setGroupId(0);
 		taskList.add(newTask);
@@ -237,14 +245,6 @@ public class Storage {
 		storeTasks();
 		return true;
 	}
-	
-	/**
-	 * Method to store taskList to Json file
-	 * @return true if taskList is successfully saved, else false
-	 */
-	private boolean storeTasks() {
-		return JsonProcessor.writeJson(lastPath, taskList);
-	}
 
 	/**
 	 * Method used to store group ID for dummy tasks and store to json file
@@ -258,7 +258,8 @@ public class Storage {
 			taskList.add(dummyTasks.get(i));
 
 		}
-		JsonProcessor.writeJson(lastPath,  taskList);
+
+		storeTasks();
 		return true;
 	}
 
@@ -309,10 +310,12 @@ public class Storage {
 	private void removeUnconfirmedTasks(Integer index, Integer groupId,
 			Task keptTask) {
 		for (int i = 0; i < taskList.size(); i++){
-			if (taskList.get(i).getGroupId() == groupId && taskList.get(i).getIndex() != index){
+			if (taskList.get(i).getGroupId() == groupId && 
+					taskList.get(i).getIndex() != index){
 				Task lastTask = taskList.get(taskList.size() -1);
 
-				if (lastTask.getGroupId() == groupId && lastTask.getIndex() == index){
+				if (lastTask.getGroupId() == groupId && 
+						lastTask.getIndex() == index){
 					index = i;
 				}
 				taskList.set(i, lastTask);
@@ -344,6 +347,20 @@ public class Storage {
 	}
 
 	/**
+	 * Swap task in specified index with the last task on the list
+	 * @param index
+	 */
+	private void swapWithLastTask(Integer index) {
+		if (taskList.size() > 1) {
+			taskList.set(index, taskList.get(taskList.size() -1));
+			taskList.get(index).setIndex(index);
+			taskList.remove(taskList.size()-1);
+		} else {
+			taskList.clear();
+		}
+	}
+
+	/**
 	 * Method to delete a list of Tasks at the specified indices
 	 * @param list of indices
 	 * @return true if all the tasks are successfully deleted, else false
@@ -362,6 +379,16 @@ public class Storage {
 		prevCmd = "mult";
 		copycat = Utility.deepCopy(taskList);
 
+		deleteTasks(indices);
+		storeTasks();
+		return true;
+	}
+
+	/**
+	 * Remove a list of tasks at specified indices from taskList 
+	 * @param indices
+	 */
+	private void deleteTasks(List<Integer> indices) {
 		for (int i = 0; i < indices.size(); i ++){
 			int index = indices.get(i);
 			taskList.set(index, new Task());
@@ -375,10 +402,8 @@ public class Storage {
 				taskList.get(i).setIndex(i);
 			}
 		}
-		storeTasks();
-		return true;
 	}
-	
+
 	//check if list of indices are valid
 	private boolean areValidIndices(List<Integer> indices) {
 		return indices.size() > taskList.size() || indices.size() == 0;
@@ -386,24 +411,10 @@ public class Storage {
 
 	//check if an index is valid
 	private boolean isValidIndex(Integer index) {
-		if(index == null || index < 0||index >= taskList.size()|| taskList.size() == 0)
+		if(index == null || index < 0||index >= taskList.size()|| 
+				taskList.size() == 0)
 			return false;
 		return true;
-
-	}
-
-	/**
-	 * Swap task in specified index with the last task on the list
-	 * @param index
-	 */
-	private void swapWithLastTask(Integer index) {
-		if (taskList.size() > 1) {
-			taskList.set(index, taskList.get(taskList.size() -1));
-			taskList.get(index).setIndex(index);
-			taskList.remove(taskList.size()-1);
-		} else {
-			taskList.clear();
-		}
 	}
 
 	/**
@@ -438,10 +449,9 @@ public class Storage {
 			modifiedTask.setGroupId(0);
 		}
 		taskList.set(index, modifiedTask);
-		JsonProcessor.writeJson(lastPath,  taskList);
 		return true;
 	}
-	
+
 	/**
 	 * Get free time slots from TimeSlots class
 	 * @return ArrayList of Task with free time slots
@@ -484,7 +494,7 @@ public class Storage {
 		}
 		return returnList;
 	}
-	
+
 	/**
 	 * @param priority
 	 * @return the tasks matched priority level
@@ -492,7 +502,7 @@ public class Storage {
 	public ArrayList<Task> query(boolean priority){
 		ArrayList<Task> returnList = new ArrayList<Task>();
 		for(int i=0; i<taskList.size();i++){
-			if (taskList.get(i).getPriority() == priority){
+			if (taskList.get(i).isPriority() == priority){
 				returnList.add(taskList.get(i).copy());
 			}
 		}
@@ -520,7 +530,7 @@ public class Storage {
 		}
 		return returnList;
 	}
-	
+
 	/**
 	 * @param taskType
 	 * @return the tasks matched task type: event/deadline/todo
@@ -548,13 +558,14 @@ public class Storage {
 		} else if (date2.get(Calendar.YEAR) - date1.get(Calendar.YEAR) > 1){
 			return false;
 		} else if (date2.get(Calendar.YEAR) > date1.get(Calendar.YEAR)){
-			return ((365 - date1.get(Calendar.DAY_OF_YEAR) + date2.get(Calendar.DAY_OF_YEAR)) <= 2);
+			return ((TOTAL_DAYS - date1.get(Calendar.DAY_OF_YEAR) +
+					date2.get(Calendar.DAY_OF_YEAR)) <= WINDOW);
 		} else {
-			return (date2.get(Calendar.DAY_OF_YEAR) - date1.get(Calendar.DAY_OF_YEAR) <= 2
+			return (date2.get(Calendar.DAY_OF_YEAR) - date1.get(Calendar.DAY_OF_YEAR) <= WINDOW
 					&& date2.get(Calendar.DAY_OF_YEAR) - date1.get(Calendar.DAY_OF_YEAR) >= 0);
 		}
 	}
-	
+
 	/**
 	 * @param date1
 	 * @param date2
@@ -588,7 +599,7 @@ public class Storage {
 		ArrayList<Task> returnList = new ArrayList<Task>();
 		if (searchedContent != null){
 
-			String searchedAfter = searchedContent.trim().replaceAll(" +", " ").toLowerCase();
+			String searchedAfter = removeUnwantedSpaces(searchedContent);
 			returnList = exactSearch(searchedAfter);
 			if (returnList.size() > 0){
 				return returnList;
@@ -601,7 +612,17 @@ public class Storage {
 		}
 		return returnList;
 	}
-	
+
+	/**
+	 * Method to get rid of leading, trailing, continuous spaces
+	 * and ignore case
+	 * @param searchedContent
+	 * @return
+	 */
+	private String removeUnwantedSpaces(String searchedContent) {
+		return searchedContent.trim().replaceAll(" +", " ").toLowerCase();
+	}
+
 	/**
 	 * @param searchedContent
 	 * @return the tasks which match exactly to the searched content
@@ -615,7 +636,7 @@ public class Storage {
 		}
 		return returnList;
 	}
-	
+
 	/**
 	 * @param str1
 	 * @param str2
@@ -641,7 +662,7 @@ public class Storage {
 			return true;
 		}
 	}
-	
+
 	/**
 	 * @param searchedContent
 	 * @return true if searchedContent indicates wildcard search, else false
@@ -675,7 +696,7 @@ public class Storage {
 
 		String[] cards = cardStr.split(REGEX_SPACE);
 		String[] tame = tameStr.split(REGEX_SPACE);
-			
+
 		int j = 0;
 		for (int i = 0; i < cards.length; i++){
 			if (j == tame.length){
@@ -733,7 +754,6 @@ public class Storage {
 			return false;
 		} else {
 			for (int i = 0; i < str1.length(); i++){
-
 				if (str1.charAt(i) != '?' && str1.charAt(i) != str2.charAt(i)){
 					return false;
 				}
@@ -755,7 +775,7 @@ public class Storage {
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * @param str1
 	 * @param str2
@@ -771,7 +791,7 @@ public class Storage {
 			return -1;
 		}
 	}
-	
+
 	/**
 	 * Perform near match search using edit distance algorithm
 	 * @param searchedContent
@@ -799,7 +819,8 @@ public class Storage {
 	 * @return true if 2 strings are matched, else false
 	 */
 	public boolean isNearMatched(String str1, String str2){
-		if (findDist(str1,str2) <=( int) (str1.length()/NEAR_MATCH_RATIO + ROUND_UP)){
+		if (findDist(str1,str2) <=( int) (str1.length()
+				/NEAR_MATCH_RATIO + ROUND_UP)){
 			return true;
 		}
 		String[] newStr1 = str1.trim().split(REGEX_SPACE);
@@ -811,7 +832,8 @@ public class Storage {
 		int str1Index = 0;
 		while (str2Index < newStr2.length && str1Index < newStr1.length){
 			int dist = findDist(newStr1[str1Index],newStr2[str2Index]);
-			if (dist <= (int)(newStr1[str1Index].length()/NEAR_MATCH_RATIO + ROUND_UP)){
+			if (dist <= (int)(newStr1[str1Index].length()
+					/NEAR_MATCH_RATIO + ROUND_UP)){
 				str1Index++;
 				str2Index++;
 			} else {
@@ -826,7 +848,7 @@ public class Storage {
 	}
 
 	/**
-	 * Lavenstein's algorithm to find edit distance
+	 * Levenshtein's algorithm to find edit distance
 	 * @param str1
 	 * @param str2
 	 * @return distance between 2 strings
@@ -864,7 +886,8 @@ public class Storage {
 		}
 		prevTask = taskList.get(index).copy();
 		prevCmd = "mod";
-		taskList.get(index).setPriority(!taskList.get(index).getPriority());
+		boolean newPriority = !taskList.get(index).isPriority();
+		taskList.get(index).setPriority(newPriority);
 		storeTasks();
 		return true;
 	}
@@ -890,7 +913,7 @@ public class Storage {
 		storeTasks();
 		return true;
 	}
-	
+
 	/**
 	 * Perform mark as done multiple tasks at specified indices
 	 * @param list of indices
@@ -914,7 +937,7 @@ public class Storage {
 		storeTasks();
 		return true;
 	}
-	
+
 	/**
 	 * Method to retrieve tasks have been done
 	 * @return list of done tasks
@@ -928,7 +951,7 @@ public class Storage {
 		}
 		return doneTasks;
 	}
-	
+
 	/**
 	 * Method to retrieve tasks are undone
 	 * @return list of undone tasks
@@ -1007,5 +1030,14 @@ public class Storage {
 			taskList.add(temp);
 			taskList.set(prevTask.getIndex(), prevTask);
 		}
+	}
+
+	//@author A0112115A
+	/**Undo change directory and return true if successful*/ 
+	public boolean undoChDir() {
+		prevCmd = "";
+		lastPath = prevPath;
+		JsonProcessor.writeJson(lastPath, taskList);
+		return writeNewDir(lastPath);
 	}
 }

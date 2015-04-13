@@ -414,7 +414,7 @@ public class Autocompleter {
                             Utility.calendarToString(task.getReminder(), fmt));
         }
 
-        if (task.getPriority()) {
+        if (task.isPriority()) {
             appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
         }
 
@@ -451,7 +451,7 @@ public class Autocompleter {
                             Utility.calendarToString(task.getReminder(), fmt));
         }
 
-        if (task.getPriority()) {
+        if (task.isPriority()) {
             appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
         }
 
@@ -479,7 +479,7 @@ public class Autocompleter {
                             Utility.calendarToString(task.getReminder(), fmt));
         }
 
-        if (task.getPriority()) {
+        if (task.isPriority()) {
             appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
         }
 

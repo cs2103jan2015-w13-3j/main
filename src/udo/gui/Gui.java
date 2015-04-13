@@ -1,9 +1,7 @@
 package udo.gui;
 
 import java.io.IOException;
-
 import java.net.URL;
-
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +29,7 @@ import udo.util.Config;
  */
 
 public class Gui extends Application {
+    
     private static final Logger logger = Logger.getLogger(Gui.class.getName());
 
     private static final String _NAME_APP = "JustU";
@@ -72,7 +71,7 @@ public class Gui extends Application {
     public void start(Stage _primaryStage) {
         setPrimaryStage(_primaryStage);
         setSecondaryStage();
-        logger.fine("Gui Initiation Completed");
+        logger.fine(String.format(GuiUtil.LOG_INITIATE, "GUI"));
 
         callLogicCommand(Config.CMD_STR_DISPLAY);
     }
@@ -94,10 +93,12 @@ public class Gui extends Application {
      */
     private void showRootLayout() {
         try {
-            FXMLLoader loader = getLoader(_PATH_TO_ROOTLAYOUT);
+            URL url = Gui.class.getResource(_PATH_TO_ROOTLAYOUT);
+            FXMLLoader loader = GuiUtil.getLoader(url);
             Scene rootScene = getRootScene(loader);
             setSceneAtStage(rootScene);
-            logger.finer("Root Layout Initiated");
+            logger.fine(String.format(GuiUtil.LOG_INITIATE, "RootLayout"));
+
 
         } catch (IOException e) {
             logger.severe(e.toString());
@@ -126,10 +127,11 @@ public class Gui extends Application {
      */
     private void showOverview() {
         try {
-            FXMLLoader loader = getLoader(_PATH_TO_OVERVIEW);
+            URL url = Gui.class.getResource(_PATH_TO_OVERVIEW);
+            FXMLLoader loader = GuiUtil.getLoader(url);
             setOverview(loader);
             getControllerAccess(loader);
-            logger.finer("Overview Scene Initiated");
+            logger.fine(String.format(GuiUtil.LOG_INITIATE, "Overview"));
 
         } catch (IOException e) {
             logger.severe(e.toString());
@@ -139,13 +141,6 @@ public class Gui extends Application {
     private void setOverview(FXMLLoader loader) throws IOException {
         AnchorPane homeOverview = (AnchorPane) loader.load();
         centerOverview(homeOverview);
-    }
-
-    private FXMLLoader getLoader(String path) {
-        URL url = Gui.class.getResource(path);
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(url);
-        return loader;
     }
 
     private void centerOverview(AnchorPane homeOverview) {
@@ -201,7 +196,7 @@ public class Gui extends Application {
             command = _logic.getNextCmd();
         }
 
-        assert(command != GuiUtil.EMPTY_STRING);
+        assert(command != GuiUtil.STRING_EMPTY);
         return command;
     }
 
