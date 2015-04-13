@@ -26,7 +26,7 @@ See developer guide for more details
 
 
 ### Version
-0.4
+0.5
 
 
 ### License
