@@ -80,7 +80,7 @@ public class GuiUtil {
 
     public static boolean isImportant(String title, ObservableList<Task> data) {
         Task task = lookUpTask(title, data);
-        return task.getPriority() == true;
+        return task.isPriority() == true;
     }
 
     private static Task lookUpTask(String title, ObservableList<Task> data) {
