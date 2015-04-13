@@ -747,6 +747,51 @@ public class TestFx {
 		verifyThat("#_status",
 				hasText("Task unconfirmed submit report confirmed"));
 	}
+	
+	@Test
+	public void test2_4() {
+		sleep();
+
+		controller.type("cd");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Tasks file is at: tasks.json"));
+	}
+
+	//Check if cd works
+	@Test
+	public void test2_5() {
+		sleep();
+
+		controller.type("cd ..");
+		controller.push(KeyCode.ENTER);	
+		controller.type("cd");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Tasks file is at: ..\\"+"tasks.json"));
+	}
+	
+	//Check if undo cd works
+	@Test
+	public void test2_6() {
+		sleep();
+
+		controller.type("undo");
+		controller.push(KeyCode.ENTER);	
+		controller.type("cd");
+		controller.push(KeyCode.ENTER);	
+		
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Tasks file is at: tasks.json"));
+	}
 }
 
 	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\TestFx.java

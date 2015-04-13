@@ -277,6 +277,7 @@ public class TestFx {
 		verifyThat("#_status",
 				hasText("Tasks file is at: ..\\"+"tasks.json"));
 	}
+	
 	//Check if undo cd works
 	@Test
 	public void test2_6() {
