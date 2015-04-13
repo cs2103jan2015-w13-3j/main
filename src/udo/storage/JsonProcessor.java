@@ -25,7 +25,7 @@ public class JsonProcessor{
 	 */
 	public static ArrayList<Task> readJson(String file) throws Exception {
 		JSONParser parser = new JSONParser();
-		ArrayList<Task> rtList = new ArrayList<Task>();
+		ArrayList<Task> tasksList = new ArrayList<Task>();
 		try {
 			int countError = 0;
 			System.out.println("Reading JSON file from Java program");
@@ -35,30 +35,30 @@ public class JsonProcessor{
 				Gson gson = new Gson();
 				Task temp = gson.fromJson(json.get(i).toString(), Task.class);
 				if (temp.getIndex()==i) {
-					rtList.add(temp);
+					tasksList.add(temp);
 				}
 				else {
 					temp.setIndex(i);
-					rtList.add(temp);
+					tasksList.add(temp);
 					countError++;
 				}
 				if (countError>0)
-						writeJson(file, rtList);
+						writeJson(file, tasksList);
 			}
 
 		} catch (Exception ex) {
 			throw ex;
 		}
-		return rtList;
+		return tasksList;
 	}
 
 	/** Java Method to write JSON String to file
 	 */
-	public static boolean writeJson(String path, ArrayList<Task> myArr) {
+	public static boolean writeJson(String path, ArrayList<Task> toWriteArr) {
 		ArrayList<String> gsonArray = new ArrayList<String>();
-		for (int i=0; i<myArr.size(); i++) {
+		for (int i=0; i<toWriteArr.size(); i++) {
 			Gson gson = new Gson();
-			gsonArray.add(gson.toJson(myArr.get(i)));
+			gsonArray.add(gson.toJson(toWriteArr.get(i)));
 		}
 
 

@@ -1,10 +1,10 @@
 package udo.testdriver;
+
 import static org.loadui.testfx.Assertions.verifyThat;
 import static org.loadui.testfx.controls.Commons.hasText;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-
 import javafx.scene.Parent;
 import javafx.scene.input.KeyCode;
 
@@ -16,34 +16,41 @@ import org.loadui.testfx.GuiTest;
 import org.loadui.testfx.utils.FXTestUtils;
 
 import udo.gui.Gui;
+/**
+ * This class test the GUI by automatically typing in commands
+ * The test case is passed when it satisfies provided conditions
+ */
+//@author A0112115A
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestFx {
 	private static GuiTest controller;
 	private static Gui ju;
+
 	@BeforeClass
 	public static void setUpClass() {
 		removeExistingTasks();
 		FXTestUtils.launchApp(Gui.class);
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-		// here is that closure I talked about above, you instantiate the
-		// getRootNode abstract method
-		// which requires you to return a 'parent' object, luckily for us,
-		// getRoot() gives a parent!
-		// getRoot() is available from ALL Node objects, which makes it easy.
+		sleep();
+
 		controller = new GuiTest() {
-
 			@Override
 			protected Parent getRootNode() {
 				return ju.getPrimaryStage().getScene().getRoot();
 			}
 		};	
 	}
+
+	//This method provides a brief pause for tester's viewing
+	public static void sleep() {
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private static void removeExistingTasks() {
 		try {
 			(new RandomAccessFile("tasks.json", "rws")).setLength(0);
@@ -51,170 +58,189 @@ public class TestFx {
 			e.printStackTrace();
 		}
 	}
+
+	//A valid task is added
 	@Test
-	public void test1() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void test1_1() {
+		sleep();
+
 		controller.type("New task");
 		controller.push(KeyCode.ENTER);	
-		try {
-			Thread.sleep(1500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		sleep();
+
 		verifyThat("#_status",
 				hasText("Task: New task added successfully"));
 	}
+
+	//An invalid index number is given
 	@Test
-	public void test2() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void test1_2() {
+		sleep();
+
 		controller.type("Delete 2");
 		controller.push(KeyCode.ENTER);	
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		sleep();
+
 		verifyThat("#_status",
 				hasText("Error: specified task's index is not valid"));
 	}
+
+	//A valid index number is given
 	@Test
-	public void test3() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void test1_3() {
+		sleep();
+
 		controller.push(KeyCode.DOWN);	
 		controller.type("Delete 1");
 		controller.push(KeyCode.ENTER);	
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		sleep();
+
 		verifyThat("#_status",
 				hasText("Task: New task deleted successfully"));
 	}
+
+	//Valid undo
 	@Test
-	public void test4() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void test1_4() {
+		sleep();
+
 		controller.type("Undo");
 		controller.push(KeyCode.ENTER);	
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		sleep();
+
 		verifyThat("#_status",
 				hasText("Undo completed"));
 	}
+
+	//Invalid undo
 	@Test
-	public void test5() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void test1_5() {
+
+		sleep();
+
 		controller.type("Undo");
 		controller.push(KeyCode.ENTER);	
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		sleep();
+
 		verifyThat("#_status",
 				hasText("Error: no more operation to undo"));
 	}
+
+	//Check if autocomplete and modify work
 	@Test
-	public void test6() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void test1_6() {
+		sleep();
+
 		controller.push(KeyCode.DOWN);
 		controller.type("Mod");
 		controller.push(KeyCode.TAB);	
-		controller.type(" 1 Date with Emma Watson /dl 5pm");
+		controller.type(" 1 Date with Emma Watson /dl tomorrow 5pm");
 		controller.push(KeyCode.ENTER);	
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		sleep();
+
 		verifyThat("#_status",
 				hasText("Task: Date with Emma Watson modified successfully"));
 
 	}
+
+	//Check if long status is displayed correctly
 	@Test
-	public void test7() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void test1_7() {
+		sleep();
+
 		controller.push(KeyCode.UP);
-		for(int i=0; i<7; i++) {
+
+		for(int i=0; i<16; i++) {
 			controller.push(KeyCode.BACK_SPACE);
 		}
+
 		controller.type("and talk with Bill Gates /s 5pm /e 9pm");
 		controller.push(KeyCode.ENTER);	
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		sleep();
+
 		verifyThat("#_status",
 				hasText("Task: Date with Emma Watson and talk with Bill... modified successfully"));
-
 	}
+
+	//Check if search free slots works
 	@Test
-	public void test8() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void test1_8() {
+		sleep();
+
 		controller.push(KeyCode.DOWN);
 		controller.type("sea");
 		controller.push(KeyCode.TAB);	
 		controller.type(" /fr");
 		controller.push(KeyCode.TAB);	
 		controller.push(KeyCode.ENTER);	
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		sleep();
+
 		verifyThat("#_status",
 				hasText("Search results for free slots"));
+	}
+
+	//Check if display works
+	@Test
+	public void test1_9() {
+		sleep();
+
+		controller.type("dis");
+		controller.push(KeyCode.TAB);	
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Displaying all tasks"));
+	}
+	
+	//Check if search works
+	@Test
+	public void test2_1() {
+		sleep();
+
+		controller.type("search Emma Watson");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Search results for: Emma Watson"));
+	}
+	
+	//Check if uncofirmed tasks work
+	@Test
+	public void test2_2() {
+		sleep();
+
+		controller.type("unconfirmed submit report /dl tomorrow 5pm or tomorrow 10pm");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Task: unconfirmed submit report added successfully"));
+	}
+	
+	//Check if confirm tasks work
+	@Test
+	public void test2_3() {
+		sleep();
+
+		controller.type("confirm 3");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Task unconfirmed submit report confirmed"));
 	}
 }
