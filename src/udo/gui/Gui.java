@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
 import udo.logic.Logic;
 import udo.storage.Task;
 import udo.util.Config;
