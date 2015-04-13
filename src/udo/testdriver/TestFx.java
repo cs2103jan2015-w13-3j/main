@@ -16,6 +16,7 @@ import org.loadui.testfx.GuiTest;
 import org.loadui.testfx.utils.FXTestUtils;
 
 import udo.gui.Gui;
+
 /**
  * This class test the GUI by automatically typing in commands
  * The test case is passed when it satisfies provided conditions
