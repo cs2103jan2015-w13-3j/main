@@ -10,12 +10,14 @@ import udo.util.Config;
 
 //@author A0093587M
 public class DeleteCommand extends Command {
-    private static final String STATUS_DELETED = "Task: %s deleted successfully";
+    private static final String STATUS_DELETED =
+            "Task: %s deleted successfully";
     private static final String STATUS_ALL_DELETED = "All tasks deleted";
 
     private Integer[] indices;
 
-    private static final Logger log = Logger.getLogger(DeleteCommand.class.getName());
+    private static final Logger log = Logger.
+            getLogger(DeleteCommand.class.getName());
 
     public DeleteCommand() {
         super();
