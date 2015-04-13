@@ -3,7 +3,7 @@
 
 
 	/**
-	 * origin: src\udo\logic\Reminder.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\Reminder.java
 	 */
 
 public class Reminder {
@@ -131,14 +131,14 @@ public class Reminder {
         }
 	}
 }
-	// End of segment: src\udo\logic\Reminder.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\Reminder.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\ReminderComparator.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\ReminderComparator.java
 	 */
 
 
@@ -151,14 +151,14 @@ public class ReminderComparator implements Comparator<Task> {
 	}
 }
 
-	// End of segment: src\udo\logic\ReminderComparator.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\ReminderComparator.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\storage\JsonProcessor.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\JsonProcessor.java
 	 */
 
 public class JsonProcessor{
@@ -172,7 +172,7 @@ public class JsonProcessor{
 	 */
 	public static ArrayList<Task> readJson(String file) throws Exception {
 		JSONParser parser = new JSONParser();
-		ArrayList<Task> rtList = new ArrayList<Task>();
+		ArrayList<Task> tasksList = new ArrayList<Task>();
 		try {
 			int countError = 0;
 			System.out.println("Reading JSON file from Java program");
@@ -182,30 +182,30 @@ public class JsonProcessor{
 				Gson gson = new Gson();
 				Task temp = gson.fromJson(json.get(i).toString(), Task.class);
 				if (temp.getIndex()==i) {
-					rtList.add(temp);
+					tasksList.add(temp);
 				}
 				else {
 					temp.setIndex(i);
-					rtList.add(temp);
+					tasksList.add(temp);
 					countError++;
 				}
 				if (countError>0)
-						writeJson(file, rtList);
+						writeJson(file, tasksList);
 			}
 
 		} catch (Exception ex) {
 			throw ex;
 		}
-		return rtList;
+		return tasksList;
 	}
 
 	/** Java Method to write JSON String to file
 	 */
-	public static boolean writeJson(String path, ArrayList<Task> myArr) {
+	public static boolean writeJson(String path, ArrayList<Task> toWriteArr) {
 		ArrayList<String> gsonArray = new ArrayList<String>();
-		for (int i=0; i<myArr.size(); i++) {
+		for (int i=0; i<toWriteArr.size(); i++) {
 			Gson gson = new Gson();
-			gsonArray.add(gson.toJson(myArr.get(i)));
+			gsonArray.add(gson.toJson(toWriteArr.get(i)));
 		}
 
 
@@ -226,14 +226,14 @@ public class JsonProcessor{
 	}
 }
 
-	// End of segment: src\udo\storage\JsonProcessor.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\JsonProcessor.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\storage\Storage.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 	 */
 
 	private void readTaskList() {
@@ -261,14 +261,14 @@ public class JsonProcessor{
 	}
 
 	/**Create default setting.txt and tasks.json*/
-	// End of segment: src\udo\storage\Storage.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\storage\Storage.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 	 */
 
 	public void writeSettingDefault() {
@@ -300,14 +300,14 @@ public class JsonProcessor{
 	 * @param path
 	 * @return true if directory is changed, else false
 	 */
-	// End of segment: src\udo\storage\Storage.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\storage\Storage.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 	 */
 
 	public boolean chDir(String path) {
@@ -321,14 +321,14 @@ public class JsonProcessor{
 	 * @param path
 	 * @return true if new directory is successfully registered
 	 */
-	// End of segment: src\udo\storage\Storage.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\storage\Storage.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 	 */
 
 	private boolean writeNewDir(String path) {
@@ -355,14 +355,14 @@ public class JsonProcessor{
 	 * @param path
 	 * @return true if path is updated
 	 */
-	// End of segment: src\udo\storage\Storage.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\storage\Storage.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 	 */
 
 	private boolean updateLastPath(String path) {
@@ -382,20 +382,39 @@ public class JsonProcessor{
 				if (path.endsWith("\\"))
 					lastPath = path.concat("tasks.json");
 				else
-					lastPath = path.concat(File.separator+"tasks.json");
+					lastPath = path.concat(SEPARATOR+"tasks.json");
 			}
 		}
 		return true;
 	}
-	
-	// End of segment: src\udo\storage\Storage.java
+
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\storage\Storage.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
+	 */
+
+	/**
+	 * Method to store taskList to Json file
+	 * @return true if taskList is successfully saved, else false
+	 */
+	private boolean storeTasks() {
+		return JsonProcessor.writeJson(lastPath, taskList);
+	}
+
+
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
+
+
+
+
+
+	/**
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 	 */
 
 	/**Undo change directory and return true if successful*/ 
@@ -405,15 +424,16 @@ public class JsonProcessor{
 		JsonProcessor.writeJson(lastPath, taskList);
 		return writeNewDir(lastPath);
 	}
-	
-	// End of segment: src\udo\storage\Storage.java
+}
+
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Storage.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\testdriver\JsonProcessorTest.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\JsonProcessorTest.java
 	 */
 
 public class JsonProcessorTest {
@@ -435,28 +455,33 @@ public class JsonProcessorTest {
 		}
 	}
 
-	// End of segment: src\udo\testdriver\JsonProcessorTest.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\JsonProcessorTest.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\testdriver\JsonProcessorTest.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\JsonProcessorTest.java
 	 */
 
 	@Test
 	public void writeJsonTest() {
 		clearFile(storageFile);
-		taskList.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+		taskList.add(new Task(TaskType.DEADLINE, "meeting", 
+				new GregorianCalendar(2005,01,01), null, null,
 				0, new GregorianCalendar(2005,01,02), "work",true, false));
-		taskList.add(new Task(TaskType.TODO, "fighting", null,null, null,
-				120, new GregorianCalendar(2011,01,02), "personal", false, false));
-		taskList.add(new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
+		taskList.add(new Task(TaskType.TODO, "fighting", null,null, null, 120, 
+				new GregorianCalendar(2011,01,02), "personal", false, false));
+		taskList.add(new Task(TaskType.EVENT, "reading books", null, 
+				new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
 				0, null, "leisure", false, false));
+
 		JsonProcessor.writeJson(storageFile,taskList);
 		String expected = readFile(expectedFile);
-		assertEquals(expected.trim(), readFile(storageFile).trim());		//general case
+		
+		//general case
+		assertEquals(expected.trim(), readFile(storageFile).trim());		
 	}
 
 	@Test
@@ -468,32 +493,270 @@ public class JsonProcessorTest {
 			testList = new ArrayList<Task>();
 			e.printStackTrace();
 		}
+		
 		taskList.clear();
-		taskList.add(new Task(TaskType.DEADLINE, "meeting", new GregorianCalendar(2005,01,01), null, null,
+		taskList.add(new Task(TaskType.DEADLINE, "meeting", 
+				new GregorianCalendar(2005,01,01), null, null,
 				0, new GregorianCalendar(2005,01,02), "work",true, false));
-		taskList.add(new Task(TaskType.TODO, "fighting", null,null, null,
-				120, new GregorianCalendar(2011,01,02), "personal", false, false));
-		taskList.add(new Task(TaskType.EVENT, "reading books", null, new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
+		taskList.add(new Task(TaskType.TODO, "fighting", null,null, null, 120, 
+				new GregorianCalendar(2011,01,02), "personal", false, false));
+		taskList.add(new Task(TaskType.EVENT, "reading books", null, 
+				new GregorianCalendar(2006,03,01), new GregorianCalendar(2005,04,01),
 				0, null, "leisure", false, false));
 
 		for (int i = 0; i <taskList.size(); i++){
 			taskList.get(i).setIndex(i);
 			taskList.get(i).setGroupId(0);
 		}
-
-		assert testList.size() == taskList.size();		//case when jsonFile has been manually modified
-	
-		assertEquals(taskList, testList);			//general case
+		
+		//case when jsonFile has been manually modified
+		assert testList.size() == taskList.size();		
+		//general case	
+		assertEquals(taskList, testList);		
 	}
 }
-	// End of segment: src\udo\testdriver\JsonProcessorTest.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\JsonProcessorTest.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\util\Utility.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\TestFx.java
+	 */
+
+
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class TestFx {
+	private static GuiTest controller;
+	private static Gui ju;
+
+	@BeforeClass
+	public static void setUpClass() {
+		removeExistingTasks();
+		FXTestUtils.launchApp(Gui.class);
+
+		sleep();
+
+		controller = new GuiTest() {
+			@Override
+			protected Parent getRootNode() {
+				return ju.getPrimaryStage().getScene().getRoot();
+			}
+		};	
+	}
+
+	//This method provides a brief pause for tester's viewing
+	public static void sleep() {
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void removeExistingTasks() {
+		try {
+			(new RandomAccessFile("tasks.json", "rws")).setLength(0);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//A valid task is added
+	@Test
+	public void test1_1() {
+		sleep();
+
+		controller.type("New task");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Task: New task added successfully"));
+	}
+
+	//An invalid index number is given
+	@Test
+	public void test1_2() {
+		sleep();
+
+		controller.type("Delete 2");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Error: specified task's index is not valid"));
+	}
+
+	//A valid index number is given
+	@Test
+	public void test1_3() {
+		sleep();
+
+		controller.push(KeyCode.DOWN);	
+		controller.type("Delete 1");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Task: New task deleted successfully"));
+	}
+
+	//Valid undo
+	@Test
+	public void test1_4() {
+		sleep();
+
+		controller.type("Undo");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Undo completed"));
+	}
+
+	//Invalid undo
+	@Test
+	public void test1_5() {
+
+		sleep();
+
+		controller.type("Undo");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Error: no more operation to undo"));
+	}
+
+	//Check if autocomplete and modify work
+	@Test
+	public void test1_6() {
+		sleep();
+
+		controller.push(KeyCode.DOWN);
+		controller.type("Mod");
+		controller.push(KeyCode.TAB);	
+		controller.type(" 1 Date with Emma Watson /dl tomorrow 5pm");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Task: Date with Emma Watson modified successfully"));
+
+	}
+
+	//Check if long status is displayed correctly
+	@Test
+	public void test1_7() {
+		sleep();
+
+		controller.push(KeyCode.UP);
+
+		for(int i=0; i<16; i++) {
+			controller.push(KeyCode.BACK_SPACE);
+		}
+
+		controller.type("and talk with Bill Gates /s 5pm /e 9pm");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Task: Date with Emma Watson and talk with Bill... modified successfully"));
+	}
+
+	//Check if search free slots works
+	@Test
+	public void test1_8() {
+		sleep();
+
+		controller.push(KeyCode.DOWN);
+		controller.type("sea");
+		controller.push(KeyCode.TAB);	
+		controller.type(" /fr");
+		controller.push(KeyCode.TAB);	
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Search results for free slots"));
+	}
+
+	//Check if display works
+	@Test
+	public void test1_9() {
+		sleep();
+
+		controller.type("dis");
+		controller.push(KeyCode.TAB);	
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Displaying all tasks"));
+	}
+	
+	//Check if search works
+	@Test
+	public void test2_1() {
+		sleep();
+
+		controller.type("search Emma Watson");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Search results for: Emma Watson"));
+	}
+	
+	//Check if uncofirmed tasks work
+	@Test
+	public void test2_2() {
+		sleep();
+
+		controller.type("unconfirmed submit report /dl tomorrow 5pm or tomorrow 10pm");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Task: unconfirmed submit report added successfully"));
+	}
+	
+	//Check if confirm tasks work
+	@Test
+	public void test2_3() {
+		sleep();
+
+		controller.type("confirm 3");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Task unconfirmed submit report confirmed"));
+	}
+}
+
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\TestFx.java
+
+
+
+
+
+	/**
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 	 */
 
 	public static String calendarToString(Calendar calendar){
@@ -509,14 +772,14 @@ public class JsonProcessorTest {
      * @param calendar
      * @return the string representation or empty string if calendar is null
      */
-	// End of segment: src\udo\util\Utility.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\util\Utility.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 	 */
 
 	public static String calendarToString(Calendar calendar,
@@ -533,14 +796,14 @@ public class JsonProcessorTest {
 	 * @return a new calendar or null if dateStr is null or
 	 *         the dateStr's format is invalid
 	 */
-	// End of segment: src\udo\util\Utility.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\util\Utility.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 	 */
 
 	public static GregorianCalendar stringToCalendar(String dateStr) {
@@ -557,7 +820,7 @@ public class JsonProcessorTest {
         }
 	}
 
-	// End of segment: src\udo\util\Utility.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 
 
 

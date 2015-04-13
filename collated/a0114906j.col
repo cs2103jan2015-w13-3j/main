@@ -3,7 +3,7 @@
 
 
 	/**
-	 * origin: src\udo\gui\CustomTextField.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\CustomTextField.java
 	 */
 
 
@@ -21,12 +21,14 @@ public class CustomTextField {
     private HomeController _controller;
     
     public CustomTextField(TextField field, HomeController controller) {
+        logger.setLevel(Level.INFO);
+        
         _textField = field;
         _controller = controller;
-        logger.setLevel(Level.INFO);
     }
     
     public void setText(String str) {
+        assert(str != null);
         _textField.setText(str);
     }
     
@@ -34,6 +36,36 @@ public class CustomTextField {
         return _textField.getText();
     }
     
+    public String getChangedText(KeyCode code) {        
+        String input = getText();
+        
+        if (code.isLetterKey()) {
+            return concatLetter(input, code);
+        } else if (code.equals(KeyCode.BACK_SPACE)) {
+            return removeLetter(input);
+        } else {
+            return GuiUtil.STRING_EMPTY;
+        }
+    }
+    
+    private String concatLetter(String input, KeyCode code) {
+        return input + retrieveLetter(code);
+    }
+
+    private String retrieveLetter(KeyCode code) {
+        return code.getName().toLowerCase();
+    }
+
+    private String removeLetter(String input) {
+        assert(input != null);
+        
+        if(input.length() > 0) {
+            return input.substring(0, input.length() - 1 );
+        } else {
+            return GuiUtil.STRING_EMPTY;
+        }
+    }
+
     public void bindKeys(EventHandler<KeyEvent> keyHandlers) {
         _textField.setOnKeyPressed(keyHandlers);
     }
@@ -44,6 +76,7 @@ public class CustomTextField {
         if (_controller.getCommand(text) == true) {
             clear();
         }
+        logger.finest(text);
     }
 
     public void handleTabKey(KeyEvent event) {
@@ -52,6 +85,8 @@ public class CustomTextField {
         setText(completedStr);
         _textField.end();
         event.consume();
+        
+        logger.finest(completedStr);
     }
 
     public void handleDirectionKey(KeyEvent event, String direction) {
@@ -60,6 +95,8 @@ public class CustomTextField {
         setText(command);
         _textField.end();
         event.consume();
+        
+        logger.finest(command);
     }
 
     public void clear() {
@@ -67,14 +104,14 @@ public class CustomTextField {
     }
 }
 
-	// End of segment: src\udo\gui\CustomTextField.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\CustomTextField.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\gui\Gui.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\Gui.java
 	 */
 
 
@@ -86,6 +123,7 @@ public class CustomTextField {
  */
 
 public class Gui extends Application {
+    
     private static final Logger logger = Logger.getLogger(Gui.class.getName());
 
     private static final String _NAME_APP = "JustU";
@@ -127,7 +165,7 @@ public class Gui extends Application {
     public void start(Stage _primaryStage) {
         setPrimaryStage(_primaryStage);
         setSecondaryStage();
-        logger.fine("Gui Initiation Completed");
+        logger.fine(String.format(GuiUtil.LOG_INITIATE, "GUI"));
 
         callLogicCommand(Config.CMD_STR_DISPLAY);
     }
@@ -149,10 +187,12 @@ public class Gui extends Application {
      */
     private void showRootLayout() {
         try {
-            FXMLLoader loader = getLoader(_PATH_TO_ROOTLAYOUT);
+            URL url = Gui.class.getResource(_PATH_TO_ROOTLAYOUT);
+            FXMLLoader loader = GuiUtil.getLoader(url);
             Scene rootScene = getRootScene(loader);
             setSceneAtStage(rootScene);
-            logger.finer("Root Layout Initiated");
+            logger.fine(String.format(GuiUtil.LOG_INITIATE, "RootLayout"));
+
 
         } catch (IOException e) {
             logger.severe(e.toString());
@@ -181,10 +221,11 @@ public class Gui extends Application {
      */
     private void showOverview() {
         try {
-            FXMLLoader loader = getLoader(_PATH_TO_OVERVIEW);
+            URL url = Gui.class.getResource(_PATH_TO_OVERVIEW);
+            FXMLLoader loader = GuiUtil.getLoader(url);
             setOverview(loader);
             getControllerAccess(loader);
-            logger.finer("Overview Scene Initiated");
+            logger.fine(String.format(GuiUtil.LOG_INITIATE, "Overview"));
 
         } catch (IOException e) {
             logger.severe(e.toString());
@@ -194,13 +235,6 @@ public class Gui extends Application {
     private void setOverview(FXMLLoader loader) throws IOException {
         AnchorPane homeOverview = (AnchorPane) loader.load();
         centerOverview(homeOverview);
-    }
-
-    private FXMLLoader getLoader(String path) {
-        URL url = Gui.class.getResource(path);
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(url);
-        return loader;
     }
 
     private void centerOverview(AnchorPane homeOverview) {
@@ -218,7 +252,7 @@ public class Gui extends Application {
      * @return _primaryStage
      */
     @SuppressWarnings("unused")
-    private Stage getPrimaryStage() {
+    public Stage getPrimaryStage() {
         return _primaryStage;
     }
 
@@ -256,7 +290,7 @@ public class Gui extends Application {
             command = _logic.getNextCmd();
         }
 
-        assert(command != GuiUtil.EMPTY_STRING);
+        assert(command != GuiUtil.STRING_EMPTY);
         return command;
     }
 
@@ -303,11 +337,31 @@ public class Gui extends Application {
 
         _controller.displayStatus(statusString);
     }
+    
+    /**
+     * Displays free slots in the GUI
+     *
+     * @param list of free slots
+     */
+    public void displayFreeSlots(List<Task> receivedList) {
+        assert(receivedList != null);
+        logger.info(receivedList.toString());
+
+        _displayList = receivedList;
+        processFreeSlots(_displayList);
+        setDataToController();
+    }
+    
+    private void processFreeSlots(List<Task> displayList) {
+        _guiFormatter.setData(displayList);
+        _taskData = _guiFormatter.getFormattedFreeSlotsData();
+        logger.fine(_taskData.toString());
+    }
 
     /**
      * Displays receivedList in the GUI
      *
-     * @param Object that implements List<Task>
+     * @param list of tasks
      */
     public void display(List<Task> receivedList) {
         assert(receivedList != null);
@@ -351,14 +405,14 @@ public class Gui extends Application {
     }
 }
 
-	// End of segment: src\udo\gui\Gui.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\Gui.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\gui\GuiFormatter.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\GuiFormatter.java
 	 */
 
 
@@ -372,21 +426,26 @@ public class Gui extends Application {
 
 public class GuiFormatter {
 
-    public static final String HEADER_TODO = "To-Dos";
-
     private static final Logger logger = 
             Logger.getLogger(GuiFormatter.class.getName());
+    
+    public static final String HEADER_TODO = "To-Dos";
     
     private static final String _SEPARATOR_DASH = " - ";
     private static final String _SEPARATOR_QUESTION_MARK = "? ";
     private static final String _SEPARATOR_SPACE = " ";
     private static final String _SEPARATOR_DOT = ".  ";
     
+    private static final String _MESSAGE_FREE_DAY = "Free for the entire day";
+    private static final String _MESSAGE_FREE_BEFORE = "Free before %s";
+    private static final String _MESSAGE_FREE_AFTER = "Free after %s";
+    private static final String _MESSAGE_FREE_BETWEEN = "Free from %s to %s";
+
     private static GuiFormatter _guiFormatter;
     private static ArrayList<Task> _rawData;
 
     private GuiFormatter() {
-
+        logger.setLevel(Level.INFO);
     }
     
     public static GuiFormatter getInstance() {
@@ -400,11 +459,22 @@ public class GuiFormatter {
         _rawData = (ArrayList<Task>) receivedList;
     }
 
+    /**
+     * Formats a list of given list of tasks
+     */
     public ObservableList<Task> getFormattedData() {
         formatDisplayList();
         return convertToObservable();        
     }
     
+    /**
+     * Formats a list of given list of free slots
+     */
+    public ObservableList<Task> getFormattedFreeSlotsData() {
+        formatFreeSlotsList();
+        return convertToObservable(); 
+    }
+
     /**
      * Associate an ArrayList of objects with an ObservableArrayList
      */
@@ -419,6 +489,7 @@ public class GuiFormatter {
 
         Collections.sort(_rawData);
         processData();
+        insertHeaderLoop();
         formatDateLoop();
         logger.fine(_rawData.toString());
     }
@@ -431,7 +502,7 @@ public class GuiFormatter {
     /**
      * Maps the displayIndex to the Task's actual index 
      * and appends important information like serial number
-     * and '?' marks for unconfirmed tasks
+     * or '?' marks for unconfirmed tasks
      * 
      * @param _rawData
      */
@@ -440,6 +511,7 @@ public class GuiFormatter {
         for (int i = 0; i < _rawData.size(); i++) {
             int displayIndex = i + 1;
             Task task = _rawData.get(i);
+            assert(task != null);
             
             mapIndex(displayIndex, task.getIndex());
             appendInformation(displayIndex, task);
@@ -458,7 +530,7 @@ public class GuiFormatter {
     }
     
     private void appendSerialNumber(Task task, int counter) {    
-        task.setContent(GuiUtil.EMPTY_STRING + counter + 
+        task.setContent(GuiUtil.STRING_EMPTY + counter + 
                         _SEPARATOR_DOT + task.getContent());
     }
 
@@ -471,16 +543,14 @@ public class GuiFormatter {
 
     /**
      * Formats list into a GUI display format, inserts date headers 
-     * and formats time
      */
-    private void formatDateLoop() {
+    private void insertHeaderLoop() {
 
-        String prevHeader = GuiUtil.EMPTY_STRING;
+        String prevHeader = GuiUtil.STRING_EMPTY;
 
         for (int i = 0; i < _rawData.size(); i++) {
             String header = new String();
             Task task = _rawData.get(i);
-            formatDisplayTime(task);
             
             header = getHeader(task);       
             i = insertIfNewHeader(prevHeader, i, header);
@@ -488,10 +558,17 @@ public class GuiFormatter {
             
             logger.finest(header);
         }
-
     }
-
+    
+    /**
+     * Returns the corresponding date header for that task
+     * 
+     * @param task
+     * @return a date in a string format
+     */
     private String getHeader(Task task) {
+        assert(task != null);
+        
         switch (task.getTaskType()) {
             case TODO :
                 return HEADER_TODO;              
@@ -500,7 +577,7 @@ public class GuiFormatter {
             case DEADLINE :
                 return GuiUtil.guiDateFormat(task.getDeadline());
             default :
-                return GuiUtil.EMPTY_STRING;
+                return GuiUtil.STRING_EMPTY;
         }
     }
 
@@ -516,12 +593,24 @@ public class GuiFormatter {
     private void insertHeader(String header, int i) {       
         Task newHeader = new Task(null, header, null,
                                   null, null, 0, null,
-                                  GuiUtil.EMPTY_STRING, false, false);
+                                  GuiUtil.STRING_EMPTY, false, false);
         _rawData.add(i, newHeader);
     }
 
     /**
+     * Formats the task's time into a readable format
+     */
+    private void formatDateLoop() {
+    
+        for (int i = 0; i < _rawData.size(); i++) {
+            Task task = _rawData.get(i);
+            formatDisplayTime(task);
+        }
+    }
+
+    /**
      * Formats the start, end, deadline time into a string for display 
+     * 
      * @param task
      */
     private void formatDisplayTime(Task task) {
@@ -547,12 +636,83 @@ public class GuiFormatter {
                       task.getLabel());
     }
 
+    
+    private void formatFreeSlotsList() {
+        if (_rawData == null) {
+            return;
+        }
+        
+        insertHeaderLoop();
+        formatFreeSlotLoop();
+
+        logger.finer(_rawData.toString());   
+    }
+    
+    private void formatFreeSlotLoop() {
+        for(int i = 0; i < _rawData.size(); i++) {
+            Task task = _rawData.get(i);
+            setFreeSlotTitle(task);
+            
+            logger.fine(task.toString());
+        }               
+    }
+
+    private void setFreeSlotTitle(Task task) {
+        assert(task != null);
+        
+        GregorianCalendar start = task.getStart();
+        GregorianCalendar end = task.getEnd();
+        String title = task.getContent();
+        
+        if(GuiUtil.isHeader(title)) {
+            return;
+        }
+
+        if(GuiUtil.isStartOfDay(start) && GuiUtil.isEndOfDay(end)) {
+            setFreeEntireDay(task);
+        } else if (GuiUtil.isEndOfDay(end)) {
+            setFreeAfter(task, start);
+        } else if (GuiUtil.isStartOfDay(start)){
+            setFreeBefore(task, end);
+        } else {
+            setFreeBetween(task, start, end); 
+        }   
+        removeDateField(task);
+    }
+    
+    private void setFreeEntireDay(Task task) {
+        task.setContent(String.format(_MESSAGE_FREE_DAY));
+    }
+    
+    private void setFreeBefore(Task task, GregorianCalendar end) {
+        String time = GuiUtil.guiTimeFormat(end);
+        task.setContent(String.format(_MESSAGE_FREE_BEFORE, time));
+    }
+    
+    private void setFreeAfter(Task task, GregorianCalendar start) {
+        String time = GuiUtil.guiTimeFormat(start);
+        task.setContent(String.format(_MESSAGE_FREE_AFTER, time));
+    }
+    
+    private void setFreeBetween(Task task, GregorianCalendar start,
+                                GregorianCalendar end) {
+        String timeStart = GuiUtil.guiTimeFormat(start);
+        String timeEnd = GuiUtil.guiTimeFormat(end);
+
+        task.setContent(String.format(_MESSAGE_FREE_BETWEEN, timeStart, 
+                                      timeEnd));
+    }
+    
+    private void removeDateField(Task task) {
+        task.setLabel(GuiUtil.STRING_EMPTY);
+    }
+
     private void setDisplayTimeDeadLine(Task task) {
         task.setLabel(GuiUtil.guiTimeFormat(task.getDeadline()));
     }
 
     private void setDisplayTimeTodo(Task task) {
-        task.setLabel(GuiUtil.EMPTY_STRING);
+        task.setLabel(GuiUtil.STRING_EMPTY);
     }
 
     private void setDisplayTimeEvent(Task task) {
@@ -562,14 +722,14 @@ public class GuiFormatter {
     }
 }
 
-	// End of segment: src\udo\gui\GuiFormatter.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\GuiFormatter.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\gui\GuiUtil.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\GuiUtil.java
 	 */
 
 
@@ -580,10 +740,11 @@ public class GuiFormatter {
  */
 
 public class GuiUtil {
-
-    public static final String EMPTY_STRING = "";
-
-    public static final String SPACER_STRING = " | ";
+    
+    public static final String LOG_INITIATE = "%s is initiated";
+    
+    public static final String STRING_EMPTY = "";
+    public static final String STRING_SPACER = " | ";
 
     public static final String PREFIX_WARNING = "Warning";
     public static final String PREFIX_ERROR = "Error";
@@ -591,30 +752,46 @@ public class GuiUtil {
     public static final String KEY_UP = "UP";
     public static final String KEY_DOWN = "DOWN";
 
+    public static final String START_OF_DAY = "00:00";
+    public static final String END_OF_DAY = "23:59";
+    
     public static final Color COLOUR_TABLE_HEADERS = Color.rgb(26, 188, 156);
     public static final Color COLOUR_TEXT_WARNING = Color.ORANGE;
     public static final Color COLOUR_TEXT_ERROR = Color.RED;
     public static final Color COLOUR_TEXT_NORMAL = Color.WHITE;
-    public static final String COLOUR_BACKGROUND = "-fx-background-color: #2b3339; ";
+
+    public static final String COLOUR_BACKGROUND = "-fx-background-color: " +
+                                                   "#2b3339; ";
     public static final String COLOUR_WHITE = "-fx-fill: white; ";
     public static final String COLOUR_GREEN = "-fx-fill: #1abc9c; ";
 
     public static final String STYLE_SIZE = "-fx-font-size: 12.5px; ";
-    public static final String STYLE_FONT = "-fx-font-family: 'Open Sans', sans-serif; ";
+    public static final String STYLE_FONT = "-fx-font-family: 'Open Sans'," +
+                                            "sans-serif; ";
 
-    public static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    public static SimpleDateFormat timeFormat = 
+            new SimpleDateFormat("HH:mm");
     public static SimpleDateFormat dateFormat =
             new SimpleDateFormat("EEE, dd MMM yyyy");
     public static SimpleDateFormat DateTimeFormat =
             new SimpleDateFormat("dd/MM HH:mm");
-
+    
+    public static FXMLLoader getLoader(URL url) {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(url);
+        return loader;
+    }
+    
     public static boolean isHeader(String str) {
+        if(str == null) {
+            return false;
+        }
         return (isValidDate(str) || str.equals(GuiFormatter.HEADER_TODO));
     }
 
     public static boolean isValidDate(String dateString) {
         try {
-           dateFormat.parse(dateString);
+            dateFormat.parse(dateString);
             return true;
         } catch (Exception e) {
             return false;
@@ -623,7 +800,7 @@ public class GuiUtil {
 
     public static boolean isImportant(String title, ObservableList<Task> data) {
         Task task = lookUpTask(title, data);
-        return task.getPriority() == true;
+        return task.isPriority() == true;
     }
 
     private static Task lookUpTask(String title, ObservableList<Task> data) {
@@ -694,7 +871,7 @@ public class GuiUtil {
      */
     public static String guiTimeFormat(GregorianCalendar calendar) {
         if (calendar == null) {
-            return EMPTY_STRING;
+            return STRING_EMPTY;
         }
         return timeFormat.format(calendar.getTime());
     }
@@ -707,7 +884,7 @@ public class GuiUtil {
      */
     public static String guiDateFormat(GregorianCalendar calendar) {
         if (calendar == null) {
-            return EMPTY_STRING;
+            return STRING_EMPTY;
         }
         return dateFormat.format(calendar.getTime());
     }
@@ -720,7 +897,7 @@ public class GuiUtil {
      */
     public static String guiDateTimeFormat(GregorianCalendar calendar) {
         if (calendar == null) {
-            return EMPTY_STRING;
+            return STRING_EMPTY;
         }
         return DateTimeFormat.format(calendar.getTime());
     }
@@ -749,24 +926,32 @@ public class GuiUtil {
     }
 
     private static String addWord(String suggestedWords, String word) {
-        suggestedWords = suggestedWords + word + SPACER_STRING;
+        suggestedWords = suggestedWords + word + STRING_SPACER;
         return suggestedWords;
     }
 
     private static String trimSuggestions(String suggestedWords) {
-        int index = suggestedWords.lastIndexOf(SPACER_STRING);
+        int index = suggestedWords.lastIndexOf(STRING_SPACER);
         return suggestedWords.substring(0, index);
+    }
+    
+    public static boolean isStartOfDay(GregorianCalendar cal1) {
+        return guiTimeFormat(cal1).equals(START_OF_DAY);
+    }
+
+    public static boolean isEndOfDay(GregorianCalendar cal1) {
+        return guiTimeFormat(cal1).equals(END_OF_DAY);
     }
 }
 
-	// End of segment: src\udo\gui\GuiUtil.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\GuiUtil.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\gui\HelpManual.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\HelpManual.java
 	 */
 
 
@@ -775,8 +960,12 @@ public class GuiUtil {
  */
 
 public class HelpManual {
-
+    
+    private static final Logger logger = Logger.getLogger(HelpManual.class
+                                               .getName());
+    
     private static final String _TITLE = "Help Manual";
+    
     private static final String _PATH_TO_MANUAL = "view/HelpManual.fxml";
     private static final String _PATH_TO_MANUAL_HTML = "view/HelpManual.html";
     
@@ -790,6 +979,8 @@ public class HelpManual {
 
     @FXML
     private void initialize() {
+        logger.setLevel(Level.INFO);
+        
         WebEngine webEngine = _web.getEngine();
         String url = HelpManual.class.getResource(_PATH_TO_MANUAL_HTML)
                                      .toExternalForm();
@@ -803,6 +994,7 @@ public class HelpManual {
         setStage(scene);
 
         _dialogStage.showAndWait();
+        logger.fine(String.format(GuiUtil.LOG_INITIATE, "HelpManual"));
     }
 
     private Scene setScene(String path) {
@@ -811,22 +1003,16 @@ public class HelpManual {
         try {
             page = (AnchorPane) getPane(path);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe(e.toString());
         }
         
         return new Scene(page);
     }
 
     private AnchorPane getPane(String path) throws IOException {
-        FXMLLoader loader = getLoader(path);
-        return (AnchorPane) loader.load();
-    }
-
-    private FXMLLoader getLoader(String path) {
         URL url = HelpManual.class.getResource(path);
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(url);
-        return loader;
+        FXMLLoader loader = GuiUtil.getLoader(url);
+        return (AnchorPane) loader.load();
     }
 
     @FXML
@@ -845,6 +1031,7 @@ public class HelpManual {
         _dialogStage.setTitle(_TITLE);
         _dialogStage.initModality(Modality.WINDOW_MODAL);
         _dialogStage.setScene(scene);
+        
         setStageLocation();
     }
 
@@ -858,42 +1045,41 @@ public class HelpManual {
     }
 }
 
-	// End of segment: src\udo\gui\HelpManual.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\HelpManual.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\gui\HomeController.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\HomeController.java
 	 */
 
 
 /**
  * This is the main controller class for the HomePage of the GUI. It controls
  * the data displayed and its styling. It is also the interface between the java
- * objects and its corresponding FXML objects. All user events are also handled by
- * this class
+ * objects and its corresponding FXML objects. All user events are also handled
+ * by this class
  *
  */
 
 public class HomeController {
-    private static final Logger logger = 
-            Logger.getLogger(HomeController.class.getName());
-            
+    private static final Logger logger = Logger.getLogger(HomeController.class
+                                               .getName());
+
     private static String _STYLE_ITALIC = "italic";
     private static String _STYLE_STRAIGHT = "straight";
-    
+
     private static String _HOTKEY_DISPLAY = "display";
     private static String _HOTKEY_DONE = "display /done";
-    
+
     private static String _COLUMN_FIELD_CONTENT = "content";
-    private static String _COLUMN_FIELD_LABEL= "label";
-    
+    private static String _COLUMN_FIELD_LABEL = "label";
     private static Label _statusString;
     private static ObservableList<Task> _data;
     private static CustomTextField _customTextField;
-    
+
     @FXML
     private TableView<Task> _TaskTable;
     @FXML
@@ -908,7 +1094,6 @@ public class HomeController {
     // Reference to the Main Application.
     private Gui gui;
 
-    
     public HomeController() {
         logger.setLevel(Level.INFO);
     }
@@ -922,19 +1107,19 @@ public class HomeController {
         configureSettings();
         initialiseTableColumns();
     }
-    
+
     private void configureSettings() {
         disableDefaults();
         configureTextField();
-        configureStatus();  
+        configureStatus();
     }
-    
+
     /**
      * Disables the sorting function of TableView
      */
     private void disableDefaults() {
         _taskNameColumn.setSortable(false);
-        _timeColumn.setSortable(false);       
+        _timeColumn.setSortable(false);
     }
 
     private void configureTextField() {
@@ -968,18 +1153,20 @@ public class HomeController {
     private void initialiseTimeColumn() {
         PropertyValueFactory<Task, String> labelFactory = 
                 new PropertyValueFactory<Task, String>(_COLUMN_FIELD_LABEL);
-        _timeColumn.setCellValueFactory(labelFactory);
         
-        //create 'label' column callback
+        _timeColumn.setCellValueFactory(labelFactory);
+
+        // create 'label' column callback
         Callback<TableColumn<Task, String>, 
                  TableCell<Task, String>> labelCallBack = 
-                new Callback<TableColumn<Task, String>, 
-                             TableCell<Task, String>>() {
-                    @Override
-                    public TableCell<Task, String> call(TableColumn<Task, 
-                                                        String> param) {
-                        return new TimeCell();
-                    }
+                 new Callback<TableColumn<Task, String>, 
+                              TableCell<Task, String>>() {
+            
+            @Override
+            public TableCell<Task, String> call(TableColumn<Task, 
+                                                            String> param) {
+                return new TimeCell();
+            }
         };
         _timeColumn.setCellFactory(labelCallBack);
     }
@@ -987,42 +1174,44 @@ public class HomeController {
     private void initialiseTaskNameColumn() {
         PropertyValueFactory<Task, String> contentFactory = 
                 new PropertyValueFactory<Task, String>(_COLUMN_FIELD_CONTENT);
-        _taskNameColumn.setCellValueFactory(contentFactory);
         
-        //create 'content' column callback
+        _taskNameColumn.setCellValueFactory(contentFactory);
+
+        // create 'content' column callback
         Callback<TableColumn<Task, String>, 
                  TableCell<Task, String>> contentCallBack = 
-                new Callback<TableColumn<Task, String>, 
-                             TableCell<Task, String>>() {
-                    @Override 
-                    public TableCell<Task, String> call(TableColumn<Task, 
-                                                        String> param) {
-                        return new TaskCell();
-                    }
+                 new Callback<TableColumn<Task, String>, 
+                              TableCell<Task, String>>() {
+            
+            @Override
+            public TableCell<Task, String> call(TableColumn<Task, 
+                                                            String> param) {
+                return new TaskCell();
+            }
         };
         _taskNameColumn.setCellFactory(contentCallBack);
     }
-    
+
     EventHandler<KeyEvent> keyHandlers = new EventHandler<KeyEvent>() {
         @Override
         public void handle(KeyEvent event) {
             KeyCode code = event.getCode();
-            switch(code) {
-                case TAB :
+            switch (code) {
+                case TAB:
                     _customTextField.handleTabKey(event);
                     break;
-                case ENTER :
+                case ENTER:
                     _customTextField.handleReturnKey();
                     break;
-                case UP :
+                case UP:
                     _customTextField
                         .handleDirectionKey(event, GuiUtil.KEY_UP);
                     break;
-                case DOWN :
+                case DOWN:
                     _customTextField
                         .handleDirectionKey(event, GuiUtil.KEY_DOWN);
                     break;
-                case F1 :
+                case F1:
                     handleF1Key();
                     break;
                 case F2:
@@ -1032,35 +1221,35 @@ public class HomeController {
                     handleF3Key();
                     break;
                 default:
-                    handleOtherKeys(event, code);
-                    break; 
-            }          
+                    handleOtherKeys(code);
+                    break;
+            }
         }
     };
-    
+
     public String getAutocompleted(String userInput) {
-        assert(userInput != null);
+        assert (userInput != null);
         return gui.callAutocomplete(userInput);
     }
-    
+
     public boolean getCommand(String userInput) {
-        assert(userInput != null);
+        assert (userInput != null);
         return gui.callLogicCommand(userInput) == true;
     }
-    
+
     public String getCmdHistory(String direction) {
-        assert(direction != null);
+        assert (direction != null);
         return gui.callCmdHistory(direction);
     }
-    
+
     public void displayStatus(String receivedString) {
-        assert(receivedString != null);
-        
-        if(receivedString == null) {
-            receivedString = GuiUtil.EMPTY_STRING;
-        } else if(GuiUtil.isWarning(receivedString)) {
+        assert (receivedString != null);
+
+        if (receivedString == null) {
+            receivedString = GuiUtil.STRING_EMPTY;
+        } else if (GuiUtil.isWarning(receivedString)) {
             _statusString.setTextFill(GuiUtil.COLOUR_TEXT_WARNING);
-        } else if(GuiUtil.isError(receivedString)) {
+        } else if (GuiUtil.isError(receivedString)) {
             _statusString.setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
         } else {
             _statusString.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
@@ -1068,7 +1257,7 @@ public class HomeController {
         _statusString.setText(receivedString);
         logger.finer(receivedString);
     }
-    
+
     private void handleF1Key() {
         gui.displayManual();
     }
@@ -1076,43 +1265,30 @@ public class HomeController {
     private void handleF2Key() {
         gui.callLogicCommand(_HOTKEY_DISPLAY);
     }
-    
+
     private void handleF3Key() {
         gui.callLogicCommand(_HOTKEY_DONE);
     }
-    
+
     /*
      * Retrieves suggestions for any letter keys
      */
-    public void handleOtherKeys(KeyEvent event, KeyCode code) {
-        String userInput = new String(); 
+    public void handleOtherKeys(KeyCode code) {
+        String userInput = _customTextField.getChangedText(code); 
+        logger.finer(userInput);
 
-        if(code.isLetterKey()) {
-            userInput = _customTextField.getText() + retrieveLetter(code);
-        } else if(code.equals(KeyCode.BACK_SPACE)) {
-            userInput = _customTextField.getText();
-        } else {
-            return;
-        }
-        
         String suggestedWords = getSuggestedWords(userInput);
         displayStatus(suggestedWords);
-        
         logger.finer(suggestedWords.toString());
     }
 
     private String getSuggestedWords(String userInput) {
-        List<String> suggestedListOfWords = 
-                gui.callSuggestions(userInput);          
+        List<String> suggestedListOfWords = gui.callSuggestions(userInput);
         String suggestedWords = 
                 GuiUtil.concatListToString(suggestedListOfWords);
         return suggestedWords;
     }
 
-    private String retrieveLetter(KeyCode code) {
-        return code.getName().toLowerCase();
-    }
-    
     /**
      * Called by the main application to give a reference back to itself.
      * 
@@ -1121,22 +1297,21 @@ public class HomeController {
     public void setMainApp(Gui gui) {
         this.gui = gui;
     }
-    
+
     public void setData() {
         refreshTable();
         _data = gui.getNewData();
         _TaskTable.setItems(_data);
         logger.finer(_data.toString());
     }
-    
+
     private void refreshTable() {
         _TaskTable.getColumns().get(0).setVisible(false);
         _TaskTable.getColumns().get(0).setVisible(true);
     }
-    
+
     /**
-     * Private nested class for cells under the task
-     * content column
+     * Private nested class for cells under the task content column
      */
     private class TaskCell extends TableCell<Task, String> {
 
@@ -1147,13 +1322,12 @@ public class HomeController {
         @Override
         protected void updateItem(String item, boolean empty) {
             super.updateItem(item, empty);
-            this.setText(GuiUtil.EMPTY_STRING);
+            this.setText(GuiUtil.STRING_EMPTY);
             formatCellIfNotEmpty(item, this);
             this.setText(item);
         }
-        
 
-        private void formatCellIfNotEmpty(String item,
+        private void formatCellIfNotEmpty(String item, 
                                           TableCell<Task, String> tableCell) {
             if (!tableCell.isEmpty()) {
                 formatCellText(item, tableCell);
@@ -1166,25 +1340,25 @@ public class HomeController {
 
             if (GuiUtil.isHeader(item)) {
                 setHeaderStyle();
-            } else if (GuiUtil.isImportant(item, _data)) { 
+            } else if (GuiUtil.isImportant(item, _data)) {
                 setImportantStyle();
             } else {
-               setTextStyle();
+                setTextStyle();
             }
         }
-        
-        private void setHeaderStyle() {        
+
+        private void setHeaderStyle() {
             setTextFill(GuiUtil.COLOUR_TABLE_HEADERS);
             setAlignment(Pos.CENTER);
             styleItalic();
         }
-        
+
         private void setTextStyle() {
             setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
             setAlignment(Pos.CENTER_LEFT);
             styleStraight();
         }
-        
+
         private void setImportantStyle() {
             setTextFill(GuiUtil.COLOUR_TEXT_ERROR);
             setAlignment(Pos.CENTER_LEFT);
@@ -1195,49 +1369,51 @@ public class HomeController {
             getStyleClass().remove(_STYLE_ITALIC);
             getStyleClass().add(_STYLE_STRAIGHT);
         }
-        
+
         private void styleItalic() {
             getStyleClass().remove(_STYLE_STRAIGHT);
             getStyleClass().add(_STYLE_ITALIC);
         }
-        
+
     }
-    
+
     /**
-     * Private nested class for cells under the date/time
-     * column
+     * Private nested class for cells under the date/time column
      */
-    private class TimeCell extends TableCell<Task,String> {
+    private class TimeCell extends TableCell<Task, String> {
 
         public TimeCell() {
-            
+
         }
-          
+
         @Override
         public void updateItem(String item, boolean empty) {
             super.updateItem(item, empty);
-            this.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL); 
+            this.setTextFill(GuiUtil.COLOUR_TEXT_NORMAL);
             this.setText(item);
         }
     }
 }
 
-	// End of segment: src\udo\gui\HomeController.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\HomeController.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\gui\ReminderDialog.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\ReminderDialog.java
 	 */
 
 public class ReminderDialog {
     
-    private static final String TITLE = "Reminders";
+    private static final Logger logger = 
+            Logger.getLogger(ReminderDialog.class.getName());
+    
+    private static final String _TITLE = "Reminders";
 
-    private static final double _POS_X = 1050;
-    private static final double _POS_Y = 10;
+    private static final double _POS_X = 2100;
+    private static final double _POS_Y = 610;
     private static final double _POS_WIDTH = 300;
         
     private static final int _ARR_SIZE = 4;
@@ -1265,6 +1441,8 @@ public class ReminderDialog {
      */
     
     public ReminderDialog(Task task) {
+        logger.setLevel(Level.INFO);
+        
         _alert = new Alert(AlertType.INFORMATION);
         _dialogPane = _alert.getDialogPane();
         
@@ -1285,7 +1463,7 @@ public class ReminderDialog {
     }
 
     private void setDisplay(Task task) {
-        _alert.setTitle(TITLE);
+        _alert.setTitle(_TITLE);
         setLayout();
         String[] taskInfo = getInformation(task);
         setContent(taskInfo);
@@ -1294,11 +1472,13 @@ public class ReminderDialog {
     private void setLayout() {
         _alert.setX(_POS_X);
         _alert.setY(_POS_Y);
+        
         _dialogPane.setMaxWidth(_POS_WIDTH);
     }
 
     private void setContent(String[] taskInfo) {
-        _textBox = completeMessage(taskInfo);       
+        _textBox = completeMessage(taskInfo);
+        
         _dialogPane.setStyle(GuiUtil.COLOUR_BACKGROUND);              
         _dialogPane.setContent(_textBox);       
     }
@@ -1372,13 +1552,11 @@ public class ReminderDialog {
     private void setNormalStyle(Text title) {
         title.setStyle(GuiUtil.STYLE_FONT + GuiUtil.STYLE_SIZE + 
                        GuiUtil.COLOUR_WHITE);
-        return;
     }
     
     private void setEmphasisedStyle(Text title) {
         title.setStyle(GuiUtil.STYLE_FONT + GuiUtil.STYLE_SIZE + 
                        GuiUtil.COLOUR_GREEN);
-        return;
     }
     
     /**
@@ -1408,13 +1586,14 @@ public class ReminderDialog {
         taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
         taskInfo[_INDEX_TITLE] = task.getContent();
         taskInfo[_INDEX_START] = GuiUtil.guiTimeFormat(task.getDeadline());
-        taskInfo[_INDEX_END] = GuiUtil.EMPTY_STRING;
+        taskInfo[_INDEX_END] = GuiUtil.STRING_EMPTY;
         
         return taskInfo;
     }
 
     private String[] getEventInformation(Task task) {
         String[] taskInfo = new String[_ARR_SIZE];
+        
         taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
         taskInfo[_INDEX_TITLE] = task.getContent();
         taskInfo[_INDEX_START] = GuiUtil.guiDateTimeFormat(task.getStart());
@@ -1425,10 +1604,11 @@ public class ReminderDialog {
 
     private String[] getTodoInformation(Task task) {
         String[] taskInfo = new String[_ARR_SIZE];
+        
         taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
         taskInfo[_INDEX_TITLE] = task.getContent();
-        taskInfo[_INDEX_START] = GuiUtil.EMPTY_STRING;
-        taskInfo[_INDEX_END] = GuiUtil.EMPTY_STRING;
+        taskInfo[_INDEX_START] = GuiUtil.STRING_EMPTY;
+        taskInfo[_INDEX_END] = GuiUtil.STRING_EMPTY;
         
         return taskInfo;
     }
@@ -1448,17 +1628,18 @@ public class ReminderDialog {
     
     public void appear(){
         _alert.showAndWait();
+        logger.fine(String.format(GuiUtil.LOG_INITIATE, "ReminderDialog"));
     }
 }
 
-	// End of segment: src\udo\gui\ReminderDialog.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\gui\ReminderDialog.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\storage\Task.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Task.java
 	 */
 
 	@Override
@@ -1584,14 +1765,14 @@ public class ReminderDialog {
     }
     
 }
-	// End of segment: src\udo\storage\Task.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Task.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\testdriver\GuiTest.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\GuiFormatterTest.java
 	 */
 
 
@@ -1609,10 +1790,13 @@ public class ReminderDialog {
  * 7. Insertion of an event with same start time, same end time
  * 8. Insertion of deadline on the same day with a later time
  * 9. Insertion of same deadline with different content
+ * 10. Free for a fixed period of time 
+ * 11. Free after a time
+ * 12. Free before a time
  *  
  */
 
-public class GuiTest extends TestCase {
+public class GuiFormatterTest extends TestCase {
     
     public static final String EMPTY_STRING = "";
     public static final String HEADER_TODO = "To-Dos";
@@ -1699,14 +1883,14 @@ public class GuiTest extends TestCase {
                                     0, null, EMPTY_STRING, false, false);
     }
     
-	// End of segment: src\udo\testdriver\GuiTest.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\GuiFormatterTest.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\testdriver\GuiTest.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\GuiFormatterTest.java
 	 */
 
     //Insertion of new headers: Todo header
@@ -2031,16 +2215,120 @@ public class GuiTest extends TestCase {
 
         assertEquals(expectedList.toString(), gui.getNewData().toString());
     }
+    
+    //free for a fixed period of time 
+    public void test10() throws Exception {
+        initialise();
+        
+        Task fixedFreeSlot = 
+                new Task(TaskType.EVENT, "Free Slot", null, 
+                        new GregorianCalendar(2015, 02, 20, 12, 0), 
+                        new GregorianCalendar(2015, 02, 20, 13, 30),
+                        0, null, EMPTY_STRING, false, false);
+        
+        Task expectedFixedFreeSlot = 
+                new Task(TaskType.EVENT, "Free from 12:00 to 13:30", null, 
+                         new GregorianCalendar(2015, 02, 20, 12, 0), 
+                         new GregorianCalendar(2015, 02, 20, 13, 30),
+                         0, null, EMPTY_STRING, false, false);
+        
+        inputList.add(fixedFreeSlot);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(expectedFixedFreeSlot);
+      
+        gui.displayFreeSlots(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    //free after a time 
+    public void test11() throws Exception {
+        initialise();
+        
+        Task afterFreeSlot = 
+                new Task(TaskType.EVENT, "Free Slot", null, 
+                        new GregorianCalendar(2015, 02, 20, 12, 0), 
+                        new GregorianCalendar(2015, 02, 20, 23, 59),
+                        0, null, EMPTY_STRING, false, false);
+        
+        Task expectedafterFreeSlot = 
+                new Task(TaskType.EVENT, "Free after 12:00", null, 
+                         new GregorianCalendar(2015, 02, 20, 12, 0), 
+                         new GregorianCalendar(2015, 02, 20, 23, 59),
+                         0, null, EMPTY_STRING, false, false);
+        
+        inputList.add(afterFreeSlot);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(expectedafterFreeSlot);
+      
+        gui.displayFreeSlots(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    //free before a time 
+    public void test12() throws Exception {
+        initialise();
+        
+        Task afterFreeSlot = 
+                new Task(TaskType.EVENT, "Free Slot", null, 
+                        new GregorianCalendar(2015, 02, 20, 0, 0),
+                        new GregorianCalendar(2015, 02, 20, 12, 0), 
+                        0, null, EMPTY_STRING, false, false);
+        
+        Task expectedafterFreeSlot = 
+                new Task(TaskType.EVENT, "Free before 12:00", null,
+                         new GregorianCalendar(2015, 02, 20, 0, 0), 
+                         new GregorianCalendar(2015, 02, 20, 12, 0), 
+                         0, null, EMPTY_STRING, false, false);
+        
+        inputList.add(afterFreeSlot);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(expectedafterFreeSlot);
+      
+        gui.displayFreeSlots(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
+    
+    //free for the day 
+    public void test13() throws Exception {
+        initialise();
+        
+        Task afterFreeSlot = 
+                new Task(TaskType.EVENT, "Free Slot", null, 
+                        new GregorianCalendar(2015, 02, 20, 0, 0),
+                        new GregorianCalendar(2015, 02, 20, 23, 59), 
+                        0, null, EMPTY_STRING, false, false);
+        
+        Task expectedafterFreeSlot = 
+                new Task(TaskType.EVENT, "Free for the entire day", null,
+                         new GregorianCalendar(2015, 02, 20, 0, 0), 
+                         new GregorianCalendar(2015, 02, 20, 23, 59), 
+                         0, null, EMPTY_STRING, false, false);
+        
+        inputList.add(afterFreeSlot);
+        
+        expectedList.add(currDayHeader);
+        expectedList.add(expectedafterFreeSlot);
+      
+        gui.displayFreeSlots(inputList);
+
+        assertEquals(expectedList.toString(), gui.getNewData().toString());
+    }
 }
 
-	// End of segment: src\udo\testdriver\GuiTest.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\GuiFormatterTest.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\util\Utility.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 	 */
 
 	public static boolean isSameDate(GregorianCalendar cal1,
@@ -2050,7 +2338,7 @@ public class GuiTest extends TestCase {
     }
 }
 
-	// End of segment: src\udo\util\Utility.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 
 
 

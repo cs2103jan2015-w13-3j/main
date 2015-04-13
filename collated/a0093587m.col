@@ -3,7 +3,7 @@
 
 
 	/**
-	 * origin: src\udo\logic\Autocompleter.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\Autocompleter.java
 	 */
 
 public class Autocompleter {
@@ -351,11 +351,15 @@ public class Autocompleter {
         }
         if (InputParser.isEndOption(lastWord) &&
             task.getEnd() != null) {
-            return Utility.calendarToString(task.getEnd());
+            return Utility.calendarToString(task.getEnd(), fmt);
         }
         if (InputParser.isReminderOption(lastWord) &&
             task.getReminder() != null) {
-            return Utility.calendarToString(task.getReminder());
+            return Utility.calendarToString(task.getReminder(), fmt);
+        }
+        if (InputParser.isDurationOption(lastWord) &&
+            task.getDuration() != null) {
+            return Utility.minutesToString(task.getDuration());
         }
 
         return "";
@@ -398,7 +402,7 @@ public class Autocompleter {
                             Utility.calendarToString(task.getReminder(), fmt));
         }
 
-        if (task.getPriority()) {
+        if (task.isPriority()) {
             appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
         }
 
@@ -425,12 +429,17 @@ public class Autocompleter {
         appendOptionStr(builder, Config.OPT_END[Config.OPT_LONG],
                         Utility.calendarToString(task.getEnd(), fmt));
 
+        if (task.getDuration() != null) {
+            appendOptionStr(builder, Config.OPT_DUR[Config.OPT_LONG],
+                            Utility.minutesToString(task.getDuration()));
+        }
+
         if (task.getReminder() != null) {
             appendOptionStr(builder, Config.OPT_REMINDER[Config.OPT_LONG],
                             Utility.calendarToString(task.getReminder(), fmt));
         }
 
-        if (task.getPriority()) {
+        if (task.isPriority()) {
             appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
         }
 
@@ -458,7 +467,7 @@ public class Autocompleter {
                             Utility.calendarToString(task.getReminder(), fmt));
         }
 
-        if (task.getPriority()) {
+        if (task.isPriority()) {
             appendOptionStr(builder, Config.OPT_PRIO[Config.OPT_LONG], "");
         }
 
@@ -480,6 +489,8 @@ public class Autocompleter {
 
     private void addPrioritizedWords(TernarySearchTree tree) {
         tree.add("december");
+        tree.add("next");
+        tree.add("this");
     }
 
 
@@ -579,18 +590,18 @@ public class Autocompleter {
     }
 }
 
-	// End of segment: src\udo\logic\Autocompleter.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\Autocompleter.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\command\AddCommand.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\AddCommand.java
 	 */
 
 public class AddCommand extends Command {
-    public static final String STATUS_ADDED = "Task: %s added sucessfully";
+    public static final String STATUS_ADDED = "Task: %s added successfully";
 
     private static final Logger log = Logger.
             getLogger(AddCommand.class.getName());
@@ -754,14 +765,14 @@ public class AddCommand extends Command {
     }
 }
 
-	// End of segment: src\udo\logic\command\AddCommand.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\AddCommand.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\command\ChdirCommand.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\ChdirCommand.java
 	 */
 
 public class ChdirCommand extends Command {
@@ -802,14 +813,14 @@ public class ChdirCommand extends Command {
     }
 }
 
-	// End of segment: src\udo\logic\command\ChdirCommand.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\ChdirCommand.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\command\Command.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\Command.java
 	 */
 
 public abstract class Command {
@@ -1132,11 +1143,21 @@ public abstract class Command {
      */
     protected void fillTaskFromCommand(Task task, int dateIndex) {
         fillContent(task);
+
         fillDeadline(task, dateIndex);
+
         fillStartDate(task, dateIndex);
         fillEndDate(task, dateIndex);
-        fillDuration(task);
+
+        if (getOption(Config.OPT_START) == null ||
+            getOption(Config.OPT_END) == null) {
+            fillDuration(task);
+        } else {
+            task.setDuration(null);
+        }
+
         fillReminder(task);
+
         fillLabel(task);
         fillPriority(task);
     }
@@ -1461,14 +1482,14 @@ public abstract class Command {
     }
 }
 
-	// End of segment: src\udo\logic\command\Command.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\Command.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\command\ConfirmCommand.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\ConfirmCommand.java
 	 */
 
 public class ConfirmCommand extends Command {
@@ -1520,23 +1541,25 @@ public class ConfirmCommand extends Command {
     }
 }
 
-	// End of segment: src\udo\logic\command\ConfirmCommand.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\ConfirmCommand.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\command\DeleteCommand.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\DeleteCommand.java
 	 */
 
 public class DeleteCommand extends Command {
-    private static final String STATUS_DELETED = "Task: %s deleted sucessfully";
+    private static final String STATUS_DELETED =
+            "Task: %s deleted successfully";
     private static final String STATUS_ALL_DELETED = "All tasks deleted";
 
     private Integer[] indices;
 
-    private static final Logger log = Logger.getLogger(DeleteCommand.class.getName());
+    private static final Logger log = Logger.
+            getLogger(DeleteCommand.class.getName());
 
     public DeleteCommand() {
         super();
@@ -1617,19 +1640,18 @@ public class DeleteCommand extends Command {
     }
 }
 
-	// End of segment: src\udo\logic\command\DeleteCommand.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\DeleteCommand.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\command\DisplayCommand.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\DisplayCommand.java
 	 */
 
 public class DisplayCommand extends Command {
     private static final String STATUS_DISP_ALL = "Displaying all tasks";
-    private static final String STATUS_DISP_FREE = "Displaying free slots";
     private static final String STATUS_DISP_IMP =
             "Displaying important tasks";
     private static final String STATUS_DISP_DONE = "Displaying done tasks";
@@ -1658,9 +1680,6 @@ public class DisplayCommand extends Command {
         } else if (getOption(Config.OPT_DONE) != null) {
             setStatus(STATUS_DISP_DONE);
             updateGuiTasks(storage.getDone());
-        } else if (getOption(Config.OPT_FREE) != null) {
-            setStatus(STATUS_DISP_FREE);
-            updateGuiTasks(storage.findFreeSlots());
         } else if (getOption(Config.OPT_OVERDUE) != null) {
             setStatus(STATUS_DISP_OVERDUE);
             updateGuiTasks(getOverdueTasks());
@@ -1693,14 +1712,14 @@ public class DisplayCommand extends Command {
     }
 }
 
-	// End of segment: src\udo\logic\command\DisplayCommand.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\DisplayCommand.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\command\DoneCommand.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\DoneCommand.java
 	 */
 
 public class DoneCommand extends Command {
@@ -1791,20 +1810,21 @@ public class DoneCommand extends Command {
     }
 }
 
-	// End of segment: src\udo\logic\command\DoneCommand.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\DoneCommand.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\command\ModifyCommand.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\ModifyCommand.java
 	 */
 
 public class ModifyCommand extends Command {
     public static final String STATUS_MODIFIED =
-            "Task: %s modified sucessfully";
-    private static final Logger log = Logger.getLogger(ModifyCommand.class.getName());
+            "Task: %s modified successfully";
+    private static final Logger log = Logger.
+            getLogger(ModifyCommand.class.getName());
 
     public ModifyCommand() {
         super();
@@ -1835,11 +1855,16 @@ public class ModifyCommand extends Command {
 
         Task task = storage.query(storageIndex);
 
-        Task.TaskType newTaskType = getTaskType();
-        if (task.getTaskType() == newTaskType) {
+        TaskType newTaskType = getTaskType();
+
+        if (task.getTaskType() == newTaskType ||
+            isOnlyDurationModified(task.getTaskType(), newTaskType)) {
             fillTaskFromCommand(task, 0);
+            fixStartEnd(task);
         } else {
+            resetDates(task);
             task.setTaskType(newTaskType);
+
             fillTaskFromCommand(task, 0);
             fillDefaults(task);
         }
@@ -1872,6 +1897,53 @@ public class ModifyCommand extends Command {
         return isSuccessful;
     }
 
+    /**
+     * Reset a task's datetime data when the task's type is modified
+     * @param task
+     */
+    private void resetDates(Task task) {
+        task.setDeadline(null);
+        task.setStart(null);
+        task.setEnd(null);
+        task.setDuration(null);
+        task.setReminder(null);
+    }
+
+    private boolean isOnlyDurationModified(TaskType taskType,
+                                           TaskType newTaskType) {
+        return taskType == TaskType.EVENT &&
+               newTaskType == TaskType.TODO &&
+               getOption(Config.OPT_DUR) != null;
+    }
+
+    /**
+     * If the start or end time of an event is not specified by the information
+     * given to the modify command, this method will attempt to fix it using
+     * the task's duration given in the command or in the existing task
+     * @param task
+     */
+    private void fixStartEnd(Task task) {
+        if (task.getTaskType() == TaskType.EVENT) {
+            Integer duration = task.getDuration();
+
+            if (duration != null) {
+                if (getOption(Config.OPT_END) == null) {
+                    GregorianCalendar cal = new GregorianCalendar();
+                    cal.setTime(task.getStart().getTime());
+                    cal.add(Calendar.MINUTE, duration);
+
+                    task.setEnd(cal);
+                } else if (getOption(Config.OPT_START) == null) {
+                    GregorianCalendar cal = new GregorianCalendar();
+                    cal.setTime(task.getEnd().getTime());
+                    cal.add(-Calendar.MINUTE, duration);
+
+                    task.setStart(cal);
+                }
+            }
+        }
+    }
+
     private String getModifySucessStatus(Task task) {
         return String.format(STATUS_MODIFIED,
                              Logic.summarizeContent(task.getContent()));
@@ -1883,20 +1955,23 @@ public class ModifyCommand extends Command {
     }
 }
 
-	// End of segment: src\udo\logic\command\ModifyCommand.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\ModifyCommand.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\command\SearchCommand.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\SearchCommand.java
 	 */
 
 public class SearchCommand extends Command {
     private static final String STATUS_SEARCH = "Search results for: %s";
+    private static final String STATUS_DISP_FREE =
+            "Search results for free slots";
 
-    private static final Logger log = Logger.getLogger(SearchCommand.class.getName());
+    private static final Logger log = Logger.
+            getLogger(SearchCommand.class.getName());
 
     public SearchCommand() {
         super();
@@ -1905,16 +1980,21 @@ public class SearchCommand extends Command {
 
     @Override
     public boolean isValid() {
-        return super.isValid() && isContentNonEmpty();
+        return super.isValid() &&
+               (isContentNonEmpty() || getOption(Config.OPT_FREE) != null);
     }
 
     @Override
     public boolean execute() {
+        log.log(Level.FINE, "Searching for " + argStr);
+
         if (!super.execute()) {
             return false;
         }
 
-        log.log(Level.FINE, "Searching for " + argStr);
+        if (getOption(Config.OPT_FREE) != null) {
+            return searchFreeSlots();
+        }
 
         List<Task> strSearchTasks = storage.search(argStr);
 
@@ -1941,6 +2021,283 @@ public class SearchCommand extends Command {
         return true;
     }
 
+    /**
+     * Search and display free slots given start, end period and duration
+     * @return
+     */
+    private boolean searchFreeSlots() {
+        log.fine("Searching for free slots...");
+
+        GregorianCalendar start = getDateOpt(Config.OPT_START);
+        GregorianCalendar end = getDateOpt(Config.OPT_END);
+        Integer duration = null;
+
+        if (getOption(Config.OPT_DUR) != null) {
+            duration = getOption(Config.OPT_DUR).timeArgument;
+        }
+
+        if (!isStartBeforeEnd(start, end)) {
+            updateGUIStatus();
+            return false;
+        }
+        if (duration != null && duration <= 0) {
+            setStatus(Logic.ERR_NON_POSITIVE_DUR);
+            updateGUIStatus();
+            return false;
+        }
+
+        List<Task> results = new ArrayList<>();
+        List<Task> freeSlots = storage.findFreeSlots();
+        List<Task> allTasks = storage.query();
+
+        addFirstSlot(results, start, end, allTasks, duration);
+        generateViewableSlots(results, freeSlots, start, end, duration);
+        addLastSlot(results, start, end, allTasks, duration);
+
+        logic.updateGuiFreeSlots(results);
+
+        //System.out.println(results);
+
+        setStatus(STATUS_DISP_FREE);
+        updateGUIStatus();
+        return true;
+    }
+
+    /**
+     * Shrink the initial free time slots obtained from lower level storage
+     * to fit into the start, end and duration option by finding the
+     * overlapping period between the slot and (start to end) and check with
+     * duration. If the shrunken slot extend over more than 1 day,
+     * it's divided into 2 separate slots
+     * @param results
+     * @param freeSlots
+     * @param start
+     * @param end
+     * @param duration
+     */
+    private void generateViewableSlots(List<Task> results,
+                                       List<Task> freeSlots,
+                                       GregorianCalendar start,
+                                       GregorianCalendar end, Integer duration) {
+        for (Task slot : freeSlots) {
+            GregorianCalendar slotStart = slot.getStart();
+            GregorianCalendar slotEnd = slot.getEnd();
+
+            if (start != null && slotStart.before(start)) {
+                slotStart = start;
+            }
+            if (end != null && slotEnd.after(end)) {
+                slotEnd = end;
+            }
+
+            if (slotStart.before(slotEnd) &&
+                (duration == null ||
+                 Utility.findDiffMinutes(slotStart, slotEnd) > duration)) {
+                if (onSameDay(slotStart, slotEnd)) {
+                    Task t = new Task();
+                    setFreeFromTo(t, slotStart, slotEnd);
+
+                    results.add(t);
+                } else {
+                    Task t1 = new Task();
+                    setFreeAfter(t1, slotStart);
+
+                    Task t2 = new Task();
+                    setFreeBefore(t2, slotEnd);
+
+                    results.add(t1);
+                    results.add(t2);
+                }
+            }
+        }
+    }
+
+    /**
+     * Set a free slot as a free before [date/time] slot
+     * @param task the free slot
+     * @param date free-before date
+     */
+    private void setFreeBefore(Task task, GregorianCalendar date) {
+        task.setTaskType(TaskType.EVENT);
+
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(date.getTime());
+        Utility.setToStartOfDay(cal);
+
+        task.setStart(cal);
+        task.setEnd(date);
+    }
+
+    /**
+     * Set a free slot as a free after [date/time] slot
+     * @param task the free slot
+     * @param date free-before date
+     */
+    private void setFreeAfter(Task task, GregorianCalendar date) {
+        task.setTaskType(TaskType.EVENT);
+
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(date.getTime());
+        Utility.setToEndOfDay(cal);
+
+        task.setStart(date);
+        task.setEnd(cal);
+    }
+
+    private void setFreeFromTo(Task task, GregorianCalendar from,
+                               GregorianCalendar to) {
+        task.setTaskType(TaskType.EVENT);
+
+        task.setStart(from);
+        task.setEnd(to);
+    }
+
+    /**
+     * @param cal1
+     * @param cal2
+     * @return
+     */
+    private boolean onSameDay(GregorianCalendar cal1, GregorianCalendar cal2) {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+               cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+    }
+
+    private boolean isStartBeforeEnd(GregorianCalendar start,
+                                     GregorianCalendar end) {
+        if (start != null && end != null) {
+            if (start.after(end)) {
+                setStatus(Logic.ERR_NON_POSITIVE_DUR);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     * @param results
+     * @param end
+     * @param allTasks
+     */
+    private void addLastSlot(List<Task> results,
+                             GregorianCalendar start, GregorianCalendar end,
+                             List<Task> allTasks, Integer duration) {
+        assert(allTasks != null);
+
+        Task t = new Task();
+
+        GregorianCalendar last = findLastEvent(allTasks);
+
+        if (last == null) {
+           if (end != null) {
+               setFreeBefore(t, end);
+           }
+        } else {
+            if (end == null) {
+                if (start == null || last.after(start)) {
+                    setFreeAfter(t, last);
+                }
+            } else {
+                if (last.before(end) &&
+                    (duration == null ||
+                     Utility.findDiffMinutes(last, end) > duration)) {
+                    setFreeAfter(t, last);
+                }
+            }
+        }
+
+        if (t.getStart() != null || t.getEnd() != null) {
+            results.add(t);
+        }
+    }
+
+    /**
+     * Prepend the first free slot to the results which is before the earliest
+     * event date unless the specified start time to the earliest event task
+     * is less than the specified duration. If
+     * @param results
+     * @param start
+     * @param allTasks
+     */
+    private void addFirstSlot(List<Task> results,
+                              GregorianCalendar start, GregorianCalendar end,
+                              List<Task> allTasks, Integer duration) {
+        assert(allTasks != null);
+
+        Task t = new Task();
+        t.setTaskType(TaskType.EVENT);
+
+        GregorianCalendar first = findFirstEvent(allTasks);
+
+        if (first == null) {
+           if (start != null) {
+               setFreeAfter(t, start);
+           }
+        } else {
+            if (start == null) {
+                if (end == null || first.before(end)) {
+                    setFreeBefore(t, first);
+                }
+            } else {
+                if (first.after(start) &&
+                    (duration == null ||
+                     Utility.findDiffMinutes(start, first) > duration)) {
+                    setFreeBefore(t, first);
+                }
+            }
+        }
+
+        if (t.getStart() != null || t.getEnd() != null) {
+            results.add(t);
+        }
+    }
+
+    private GregorianCalendar findFirstEvent(List<Task> allTasks) {
+        GregorianCalendar first = null;
+
+        for (Task t : allTasks) {
+            if (t.getTaskType() == TaskType.EVENT) {
+                if (first == null || t.getStart().before(first)) {
+                    first = t.getStart();
+                }
+            }
+        }
+
+        return first;
+    }
+
+    private GregorianCalendar findLastEvent(List<Task> allTasks) {
+        GregorianCalendar last = null;
+
+        for (Task t : allTasks) {
+            if (t.getTaskType() == TaskType.EVENT) {
+                if (last == null || t.getEnd().after(last)) {
+                    last = t.getEnd();
+                }
+            }
+        }
+
+        return last;
+    }
+
+    private GregorianCalendar getDateOpt(String[] option) {
+        Option opt = getOption(option);
+
+        if (opt != null) {
+            Date[] date = opt.dateArgument;
+
+            if (date != null && date.length > 0) {
+                GregorianCalendar cal = new GregorianCalendar();
+                cal.setTime(date[0]);
+
+                return cal;
+            }
+        }
+
+        return null;
+    }
+
     private String getSearchStatus() {
         return String.format(STATUS_SEARCH, Logic.summarizeContent(argStr));
     }
@@ -1958,14 +2315,14 @@ public class SearchCommand extends Command {
     }
 }
 
-	// End of segment: src\udo\logic\command\SearchCommand.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\SearchCommand.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\command\UndoCommand.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\UndoCommand.java
 	 */
 
 public class UndoCommand extends Command {
@@ -2004,14 +2361,14 @@ public class UndoCommand extends Command {
 
 }
 
-	// End of segment: src\udo\logic\command\UndoCommand.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\command\UndoCommand.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\InputParser.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\InputParser.java
 	 */
 
 public class InputParser {
@@ -2432,6 +2789,10 @@ public class InputParser {
         return isOption(option, Config.OPT_REMINDER);
     }
 
+    public static boolean isDurationOption(String option) {
+        return isOption(option, Config.OPT_DUR);
+    }
+
     /**
      * Extract the string containing an argument to an option
      * @param i the index of the option in the extractedOptions
@@ -2530,14 +2891,14 @@ public class InputParser {
     }
 }
 
-	// End of segment: src\udo\logic\InputParser.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\InputParser.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\Logic.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\Logic.java
 	 */
 
 public class Logic {
@@ -2739,6 +3100,12 @@ public class Logic {
         gui.display(tasks);
     }
 
+    public void updateGuiFreeSlots(List<Task> slots) {
+        assert(gui != null);
+        //TODO: call gui to display free slots
+        gui.displayFreeSlots(slots);
+    }
+
     public void callGuiAlert(Task task) {
         assert(gui != null);
         gui.displayAlert(task);
@@ -2788,14 +3155,14 @@ public class Logic {
     }
 }
 
-	// End of segment: src\udo\logic\Logic.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\Logic.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\logic\TernarySearchTree.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\TernarySearchTree.java
 	 */
 
 public class TernarySearchTree {
@@ -3037,14 +3404,14 @@ public class TernarySearchTree {
 
 }
 
-	// End of segment: src\udo\logic\TernarySearchTree.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\logic\TernarySearchTree.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\storage\Task.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Task.java
 	 */
 
 	@Override
@@ -3131,14 +3498,14 @@ public class TernarySearchTree {
 	    return index.equals(task.index);
 	}
 
-	// End of segment: src\udo\storage\Task.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\storage\Task.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\testdriver\AutocompleteTest.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\AutocompleteTest.java
 	 */
 
 public class AutocompleteTest {
@@ -3285,19 +3652,19 @@ public class AutocompleteTest {
     }
 }
 
-	// End of segment: src\udo\testdriver\AutocompleteTest.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\AutocompleteTest.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\testdriver\IntegrationTest.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\IntegrationTest.java
 	 */
 
 public class IntegrationTest {
     public static final String REPORT_LINE_DIFF =
-            "line %d:\nexpected: %s\nactual: %s";
+            "line %d:\nexpected: %s\nactual  : %s";
     public static final String REPORT_EMPTY_LINE = "<<empty>>";
     public static final String TESTS_PATH = "res/tests/integration/";
 
@@ -3331,7 +3698,7 @@ public class IntegrationTest {
                                                      expectedStr,
                                                      REPORT_EMPTY_LINE));
                     isSimilar = false;
-                } else if (!expectedStr.equals(actualStr)) {
+                } else if (!expectedStr.equals(actualStr.trim())) {
                     System.out.println(String.format(REPORT_LINE_DIFF,
                                                      currentLine,
                                                      expectedStr,
@@ -3359,7 +3726,7 @@ public class IntegrationTest {
 
     private static void removeExistingTasks() {
         try {
-            (new RandomAccessFile("task.json", "rws")).setLength(0);
+            (new RandomAccessFile("tasks.json", "rws")).setLength(0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -3376,12 +3743,12 @@ public class IntegrationTest {
         Logic logic = Logic.getInstance();
         logic.setGui(new GuiStub());
 
-        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("go to school /deadline April 1, 3015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm /end April 1, 3015 4pm");
         logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
 
         printTestTitle(1);
-        if (isContentSimilar(TESTS_PATH + "expected1.txt", "task.json")) {
+        if (isContentSimilar(TESTS_PATH + "expected1.txt", "tasks.json")) {
             System.out.println("TEST1 PASSED");
         } else {
             System.out.println("TEST1 FAILED");
@@ -3394,13 +3761,13 @@ public class IntegrationTest {
         Logic logic = Logic.getInstance();
         logic.setGui(new GuiStub());
 
-        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("go to school /deadline April 1, 3015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm /end April 1, 3015 4pm");
         logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm or April 2, 2015 3pm or April 3, 2015 5pm");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm or April 2, 3015 3pm or April 3, 3015 5pm");
 
         printTestTitle(2);
-        if (isContentSimilar(TESTS_PATH + "expected2.txt", "task.json")) {
+        if (isContentSimilar(TESTS_PATH + "expected2.txt", "tasks.json")) {
             System.out.println("TEST2 PASSED");
         } else {
             System.out.println("TEST2 FAILED");
@@ -3413,15 +3780,15 @@ public class IntegrationTest {
         Logic logic = Logic.getInstance();
         logic.setGui(new GuiStub());
 
-        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("go to school /deadline April 1, 3015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm /end April 1, 3015 4pm");
         logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm or April 2, 2015 3pm or April 3, 2015 5pm");
-        logic.executeCommand("submit project report /deadline April 18, 2015 23:59pm /reminder April 13, 2015 1pm /important");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm or April 2, 3015 3pm or April 3, 3015 5pm");
+        logic.executeCommand("submit project report /deadline April 18, 3015 23:59pm /reminder April 13, 3015 1pm /important");
         logic.executeCommand("display");
 
         printTestTitle(3);
-        if (isContentSimilar(TESTS_PATH + "expected3.txt", "task.json")) {
+        if (isContentSimilar(TESTS_PATH + "expected3.txt", "tasks.json")) {
             System.out.println("TEST3 PASSED");
         } else {
             System.out.println("TEST3 FAILED");
@@ -3434,17 +3801,17 @@ public class IntegrationTest {
         Logic logic = Logic.getInstance();
         logic.setGui(new GuiStub());
 
-        logic.executeCommand("go to school /deadline April 1, 2015 1pm");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm /end April 1, 2015 4pm");
+        logic.executeCommand("go to school /deadline April 1, 3015 1pm");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm /end April 1, 3015 4pm");
         logic.executeCommand("add watch a movie /duration 2 hours 30 minutes");
-        logic.executeCommand("add group meeting /start April 1, 2015 2pm or April 2, 2015 3pm or April 3, 2015 5pm");
-        logic.executeCommand("submit project report /deadline April 18, 2015 23:59pm /reminder April 13, 2015 1pm /important");
+        logic.executeCommand("add group meeting /start April 1, 3015 2pm or April 2, 3015 3pm or April 3, 3015 5pm");
+        logic.executeCommand("submit project report /deadline April 18, 3015 23:59pm /reminder April 13, 3015 1pm /important");
         logic.executeCommand("undo");
-        logic.executeCommand("go to school /deadline April 10, 2015 2pm");
+        logic.executeCommand("go to school /deadline April 10, 3015 2pm");
         logic.executeCommand("undo");
 
         printTestTitle(4);
-        if (isContentSimilar(TESTS_PATH + "expected4.txt", "task.json")) {
+        if (isContentSimilar(TESTS_PATH + "expected4.txt", "tasks.json")) {
             System.out.println("TEST4 PASSED");
         } else {
             System.out.println("TEST4 FAILED");
@@ -3459,20 +3826,20 @@ public class IntegrationTest {
     }
 }
 
-	// End of segment: src\udo\testdriver\IntegrationTest.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\IntegrationTest.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\testdriver\LogicTest.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\LogicTest.java
 	 */
 
 public class LogicTest {
     private void removeExistingTasks() {
         try {
-            (new RandomAccessFile("task.json", "rws")).setLength(0);
+            (new RandomAccessFile("tasks.json", "rws")).setLength(0);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -3570,14 +3937,14 @@ public class LogicTest {
     }
 }
 
-	// End of segment: src\udo\testdriver\LogicTest.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\LogicTest.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\testdriver\ParserTest.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\ParserTest.java
 	 */
 
 public class ParserTest {
@@ -3626,14 +3993,14 @@ public class ParserTest {
 
 }
 
-	// End of segment: src\udo\testdriver\ParserTest.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\testdriver\ParserTest.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\util\Config.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Config.java
 	 */
 
 public class Config {
@@ -3704,22 +4071,30 @@ public class Config {
           OPT_START, OPT_END, OPT_REMINDER, OPT_FREE, OPT_DONE };
 }
 
-	// End of segment: src\udo\util\Config.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Config.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\util\Utility.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 	 */
 
 public class Utility {
 	private static final SimpleDateFormat fmt =
 	        new SimpleDateFormat("dd/MM/yyyy HH:mm");
+	private static final String timeFormat = "%sh%sm";
+
+	public static final long MILISECONDS_IN_MINUTE = 60 * 1000;
 
 	public static HashMap<Integer, Integer> indexMap = new HashMap<>();
 
+	/**
+	 * Convert a name of a command in string form to corresponding enum form
+	 * @param cmdName
+	 * @return corresponding CommandName enum for cmdName
+	 */
     public static Config.CommandName convertToCommandName(String cmdName) {
         cmdName = cmdName.toLowerCase();
 
@@ -3772,19 +4147,37 @@ public class Utility {
         end.set(GregorianCalendar.MINUTE, 59);
     }
 
+    public static String minutesToString(Integer minutes) {
+        assert(minutes != null);
+
+        int hours = minutes / 60;
+        minutes = minutes % 60;
+
+        return String.format(timeFormat, hours, minutes);
+    }
+
+    public static long findDiffMinutes(Calendar cal1, Calendar cal2) {
+        Date d1 = cal1.getTime();
+        Date d2 = cal2.getTime();
+
+        long diff = Math.abs(d1.getTime() - d2.getTime());
+
+        return diff / MILISECONDS_IN_MINUTE;
+    }
+
     /**
      * Convert a Gregorian calendar object to string representation
      * @param calendar
      * @return the string representation or empty string if calendar is null
      */
-	// End of segment: src\udo\util\Utility.java
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 
 
 
 
 
 	/**
-	 * origin: src\udo\util\Utility.java
+	 * origin: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 	 */
 
 	public static ArrayList<Task> deepCopy(List<Task> firstCopy) {
@@ -3794,8 +4187,8 @@ public class Utility {
 	    }
 	    return copy;
 	}
-	
-	// End of segment: src\udo\util\Utility.java
+
+	// End of segment: C:\users\sharmine\desktop\workspace\udo\src\udo\util\Utility.java
 
 
 
