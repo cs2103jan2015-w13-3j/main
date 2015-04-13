@@ -15,7 +15,8 @@ import udo.util.Config.CommandName;
 public class ModifyCommand extends Command {
     public static final String STATUS_MODIFIED =
             "Task: %s modified successfully";
-    private static final Logger log = Logger.getLogger(ModifyCommand.class.getName());
+    private static final Logger log = Logger.
+            getLogger(ModifyCommand.class.getName());
 
     public ModifyCommand() {
         super();
