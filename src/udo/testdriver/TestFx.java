@@ -5,6 +5,7 @@ import static org.loadui.testfx.controls.Commons.hasText;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
 import javafx.scene.Parent;
 import javafx.scene.input.KeyCode;
 
@@ -27,6 +28,7 @@ import udo.gui.Gui;
 public class TestFx {
 	private static GuiTest controller;
 	private static Gui ju;
+	 public static final String TESTS_PATH = "res/tests/gui/";
 
 	@BeforeClass
 	public static void setUpClass() {
@@ -202,7 +204,7 @@ public class TestFx {
 		verifyThat("#_status",
 				hasText("Displaying all tasks"));
 	}
-	
+
 	//Check if search works
 	@Test
 	public void test2_1() {
@@ -216,7 +218,7 @@ public class TestFx {
 		verifyThat("#_status",
 				hasText("Search results for: Emma Watson"));
 	}
-	
+
 	//Check if uncofirmed tasks work
 	@Test
 	public void test2_2() {
@@ -230,7 +232,7 @@ public class TestFx {
 		verifyThat("#_status",
 				hasText("Task: unconfirmed submit report added successfully"));
 	}
-	
+
 	//Check if confirm tasks work
 	@Test
 	public void test2_3() {
@@ -243,5 +245,51 @@ public class TestFx {
 
 		verifyThat("#_status",
 				hasText("Task unconfirmed submit report confirmed"));
+	}
+
+	//Check if cd works
+	@Test
+	public void test2_4() {
+		sleep();
+
+		controller.type("cd");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Tasks file is at: tasks.json"));
+	}
+
+
+	//Check if cd works
+	@Test
+	public void test2_5() {
+		sleep();
+
+		controller.type("cd ..");
+		controller.push(KeyCode.ENTER);	
+		controller.type("cd");
+		controller.push(KeyCode.ENTER);	
+
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Tasks file is at: ..\\"+"tasks.json"));
+	}
+	//Check if undo cd works
+	@Test
+	public void test2_6() {
+		sleep();
+
+		controller.type("undo");
+		controller.push(KeyCode.ENTER);	
+		controller.type("cd");
+		controller.push(KeyCode.ENTER);	
+		
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Tasks file is at: tasks.json"));
 	}
 }
