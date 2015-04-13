@@ -1,6 +1,8 @@
 package udo.gui;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -13,14 +15,16 @@ import javafx.scene.control.DialogPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.StageStyle;
-
 import udo.storage.Task;
 import udo.storage.Task.TaskType;
 
 //@author A0114906J
 public class ReminderDialog {
     
-    private static final String TITLE = "Reminders";
+    private static final Logger logger = 
+            Logger.getLogger(ReminderDialog.class.getName());
+    
+    private static final String _TITLE = "Reminders";
 
     private static final double _POS_X = 1050;
     private static final double _POS_Y = 10;
@@ -51,6 +55,8 @@ public class ReminderDialog {
      */
     
     public ReminderDialog(Task task) {
+        logger.setLevel(Level.INFO);
+        
         _alert = new Alert(AlertType.INFORMATION);
         _dialogPane = _alert.getDialogPane();
         
@@ -71,7 +77,7 @@ public class ReminderDialog {
     }
 
     private void setDisplay(Task task) {
-        _alert.setTitle(TITLE);
+        _alert.setTitle(_TITLE);
         setLayout();
         String[] taskInfo = getInformation(task);
         setContent(taskInfo);
@@ -80,11 +86,13 @@ public class ReminderDialog {
     private void setLayout() {
         _alert.setX(_POS_X);
         _alert.setY(_POS_Y);
+        
         _dialogPane.setMaxWidth(_POS_WIDTH);
     }
 
     private void setContent(String[] taskInfo) {
-        _textBox = completeMessage(taskInfo);       
+        _textBox = completeMessage(taskInfo);
+        
         _dialogPane.setStyle(GuiUtil.COLOUR_BACKGROUND);              
         _dialogPane.setContent(_textBox);       
     }
@@ -158,13 +166,11 @@ public class ReminderDialog {
     private void setNormalStyle(Text title) {
         title.setStyle(GuiUtil.STYLE_FONT + GuiUtil.STYLE_SIZE + 
                        GuiUtil.COLOUR_WHITE);
-        return;
     }
     
     private void setEmphasisedStyle(Text title) {
         title.setStyle(GuiUtil.STYLE_FONT + GuiUtil.STYLE_SIZE + 
                        GuiUtil.COLOUR_GREEN);
-        return;
     }
     
     /**
@@ -194,13 +200,14 @@ public class ReminderDialog {
         taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
         taskInfo[_INDEX_TITLE] = task.getContent();
         taskInfo[_INDEX_START] = GuiUtil.guiTimeFormat(task.getDeadline());
-        taskInfo[_INDEX_END] = GuiUtil.EMPTY_STRING;
+        taskInfo[_INDEX_END] = GuiUtil.STRING_EMPTY;
         
         return taskInfo;
     }
 
     private String[] getEventInformation(Task task) {
         String[] taskInfo = new String[_ARR_SIZE];
+        
         taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
         taskInfo[_INDEX_TITLE] = task.getContent();
         taskInfo[_INDEX_START] = GuiUtil.guiDateTimeFormat(task.getStart());
@@ -211,10 +218,11 @@ public class ReminderDialog {
 
     private String[] getTodoInformation(Task task) {
         String[] taskInfo = new String[_ARR_SIZE];
+        
         taskInfo[_INDEX_TASK_TYPE] = task.getTaskType().toString();
         taskInfo[_INDEX_TITLE] = task.getContent();
-        taskInfo[_INDEX_START] = GuiUtil.EMPTY_STRING;
-        taskInfo[_INDEX_END] = GuiUtil.EMPTY_STRING;
+        taskInfo[_INDEX_START] = GuiUtil.STRING_EMPTY;
+        taskInfo[_INDEX_END] = GuiUtil.STRING_EMPTY;
         
         return taskInfo;
     }
@@ -234,5 +242,6 @@ public class ReminderDialog {
     
     public void appear(){
         _alert.showAndWait();
+        logger.fine(String.format(GuiUtil.LOG_INITIATE, "ReminderDialog"));
     }
 }

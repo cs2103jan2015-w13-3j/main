@@ -1,8 +1,9 @@
 package udo.gui;
 
 import java.io.IOException;
-
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,8 +23,12 @@ import javafx.stage.Stage;
  */
 
 public class HelpManual {
-
+    
+    private static final Logger logger = Logger.getLogger(HelpManual.class
+                                               .getName());
+    
     private static final String _TITLE = "Help Manual";
+    
     private static final String _PATH_TO_MANUAL = "view/HelpManual.fxml";
     private static final String _PATH_TO_MANUAL_HTML = "view/HelpManual.html";
     
@@ -37,6 +42,8 @@ public class HelpManual {
 
     @FXML
     private void initialize() {
+        logger.setLevel(Level.INFO);
+        
         WebEngine webEngine = _web.getEngine();
         String url = HelpManual.class.getResource(_PATH_TO_MANUAL_HTML)
                                      .toExternalForm();
@@ -50,6 +57,7 @@ public class HelpManual {
         setStage(scene);
 
         _dialogStage.showAndWait();
+        logger.fine(String.format(GuiUtil.LOG_INITIATE, "HelpManual"));
     }
 
     private Scene setScene(String path) {
@@ -58,22 +66,16 @@ public class HelpManual {
         try {
             page = (AnchorPane) getPane(path);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe(e.toString());
         }
         
         return new Scene(page);
     }
 
     private AnchorPane getPane(String path) throws IOException {
-        FXMLLoader loader = getLoader(path);
-        return (AnchorPane) loader.load();
-    }
-
-    private FXMLLoader getLoader(String path) {
         URL url = HelpManual.class.getResource(path);
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(url);
-        return loader;
+        FXMLLoader loader = GuiUtil.getLoader(url);
+        return (AnchorPane) loader.load();
     }
 
     @FXML
@@ -92,6 +94,7 @@ public class HelpManual {
         _dialogStage.setTitle(_TITLE);
         _dialogStage.initModality(Modality.WINDOW_MODAL);
         _dialogStage.setScene(scene);
+        
         setStageLocation();
     }
 

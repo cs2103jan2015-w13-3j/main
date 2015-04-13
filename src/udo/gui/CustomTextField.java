@@ -24,9 +24,10 @@ public class CustomTextField {
     private HomeController _controller;
     
     public CustomTextField(TextField field, HomeController controller) {
+        logger.setLevel(Level.INFO);
+        
         _textField = field;
         _controller = controller;
-        logger.setLevel(Level.INFO);
     }
     
     public void setText(String str) {
@@ -46,7 +47,7 @@ public class CustomTextField {
         } else if (code.equals(KeyCode.BACK_SPACE)) {
             return removeLetter(input);
         } else {
-            return GuiUtil.EMPTY_STRING;
+            return GuiUtil.STRING_EMPTY;
         }
     }
     
@@ -64,7 +65,7 @@ public class CustomTextField {
         if(input.length() > 0) {
             return input.substring(0, input.length() - 1 );
         } else {
-            return GuiUtil.EMPTY_STRING;
+            return GuiUtil.STRING_EMPTY;
         }
     }
 
@@ -78,6 +79,7 @@ public class CustomTextField {
         if (_controller.getCommand(text) == true) {
             clear();
         }
+        logger.finest(text);
     }
 
     public void handleTabKey(KeyEvent event) {
@@ -86,6 +88,8 @@ public class CustomTextField {
         setText(completedStr);
         _textField.end();
         event.consume();
+        
+        logger.finest(completedStr);
     }
 
     public void handleDirectionKey(KeyEvent event, String direction) {
@@ -94,6 +98,8 @@ public class CustomTextField {
         setText(command);
         _textField.end();
         event.consume();
+        
+        logger.finest(command);
     }
 
     public void clear() {

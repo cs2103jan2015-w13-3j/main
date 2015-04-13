@@ -146,9 +146,9 @@ public class HomeController {
 
         // create 'content' column callback
         Callback<TableColumn<Task, String>, 
-                             TableCell<Task, String>> contentCallBack = 
-                             new Callback<TableColumn<Task, String>, 
-                             TableCell<Task, String>>() {
+                 TableCell<Task, String>> contentCallBack = 
+                 new Callback<TableColumn<Task, String>, 
+                              TableCell<Task, String>>() {
             
             @Override
             public TableCell<Task, String> call(TableColumn<Task, 
@@ -213,7 +213,7 @@ public class HomeController {
         assert (receivedString != null);
 
         if (receivedString == null) {
-            receivedString = GuiUtil.EMPTY_STRING;
+            receivedString = GuiUtil.STRING_EMPTY;
         } else if (GuiUtil.isWarning(receivedString)) {
             _statusString.setTextFill(GuiUtil.COLOUR_TEXT_WARNING);
         } else if (GuiUtil.isError(receivedString)) {
@@ -246,7 +246,6 @@ public class HomeController {
 
         String suggestedWords = getSuggestedWords(userInput);
         displayStatus(suggestedWords);
-
         logger.finer(suggestedWords.toString());
     }
 
@@ -290,7 +289,7 @@ public class HomeController {
         @Override
         protected void updateItem(String item, boolean empty) {
             super.updateItem(item, empty);
-            this.setText(GuiUtil.EMPTY_STRING);
+            this.setText(GuiUtil.STRING_EMPTY);
             formatCellIfNotEmpty(item, this);
             this.setText(item);
         }
