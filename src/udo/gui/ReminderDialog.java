@@ -27,8 +27,8 @@ public class ReminderDialog {
     
     private static final String _TITLE = "Reminders";
 
-    private static final double _POS_X = 1050;
-    private static final double _POS_Y = 10;
+    private static final double _POS_X = 2100;
+    private static final double _POS_Y = 610;
     private static final double _POS_WIDTH = 300;
         
     private static final int _ARR_SIZE = 4;
