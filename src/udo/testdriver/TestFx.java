@@ -18,6 +18,7 @@ import org.loadui.testfx.GuiTest;
 import org.loadui.testfx.utils.FXTestUtils;
 
 import udo.gui.Gui;
+import udo.storage.Storage;
 
 /**
  * This class test the GUI by automatically typing in commands
@@ -33,17 +34,20 @@ public class TestFx {
 
 	@BeforeClass
 	public static void setUpClass() {
+		
+		Storage st = new Storage();
+		st.chDir("tasks.json");
+		
 		removeExistingTasks();
+
 		FXTestUtils.launchApp(Gui.class);
-
-		sleep();
-
+		
 		controller = new GuiTest() {
 			@Override
 			protected Parent getRootNode() {
 				return ju.getPrimaryStage().getScene().getRoot();
 			}
-		};	
+		};
 	}
 
 	//This method provides a brief pause for tester's viewing
@@ -274,7 +278,7 @@ public class TestFx {
 		controller.push(KeyCode.ENTER);	
 
 		sleep();
-		
+
 		assertTrue(IntegrationTest.isContentSimilar("../tasks.json", "tasks.json"));
 		verifyThat("#_status",
 				hasText("Tasks file is at: ..\\"+"tasks.json"));
@@ -295,21 +299,21 @@ public class TestFx {
 				hasText("Tasks file is at: tasks.json"));
 	}
 	//A valid task is added
-		@Test
-		public void test2_7() {
-			sleep();
+	@Test
+	public void test2_7() {
+		sleep();
 
-			controller.type("New task");
-			controller.push(KeyCode.ENTER);	
+		controller.type("New task");
+		controller.push(KeyCode.ENTER);	
 
-			controller.type("Done 3");
-			controller.push(KeyCode.ENTER);
-			
-			sleep();
+		controller.type("Done 3");
+		controller.push(KeyCode.ENTER);
 
-			verifyThat("#_status",
-					hasText("Task New task is done"));
-		}
+		sleep();
+
+		verifyThat("#_status",
+				hasText("Task New task is done"));
+	}
 	//Check if final output files are the same as expected
 	@Test
 	public void test2_9() {
