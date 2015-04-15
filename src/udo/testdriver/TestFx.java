@@ -1,5 +1,6 @@
 package udo.testdriver;
 
+import static org.junit.Assert.assertTrue;
 import static org.loadui.testfx.Assertions.verifyThat;
 import static org.loadui.testfx.controls.Commons.hasText;
 
@@ -28,7 +29,7 @@ import udo.gui.Gui;
 public class TestFx {
 	private static GuiTest controller;
 	private static Gui ju;
-	 public static final String TESTS_PATH = "res/tests/gui/";
+	public static final String TESTS_PATH = "res/tests/gui/";
 
 	@BeforeClass
 	public static void setUpClass() {
@@ -277,7 +278,7 @@ public class TestFx {
 		verifyThat("#_status",
 				hasText("Tasks file is at: ..\\"+"tasks.json"));
 	}
-	
+
 	//Check if undo cd works
 	@Test
 	public void test2_6() {
@@ -287,10 +288,32 @@ public class TestFx {
 		controller.push(KeyCode.ENTER);	
 		controller.type("cd");
 		controller.push(KeyCode.ENTER);	
-		
-		sleep();
 
+		sleep();
 		verifyThat("#_status",
 				hasText("Tasks file is at: tasks.json"));
+	}
+	//A valid task is added
+		@Test
+		public void test2_7() {
+			sleep();
+
+			controller.type("New task");
+			controller.push(KeyCode.ENTER);	
+
+			controller.type("Done3");
+			controller.push(KeyCode.ENTER);
+			
+			sleep();
+
+			verifyThat("#_status",
+					hasText("Task New task is done"));
+		}
+	//Check if final output files are the same as expected
+	@Test
+	public void test2_9() {
+		sleep();
+		assertTrue(IntegrationTest.isContentSimilar("tasks.json", "res/tests/gui/tasks.json"));
+		assertTrue(IntegrationTest.isContentSimilar("../tasks.json", "res/tests/gui/tasks.json"));
 	}
 }
