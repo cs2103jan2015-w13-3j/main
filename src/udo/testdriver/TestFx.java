@@ -274,7 +274,8 @@ public class TestFx {
 		controller.push(KeyCode.ENTER);	
 
 		sleep();
-
+		
+		assertTrue(IntegrationTest.isContentSimilar("../tasks.json", "tasks.json"));
 		verifyThat("#_status",
 				hasText("Tasks file is at: ..\\"+"tasks.json"));
 	}
@@ -301,7 +302,7 @@ public class TestFx {
 			controller.type("New task");
 			controller.push(KeyCode.ENTER);	
 
-			controller.type("Done3");
+			controller.type("Done 3");
 			controller.push(KeyCode.ENTER);
 			
 			sleep();
@@ -313,7 +314,6 @@ public class TestFx {
 	@Test
 	public void test2_9() {
 		sleep();
-		assertTrue(IntegrationTest.isContentSimilar("tasks.json", "res/tests/gui/tasks.json"));
-		assertTrue(IntegrationTest.isContentSimilar("../tasks.json", "res/tests/gui/tasks.json"));
+		assertTrue(IntegrationTest.isContentSimilar("tasks.json", TESTS_PATH+"tasks.json"));
 	}
 }
