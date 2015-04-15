@@ -44,13 +44,13 @@ public class ParserTest {
     }
 
     private String ignoreOptions(Command cmd) {
-        String result = "Command: " + cmd.getCommandName().toString() + "\n";
+        String result = "Command: " + cmd.getCommandName().toString() + System.lineSeparator();
 
         if (cmd.getArgIndex() != null) {
-            result += "Index: " + cmd.getArgIndex() + "\n";
+            result += "Index: " + cmd.getArgIndex() + System.lineSeparator();
         }
         if (cmd.getArgStr() != null && !cmd.getArgStr().trim().equals("")) {
-            result += "Argument: " + cmd.getArgStr() + "\n";
+            result += "Argument: " + cmd.getArgStr() + System.lineSeparator();
         }
 
         return result.trim();
